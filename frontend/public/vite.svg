@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <circle cx="50" cy="50" r="45" fill="#0a0e17" stroke="#4f8cff" stroke-width="3"/>
+  <text x="50" y="40" text-anchor="middle" fill="#4f8cff" font-size="22" font-weight="bold" font-family="sans-serif">M</text>
+  <text x="50" y="65" text-anchor="middle" fill="#4f8cff" font-size="16" font-family="sans-serif">Agent</text>
+</svg>

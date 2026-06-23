@@ -1,0 +1,66 @@
+{
+  "question_id": "q_84416150",
+  "timestamp": "2026-06-23T19:47:18.671656",
+  "domain": "number_theory",
+  "final_answer": "The ordered triples (a,b,c) are: (2,3,6), (2,6,3), (3,2,6), (3,6,2), (6,2,3), (6,3,2), (2,4,4), (4,2,4), (4,4,2), (3,3,3).",
+  "reasoning_steps": [
+    {
+      "step_id": 1,
+      "description": "Assume without loss of generality that a ≤ b ≤ c to simplify finding base solutions.",
+      "formula": "\\frac{1}{a} + \\frac{1}{b} + \\frac{1}{c} = 1, \\quad a \\leq b \\leq c",
+      "result": null,
+      "method": "Symmetry assumption for ordered triples"
+    },
+    {
+      "step_id": 2,
+      "description": "Establish bounds for a using the inequality 3/a ≥ 1, giving a ≤ 3, and since 1/a < 1, we have a > 1.",
+      "formula": "\\frac{3}{a} \\geq \\frac{1}{a} + \\frac{1}{b} + \\frac{1}{c} = 1 \\Rightarrow a \\leq 3, \\quad a > 1",
+      "result": null,
+      "method": "Inequality bounding"
+    },
+    {
+      "step_id": 3,
+      "description": "For a = 2, solve 1/b + 1/c = 1/2 with b ≤ c to find (2,3,6) and (2,4,4). For a = 3, solve 1/b + 1/c = 2/3 to find (3,3,3).",
+      "formula": "a=2: \\frac{1}{b}+\\frac{1}{c}=\\frac{1}{2}; \\quad a=3: \\frac{1}{b}+\\frac{1}{c}=\\frac{2}{3}",
+      "result": null,
+      "method": "Case analysis and solving Diophantine equations"
+    },
+    {
+      "step_id": 4,
+      "description": "Generate all ordered triples by permuting the base solutions found under the assumption a ≤ b ≤ c.",
+      "formula": "Permutations of (2,3,6): 6; Permutations of (2,4,4): 3; Permutation of (3,3,3): 1",
+      "result": null,
+      "method": "Combinatorial permutation counting"
+    },
+    {
+      "step_id": 5,
+      "description": "Verify all 10 ordered triples satisfy the original equation.",
+      "formula": "\\frac{1}{a}+\\frac{1}{b}+\\frac{1}{c}=1 \\text{ verified for all solutions}",
+      "result": null,
+      "method": "Direct verification"
+    }
+  ],
+  "methods_used": [
+    "inequality bounding",
+    "case analysis",
+    "Diophantine equations",
+    "combinatorial permutation",
+    "direct verification"
+  ],
+  "verification": {
+    "is_correct": true,
+    "confidence": 1.0,
+    "check_method": "Verified the bounding logic for variable a (2 <= a <= 3), confirmed the case analysis for a=2 yields base solutions (2,3,6) and (2,4,4), confirmed the case analysis for a=3 yields base solution (3,3,3), verified the permutation counts for each base solution (6 for distinct elements, 3 for two same, 1 for all same) sum to 10, and confirmed all 10 ordered triples listed satisfy the original equation 1/a + 1/b + 1/c = 1.",
+    "error_details": "[无]"
+  },
+  "educational_hint": "When solving symmetric equations with integer constraints, first assume an ordering to find base solutions, then generate all permutations. Always verify your solutions!",
+  "computation_time_ms": 361559.88454818726,
+  "retry_count": 2,
+  "model_version": null,
+  "from_cache": false,
+  "cache_similarity": null,
+  "cache_matched_question": null,
+  "true_domain": null,
+  "ground_truth": null,
+  "answer_match": null
+}

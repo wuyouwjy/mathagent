@@ -1,0 +1,63 @@
+{
+  "question_id": "q_e552adc9",
+  "timestamp": "2026-06-22T23:10:59.323588",
+  "domain": "algebra",
+  "final_answer": "该方程有无穷多解，通解为 x_{21}=a, x_{22}=b, x_{23}=7-a-b (a,b 为任意实数)",
+  "reasoning_steps": [
+    {
+      "step_id": 1,
+      "description": "识别方程类型",
+      "formula": "x_{21}+x_{22}+x_{23}=7",
+      "result": null,
+      "method": "观察法"
+    },
+    {
+      "step_id": 2,
+      "description": "比较未知数与方程数",
+      "formula": "3 个未知数，1 个方程",
+      "result": null,
+      "method": "秩分析"
+    },
+    {
+      "step_id": 3,
+      "description": "引入自由变量",
+      "formula": "设 x_{21}=a, x_{22}=b",
+      "result": null,
+      "method": "参数设定"
+    },
+    {
+      "step_id": 4,
+      "description": "解出 x_{23}",
+      "formula": "x_{23}=7-a-b",
+      "result": null,
+      "method": "移项"
+    },
+    {
+      "step_id": 5,
+      "description": "总结通解",
+      "formula": "(a, b, 7-a-b)",
+      "result": null,
+      "method": "通解表示"
+    }
+  ],
+  "methods_used": [
+    "线性方程求解",
+    "自由参数法"
+  ],
+  "verification": {
+    "is_correct": true,
+    "confidence": 1.0,
+    "check_method": "验证了方程为单一线性方程，未知数 3 个，方程 1 个，自由度为 2。推理步骤逻辑严谨，无跳步。自由变量选取合理，通解代入原方程验证成立（a+b+(7-a-b)=7）。该方法适用于欠定线性方程组求解。",
+    "error_details": "[无]"
+  },
+  "educational_hint": "当未知数个数大于方程个数时，系统欠定，通常存在无穷多解，需用自由变量表示。",
+  "computation_time_ms": 125196.26712799072,
+  "retry_count": 0,
+  "model_version": null,
+  "from_cache": false,
+  "cache_similarity": null,
+  "cache_matched_question": null,
+  "true_domain": null,
+  "ground_truth": null,
+  "answer_match": null
+}

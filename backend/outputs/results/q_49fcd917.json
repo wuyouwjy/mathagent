@@ -1,0 +1,62 @@
+{
+  "question_id": "q_49fcd917",
+  "timestamp": "2026-06-23T19:28:36.248155",
+  "domain": "algebra",
+  "final_answer": "x = 2 或 x = 3",
+  "reasoning_steps": [
+    {
+      "step_id": 1,
+      "description": "确定二次方程的系数",
+      "formula": "$a=1, b=-5, c=6$",
+      "result": null,
+      "method": "观察法"
+    },
+    {
+      "step_id": 2,
+      "description": "寻找满足条件的两个数",
+      "formula": "$(-2) \\times (-3) = 6, (-2) + (-3) = -5$",
+      "result": null,
+      "method": "十字相乘法"
+    },
+    {
+      "step_id": 3,
+      "description": "将方程因式分解",
+      "formula": "$(x - 2)(x - 3) = 0$",
+      "result": null,
+      "method": "因式分解"
+    },
+    {
+      "step_id": 4,
+      "description": "令每个因式为零",
+      "formula": "$x - 2 = 0 \\text{ 或 } x - 3 = 0$",
+      "result": null,
+      "method": "零乘积性质"
+    },
+    {
+      "step_id": 5,
+      "description": "求解 x 的值",
+      "formula": "$x_1 = 2, x_2 = 3$",
+      "result": null,
+      "method": "解一元一次方程"
+    }
+  ],
+  "methods_used": [
+    "因式分解法"
+  ],
+  "verification": {
+    "is_correct": true,
+    "confidence": 1.0,
+    "check_method": "验证因式分解步骤：确认两数之积为常数项 6，之和为一次项系数 -5，即 -2 和 -3；验证展开式 (x-2)(x-3)=x^2-5x+6；代入根验证原方程成立。",
+    "error_details": "[无]"
+  },
+  "educational_hint": "对于形如 x^2 + bx + c = 0 的方程，寻找两个数使其积为 c 且和为 b 是常用的解法。",
+  "computation_time_ms": 180282.0222377777,
+  "retry_count": 0,
+  "model_version": null,
+  "from_cache": false,
+  "cache_similarity": null,
+  "cache_matched_question": null,
+  "true_domain": null,
+  "ground_truth": null,
+  "answer_match": null
+}

@@ -1,0 +1,732 @@
+{
+  "q_49fcd917": {
+    "id": "q_49fcd917",
+    "question_text": "求解二次方程 x^2 - 5x + 6 = 0",
+    "domain": "algebra",
+    "difficulty": "medium",
+    "status": "solved",
+    "tags": [],
+    "created_at": "2026-06-23 19:25:35",
+    "updated_at": "2026-06-23 19:28:36",
+    "final_answer": "x = 2 或 x = 3",
+    "reasoning_steps": [
+      {
+        "step_id": 1,
+        "description": "确定二次方程的系数",
+        "formula": "$a=1, b=-5, c=6$",
+        "result": null,
+        "method": "观察法"
+      },
+      {
+        "step_id": 2,
+        "description": "寻找满足条件的两个数",
+        "formula": "$(-2) \\times (-3) = 6, (-2) + (-3) = -5$",
+        "result": null,
+        "method": "十字相乘法"
+      },
+      {
+        "step_id": 3,
+        "description": "将方程因式分解",
+        "formula": "$(x - 2)(x - 3) = 0$",
+        "result": null,
+        "method": "因式分解"
+      },
+      {
+        "step_id": 4,
+        "description": "令每个因式为零",
+        "formula": "$x - 2 = 0 \\text{ 或 } x - 3 = 0$",
+        "result": null,
+        "method": "零乘积性质"
+      },
+      {
+        "step_id": 5,
+        "description": "求解 x 的值",
+        "formula": "$x_1 = 2, x_2 = 3$",
+        "result": null,
+        "method": "解一元一次方程"
+      }
+    ],
+    "methods_used": [
+      "因式分解法"
+    ],
+    "verification": {
+      "is_correct": true,
+      "confidence": 1.0,
+      "check_method": "验证因式分解步骤：确认两数之积为常数项 6，之和为一次项系数 -5，即 -2 和 -3；验证展开式 (x-2)(x-3)=x^2-5x+6；代入根验证原方程成立。",
+      "error_details": "[无]"
+    },
+    "educational_hint": "对于形如 x^2 + bx + c = 0 的方程，寻找两个数使其积为 c 且和为 b 是常用的解法。",
+    "computation_time_ms": 180282.0222377777,
+    "raw_output": {
+      "question_id": "q_49fcd917",
+      "timestamp": "2026-06-23T19:28:36.248155",
+      "domain": "algebra",
+      "final_answer": "x = 2 或 x = 3",
+      "reasoning_steps": [
+        {
+          "step_id": 1,
+          "description": "确定二次方程的系数",
+          "formula": "$a=1, b=-5, c=6$",
+          "result": null,
+          "method": "观察法"
+        },
+        {
+          "step_id": 2,
+          "description": "寻找满足条件的两个数",
+          "formula": "$(-2) \\times (-3) = 6, (-2) + (-3) = -5$",
+          "result": null,
+          "method": "十字相乘法"
+        },
+        {
+          "step_id": 3,
+          "description": "将方程因式分解",
+          "formula": "$(x - 2)(x - 3) = 0$",
+          "result": null,
+          "method": "因式分解"
+        },
+        {
+          "step_id": 4,
+          "description": "令每个因式为零",
+          "formula": "$x - 2 = 0 \\text{ 或 } x - 3 = 0$",
+          "result": null,
+          "method": "零乘积性质"
+        },
+        {
+          "step_id": 5,
+          "description": "求解 x 的值",
+          "formula": "$x_1 = 2, x_2 = 3$",
+          "result": null,
+          "method": "解一元一次方程"
+        }
+      ],
+      "methods_used": [
+        "因式分解法"
+      ],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "验证因式分解步骤：确认两数之积为常数项 6，之和为一次项系数 -5，即 -2 和 -3；验证展开式 (x-2)(x-3)=x^2-5x+6；代入根验证原方程成立。",
+        "error_details": "[无]"
+      },
+      "educational_hint": "对于形如 x^2 + bx + c = 0 的方程，寻找两个数使其积为 c 且和为 b 是常用的解法。",
+      "computation_time_ms": 180282.0222377777,
+      "retry_count": 0,
+      "model_version": null,
+      "from_cache": false,
+      "cache_similarity": null,
+      "cache_matched_question": null,
+      "true_domain": null,
+      "ground_truth": null,
+      "answer_match": null
+    }
+  },
+  "q_8036fd52": {
+    "id": "q_8036fd52",
+    "question_text": "设$\\\\mathbb{F}_{81}$为$81$元的有限域。$T=\\\\{\\\\alpha\\\\in\\\\mathbb{F}_{81}|\\\\mathbb{F}_{81}=\\\\mathbb{F}_3(\\\\alpha)\\\\}$。求$T$中元素的个数。",
+    "domain": "algebra",
+    "difficulty": "medium",
+    "status": "solved",
+    "tags": [],
+    "created_at": "2026-06-23 19:30:21",
+    "updated_at": "2026-06-23 19:30:21",
+    "final_answer": "72",
+    "reasoning_steps": [
+      {
+        "step_id": 1,
+        "description": "Identify the structure of the finite field. Since 81 = 3^4, we have F_81 = F_{3^4}, which is a degree 4 extension of F_3.",
+        "formula": "F_81 = F_{3^4}, [F_81 : F_3] = 4",
+        "result": null,
+        "method": "Finite field structure analysis"
+      },
+      {
+        "step_id": 2,
+        "description": "Understand the condition F_81 = F_3(α). This means α generates the entire field F_81 over F_3, so the minimal polynomial of α over F_3 must have degree 4.",
+        "formula": "deg(minimal polynomial of α) = 4",
+        "result": null,
+        "method": "Field generator characterization"
+      },
+      {
+        "step_id": 3,
+        "description": "Identify proper subfields of F_81 containing F_3. The subfields correspond to divisors of 4, so proper subfields are F_3 (degree 1) and F_9 = F_{3^2} (degree 2).",
+        "formula": "Subfields: F_3 ⊂ F_9 ⊂ F_81",
+        "result": null,
+        "method": "Subfield lattice of finite fields"
+      },
+      {
+        "step_id": 4,
+        "description": "Count elements in T. An element α ∈ F_81 satisfies F_3(α) = F_81 iff α ∉ F_9 (since F_9 contains all elements with minimal polynomial degree < 4).",
+        "formula": "|T| = |F_81| - |F_9| = 81 - 9",
+        "result": null,
+        "method": "Complementary counting"
+      },
+      {
+        "step_id": 5,
+        "description": "Calculate the final result. 81 - 9 = 72 elements in T.",
+        "formula": "|T| = 72",
+        "result": null,
+        "method": "Arithmetic computation"
+      }
+    ],
+    "methods_used": [
+      "Finite field structure",
+      "Field generator characterization",
+      "Subfield lattice",
+      "Complementary counting"
+    ],
+    "verification": {
+      "is_correct": true,
+      "confidence": 1.0,
+      "check_method": "Verified the subfield lattice of F_81 = F_3^4. Proper subfields containing F_3 correspond to divisors of 4 less than 4 (i.e., 1 and 2), which are F_3 and F_9. Since F_3 ⊂ F_9, the union of all proper subfields is F_9. The condition F_3(α) = F_81 is equivalent to α ∉ F_9. The calculation |F_81| - |F_9| = 81 - 9 = 72 is correct.",
+      "error_details": "[无]"
+    },
+    "educational_hint": "For F_{p^n}, the number of elements generating the whole field over F_p is p^n - p^d where d is the largest proper divisor of n. Here n=4, d=2, so 3^4 - 3^2 = 81 - 9 = 72.",
+    "computation_time_ms": null,
+    "raw_output": {
+      "final_answer": "72",
+      "domain": "algebra",
+      "reasoning_steps": [
+        {
+          "step_id": 1,
+          "description": "Identify the structure of the finite field. Since 81 = 3^4, we have F_81 = F_{3^4}, which is a degree 4 extension of F_3.",
+          "formula": "F_81 = F_{3^4}, [F_81 : F_3] = 4",
+          "result": null,
+          "method": "Finite field structure analysis"
+        },
+        {
+          "step_id": 2,
+          "description": "Understand the condition F_81 = F_3(α). This means α generates the entire field F_81 over F_3, so the minimal polynomial of α over F_3 must have degree 4.",
+          "formula": "deg(minimal polynomial of α) = 4",
+          "result": null,
+          "method": "Field generator characterization"
+        },
+        {
+          "step_id": 3,
+          "description": "Identify proper subfields of F_81 containing F_3. The subfields correspond to divisors of 4, so proper subfields are F_3 (degree 1) and F_9 = F_{3^2} (degree 2).",
+          "formula": "Subfields: F_3 ⊂ F_9 ⊂ F_81",
+          "result": null,
+          "method": "Subfield lattice of finite fields"
+        },
+        {
+          "step_id": 4,
+          "description": "Count elements in T. An element α ∈ F_81 satisfies F_3(α) = F_81 iff α ∉ F_9 (since F_9 contains all elements with minimal polynomial degree < 4).",
+          "formula": "|T| = |F_81| - |F_9| = 81 - 9",
+          "result": null,
+          "method": "Complementary counting"
+        },
+        {
+          "step_id": 5,
+          "description": "Calculate the final result. 81 - 9 = 72 elements in T.",
+          "formula": "|T| = 72",
+          "result": null,
+          "method": "Arithmetic computation"
+        }
+      ],
+      "methods_used": [
+        "Finite field structure",
+        "Field generator characterization",
+        "Subfield lattice",
+        "Complementary counting"
+      ],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "Verified the subfield lattice of F_81 = F_3^4. Proper subfields containing F_3 correspond to divisors of 4 less than 4 (i.e., 1 and 2), which are F_3 and F_9. Since F_3 ⊂ F_9, the union of all proper subfields is F_9. The condition F_3(α) = F_81 is equivalent to α ∉ F_9. The calculation |F_81| - |F_9| = 81 - 9 = 72 is correct.",
+        "error_details": "[无]"
+      },
+      "educational_hint": "For F_{p^n}, the number of elements generating the whole field over F_p is p^n - p^d where d is the largest proper divisor of n. Here n=4, d=2, so 3^4 - 3^2 = 81 - 9 = 72.",
+      "from_cache": true,
+      "question_id": "q_8036fd52",
+      "cache_similarity": 1.000000238418579,
+      "cache_matched_question": "设$\\\\mathbb{F}_{81}$为$81$元的有限域。$T=\\\\{\\\\alpha\\\\in\\\\mathbb{F}_{81}|\\\\mathbb{F}_{81}=\\\\mathbb{F}_3(\\\\alpha)\\\\}$。求$T$中元素的个数。"
+    }
+  },
+  "q_b3c4e4aa": {
+    "id": "q_b3c4e4aa",
+    "question_text": "设$\\\\mathbb{F}_{81}$为$81$元的有限域。$T=\\\\{\\\\alpha\\\\in\\\\mathbb{F}_{81}|\\\\mathbb{F}_{81}=\\\\mathbb{F}_3(\\\\alpha)\\\\}$。求$T$中元素的个数。",
+    "domain": "algebra",
+    "difficulty": "medium",
+    "status": "solved",
+    "tags": [],
+    "created_at": "2026-06-23 19:31:02",
+    "updated_at": "2026-06-23 19:31:02",
+    "final_answer": "72",
+    "reasoning_steps": [
+      {
+        "step_id": 1,
+        "description": "Identify the structure of the finite field. Since 81 = 3^4, we have F_81 = F_{3^4}, which is a degree 4 extension of F_3.",
+        "formula": "F_81 = F_{3^4}, [F_81 : F_3] = 4",
+        "result": null,
+        "method": "Finite field structure analysis"
+      },
+      {
+        "step_id": 2,
+        "description": "Understand the condition F_81 = F_3(α). This means α generates the entire field F_81 over F_3, so the minimal polynomial of α over F_3 must have degree 4.",
+        "formula": "deg(minimal polynomial of α) = 4",
+        "result": null,
+        "method": "Field generator characterization"
+      },
+      {
+        "step_id": 3,
+        "description": "Identify proper subfields of F_81 containing F_3. The subfields correspond to divisors of 4, so proper subfields are F_3 (degree 1) and F_9 = F_{3^2} (degree 2).",
+        "formula": "Subfields: F_3 ⊂ F_9 ⊂ F_81",
+        "result": null,
+        "method": "Subfield lattice of finite fields"
+      },
+      {
+        "step_id": 4,
+        "description": "Count elements in T. An element α ∈ F_81 satisfies F_3(α) = F_81 iff α ∉ F_9 (since F_9 contains all elements with minimal polynomial degree < 4).",
+        "formula": "|T| = |F_81| - |F_9| = 81 - 9",
+        "result": null,
+        "method": "Complementary counting"
+      },
+      {
+        "step_id": 5,
+        "description": "Calculate the final result. 81 - 9 = 72 elements in T.",
+        "formula": "|T| = 72",
+        "result": null,
+        "method": "Arithmetic computation"
+      }
+    ],
+    "methods_used": [
+      "Finite field structure",
+      "Field generator characterization",
+      "Subfield lattice",
+      "Complementary counting"
+    ],
+    "verification": {
+      "is_correct": true,
+      "confidence": 1.0,
+      "check_method": "Verified the subfield lattice of F_81 = F_3^4. Proper subfields containing F_3 correspond to divisors of 4 less than 4 (i.e., 1 and 2), which are F_3 and F_9. Since F_3 ⊂ F_9, the union of all proper subfields is F_9. The condition F_3(α) = F_81 is equivalent to α ∉ F_9. The calculation |F_81| - |F_9| = 81 - 9 = 72 is correct.",
+      "error_details": "[无]"
+    },
+    "educational_hint": "For F_{p^n}, the number of elements generating the whole field over F_p is p^n - p^d where d is the largest proper divisor of n. Here n=4, d=2, so 3^4 - 3^2 = 81 - 9 = 72.",
+    "computation_time_ms": null,
+    "raw_output": {
+      "final_answer": "72",
+      "domain": "algebra",
+      "reasoning_steps": [
+        {
+          "step_id": 1,
+          "description": "Identify the structure of the finite field. Since 81 = 3^4, we have F_81 = F_{3^4}, which is a degree 4 extension of F_3.",
+          "formula": "F_81 = F_{3^4}, [F_81 : F_3] = 4",
+          "result": null,
+          "method": "Finite field structure analysis"
+        },
+        {
+          "step_id": 2,
+          "description": "Understand the condition F_81 = F_3(α). This means α generates the entire field F_81 over F_3, so the minimal polynomial of α over F_3 must have degree 4.",
+          "formula": "deg(minimal polynomial of α) = 4",
+          "result": null,
+          "method": "Field generator characterization"
+        },
+        {
+          "step_id": 3,
+          "description": "Identify proper subfields of F_81 containing F_3. The subfields correspond to divisors of 4, so proper subfields are F_3 (degree 1) and F_9 = F_{3^2} (degree 2).",
+          "formula": "Subfields: F_3 ⊂ F_9 ⊂ F_81",
+          "result": null,
+          "method": "Subfield lattice of finite fields"
+        },
+        {
+          "step_id": 4,
+          "description": "Count elements in T. An element α ∈ F_81 satisfies F_3(α) = F_81 iff α ∉ F_9 (since F_9 contains all elements with minimal polynomial degree < 4).",
+          "formula": "|T| = |F_81| - |F_9| = 81 - 9",
+          "result": null,
+          "method": "Complementary counting"
+        },
+        {
+          "step_id": 5,
+          "description": "Calculate the final result. 81 - 9 = 72 elements in T.",
+          "formula": "|T| = 72",
+          "result": null,
+          "method": "Arithmetic computation"
+        }
+      ],
+      "methods_used": [
+        "Finite field structure",
+        "Field generator characterization",
+        "Subfield lattice",
+        "Complementary counting"
+      ],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "Verified the subfield lattice of F_81 = F_3^4. Proper subfields containing F_3 correspond to divisors of 4 less than 4 (i.e., 1 and 2), which are F_3 and F_9. Since F_3 ⊂ F_9, the union of all proper subfields is F_9. The condition F_3(α) = F_81 is equivalent to α ∉ F_9. The calculation |F_81| - |F_9| = 81 - 9 = 72 is correct.",
+        "error_details": "[无]"
+      },
+      "educational_hint": "For F_{p^n}, the number of elements generating the whole field over F_p is p^n - p^d where d is the largest proper divisor of n. Here n=4, d=2, so 3^4 - 3^2 = 81 - 9 = 72.",
+      "from_cache": true,
+      "question_id": "q_b3c4e4aa",
+      "cache_similarity": 1.000000238418579,
+      "cache_matched_question": "设$\\\\mathbb{F}_{81}$为$81$元的有限域。$T=\\\\{\\\\alpha\\\\in\\\\mathbb{F}_{81}|\\\\mathbb{F}_{81}=\\\\mathbb{F}_3(\\\\alpha)\\\\}$。求$T$中元素的个数。"
+    }
+  },
+  "q_229a7c3a": {
+    "id": "q_229a7c3a",
+    "question_text": "设$\\\\mathbb{F}_{81}$为$81$元的有限域。$T=\\\\{\\\\alpha\\\\in\\\\mathbb{F}_{81}|\\\\mathbb{F}_{81}=\\\\mathbb{F}_3(\\\\alpha)\\\\}$。求$T$中元素的个数。",
+    "domain": "algebra",
+    "difficulty": "medium",
+    "status": "solved",
+    "tags": [],
+    "created_at": "2026-06-23 19:32:36",
+    "updated_at": "2026-06-23 19:32:37",
+    "final_answer": "72",
+    "reasoning_steps": [
+      {
+        "step_id": 1,
+        "description": "Identify the structure of the finite field. Since 81 = 3^4, we have F_81 = F_{3^4}, which is a degree 4 extension of F_3.",
+        "formula": "F_81 = F_{3^4}, [F_81 : F_3] = 4",
+        "result": null,
+        "method": "Finite field structure analysis"
+      },
+      {
+        "step_id": 2,
+        "description": "Understand the condition F_81 = F_3(α). This means α generates the entire field F_81 over F_3, so the minimal polynomial of α over F_3 must have degree 4.",
+        "formula": "deg(minimal polynomial of α) = 4",
+        "result": null,
+        "method": "Field generator characterization"
+      },
+      {
+        "step_id": 3,
+        "description": "Identify proper subfields of F_81 containing F_3. The subfields correspond to divisors of 4, so proper subfields are F_3 (degree 1) and F_9 = F_{3^2} (degree 2).",
+        "formula": "Subfields: F_3 ⊂ F_9 ⊂ F_81",
+        "result": null,
+        "method": "Subfield lattice of finite fields"
+      },
+      {
+        "step_id": 4,
+        "description": "Count elements in T. An element α ∈ F_81 satisfies F_3(α) = F_81 iff α ∉ F_9 (since F_9 contains all elements with minimal polynomial degree < 4).",
+        "formula": "|T| = |F_81| - |F_9| = 81 - 9",
+        "result": null,
+        "method": "Complementary counting"
+      },
+      {
+        "step_id": 5,
+        "description": "Calculate the final result. 81 - 9 = 72 elements in T.",
+        "formula": "|T| = 72",
+        "result": null,
+        "method": "Arithmetic computation"
+      }
+    ],
+    "methods_used": [
+      "Finite field structure",
+      "Field generator characterization",
+      "Subfield lattice",
+      "Complementary counting"
+    ],
+    "verification": {
+      "is_correct": true,
+      "confidence": 1.0,
+      "check_method": "Verified the subfield lattice of F_81 = F_3^4. Proper subfields containing F_3 correspond to divisors of 4 less than 4 (i.e., 1 and 2), which are F_3 and F_9. Since F_3 ⊂ F_9, the union of all proper subfields is F_9. The condition F_3(α) = F_81 is equivalent to α ∉ F_9. The calculation |F_81| - |F_9| = 81 - 9 = 72 is correct.",
+      "error_details": "[无]"
+    },
+    "educational_hint": "For F_{p^n}, the number of elements generating the whole field over F_p is p^n - p^d where d is the largest proper divisor of n. Here n=4, d=2, so 3^4 - 3^2 = 81 - 9 = 72.",
+    "computation_time_ms": null,
+    "raw_output": {
+      "final_answer": "72",
+      "domain": "algebra",
+      "reasoning_steps": [
+        {
+          "step_id": 1,
+          "description": "Identify the structure of the finite field. Since 81 = 3^4, we have F_81 = F_{3^4}, which is a degree 4 extension of F_3.",
+          "formula": "F_81 = F_{3^4}, [F_81 : F_3] = 4",
+          "result": null,
+          "method": "Finite field structure analysis"
+        },
+        {
+          "step_id": 2,
+          "description": "Understand the condition F_81 = F_3(α). This means α generates the entire field F_81 over F_3, so the minimal polynomial of α over F_3 must have degree 4.",
+          "formula": "deg(minimal polynomial of α) = 4",
+          "result": null,
+          "method": "Field generator characterization"
+        },
+        {
+          "step_id": 3,
+          "description": "Identify proper subfields of F_81 containing F_3. The subfields correspond to divisors of 4, so proper subfields are F_3 (degree 1) and F_9 = F_{3^2} (degree 2).",
+          "formula": "Subfields: F_3 ⊂ F_9 ⊂ F_81",
+          "result": null,
+          "method": "Subfield lattice of finite fields"
+        },
+        {
+          "step_id": 4,
+          "description": "Count elements in T. An element α ∈ F_81 satisfies F_3(α) = F_81 iff α ∉ F_9 (since F_9 contains all elements with minimal polynomial degree < 4).",
+          "formula": "|T| = |F_81| - |F_9| = 81 - 9",
+          "result": null,
+          "method": "Complementary counting"
+        },
+        {
+          "step_id": 5,
+          "description": "Calculate the final result. 81 - 9 = 72 elements in T.",
+          "formula": "|T| = 72",
+          "result": null,
+          "method": "Arithmetic computation"
+        }
+      ],
+      "methods_used": [
+        "Finite field structure",
+        "Field generator characterization",
+        "Subfield lattice",
+        "Complementary counting"
+      ],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "Verified the subfield lattice of F_81 = F_3^4. Proper subfields containing F_3 correspond to divisors of 4 less than 4 (i.e., 1 and 2), which are F_3 and F_9. Since F_3 ⊂ F_9, the union of all proper subfields is F_9. The condition F_3(α) = F_81 is equivalent to α ∉ F_9. The calculation |F_81| - |F_9| = 81 - 9 = 72 is correct.",
+        "error_details": "[无]"
+      },
+      "educational_hint": "For F_{p^n}, the number of elements generating the whole field over F_p is p^n - p^d where d is the largest proper divisor of n. Here n=4, d=2, so 3^4 - 3^2 = 81 - 9 = 72.",
+      "from_cache": true,
+      "question_id": "q_229a7c3a",
+      "cache_similarity": 1.000000238418579,
+      "cache_matched_question": "设$\\\\mathbb{F}_{81}$为$81$元的有限域。$T=\\\\{\\\\alpha\\\\in\\\\mathbb{F}_{81}|\\\\mathbb{F}_{81}=\\\\mathbb{F}_3(\\\\alpha)\\\\}$。求$T$中元素的个数。"
+    }
+  },
+  "q_8bd0681c": {
+    "id": "q_8bd0681c",
+    "question_text": "设$\\\\mathbb{F}_{81}$为$81$元的有限域。$T=\\\\{\\\\alpha\\\\in\\\\mathbb{F}_{81}|\\\\mathbb{F}_{81}=\\\\mathbb{F}_3(\\\\alpha)\\\\}$。求$T$中元素的个数。",
+    "domain": "algebra",
+    "difficulty": "medium",
+    "status": "solved",
+    "tags": [],
+    "created_at": "2026-06-23 19:35:46",
+    "updated_at": "2026-06-23 19:35:46",
+    "final_answer": "72",
+    "reasoning_steps": [
+      {
+        "step_id": 1,
+        "description": "Identify the structure of the finite field. Since 81 = 3^4, we have F_81 = F_{3^4}, which is a degree 4 extension of F_3.",
+        "formula": "F_81 = F_{3^4}, [F_81 : F_3] = 4",
+        "result": null,
+        "method": "Finite field structure analysis"
+      },
+      {
+        "step_id": 2,
+        "description": "Understand the condition F_81 = F_3(α). This means α generates the entire field F_81 over F_3, so the minimal polynomial of α over F_3 must have degree 4.",
+        "formula": "deg(minimal polynomial of α) = 4",
+        "result": null,
+        "method": "Field generator characterization"
+      },
+      {
+        "step_id": 3,
+        "description": "Identify proper subfields of F_81 containing F_3. The subfields correspond to divisors of 4, so proper subfields are F_3 (degree 1) and F_9 = F_{3^2} (degree 2).",
+        "formula": "Subfields: F_3 ⊂ F_9 ⊂ F_81",
+        "result": null,
+        "method": "Subfield lattice of finite fields"
+      },
+      {
+        "step_id": 4,
+        "description": "Count elements in T. An element α ∈ F_81 satisfies F_3(α) = F_81 iff α ∉ F_9 (since F_9 contains all elements with minimal polynomial degree < 4).",
+        "formula": "|T| = |F_81| - |F_9| = 81 - 9",
+        "result": null,
+        "method": "Complementary counting"
+      },
+      {
+        "step_id": 5,
+        "description": "Calculate the final result. 81 - 9 = 72 elements in T.",
+        "formula": "|T| = 72",
+        "result": null,
+        "method": "Arithmetic computation"
+      }
+    ],
+    "methods_used": [
+      "Finite field structure",
+      "Field generator characterization",
+      "Subfield lattice",
+      "Complementary counting"
+    ],
+    "verification": {
+      "is_correct": true,
+      "confidence": 1.0,
+      "check_method": "Verified the subfield lattice of F_81 = F_3^4. Proper subfields containing F_3 correspond to divisors of 4 less than 4 (i.e., 1 and 2), which are F_3 and F_9. Since F_3 ⊂ F_9, the union of all proper subfields is F_9. The condition F_3(α) = F_81 is equivalent to α ∉ F_9. The calculation |F_81| - |F_9| = 81 - 9 = 72 is correct.",
+      "error_details": "[无]"
+    },
+    "educational_hint": "For F_{p^n}, the number of elements generating the whole field over F_p is p^n - p^d where d is the largest proper divisor of n. Here n=4, d=2, so 3^4 - 3^2 = 81 - 9 = 72.",
+    "computation_time_ms": null,
+    "raw_output": {
+      "final_answer": "72",
+      "domain": "algebra",
+      "reasoning_steps": [
+        {
+          "step_id": 1,
+          "description": "Identify the structure of the finite field. Since 81 = 3^4, we have F_81 = F_{3^4}, which is a degree 4 extension of F_3.",
+          "formula": "F_81 = F_{3^4}, [F_81 : F_3] = 4",
+          "result": null,
+          "method": "Finite field structure analysis"
+        },
+        {
+          "step_id": 2,
+          "description": "Understand the condition F_81 = F_3(α). This means α generates the entire field F_81 over F_3, so the minimal polynomial of α over F_3 must have degree 4.",
+          "formula": "deg(minimal polynomial of α) = 4",
+          "result": null,
+          "method": "Field generator characterization"
+        },
+        {
+          "step_id": 3,
+          "description": "Identify proper subfields of F_81 containing F_3. The subfields correspond to divisors of 4, so proper subfields are F_3 (degree 1) and F_9 = F_{3^2} (degree 2).",
+          "formula": "Subfields: F_3 ⊂ F_9 ⊂ F_81",
+          "result": null,
+          "method": "Subfield lattice of finite fields"
+        },
+        {
+          "step_id": 4,
+          "description": "Count elements in T. An element α ∈ F_81 satisfies F_3(α) = F_81 iff α ∉ F_9 (since F_9 contains all elements with minimal polynomial degree < 4).",
+          "formula": "|T| = |F_81| - |F_9| = 81 - 9",
+          "result": null,
+          "method": "Complementary counting"
+        },
+        {
+          "step_id": 5,
+          "description": "Calculate the final result. 81 - 9 = 72 elements in T.",
+          "formula": "|T| = 72",
+          "result": null,
+          "method": "Arithmetic computation"
+        }
+      ],
+      "methods_used": [
+        "Finite field structure",
+        "Field generator characterization",
+        "Subfield lattice",
+        "Complementary counting"
+      ],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "Verified the subfield lattice of F_81 = F_3^4. Proper subfields containing F_3 correspond to divisors of 4 less than 4 (i.e., 1 and 2), which are F_3 and F_9. Since F_3 ⊂ F_9, the union of all proper subfields is F_9. The condition F_3(α) = F_81 is equivalent to α ∉ F_9. The calculation |F_81| - |F_9| = 81 - 9 = 72 is correct.",
+        "error_details": "[无]"
+      },
+      "educational_hint": "For F_{p^n}, the number of elements generating the whole field over F_p is p^n - p^d where d is the largest proper divisor of n. Here n=4, d=2, so 3^4 - 3^2 = 81 - 9 = 72.",
+      "from_cache": true,
+      "question_id": "q_8bd0681c",
+      "cache_similarity": 1.000000238418579,
+      "cache_matched_question": "设$\\\\mathbb{F}_{81}$为$81$元的有限域。$T=\\\\{\\\\alpha\\\\in\\\\mathbb{F}_{81}|\\\\mathbb{F}_{81}=\\\\mathbb{F}_3(\\\\alpha)\\\\}$。求$T$中元素的个数。"
+    }
+  },
+  "q_84416150": {
+    "id": "q_84416150",
+    "question_text": "\\textbf{问题：}\n\n设正整数 $a,b,c$ 满足\n\n\\[\n\\frac{1}{a}+\\frac{1}{b}+\\frac{1}{c}=1.\n\\]\n\n求所有满足条件的有序三元组 $(a,b,c)$。",
+    "domain": "number_theory",
+    "difficulty": "medium",
+    "status": "solved",
+    "tags": [],
+    "created_at": "2026-06-23 19:41:17",
+    "updated_at": "2026-06-23 19:47:18",
+    "final_answer": "The ordered triples (a,b,c) are: (2,3,6), (2,6,3), (3,2,6), (3,6,2), (6,2,3), (6,3,2), (2,4,4), (4,2,4), (4,4,2), (3,3,3).",
+    "reasoning_steps": [
+      {
+        "step_id": 1,
+        "description": "Assume without loss of generality that a ≤ b ≤ c to simplify finding base solutions.",
+        "formula": "\\frac{1}{a} + \\frac{1}{b} + \\frac{1}{c} = 1, \\quad a \\leq b \\leq c",
+        "result": null,
+        "method": "Symmetry assumption for ordered triples"
+      },
+      {
+        "step_id": 2,
+        "description": "Establish bounds for a using the inequality 3/a ≥ 1, giving a ≤ 3, and since 1/a < 1, we have a > 1.",
+        "formula": "\\frac{3}{a} \\geq \\frac{1}{a} + \\frac{1}{b} + \\frac{1}{c} = 1 \\Rightarrow a \\leq 3, \\quad a > 1",
+        "result": null,
+        "method": "Inequality bounding"
+      },
+      {
+        "step_id": 3,
+        "description": "For a = 2, solve 1/b + 1/c = 1/2 with b ≤ c to find (2,3,6) and (2,4,4). For a = 3, solve 1/b + 1/c = 2/3 to find (3,3,3).",
+        "formula": "a=2: \\frac{1}{b}+\\frac{1}{c}=\\frac{1}{2}; \\quad a=3: \\frac{1}{b}+\\frac{1}{c}=\\frac{2}{3}",
+        "result": null,
+        "method": "Case analysis and solving Diophantine equations"
+      },
+      {
+        "step_id": 4,
+        "description": "Generate all ordered triples by permuting the base solutions found under the assumption a ≤ b ≤ c.",
+        "formula": "Permutations of (2,3,6): 6; Permutations of (2,4,4): 3; Permutation of (3,3,3): 1",
+        "result": null,
+        "method": "Combinatorial permutation counting"
+      },
+      {
+        "step_id": 5,
+        "description": "Verify all 10 ordered triples satisfy the original equation.",
+        "formula": "\\frac{1}{a}+\\frac{1}{b}+\\frac{1}{c}=1 \\text{ verified for all solutions}",
+        "result": null,
+        "method": "Direct verification"
+      }
+    ],
+    "methods_used": [
+      "inequality bounding",
+      "case analysis",
+      "Diophantine equations",
+      "combinatorial permutation",
+      "direct verification"
+    ],
+    "verification": {
+      "is_correct": true,
+      "confidence": 1.0,
+      "check_method": "Verified the bounding logic for variable a (2 <= a <= 3), confirmed the case analysis for a=2 yields base solutions (2,3,6) and (2,4,4), confirmed the case analysis for a=3 yields base solution (3,3,3), verified the permutation counts for each base solution (6 for distinct elements, 3 for two same, 1 for all same) sum to 10, and confirmed all 10 ordered triples listed satisfy the original equation 1/a + 1/b + 1/c = 1.",
+      "error_details": "[无]"
+    },
+    "educational_hint": "When solving symmetric equations with integer constraints, first assume an ordering to find base solutions, then generate all permutations. Always verify your solutions!",
+    "computation_time_ms": 361559.88454818726,
+    "raw_output": {
+      "question_id": "q_84416150",
+      "timestamp": "2026-06-23T19:47:18.671656",
+      "domain": "number_theory",
+      "final_answer": "The ordered triples (a,b,c) are: (2,3,6), (2,6,3), (3,2,6), (3,6,2), (6,2,3), (6,3,2), (2,4,4), (4,2,4), (4,4,2), (3,3,3).",
+      "reasoning_steps": [
+        {
+          "step_id": 1,
+          "description": "Assume without loss of generality that a ≤ b ≤ c to simplify finding base solutions.",
+          "formula": "\\frac{1}{a} + \\frac{1}{b} + \\frac{1}{c} = 1, \\quad a \\leq b \\leq c",
+          "result": null,
+          "method": "Symmetry assumption for ordered triples"
+        },
+        {
+          "step_id": 2,
+          "description": "Establish bounds for a using the inequality 3/a ≥ 1, giving a ≤ 3, and since 1/a < 1, we have a > 1.",
+          "formula": "\\frac{3}{a} \\geq \\frac{1}{a} + \\frac{1}{b} + \\frac{1}{c} = 1 \\Rightarrow a \\leq 3, \\quad a > 1",
+          "result": null,
+          "method": "Inequality bounding"
+        },
+        {
+          "step_id": 3,
+          "description": "For a = 2, solve 1/b + 1/c = 1/2 with b ≤ c to find (2,3,6) and (2,4,4). For a = 3, solve 1/b + 1/c = 2/3 to find (3,3,3).",
+          "formula": "a=2: \\frac{1}{b}+\\frac{1}{c}=\\frac{1}{2}; \\quad a=3: \\frac{1}{b}+\\frac{1}{c}=\\frac{2}{3}",
+          "result": null,
+          "method": "Case analysis and solving Diophantine equations"
+        },
+        {
+          "step_id": 4,
+          "description": "Generate all ordered triples by permuting the base solutions found under the assumption a ≤ b ≤ c.",
+          "formula": "Permutations of (2,3,6): 6; Permutations of (2,4,4): 3; Permutation of (3,3,3): 1",
+          "result": null,
+          "method": "Combinatorial permutation counting"
+        },
+        {
+          "step_id": 5,
+          "description": "Verify all 10 ordered triples satisfy the original equation.",
+          "formula": "\\frac{1}{a}+\\frac{1}{b}+\\frac{1}{c}=1 \\text{ verified for all solutions}",
+          "result": null,
+          "method": "Direct verification"
+        }
+      ],
+      "methods_used": [
+        "inequality bounding",
+        "case analysis",
+        "Diophantine equations",
+        "combinatorial permutation",
+        "direct verification"
+      ],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "Verified the bounding logic for variable a (2 <= a <= 3), confirmed the case analysis for a=2 yields base solutions (2,3,6) and (2,4,4), confirmed the case analysis for a=3 yields base solution (3,3,3), verified the permutation counts for each base solution (6 for distinct elements, 3 for two same, 1 for all same) sum to 10, and confirmed all 10 ordered triples listed satisfy the original equation 1/a + 1/b + 1/c = 1.",
+        "error_details": "[无]"
+      },
+      "educational_hint": "When solving symmetric equations with integer constraints, first assume an ordering to find base solutions, then generate all permutations. Always verify your solutions!",
+      "computation_time_ms": 361559.88454818726,
+      "retry_count": 2,
+      "model_version": null,
+      "from_cache": false,
+      "cache_similarity": null,
+      "cache_matched_question": null,
+      "true_domain": null,
+      "ground_truth": null,
+      "answer_match": null
+    }
+  }
+}

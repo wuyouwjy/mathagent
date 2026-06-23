@@ -1,0 +1,24 @@
+{
+  "question_id": "q_0be195ac",
+  "timestamp": "2026-06-22T22:16:25.917934",
+  "domain": "algebra",
+  "final_answer": "求解失败",
+  "reasoning_steps": [],
+  "methods_used": [],
+  "verification": {
+    "is_correct": false,
+    "confidence": 0.0,
+    "check_method": "solver_failed",
+    "error_details": "Error code: 401 - {'traceId': 'c61d97a4ef61', 'msgCode': 'A0211', 'msg': 'user token expired', 'data': None, 'success': False, 'total': 0}"
+  },
+  "educational_hint": "",
+  "computation_time_ms": 44687.525033950806,
+  "retry_count": 3,
+  "model_version": null,
+  "from_cache": false,
+  "cache_similarity": null,
+  "cache_matched_question": null,
+  "true_domain": null,
+  "ground_truth": null,
+  "answer_match": null
+}

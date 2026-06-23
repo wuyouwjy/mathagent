@@ -1,0 +1,44 @@
+[
+  {
+    "idx": 0,
+    "problem": "设$\\mathbb{F}_{81}$为$81$元的有限域。$T=\\{\\alpha\\in\\mathbb{F}_{81}|\\mathbb{F}_{81}=\\mathbb{F}_3(\\alpha)\\}$。求$T$中元素的个数。",
+    "answer": "72",
+    "subject": "抽象代数",
+    "source": "sample"
+  },
+  {
+    "idx": 1,
+    "problem": "求解方程 $x^2 - 5x + 6 = 0$",
+    "answer": "x=2, x=3",
+    "subject": "代数",
+    "source": "sample"
+  },
+  {
+    "idx": 2,
+    "problem": "计算极限 $\\lim_{x \\to 0} \\frac{\\sin x}{x}$",
+    "answer": "1",
+    "subject": "实分析",
+    "source": "sample"
+  },
+  {
+    "idx": 3,
+    "problem": "求解偏微分方程 $\\frac{\\partial u}{\\partial t} = \\frac{\\partial^2 u}{\\partial x^2}$, $u(0,t)=u(1,t)=0$, $u(x,0)=\\sin(\\pi x)$",
+    "answer": "u(x,t)=e^{-\\pi^2 t}\\sin(\\pi x)",
+    "subject": "偏微分方程",
+    "source": "sample"
+  },
+  {
+    "idx": 4,
+    "problem": "求函数 $f(x,y)=x^2+y^2$ 在约束 $x+y=1$ 下的最小值",
+    "answer": "1/2",
+    "subject": "最优化",
+    "source": "sample"
+  },
+  {
+    "idx": 5,
+    "problem": "使用留数定理计算围道积分 $\\oint_{|z|=2} \\frac{e^z}{z^2+1} dz$",
+    "answer": "2\\pi i \\cos(1)",
+    "subject": "复分析",
+    "source": "sample"
+  }
+]

@@ -1,0 +1,63 @@
+{
+  "question_id": "q_be88e627",
+  "timestamp": "2026-06-22T23:16:02.450360",
+  "domain": "algebra",
+  "final_answer": "x_{22} = 4 - x_{12} \\quad (\\text{无穷多解})",
+  "reasoning_steps": [
+    {
+      "step_id": 1,
+      "description": "识别给定的代数方程及其包含的变量。",
+      "formula": "x_{12} + x_{22} = 4",
+      "result": null,
+      "method": "方程识别"
+    },
+    {
+      "step_id": 2,
+      "description": "统计未知数的个数与独立方程的个数。",
+      "formula": "未知数：2 个，方程：1 个",
+      "result": null,
+      "method": "系统分析"
+    },
+    {
+      "step_id": 3,
+      "description": "判断方程组为欠定系统，存在自由变量。",
+      "formula": "自由度 = 2 - 1 = 1",
+      "result": null,
+      "method": "线性代数理论"
+    },
+    {
+      "step_id": 4,
+      "description": "通过移项将其中一个变量用另一个变量表示。",
+      "formula": "x_{22} = 4 - x_{12}",
+      "result": null,
+      "method": "代数变形"
+    },
+    {
+      "step_id": 5,
+      "description": "写出该方程的通解集合形式。",
+      "formula": "{(x_{12}, 4 - x_{12}) \\mid x_{12} \\in \\mathbb{R}}",
+      "result": null,
+      "method": "通解表示"
+    }
+  ],
+  "methods_used": [
+    "线性方程求解",
+    "欠定系统分析"
+  ],
+  "verification": {
+    "is_correct": true,
+    "confidence": 0.95,
+    "check_method": "验证了代数移项运算的准确性，确认了未知数个数（2）与独立方程个数（1）的关系，判定系统为欠定系统，并验证了最终表达式代入原方程成立。",
+    "error_details": "[无]"
+  },
+  "educational_hint": "单个线性方程包含两个未知数时，通常有无穷多组解。若要确定唯一解，需要额外的独立方程。",
+  "computation_time_ms": 145225.18062591553,
+  "retry_count": 0,
+  "model_version": null,
+  "from_cache": false,
+  "cache_similarity": null,
+  "cache_matched_question": null,
+  "true_domain": null,
+  "ground_truth": null,
+  "answer_match": null
+}

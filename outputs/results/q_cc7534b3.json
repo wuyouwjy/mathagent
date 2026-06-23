@@ -1,0 +1,63 @@
+{
+  "question_id": "q_cc7534b3",
+  "timestamp": "2026-06-22T23:18:13.526162",
+  "domain": "algebra",
+  "final_answer": "x_{13} = 6 - x_{23}",
+  "reasoning_steps": [
+    {
+      "step_id": 1,
+      "description": "观察给定方程",
+      "formula": "x_{13} + x_{23} = 6",
+      "result": null,
+      "method": "方程识别"
+    },
+    {
+      "step_id": 2,
+      "description": "分析变量数量",
+      "formula": "2 个未知数，1 个方程",
+      "result": null,
+      "method": "系统分析"
+    },
+    {
+      "step_id": 3,
+      "description": "判断解的情况",
+      "formula": "无穷多组解",
+      "result": null,
+      "method": "代数理论"
+    },
+    {
+      "step_id": 4,
+      "description": "移项求解 x_{13}",
+      "formula": "x_{13} = 6 - x_{23}",
+      "result": null,
+      "method": "变量隔离"
+    },
+    {
+      "step_id": 5,
+      "description": "写出通解表达式",
+      "formula": "x_{13} = 6 - x_{23}",
+      "result": null,
+      "method": "解的形式化"
+    }
+  ],
+  "methods_used": [
+    "线性方程求解",
+    "变量隔离"
+  ],
+  "verification": {
+    "is_correct": true,
+    "confidence": 1.0,
+    "check_method": "验证了代数移项运算的正确性，确认原方程代入解后成立，且针对单一方程两个未知数的情况，使用变量隔离法求通解是标准且适用的方法。",
+    "error_details": "[无]"
+  },
+  "educational_hint": "当方程个数少于未知数个数时，通常存在无穷多解，可用一个变量表示另一个变量。",
+  "computation_time_ms": 131083.10174942017,
+  "retry_count": 0,
+  "model_version": null,
+  "from_cache": false,
+  "cache_similarity": null,
+  "cache_matched_question": null,
+  "true_domain": null,
+  "ground_truth": null,
+  "answer_match": null
+}
