@@ -1,1 +1,0 @@
-invalid type: string "[{\"step_id\": 1, \"description\": \"观察输入字符串\", \"formula\": \"+4x_{21}+2x_{22}+3x_{23})\", \"result\": null, \"method\": \"文本识别\"}, {\"step_id\": 2, \"description\": \"识别代数项\", \"formula\": \"4x_{21}, 2x_{22}, 3x_{23}\", \"result\": null, \"method\": \"项分解\"}, {\"step_id\": 3, \"description\": \"提取系数\", \"formula\": \"4, 2, 3\", 

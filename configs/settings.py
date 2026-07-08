@@ -16,9 +16,9 @@ class InternS1Config:
     Intern-S1 兼容 OpenAI API 协议，可使用 openai 库调用
     """
     # --- API 连接 ---
-    api_base_url: str = "https://chat.intern-ai.org.cn/api/v1/"  # 书生大模型 API 地址（请替换为实际地址）
-    api_key: str = "sk-932WsG5ofD5948OMJittI4RndTTE7AV2SMkavNEdfW7sYfPB"
-    model_name: str = "intern-latest"                       # 书生大模型名称
+    api_base_url: str = os.environ.get("INTERN_API_BASE", "https://chat.intern-ai.org.cn/api/v1/")
+    api_key: str = os.environ.get("INTERN_API_KEY", "sk-OoOCMIh0NeMMY0h2kZvbHtokvdBEucb4VFgawNRUK0AJZrrv")
+    model_name: str = os.environ.get("INTERN_MODEL", "intern-s2-preview")
 
     # --- 请求参数 ---
     temperature: float = 0.1                            # 温度（数学推理建议低温度 0.0-0.3）
@@ -67,10 +67,29 @@ class WorkflowConfig:
 class PathsConfig:
     """路径配置"""
     project_root: str = field(default_factory=lambda: os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-    datasets_dir: str = "./datasets"                    # 数据集目录
+    datasets_dir: str = "./database/datasets"            # 数据集目录
     outputs_dir: str = "./outputs"                      # 输出结果目录
     logs_dir: str = "./outputs/logs"                    # 日志目录
     checkpoints_dir: str = "./outputs/checkpoints"      # LangGraph 检查点目录
+    problem_db_path: str = "./database/problem_db.json" # 问题数据库路径
+
+
+@dataclass
+class MCPConfig:
+    """MCP 服务器配置"""
+    enabled: bool = True                                # 是否启用 MCP
+    server_name: str = "Math-Agent-System"              # MCP 服务器名称
+    server_version: str = "1.0.0"                       # 服务器版本
+    mode: str = "stdio"                                 # 运行模式: stdio / interactive
+
+
+@dataclass
+class AgentConfig:
+    """Agent 智能体配置"""
+    classifier_rule_threshold: float = 0.9              # 规则分类置信度阈值（高于此值跳过LLM）
+    max_similar_problems: int = 3                       # 相似问题最大检索数
+    similarity_threshold: float = 0.7                   # 相似度阈值
+    enable_alternative_solver: bool = True              # 是否启用备选Solver推荐
 
 
 @dataclass
@@ -87,6 +106,8 @@ class SystemConfig:
     rag: RAGConfig = field(default_factory=RAGConfig)
     workflow: WorkflowConfig = field(default_factory=WorkflowConfig)
     paths: PathsConfig = field(default_factory=PathsConfig)
+    mcp: MCPConfig = field(default_factory=MCPConfig)
+    agent: AgentConfig = field(default_factory=AgentConfig)
 
     # --- 实验元数据 ---
     experiment_name: str = "math-agent-baseline"        # 实验名称

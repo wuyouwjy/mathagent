@@ -3,7 +3,7 @@
 # run.py — 系统主入口
 # 用法:
 #   python run.py --mode single --question "求解 x^2+3x-4=0"
-#   python run.py --mode batch --dataset ./datasets/questions.json
+#   python run.py --mode batch --dataset ./database/datasets/dev.jsonl
 #   python run.py --mode interactive
 #   python run.py --mode test
 # ============================================================
@@ -35,7 +35,7 @@ def main():
 
 示例:
   python run.py --mode single --question "求解偏微分方程 ∂u/∂t = ∂²u/∂x²"
-  python run.py --mode batch --dataset ./datasets/math_112.json
+  python run.py --mode batch --dataset ./database/datasets/dev.jsonl
   python run.py --mode interactive
   python run.py --mode test
         """
@@ -43,7 +43,7 @@ def main():
 
     parser.add_argument(
         "--mode", "-m",
-        choices=["single", "batch", "interactive", "test", "info"],
+        choices=["single", "batch", "interactive", "test", "info", "mcp"],
         default="info",
         help="运行模式 (default: info)"
     )
@@ -55,14 +55,14 @@ def main():
     parser.add_argument(
         "--dataset", "-d",
         type=str,
-        default="./datasets/questions.json",
-        help="批量评估：数据集路径 (default: ./datasets/questions.json)"
+        default="./database/datasets/dev.jsonl",
+        help="批量评估：数据集路径 (default: ./database/datasets/dev.jsonl)"
     )
     parser.add_argument(
         "--output", "-o",
         type=str,
-        default="./outputs",
-        help="输出目录 (default: ./outputs)"
+        default="./database/outputs",
+        help="输出目录 (default: ./database/outputs)"
     )
     parser.add_argument(
         "--verbose", "-v",
@@ -102,6 +102,8 @@ def main():
         run_tests(args)
     elif args.mode == "info":
         show_system_info(args)
+    elif args.mode == "mcp":
+        run_mcp_server(args)
 
 
 def run_single(args):
@@ -116,28 +118,32 @@ def run_single(args):
     logger.info(f"单题求解模式启动")
     logger.info(f"问题: {question[:100]}...")
 
-    from graph.workflow import MathAgentWorkflow
+    from user_agent import ReasoningAgent
 
-    workflow = MathAgentWorkflow(
-        enable_rag=not args.no_rag,
-        max_reflection_count=args.max_retries,
+    agent = ReasoningAgent()
+    result = agent.solve(
+        problem=question,
+        metadata={"idx": 0},
     )
 
-    result = workflow.solve(
-        question_text=question,
-        verbose=args.verbose,
-    )
-
-    # 打印结果
+    # 打印结果（比赛格式）
     print("\n" + "=" * 60)
     print("[Result] 求解结果")
     print("=" * 60)
-    print(f"题目ID:   {result.get('question_id', 'N/A')}")
-    print(f"领域:     {result.get('domain', 'N/A')}")
-    print(f"最终答案: {result.get('final_answer', 'N/A')}")
-    print(f"方法:     {result.get('methods_used', [])}")
-    print(f"验证通过: {result.get('verification', {}).get('is_correct', False)}")
-    print(f"置信度:   {result.get('verification', {}).get('confidence', 0):.4f}")
+    if result.get("error"):
+        print(f"状态:     error")
+        print(f"错误类型: {result['error']['type']}")
+        print(f"错误信息: {result['error']['message']}")
+    else:
+        print(f"最终答案: {result.get('final_response', 'N/A')}")
+        trace = result.get("trace", [])
+        if trace:
+            print(f"推理步骤: {len(trace)} 步")
+            for t in trace:
+                content = t.get("content", "")
+                if isinstance(content, dict):
+                    content = str(content)[:120]
+                print(f"  [{t['step']}] {str(content)[:120]}")
 
     # 保存结果
     output_path = os.path.join(args.output, "single_result.json")
@@ -153,7 +159,7 @@ def run_batch(args):
 
     if not os.path.exists(dataset_path):
         logger.error(f"数据集不存在: {dataset_path}")
-        logger.info("提示：请将112道题的JSON文件放到 datasets/ 目录下")
+        logger.info("提示：请将数据集JSONL文件放到 database/datasets/ 目录下")
         logger.info("创建示例数据集...")
         _create_sample_dataset(dataset_path)
 
@@ -184,14 +190,10 @@ def run_interactive(args):
     logger.info("输入 'quit' 或 'exit' 退出")
     logger.info("输入 'stats' 查看API用量统计")
 
-    from graph.workflow import MathAgentWorkflow
+    from user_agent import ReasoningAgent
     from tools.intern_client import get_intern_client
 
-    workflow = MathAgentWorkflow(
-        enable_rag=not args.no_rag,
-        max_reflection_count=args.max_retries,
-    )
-
+    agent = ReasoningAgent()
     client = get_intern_client()
 
     while True:
@@ -208,7 +210,7 @@ def run_interactive(args):
                 print(f"API 用量: {json.dumps(stats, indent=2)}")
                 continue
             if question.lower() == "cache":
-                from cache.problem_cache import get_cache
+                from rag.cache.problem_cache import get_cache
                 cache = get_cache()
                 cs = cache.get_stats()
                 print(f"缓存统计: 精确={cs['exact_cache_size']}, "
@@ -222,25 +224,27 @@ def run_interactive(args):
                         print(f"  [{e['domain']}] {e['question'][:60]}")
                 continue
             if question.lower() == "clearcache":
-                from cache.problem_cache import get_cache
+                from rag.cache.problem_cache import get_cache
                 get_cache().clear()
                 print("缓存已清空")
                 continue
 
-            result = workflow.solve(
-                question_text=question,
-                verbose=False,
+            result = agent.solve(
+                problem=question,
+                metadata={"idx": 0},
             )
 
-            # 简洁输出
-            from_cache = result.get("from_cache", False)
-            cache_tag = "[CACHE HIT]" if from_cache else "[SOLVED]"
-            print(f"\n{cache_tag} 领域: {result.get('domain', '?')}")
-            print(f"[Answer] 答案: {result.get('final_answer', '?')}")
-            verif = result.get("verification", {})
-            print(f"[Verify] 验证: {verif.get('is_correct', False)} (置信度: {verif.get('confidence', 0):.4f})")
-            if result.get("educational_hint"):
-                print(f"[Hint] 解释: {result['educational_hint'][:200]}")
+            # 比赛格式输出
+            if result.get("error"):
+                print(f"\n[ERROR] {result['error']['type']}: {result['error']['message']}")
+            else:
+                print(f"\n[Answer] {result.get('final_response', '?')}")
+                trace = result.get("trace", [])
+                for t in trace:
+                    content = t.get("content", "")
+                    if isinstance(content, dict):
+                        content = str(content)[:120]
+                    print(f"  [{t['step']}] {str(content)[:120]}")
 
         except KeyboardInterrupt:
             print("\n退出交互模式")
@@ -283,7 +287,7 @@ def show_system_info(args):
 
     # Solver 信息
     print(f"\n[Solvers] 已注册 Solver:")
-    from solvers.solver_registry import list_registered_solvers
+    from agents.solver_experts.solver_registry import list_registered_solvers
     for name, desc in list_registered_solvers().items():
         print(f"  - {name}: {desc}")
 
@@ -306,7 +310,7 @@ def show_system_info(args):
     print(f"\n{'='*60}")
     print(f"使用方法:")
     print(f"  python run.py --mode single --question \"你的数学问题\"")
-    print(f"  python run.py --mode batch --dataset ./datasets/questions.json")
+    print(f"  python run.py --mode batch --dataset ./database/datasets/dev.jsonl")
     print(f"  python run.py --mode interactive")
     print(f"  python run.py --mode test")
     print(f"{'='*60}\n")
@@ -348,6 +352,15 @@ def _create_sample_dataset(path: str):
         json.dump(sample_questions, f, ensure_ascii=False, indent=2)
 
     logger.info(f"示例数据集已创建: {path} (共 {len(sample_questions)} 题)")
+
+
+def run_mcp_server(args):
+    """启动 MCP 服务器"""
+    logger.info("启动 MCP 服务器...")
+    from mcp.server import run_mcp_server as _run_mcp
+
+    mode = getattr(args, 'mcp_mode', 'interactive')
+    _run_mcp(mode=mode)
 
 
 if __name__ == "__main__":

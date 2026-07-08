@@ -133,17 +133,17 @@ def retry_on_failure(
                     last_exception = e
                     # 认证错误不重试
                     if _is_non_retryable(e):
-                        logger.error(f"[Intern-S1] 认证失败，不重试: {e}")
+                        logger.error(f"[LLM] 认证失败，不重试: {e}")
                         raise
                     if attempt < max_retries:
                         delay = base_delay * (backoff_factor ** attempt)
                         logger.warning(
-                            f"[Intern-S1] 调用失败 (尝试 {attempt+1}/{max_retries+1}): {e}. "
+                            f"[LLM] 调用失败 (尝试 {attempt+1}/{max_retries+1}): {e}. "
                             f"{delay:.1f}秒后重试..."
                         )
                         time.sleep(delay)
                     else:
-                        logger.error(f"[Intern-S1] 已达最大重试次数 {max_retries}, 最终失败: {e}")
+                        logger.error(f"[LLM] 已达最大重试次数 {max_retries}, 最终失败: {e}")
             raise last_exception
 
         @wraps(func)
@@ -155,17 +155,17 @@ def retry_on_failure(
                 except retryable_exceptions as e:
                     last_exception = e
                     if _is_non_retryable(e):
-                        logger.error(f"[Intern-S1] 认证失败，不重试: {e}")
+                        logger.error(f"[LLM] 认证失败，不重试: {e}")
                         raise
                     if attempt < max_retries:
                         delay = base_delay * (backoff_factor ** attempt)
                         logger.warning(
-                            f"[Intern-S1] 异步调用失败 (尝试 {attempt+1}/{max_retries+1}): {e}. "
+                            f"[LLM] 异步调用失败 (尝试 {attempt+1}/{max_retries+1}): {e}. "
                             f"{delay:.1f}秒后重试..."
                         )
                         await asyncio.sleep(delay)
                     else:
-                        logger.error(f"[Intern-S1] 已达最大重试次数 {max_retries}, 最终失败: {e}")
+                        logger.error(f"[LLM] 已达最大重试次数 {max_retries}, 最终失败: {e}")
             raise last_exception
 
         if asyncio.iscoroutinefunction(func):
@@ -225,15 +225,17 @@ class InternS1Client:
         )
 
         # --- 初始化 OpenAI 兼容客户端 ---
+        # 如果 API key 为空（如平台模式），使用占位符，后续调用会报错
+        _key = self.api_key if self.api_key else "placeholder-no-key"
         self._sync_client = OpenAI(
-            api_key=self.api_key,
+            api_key=_key,
             base_url=self.base_url,
             timeout=self.timeout,
             max_retries=0,  # 我们自己管理重试
         )
 
         self._async_client = AsyncOpenAI(
-            api_key=self.api_key,
+            api_key=_key,
             base_url=self.base_url,
             timeout=self.timeout,
             max_retries=0,
@@ -245,7 +247,7 @@ class InternS1Client:
         self.total_calls = 0
 
         logger.info(
-            f"[Intern-S1] 客户端已初始化: model={self.model_name}, "
+            f"[LLM] 客户端已初始化: model={self.model_name}, "
             f"base_url={self.base_url}, temperature={self.temperature}"
         )
 
@@ -309,7 +311,7 @@ class InternS1Client:
 
         # --- 速率限制 ---
         with self.rate_limiter:
-            logger.debug(f"[Intern-S1] 发送请求, 消息数={len(full_messages)}")
+            logger.debug(f"[LLM] 发送请求, 消息数={len(full_messages)}")
 
             # --- 调用 API ---
             response: ChatCompletion = self._sync_client.chat.completions.create(
@@ -332,7 +334,7 @@ class InternS1Client:
             self.total_completion_tokens += usage.completion_tokens
 
         logger.debug(
-            f"[Intern-S1] 响应成功: "
+            f"[LLM] 响应成功: "
             f"tokens(prompt={usage.prompt_tokens if usage else 'N/A'}, "
             f"completion={usage.completion_tokens if usage else 'N/A'}), "
             f"finish_reason={choice.finish_reason}"
@@ -384,7 +386,7 @@ class InternS1Client:
 
         # --- 速率限制 ---
         async with self.rate_limiter:
-            logger.debug(f"[Intern-S1] 发送异步请求, 消息数={len(full_messages)}")
+            logger.debug(f"[LLM] 发送异步请求, 消息数={len(full_messages)}")
 
             response: ChatCompletion = await self._async_client.chat.completions.create(
                 model=self.model_name,
@@ -405,7 +407,7 @@ class InternS1Client:
             self.total_completion_tokens += usage.completion_tokens
 
         logger.debug(
-            f"[Intern-S1] 异步响应成功: "
+            f"[LLM] 异步响应成功: "
             f"tokens(prompt={usage.prompt_tokens if usage else 'N/A'}, "
             f"completion={usage.completion_tokens if usage else 'N/A'})"
         )
@@ -479,7 +481,7 @@ class InternS1Client:
         if parsed is None and response.get("finish_reason") == "length":
             retry_tokens = min(chat_kwargs.get("max_tokens", self.max_tokens) * 2, 65536)
             logger.warning(
-                f"[Intern-S1] 输出被截断( finish_reason=length )，"
+                f"[LLM] 输出被截断( finish_reason=length )，"
                 f"自动重试: max_tokens {chat_kwargs.get('max_tokens', self.max_tokens)} → {retry_tokens}"
             )
             chat_kwargs["max_tokens"] = retry_tokens
@@ -495,7 +497,7 @@ class InternS1Client:
             response["parsed_json"] = parsed
         else:
             logger.warning(
-                f"[Intern-S1] JSON 解析失败, "
+                f"[LLM] JSON 解析失败, "
                 f"finish_reason={response.get('finish_reason', '?')}, "
                 f"原始内容前200字符: {content[:200]}"
             )
@@ -615,7 +617,7 @@ class InternS1Client:
                 try:
                     return await self.achat(messages=messages, system_prompt=sys_prompt)
                 except Exception as e:
-                    logger.error(f"[Intern-S1] 批量调用 [{idx}] 失败: {e}")
+                    logger.error(f"[LLM] 批量调用 [{idx}] 失败: {e}")
                     return {
                         "content": "",
                         "role": "assistant",
@@ -632,7 +634,7 @@ class InternS1Client:
         ]
 
         logger.info(
-            f"[Intern-S1] 开始批量并发调用: "
+            f"[LLM] 开始批量并发调用: "
             f"总数={len(tasks)}, 最大并发={max_concurrency}"
         )
 
@@ -640,7 +642,7 @@ class InternS1Client:
 
         success_count = sum(1 for r in results if "error" not in r)
         logger.info(
-            f"[Intern-S1] 批量调用完成: "
+            f"[LLM] 批量调用完成: "
             f"成功={success_count}/{len(results)}, "
             f"总调用次数={self.total_calls}"
         )
@@ -677,7 +679,7 @@ class InternS1Client:
         """关闭客户端，释放连接"""
         self._sync_client.close()
         self._async_client.close()
-        logger.info("[Intern-S1] 客户端已关闭")
+        logger.info("[LLM] 客户端已关闭")
 
 
 # ============================================================
@@ -687,13 +689,22 @@ class InternS1Client:
 _global_client: Optional[InternS1Client] = None
 
 
-def get_intern_client() -> InternS1Client:
+def get_intern_client() -> "InternS1Client":
     """
-    获取全局 InternS1 客户端单例
+    获取全局 LLM 客户端
+
+    优先级：
+    1. 如果设置了平台适配器（比赛模式），返回适配器
+    2. 否则返回本地 InternS1Client
 
     返回:
-        InternS1Client: 全局客户端实例
+        InternS1Client 或 PlatformClientAdapter
     """
+    from tools.platform_adapter import get_platform_adapter
+    adapter = get_platform_adapter()
+    if adapter is not None:
+        return adapter
+
     global _global_client
     if _global_client is None:
         _global_client = InternS1Client()

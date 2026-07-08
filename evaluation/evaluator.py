@@ -29,7 +29,7 @@ class BatchEvaluator:
 
     用法:
         evaluator = BatchEvaluator()
-        results = evaluator.evaluate_dataset("datasets/questions.json")
+        results = evaluator.evaluate_dataset("database/datasets/dev.jsonl")
     """
 
     def __init__(self, config: Optional[EvaluationConfig] = None):
@@ -390,74 +390,11 @@ class BatchEvaluator:
 # 答案模糊匹配
 # ============================================================
 
-import re
-
-
-def _fuzzy_match(predicted: str, ground_truth: str) -> bool:
-    r"""
-    模糊比较预测答案与标准答案
-
-    处理:
-    - LaTeX 格式去除 ($...$, \\sin->sin, \\text{...})
-    - 空白归一化
-    - 分隔符统一 (或/,/; -> ,)
-    - 数值等价 (0.5 = 1/2, 2 = 2.0)
-
-    参数:
-        predicted: 模型预测答案
-        ground_truth: 标准答案
-
-    返回:
-        bool: 是否匹配
-    """
-    if not predicted or not ground_truth:
-        return False
-
-    def normalize(s: str) -> str:
-        s = s.strip().lower()
-        # 1. 去 LaTeX 环境：$...$, $$...$$, \(...\), \[...\]
-        s = re.sub(r'\$+', '', s)
-        s = re.sub(r'\\[\(\[]|\\[\)\]]', '', s)
-        # 2. 去 \text{...} 只留内容
-        s = re.sub(r'\\text\s*\{([^}]*)\}', r'\1', s)
-        # 3. LaTeX 命令去反斜杠留名字：\sin→sin, \pi→pi, \frac→frac
-        s = re.sub(r'\\([a-zA-Z]+)', r'\1', s)
-        # 4. 去所有剩余反斜杠和花括号
-        s = re.sub(r'[\\{}]', '', s)
-        # 5. 统一分隔符（中文/英文）
-        s = re.sub(r'[,;，；或]', ',', s)
-        # 6. 压缩空白
-        s = re.sub(r'\s+', '', s)
-        return s
-
-    pred_norm = normalize(predicted)
-    gt_norm = normalize(ground_truth)
-
-    # 1) 精确匹配
-    if pred_norm == gt_norm:
-        return True
-
-    # 2) 包含匹配
-    if gt_norm in pred_norm or pred_norm in gt_norm:
-        return True
-
-    # 3) 数值等价匹配 (0.5 vs 1/2)
-    if _numeric_equivalent(pred_norm, gt_norm):
-        return True
-
-    return False
-
-
-def _numeric_equivalent(a: str, b: str) -> bool:
-    """
-    判断两个字符串是否代表相同数值
-
-    例如: '0.5' == '1/2', '2' == '2.0', '72' == '72'
-    """
-    import sympy as sp
-    try:
-        val_a = sp.nsimplify(a)
-        val_b = sp.nsimplify(b)
-        return bool(val_a == val_b)
-    except Exception:
-        return False
+# ============================================================
+# 答案模糊匹配（委托给共享模块 utils/math_match.py）
+# ============================================================
+import sys, os
+_proj = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if _proj not in sys.path:
+    sys.path.insert(0, _proj)
+from utils.math_match import fuzzy_match as _fuzzy_match

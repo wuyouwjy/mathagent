@@ -40,40 +40,28 @@ class MathDomain(str, Enum):
 
 
 # ============================================================
-# 领域 → Solver 路由映射表
-# 将18个领域映射到6个核心 Solver Agent
+# 领域 → Solver 路由映射表 — 18个领域 1:1 对应18个Solver专家
 # ============================================================
 
 DOMAIN_TO_SOLVER: Dict[MathDomain, str] = {
-    # PDE Solver
     MathDomain.PARTIAL_DIFFERENTIAL_EQUATIONS:  "pde_solver",
-    MathDomain.MATHEMATICAL_PHYSICS:            "pde_solver",
-
-    # ODE Solver
     MathDomain.ORDINARY_DIFFERENTIAL_EQUATIONS: "ode_solver",
-    MathDomain.CALCULUS_OF_VARIATIONS:          "ode_solver",
-    MathDomain.FUNCTIONAL_ANALYSIS:             "ode_solver",
-
-    # Complex Analysis Solver
     MathDomain.COMPLEX_ANALYSIS:                "complex_analysis_solver",
-
-    # Topology Solver（含几何类）
-    MathDomain.TOPOLOGY:                        "topology_solver",
-    MathDomain.DIFFERENTIAL_GEOMETRY:           "topology_solver",
-    MathDomain.ALGEBRAIC_GEOMETRY:              "topology_solver",
-
-    # Optimization Solver（含应用数学类）
-    MathDomain.OPTIMIZATION:                    "optimization_solver",
-    MathDomain.PROBABILITY:                     "optimization_solver",
-    MathDomain.STATISTICS:                      "optimization_solver",
-    MathDomain.NUMERICAL_ANALYSIS:              "optimization_solver",
-    MathDomain.COMBINATORICS:                   "optimization_solver",
-
-    # Algebra Solver（含代数结构类）
+    MathDomain.REAL_ANALYSIS:                   "real_analysis_solver",
+    MathDomain.FUNCTIONAL_ANALYSIS:             "functional_analysis_solver",
+    MathDomain.CALCULUS_OF_VARIATIONS:          "calculus_of_variations_solver",
     MathDomain.ALGEBRA:                         "algebra_solver",
-    MathDomain.NUMBER_THEORY:                   "algebra_solver",
-    MathDomain.GROUP_THEORY:                    "algebra_solver",
-    MathDomain.REAL_ANALYSIS:                   "algebra_solver",
+    MathDomain.NUMBER_THEORY:                   "number_theory_solver",
+    MathDomain.GROUP_THEORY:                    "group_theory_solver",
+    MathDomain.TOPOLOGY:                        "topology_solver",
+    MathDomain.DIFFERENTIAL_GEOMETRY:           "differential_geometry_solver",
+    MathDomain.ALGEBRAIC_GEOMETRY:              "algebraic_geometry_solver",
+    MathDomain.OPTIMIZATION:                    "optimization_solver",
+    MathDomain.PROBABILITY:                     "probability_solver",
+    MathDomain.STATISTICS:                      "statistics_solver",
+    MathDomain.NUMERICAL_ANALYSIS:              "numerical_analysis_solver",
+    MathDomain.COMBINATORICS:                   "combinatorics_solver",
+    MathDomain.MATHEMATICAL_PHYSICS:            "mathematical_physics_solver",
 }
 
 
@@ -108,12 +96,24 @@ DOMAIN_CN_NAME: Dict[MathDomain, str] = {
 # ============================================================
 
 SOLVER_PRIORITY: Dict[str, int] = {
-    "pde_solver":               1,
-    "ode_solver":               2,
-    "complex_analysis_solver":  3,
-    "topology_solver":          4,
-    "optimization_solver":      5,
-    "algebra_solver":           6,
+    "pde_solver":                     1,
+    "ode_solver":                     2,
+    "complex_analysis_solver":        3,
+    "real_analysis_solver":           4,
+    "functional_analysis_solver":     5,
+    "calculus_of_variations_solver":  6,
+    "algebra_solver":                 7,
+    "number_theory_solver":           8,
+    "group_theory_solver":            9,
+    "topology_solver":                10,
+    "differential_geometry_solver":   11,
+    "algebraic_geometry_solver":      12,
+    "optimization_solver":            13,
+    "probability_solver":             14,
+    "statistics_solver":              15,
+    "numerical_analysis_solver":      16,
+    "combinatorics_solver":           17,
+    "mathematical_physics_solver":    18,
 }
 
 

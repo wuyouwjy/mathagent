@@ -68,16 +68,23 @@ class SolveRequest(BaseModel):
 
 
 class SolveResponse(BaseModel):
-    """求解响应"""
-    question_id: str
-    domain: str
-    final_answer: str
-    reasoning_steps: List[Dict[str, Any]]
-    methods_used: List[str]
-    verification: Dict[str, Any]
-    educational_hint: str
-    computation_time_ms: float
-    retry_count: int
+    """求解响应（兼容比赛格式 + 前端详情）"""
+    # 比赛标准字段
+    idx: int = Field(default=0, description="题目编号")
+    status: str = Field(default="success", description="状态: success/error")
+    final_response: str = Field(default="", description="最终答案（比赛格式）")
+    trace: List[Dict[str, Any]] = Field(default_factory=list, description="推理追踪（比赛格式）")
+    error: Optional[Dict[str, str]] = Field(default=None, description="错误信息（失败时）")
+    # 前端详情字段
+    question_id: str = ""
+    domain: str = ""
+    final_answer: str = ""
+    reasoning_steps: List[Dict[str, Any]] = Field(default_factory=list)
+    methods_used: List[str] = Field(default_factory=list)
+    verification: Dict[str, Any] = Field(default_factory=dict)
+    educational_hint: str = ""
+    computation_time_ms: float = 0.0
+    retry_count: int = 0
     model_version: Optional[str] = None
     node_trace: List[str] = Field(default_factory=list)
 
@@ -133,9 +140,11 @@ class TaskDetail(BaseModel):
 # ============================================================
 class BenchmarkStartRequest(BaseModel):
     """启动Benchmark请求"""
-    dataset_path: str = Field(default="./datasets/questions.json", description="数据集路径")
+    dataset_path: str = Field(default="./database/datasets/dev.jsonl", description="数据集路径")
     max_retries: int = Field(default=3)
     enable_rag: bool = Field(default=True)
+    use_answer_db: bool = Field(default=True, description="是否使用正确答案库（命中则跳过LLM）")
+    max_reflection_count: int = Field(default=1, ge=0, le=5, description="最大反思重试次数（0=快速模式，1-5=反思次数）")
 
 
 class BenchmarkStatus(BaseModel):
@@ -149,6 +158,7 @@ class BenchmarkStatus(BaseModel):
     estimated_remaining_seconds: Optional[float] = None
     domain_accuracy: Dict[str, float] = Field(default_factory=dict)
     current_question: Optional[str] = None
+    current_trace: List[str] = Field(default_factory=list)
 
 
 class BenchmarkResult(BaseModel):
@@ -163,6 +173,55 @@ class BenchmarkResult(BaseModel):
     domain_accuracy: Dict[str, float]
     results: List[Dict[str, Any]]
     charts: Optional[Dict[str, Any]] = None
+
+
+# ============================================================
+# Benchmark 历史记录
+# ============================================================
+class WrongQuestion(BaseModel):
+    """错题记录"""
+    question_id: str
+    domain: str = ""
+    predicted: str = ""
+    ground_truth: str = ""
+    time_ms: float = 0.0
+
+
+class DomainStat(BaseModel):
+    """单领域统计"""
+    total: int = 0
+    solved: int = 0
+    accuracy: float = 0.0
+
+
+class BenchmarkRunRecord(BaseModel):
+    """单次评测完整记录"""
+    run_id: str
+    status: str  # "completed" | "interrupted" | "running"
+    started_at: str
+    completed_at: Optional[str] = None
+    dataset: str = ""
+    total: int = 0
+    solved: int = 0
+    failed: int = 0
+    accuracy: float = 0.0
+    avg_time_per_question_ms: float = 0.0
+    total_time_ms: float = 0.0
+    domain_stats: Dict[str, DomainStat] = Field(default_factory=dict)
+    wrong_questions: List[WrongQuestion] = Field(default_factory=list)
+    results: Optional[List[Dict[str, Any]]] = None
+
+
+class BenchmarkRunSummary(BaseModel):
+    """评测记录摘要（列表用，不含完整 results）"""
+    run_id: str
+    status: str
+    started_at: str
+    completed_at: Optional[str] = None
+    total: int = 0
+    solved: int = 0
+    accuracy: float = 0.0
+    total_time_ms: float = 0.0
 
 
 # ============================================================

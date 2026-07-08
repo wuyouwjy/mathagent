@@ -218,18 +218,19 @@ class TestFullSystemIntegration:
             "graph.nodes",
             "graph.graph_builder",
             "graph.workflow",
-            "solvers.base_solver",
-            "solvers.pde_solver",
-            "solvers.ode_solver",
-            "solvers.complex_analysis_solver",
-            "solvers.topology_solver",
-            "solvers.optimization_solver",
-            "solvers.algebra_solver",
-            "solvers.solver_registry",
+            "agents.solver_experts.base_solver",
+            "agents.solver_experts.pde_solver",
+            "agents.solver_experts.ode_solver",
+            "agents.solver_experts.complex_analysis_solver",
+            "agents.solver_experts.topology_solver",
+            "agents.solver_experts.optimization_solver",
+            "agents.solver_experts.algebra_solver",
+            "agents.solver_experts.solver_registry",
             "rag.retriever",
             "rag.theorem_db",
             "rag.formula_db",
             "rag.example_db",
+            "rag.cache.problem_cache",
             "evaluation.evaluator",
         ]
 
@@ -244,7 +245,7 @@ class TestFullSystemIntegration:
         # 验证从状态创建到图执行的完整链路
         from schemas.workflow_state import create_initial_state
         from graph.graph_builder import build_math_agent_graph
-        from solvers.solver_registry import create_solver
+        from agents.solver_experts.solver_registry import create_solver
 
         # 1. 创建初始状态
         state = create_initial_state("test_q", "Solve x^2 = 4")
@@ -264,14 +265,12 @@ class TestFullSystemIntegration:
         assert callable(classifier_node)
 
     def test_dataset_directory_exists(self):
-        """测试 datasets 目录存在或可创建"""
+        """测试 database/datasets 目录存在"""
         datasets_dir = os.path.join(
             os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-            "datasets"
+            "database", "datasets"
         )
-        if not os.path.exists(datasets_dir):
-            os.makedirs(datasets_dir, exist_ok=True)
-        assert os.path.isdir(datasets_dir)
+        assert os.path.isdir(datasets_dir), f"数据集目录不存在: {datasets_dir}"
 
 
 if __name__ == "__main__":
