@@ -1,0 +1,64 @@
+{
+  "question_id": "21",
+  "timestamp": "2026-07-08T00:11:26.113087",
+  "domain": "number_theory",
+  "final_answer": "53",
+  "reasoning_steps": [
+    {
+      "step_id": 1,
+      "description": "分解模数 91 为互质因子",
+      "formula": "91 = 7 \\times 13",
+      "result": null,
+      "method": null
+    },
+    {
+      "step_id": 2,
+      "description": "计算底数 1234 对因子的同余值",
+      "formula": "1234 \\equiv 2 \\pmod 7, \\quad 1234 \\equiv -1 \\pmod{13}",
+      "result": null,
+      "method": null
+    },
+    {
+      "step_id": 3,
+      "description": "利用费马小定理计算模 7 的幂",
+      "formula": "2^{5678} \\equiv 2^{5678 \\bmod 6} \\equiv 2^2 \\equiv 4 \\pmod 7",
+      "result": null,
+      "method": null
+    },
+    {
+      "step_id": 4,
+      "description": "计算模 13 的幂",
+      "formula": "(-1)^{5678} \\equiv 1 \\pmod{13}",
+      "result": null,
+      "method": null
+    },
+    {
+      "step_id": 5,
+      "description": "利用中国剩余定理合并结果",
+      "formula": "x \\equiv 4 \\pmod 7, x \\equiv 1 \\pmod{13} \\Rightarrow x = 53",
+      "result": null,
+      "method": null
+    }
+  ],
+  "methods_used": [
+    "模运算",
+    "费马小定理",
+    "中国剩余定理"
+  ],
+  "verification": {
+    "is_correct": true,
+    "confidence": 1.0,
+    "check_method": "逐步验证中国剩余定理求解过程：分解模数、计算底数同余值、应用费马小定理计算各模幂、使用中国剩余定理合并结果",
+    "error_details": "无错误。所有步骤推理严谨，计算准确：91=7×13；1234≡2(mod 7)，1234≡12≡-1(mod 13)；2^5678≡2^2≡4(mod 7)；(-1)^5678≡1(mod 13)；解方程组得x≡53(mod 91)"
+  },
+  "educational_hint": "将大模数分解为互质素数，分别求解同余方程组后合并。",
+  "computation_time_ms": 103759.59277153015,
+  "retry_count": 0,
+  "model_version": null,
+  "from_cache": false,
+  "cache_similarity": null,
+  "cache_matched_question": null,
+  "true_domain": null,
+  "ground_truth": null,
+  "answer_match": null
+}

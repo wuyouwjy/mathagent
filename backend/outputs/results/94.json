@@ -1,0 +1,49 @@
+{
+  "final_answer": "[0.504, 0.696]",
+  "domain": "statistics",
+  "reasoning_steps": [
+    {
+      "step_id": 1,
+      "description": "确定估计量及渐近分布",
+      "formula": "\\hat{p} = \\frac{1}{n}\\sum X_i, \\sqrt{n}(\\hat{p}-p) \\sim N(0, p(1-p))",
+      "result": null,
+      "method": "最大似然估计与中心极限定理"
+    },
+    {
+      "step_id": 2,
+      "description": "构造枢轴量",
+      "formula": "Z = \\frac{\\hat{p} - p}{\\sqrt{\\hat{p}(1-\\hat{p})/n}} \\approx N(0,1)",
+      "result": null,
+      "method": "枢轴量法"
+    },
+    {
+      "step_id": 3,
+      "description": "确定临界值",
+      "formula": "z_{0.025} = 1.96",
+      "result": null,
+      "method": "标准正态分布分位数"
+    },
+    {
+      "step_id": 4,
+      "description": "计算置信区间",
+      "formula": "\\hat{p} \\pm 1.96 \\sqrt{\\frac{\\hat{p}(1-\\hat{p})}{n}}",
+      "result": null,
+      "method": "代入数值计算"
+    }
+  ],
+  "methods_used": [
+    "枢轴量法",
+    "正态近似"
+  ],
+  "verification": {
+    "is_correct": true,
+    "confidence": 1.0,
+    "check_method": "ground_truth_match",
+    "error_details": ""
+  },
+  "educational_hint": "大样本下样本比例近似正态分布，利用枢轴量将参数转化为标准正态分布统计量求解。",
+  "from_cache": true,
+  "question_id": "94",
+  "cache_similarity": 0.9999997615814209,
+  "cache_matched_question": "设$X_1,\\ldots,X_n$为来自$\\text{Bernoulli}(p)$的样本。求$p$的$95\\%$置信区间（$n=100$, $\\hat{p}=0.6$）。"
+}

@@ -1,0 +1,50 @@
+{
+  "question_id": "5",
+  "timestamp": "2026-07-08T00:09:41.860715",
+  "domain": "algebra",
+  "final_answer": "证明 $\\mathbb{Z}[i]$ 是欧几里得整环，因此是主理想整环。",
+  "reasoning_steps": [
+    {
+      "step_id": 1,
+      "description": "定义高斯整数环上的范数函数。",
+      "formula": "$N(a+bi) = a^2 + b^2$",
+      "result": null,
+      "method": "范数定义"
+    },
+    {
+      "step_id": 2,
+      "description": "证明欧几里得除法算法成立。",
+      "formula": "$\\alpha = \\beta\\gamma + \\rho, \\quad N(\\rho) < N(\\beta) \\text{ 或 } \\rho=0$",
+      "result": null,
+      "method": "复平面几何逼近"
+    },
+    {
+      "step_id": 3,
+      "description": "利用欧几里得整环性质推导主理想整环。",
+      "formula": "$\\text{ED} \\implies \\text{PID}$",
+      "result": null,
+      "method": "环论定理"
+    }
+  ],
+  "methods_used": [
+    "定义范数",
+    "欧几里得除法算法",
+    "欧几里得整环蕴含主理想整环"
+  ],
+  "verification": {
+    "is_correct": true,
+    "confidence": 0.95,
+    "check_method": "Verify the logical chain from Norm definition to Euclidean Property to PID conclusion. Confirm standard algebraic theorems are applied correctly.",
+    "error_details": "The logical strategy is correct, but Step 2 lacks the explicit verification of the Euclidean division algorithm. Specifically, it does not demonstrate how to find gamma, rho such that N(rho) < N(beta) using the geometric properties of the complex plane."
+  },
+  "educational_hint": "证明高斯整数环是主理想整环的标准方法是先证明它是欧几里得整环。关键在于构造合适的范数函数并利用复平面上的几何性质进行除法运算。",
+  "computation_time_ms": 121346.89044952393,
+  "retry_count": 0,
+  "model_version": null,
+  "from_cache": false,
+  "cache_similarity": null,
+  "cache_matched_question": null,
+  "true_domain": null,
+  "ground_truth": null,
+  "answer_match": null
+}

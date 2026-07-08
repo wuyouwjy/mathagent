@@ -52,68 +52,32 @@ from graph.nodes import (
 
 
 # ============================================================
-# 条件路由函数
+# 条件路由函数 — 委托给 GraphManagerAgent
 # ============================================================
 
+# 全局 GraphManagerAgent 实例（懒加载）
+_graph_manager = None
+
+
+def _get_graph_manager():
+    """懒加载 GraphManagerAgent 单例"""
+    global _graph_manager
+    if _graph_manager is None:
+        from agents.graph_manager_agent import GraphManagerAgent as GMA
+        _graph_manager = GMA()
+    return _graph_manager
+
+
 def router_after_classifier(state: WorkflowState) -> Literal["rag_retrieval", "error_handler"]:
-    """
-    分类器后的条件路由
-
-    逻辑：
-    - 分类成功（classified_domain 非空）→ 进入 RAG 检索
-    - 分类失败 → 进入错误处理
-
-    参数:
-        state: 工作流状态
-
-    返回:
-        str: 下一个节点名称
-    """
-    domain = state.get("classified_domain", "")
-    confidence = state.get("classification_confidence", 0.0)
-
-    if domain and confidence > 0.0:
-        logger.info(f"[Router] 分类成功 ({domain}), 进入 RAG 检索")
-        return "rag_retrieval"
-    else:
-        logger.warning(f"[Router] 分类失败 (domain='{domain}', conf={confidence}), 进入错误处理")
-        state["error_info"] = state.get("error_info", []) + [
-            f"Classifier failed: domain={domain}, confidence={confidence}"
-        ]
-        return "error_handler"
+    """分类器后的条件路由 — 委托给 GraphManagerAgent"""
+    agent = _get_graph_manager()
+    return agent.after_classifier(state)
 
 
 def router_after_reflection(state: WorkflowState) -> Literal["solver_dispatcher", "formatter"]:
-    """
-    反思后的条件路由（Reflection Loop）
-
-    逻辑：
-    - reflection_needed=True → 回到 solver_dispatcher 重试
-    - reflection_needed=False → 进入 formatter 结束
-
-    参数:
-        state: 工作流状态
-
-    返回:
-        str: 下一个节点名称
-    """
-    need_retry = state.get("reflection_needed", False)
-    count = state.get("reflection_count", 0)
-    max_count = state.get("max_reflection_count", 3)
-
-    if need_retry:
-        logger.info(
-            f"[Router] 反思触发重试: "
-            f"attempt {count}/{max_count} → 回到 solver_dispatcher"
-        )
-        return "solver_dispatcher"
-    else:
-        verification_passed = state.get("verification_passed", False)
-        logger.info(
-            f"[Router] 反思完成: "
-            f"verification_passed={verification_passed} → 进入 formatter"
-        )
-        return "formatter"
+    """反思后的条件路由 — 委托给 GraphManagerAgent"""
+    agent = _get_graph_manager()
+    return agent.after_reflection(state)
 
 
 # ============================================================
@@ -163,15 +127,11 @@ def build_math_agent_graph(
     workflow.set_entry_point("cache_check")
 
     # ============================================================
-    # 4. 缓存路由 — 命中直出，未命中走完整流程
+    # 4. 缓存路由 — 委托给 GraphManagerAgent
     # ============================================================
     def router_after_cache(state: WorkflowState) -> Literal["formatter", "problem_parser"]:
-        if state.get("cache_hit", False):
-            logger.info("[Router] 缓存命中 → 跳过求解，直接输出")
-            return "formatter"
-        else:
-            logger.info("[Router] 缓存未命中 → 进入完整求解流程")
-            return "problem_parser"
+        agent = _get_graph_manager()
+        return agent.after_cache_check(state)
 
     workflow.add_conditional_edges(
         "cache_check",

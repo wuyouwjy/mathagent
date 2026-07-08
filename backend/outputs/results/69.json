@@ -1,0 +1,17 @@
+{
+  "final_answer": "\": \"0\",",
+  "domain": "probability",
+  "reasoning_steps": [],
+  "methods_used": [],
+  "verification": {
+    "is_correct": true,
+    "confidence": 1.0,
+    "check_method": "ground_truth_match",
+    "error_details": ""
+  },
+  "educational_hint": "",
+  "from_cache": true,
+  "question_id": "69",
+  "cache_similarity": 1.000000238418579,
+  "cache_matched_question": "设随机变量序列$\\{X_n\\}$独立同分布于$\\text{Uniform}(0,1)$。求$\\lim_{n\\to\\infty}P\\left(\\left|\\frac{1}{n}\\sum_{i=1}^n X_i - \\frac{1}{2}\\right| > 0.01\\right)$。"
+}

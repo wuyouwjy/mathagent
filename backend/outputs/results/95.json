@@ -1,0 +1,56 @@
+{
+  "question_id": "95",
+  "timestamp": "2026-07-08T00:25:17.735860",
+  "domain": "statistics",
+  "final_answer": "拒绝原假设 H0，认为均值 μ 显著不为 0",
+  "reasoning_steps": [
+    {
+      "step_id": 1,
+      "description": "建立假设并确定检验方法",
+      "formula": "H_0: \\mu=0, H_1: \\mu \\neq 0",
+      "result": null,
+      "method": "假设检验"
+    },
+    {
+      "step_id": 2,
+      "description": "计算 t 统计量",
+      "formula": "t = \\frac{\\bar{x} - \\mu_0}{s/\\sqrt{n}} = 2.5",
+      "result": null,
+      "method": "t 检验"
+    },
+    {
+      "step_id": 3,
+      "description": "确定临界值",
+      "formula": "t_{0.025, 24} \\approx 2.064",
+      "result": null,
+      "method": "查表法"
+    },
+    {
+      "step_id": 4,
+      "description": "做出决策",
+      "formula": "|t| = 2.5 > 2.064",
+      "result": null,
+      "method": "比较法"
+    }
+  ],
+  "methods_used": [
+    "t 检验",
+    "假设检验"
+  ],
+  "verification": {
+    "is_correct": true,
+    "confidence": 0.95,
+    "check_method": "经独立验证，t 统计量计算为 (2.5-0)/(5/√25)=2.5，双尾检验临界值 t(0.025, 24)≈2.064。因 |2.5|>2.064，拒绝 H0 结论正确。",
+    "error_details": "无"
+  },
+  "educational_hint": "总体方差未知且样本量较小（n<30）时，使用 t 检验。若统计量绝对值大于临界值，则拒绝原假设。",
+  "computation_time_ms": 186516.17884635925,
+  "retry_count": 0,
+  "model_version": null,
+  "from_cache": false,
+  "cache_similarity": null,
+  "cache_matched_question": null,
+  "true_domain": null,
+  "ground_truth": null,
+  "answer_match": null
+}

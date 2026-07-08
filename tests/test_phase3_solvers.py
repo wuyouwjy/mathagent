@@ -15,8 +15,8 @@ class TestSolverRegistry:
 
     def test_all_six_solvers_registered(self):
         """验证6个Solver全部注册"""
-        from solvers.solver_registry import SOLVER_REGISTRY
-        assert len(SOLVER_REGISTRY) == 6
+        from agents.solver_experts.solver_registry import SOLVER_REGISTRY
+        assert len(SOLVER_REGISTRY) == 18
         expected = [
             "pde_solver", "ode_solver", "complex_analysis_solver",
             "topology_solver", "optimization_solver", "algebra_solver"
@@ -26,28 +26,28 @@ class TestSolverRegistry:
 
     def test_create_solver_valid(self):
         """测试创建有效的 Solver"""
-        from solvers.solver_registry import create_solver
+        from agents.solver_experts.solver_registry import create_solver
         solver = create_solver("pde_solver")
         assert solver.solver_name == "pde_solver"
         assert solver.solver_domain == "partial_differential_equations"
 
     def test_create_solver_invalid_fallback(self):
         """测试无效Solver回退到algebra"""
-        from solvers.solver_registry import create_solver
+        from agents.solver_experts.solver_registry import create_solver
         solver = create_solver("nonexistent_solver")
         assert solver.solver_name == "algebra_solver"
 
     def test_list_registered_solvers(self):
         """测试列出已注册Solver"""
-        from solvers.solver_registry import list_registered_solvers
+        from agents.solver_experts.solver_registry import list_registered_solvers
         solvers = list_registered_solvers()
-        assert len(solvers) == 6
+        assert len(solvers) == 18
         assert "pde_solver" in solvers
         assert "algebra_solver" in solvers
 
     def test_get_solver_metadata(self):
         """测试获取 Solver 元数据"""
-        from solvers.solver_registry import get_solver_metadata
+        from agents.solver_experts.solver_registry import get_solver_metadata
         meta = get_solver_metadata("ode_solver")
         assert meta is not None
         assert meta["name"] == "ode_solver"
@@ -58,34 +58,34 @@ class TestSolverInstantiation:
     """测试各 Solver 实例化"""
 
     def test_pde_solver_instantiation(self):
-        from solvers.pde_solver import PDESolver
+        from agents.solver_experts.pde_solver import PDESolver
         solver = PDESolver()
         assert solver.solver_name == "pde_solver"
         assert hasattr(solver, 'solve')
         assert hasattr(solver, 'verify_symbolic')
 
     def test_ode_solver_instantiation(self):
-        from solvers.ode_solver import ODESolver
+        from agents.solver_experts.ode_solver import ODESolver
         solver = ODESolver()
         assert solver.solver_name == "ode_solver"
 
     def test_complex_solver_instantiation(self):
-        from solvers.complex_analysis_solver import ComplexAnalysisSolver
+        from agents.solver_experts.complex_analysis_solver import ComplexAnalysisSolver
         solver = ComplexAnalysisSolver()
         assert solver.solver_name == "complex_analysis_solver"
 
     def test_topology_solver_instantiation(self):
-        from solvers.topology_solver import TopologySolver
+        from agents.solver_experts.topology_solver import TopologySolver
         solver = TopologySolver()
         assert solver.solver_name == "topology_solver"
 
     def test_optimization_solver_instantiation(self):
-        from solvers.optimization_solver import OptimizationSolver
+        from agents.solver_experts.optimization_solver import OptimizationSolver
         solver = OptimizationSolver()
         assert solver.solver_name == "optimization_solver"
 
     def test_algebra_solver_instantiation(self):
-        from solvers.algebra_solver import AlgebraSolver
+        from agents.solver_experts.algebra_solver import AlgebraSolver
         solver = AlgebraSolver()
         assert solver.solver_name == "algebra_solver"
 
@@ -95,7 +95,7 @@ class TestSolverMethods:
 
     def test_pde_classify_type(self):
         """测试 PDE 类型识别"""
-        from solvers.pde_solver import PDESolver
+        from agents.solver_experts.pde_solver import PDESolver
         solver = PDESolver()
         result = solver._classify_pde_type(
             "求解热传导方程 ∂u/∂t = α∇²u",
@@ -107,7 +107,7 @@ class TestSolverMethods:
 
     def test_ode_classify_type(self):
         """测试 ODE 类型识别"""
-        from solvers.ode_solver import ODESolver
+        from agents.solver_experts.ode_solver import ODESolver
         solver = ODESolver()
         result = solver._classify_ode_type(
             "求解一阶线性常微分方程 dy/dx + P(x)y = Q(x)",
@@ -118,7 +118,7 @@ class TestSolverMethods:
 
     def test_complex_identify_sub_type(self):
         """测试复分析子类型识别"""
-        from solvers.complex_analysis_solver import ComplexAnalysisSolver
+        from agents.solver_experts.complex_analysis_solver import ComplexAnalysisSolver
         solver = ComplexAnalysisSolver()
         result = solver._identify_sub_type(
             "计算围道积分 ∮_C f(z)dz 使用留数定理",
@@ -128,7 +128,7 @@ class TestSolverMethods:
 
     def test_topology_identify_sub_type(self):
         """测试拓扑子类型识别"""
-        from solvers.topology_solver import TopologySolver
+        from agents.solver_experts.topology_solver import TopologySolver
         solver = TopologySolver()
         result = solver._identify_sub_type(
             "topology",
@@ -138,7 +138,7 @@ class TestSolverMethods:
 
     def test_optimization_identify_sub_type(self):
         """测试最优化子类型识别"""
-        from solvers.optimization_solver import OptimizationSolver
+        from agents.solver_experts.optimization_solver import OptimizationSolver
         solver = OptimizationSolver()
         result = solver._identify_sub_type(
             "optimization",
@@ -148,7 +148,7 @@ class TestSolverMethods:
 
     def test_algebra_identify_sub_type(self):
         """测试代数子类型识别"""
-        from solvers.algebra_solver import AlgebraSolver
+        from agents.solver_experts.algebra_solver import AlgebraSolver
         solver = AlgebraSolver()
         result = solver._identify_sub_type(
             "algebra",
@@ -158,7 +158,7 @@ class TestSolverMethods:
 
     def test_solve_returns_valid_structure(self):
         """测试 solve() 返回结构正确（适配 API 不可用场景）"""
-        from solvers.algebra_solver import AlgebraSolver
+        from agents.solver_experts.algebra_solver import AlgebraSolver
         solver = AlgebraSolver()
         try:
             result = solver.solve(
@@ -178,7 +178,7 @@ class TestSolverMethods:
 
     def test_verify_symbolic_handles_empty(self):
         """测试符号验证处理空答案"""
-        from solvers.algebra_solver import AlgebraSolver
+        from agents.solver_experts.algebra_solver import AlgebraSolver
         solver = AlgebraSolver()
         passed, detail = solver.verify_symbolic("test", "")
         assert passed is False
@@ -189,7 +189,7 @@ class TestBaseSolver:
 
     def test_format_latex(self):
         """测试 LaTeX 格式化"""
-        from solvers.algebra_solver import AlgebraSolver
+        from agents.solver_experts.algebra_solver import AlgebraSolver
         import sympy as sp
         solver = AlgebraSolver()
         expr = sp.Symbol('x')**2 + 3*sp.Symbol('x') + 1
@@ -198,7 +198,7 @@ class TestBaseSolver:
 
     def test_get_metadata(self):
         """测试获取元数据"""
-        from solvers.algebra_solver import AlgebraSolver
+        from agents.solver_experts.algebra_solver import AlgebraSolver
         solver = AlgebraSolver()
         meta = solver.get_metadata()
         assert meta["name"] == "algebra_solver"
@@ -206,7 +206,7 @@ class TestBaseSolver:
 
     def test_sympy_parse_and_solve(self):
         """测试 SymPy 方程解析和求解"""
-        from solvers.algebra_solver import AlgebraSolver
+        from agents.solver_experts.algebra_solver import AlgebraSolver
         solver = AlgebraSolver()
         result = solver._sympy_parse_and_solve(
             "x**2 - 4", ["x"]

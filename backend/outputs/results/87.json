@@ -1,0 +1,57 @@
+{
+  "question_id": "87",
+  "timestamp": "2026-07-08T00:24:31.700816",
+  "domain": "complex_analysis",
+  "final_answer": "一般形式为 $w = e^{i\\theta} \\frac{z - z_0}{z - \\overline{z_0}}$，其中 $\\text{Im}(z_0) > 0$，$\\theta \\in \\mathbb{R}$。特例：$w = \\frac{z - i}{z + i}$。",
+  "reasoning_steps": [
+    {
+      "step_id": 1,
+      "description": "确定目标区域：上半平面 $\\mathbb{H}$ 和单位圆盘 $\\mathbb{D}$。",
+      "formula": "$\\mathbb{H} = \\{z \\in \\mathbb{C} : \\text{Im}(z) > 0\\}, \\quad \\mathbb{D} = \\{w \\in \\mathbb{C} : |w| < 1\\}$",
+      "result": null,
+      "method": "区域定义"
+    },
+    {
+      "step_id": 2,
+      "description": "选择分式线性变换形式，将上半平面内一点 $z_0$ 映射到圆盘中心 $0$。",
+      "formula": "$w = k \\frac{z - z_0}{z - z_1}$",
+      "result": null,
+      "method": "分式线性变换构造"
+    },
+    {
+      "step_id": 3,
+      "description": "利用边界对应条件，实轴应映射到单位圆周，确定 $z_1$ 为 $z_0$ 关于实轴的对称点 $\\overline{z_0}$。",
+      "formula": "$z_1 = \\overline{z_0} \\implies w = e^{i\\theta} \\frac{z - z_0}{z - \\overline{z_0}}$",
+      "result": null,
+      "method": "边界条件分析"
+    },
+    {
+      "step_id": 4,
+      "description": "验证映射性质，当 $z$ 在实轴上时 $|w|=1$，当 $\\text{Im}(z)>0$ 时 $|w|<1$。",
+      "formula": "$|z - z_0| < |z - \\overline{z_0}| \\quad (\\text{当 } \\text{Im}(z) > 0)$",
+      "result": null,
+      "method": "模长验证"
+    }
+  ],
+  "methods_used": [
+    "分式线性变换",
+    "共形映射",
+    "边界对应原理"
+  ],
+  "verification": {
+    "is_correct": true,
+    "confidence": 0.98,
+    "check_method": "验证了分式线性变换构造上半平面到单位圆盘映射的标准过程。检查了对称原理（极点选为共轭点）、边界对应（实轴到单位圆）及区域保持（上半平面到单位圆内）。确认了通解公式及特例的正确性。",
+    "error_details": "无实质性数学错误。步骤 3 中提及的符号 z_1 在最终公式中未出现（直接使用共轭点），属于表述上的轻微不一致，但不影响数学逻辑的正确性。"
+  },
+  "educational_hint": "求解共形映射时，关键在于利用分式线性变换保持广义圆的性质。将上半平面映射到单位圆盘的核心是将上半平面内的任意一点映射到圆心，并将边界（实轴）映射到边界（单位圆）。",
+  "computation_time_ms": 195574.5050907135,
+  "retry_count": 0,
+  "model_version": null,
+  "from_cache": false,
+  "cache_similarity": null,
+  "cache_matched_question": null,
+  "true_domain": null,
+  "ground_truth": null,
+  "answer_match": null
+}

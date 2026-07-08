@@ -1,0 +1,24 @@
+{
+  "question_id": "56",
+  "timestamp": "2026-07-08T00:17:55.426946",
+  "domain": "real_analysis",
+  "final_answer": "\": \"命题得证\",",
+  "reasoning_steps": [],
+  "methods_used": [],
+  "verification": {
+    "is_correct": false,
+    "confidence": 0.3,
+    "check_method": "parse_error",
+    "error_details": "LLM 返回无法解析"
+  },
+  "educational_hint": "",
+  "computation_time_ms": 165357.85269737244,
+  "retry_count": 1,
+  "model_version": null,
+  "from_cache": false,
+  "cache_similarity": null,
+  "cache_matched_question": null,
+  "true_domain": null,
+  "ground_truth": null,
+  "answer_match": null
+}

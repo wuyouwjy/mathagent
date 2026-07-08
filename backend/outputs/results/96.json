@@ -1,0 +1,49 @@
+{
+  "final_answer": "已证明 E[\\hat{\\sigma}^2] = \\sigma^2，故为无偏估计",
+  "domain": "statistics",
+  "reasoning_steps": [
+    {
+      "step_id": 1,
+      "description": "展开样本偏差平方和",
+      "formula": "\\sum(X_i-\\bar{X})^2 = \\sum(X_i-\\mu)^2 - n(\\bar{X}-\\mu)^2",
+      "result": null,
+      "method": "代数恒等变换"
+    },
+    {
+      "step_id": 2,
+      "description": "对等式两边取期望",
+      "formula": "E[\\sum(X_i-\\bar{X})^2] = \\sum E[(X_i-\\mu)^2] - n E[(\\bar{X}-\\mu)^2]",
+      "result": null,
+      "method": "期望线性性质"
+    },
+    {
+      "step_id": 3,
+      "description": "代入方差定义计算",
+      "formula": "E[(X_i-\\mu)^2]=\\sigma^2, E[(\\bar{X}-\\mu)^2]=\\sigma^2/n",
+      "result": null,
+      "method": "方差定义"
+    },
+    {
+      "step_id": 4,
+      "description": "计算最终期望验证无偏性",
+      "formula": "E[\\hat{\\sigma}^2] = \\frac{1}{n-1}(n-1)\\sigma^2 = \\sigma^2",
+      "result": null,
+      "method": "无偏性定义"
+    }
+  ],
+  "methods_used": [
+    "无偏性证明",
+    "期望运算"
+  ],
+  "verification": {
+    "is_correct": true,
+    "confidence": 1.0,
+    "check_method": "ground_truth_match",
+    "error_details": ""
+  },
+  "educational_hint": "证明关键在于利用代数恒等式将样本方差分解，利用期望的线性性质及总体方差定义，说明分母使用 n-1 而非 n 是为了消除偏差。",
+  "from_cache": true,
+  "question_id": "96",
+  "cache_similarity": 1.0000007152557373,
+  "cache_matched_question": "证明$\\hat{\\sigma}^2 = \\frac{1}{n-1}\\sum(X_i-\\bar{X})^2$是$\\sigma^2$的无偏估计。"
+}

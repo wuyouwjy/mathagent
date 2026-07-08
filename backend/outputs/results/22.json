@@ -1,0 +1,42 @@
+{
+  "final_answer": "n 个顶点的树恰好有 n-1 条边",
+  "domain": "combinatorics",
+  "reasoning_steps": [
+    {
+      "step_id": 1,
+      "description": "基础情况验证：当 n=1 时，树只有 1 个顶点，0 条边，满足 1-1=0",
+      "formula": "E = n - 1 \\Rightarrow 0 = 1 - 1",
+      "result": null,
+      "method": "数学归纳法"
+    },
+    {
+      "step_id": 2,
+      "description": "归纳假设：假设对于 k 个顶点的树，边数为 k-1",
+      "formula": "E_k = k - 1",
+      "result": null,
+      "method": "数学归纳法"
+    },
+    {
+      "step_id": 3,
+      "description": "归纳递推：对于 k+1 个顶点的树，移除一个叶子节点及其关联边，剩余图为 k 个顶点的树，边数为 (k-1)+1 = k",
+      "formula": "E_{k+1} = (k - 1) + 1 = k",
+      "result": null,
+      "method": "数学归纳法"
+    }
+  ],
+  "methods_used": [
+    "数学归纳法",
+    "树的性质"
+  ],
+  "verification": {
+    "is_correct": true,
+    "confidence": 1.0,
+    "check_method": "ground_truth_match",
+    "error_details": ""
+  },
+  "educational_hint": "证明树的基本性质通常使用数学归纳法，关键在于利用树中存在叶子节点这一特征进行递推。",
+  "from_cache": true,
+  "question_id": "22",
+  "cache_similarity": 0.9999998211860657,
+  "cache_matched_question": "证明：$n$个顶点的树恰好有$n-1$条边。"
+}

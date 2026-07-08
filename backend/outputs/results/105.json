@@ -1,0 +1,17 @@
+{
+  "final_answer": "}",
+  "domain": "partial_differential_equations",
+  "reasoning_steps": [],
+  "methods_used": [],
+  "verification": {
+    "is_correct": true,
+    "confidence": 1.0,
+    "check_method": "ground_truth_match",
+    "error_details": ""
+  },
+  "educational_hint": "",
+  "from_cache": true,
+  "question_id": "105",
+  "cache_similarity": 0.9999999403953552,
+  "cache_matched_question": "求解一维波动方程：$\\frac{\\partial^2 u}{\\partial t^2}=c^2\\frac{\\partial^2 u}{\\partial x^2}$, $u(x,0)=f(x)$, $u_t(x,0)=0$。"
+}

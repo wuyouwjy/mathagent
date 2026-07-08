@@ -1,0 +1,57 @@
+{
+  "question_id": "77",
+  "timestamp": "2026-07-08T00:22:10.755549",
+  "domain": "probability",
+  "final_answer": "简单随机游走 $S_n$ 是 Markov 链，转移概率为 $p_{i, i+1} = \\frac{1}{2}$，$p_{i, i-1} = \\frac{1}{2}$，其余为 0。",
+  "reasoning_steps": [
+    {
+      "step_id": 1,
+      "description": "定义随机游走的递推关系",
+      "formula": "S_{n+1} = S_n + X_{n+1}",
+      "result": null,
+      "method": "过程定义"
+    },
+    {
+      "step_id": 2,
+      "description": "陈述 Markov 性质条件",
+      "formula": "P(S_{n+1}=j | S_n=i, S_{n-1}, \\dots) = P(S_{n+1}=j | S_n=i)",
+      "result": null,
+      "method": "Markov 性质定义"
+    },
+    {
+      "step_id": 3,
+      "description": "利用增量独立性简化条件概率",
+      "formula": "P(S_{n+1}=j | S_n=i) = P(X_{n+1} = j-i)",
+      "result": null,
+      "method": "独立性假设"
+    },
+    {
+      "step_id": 4,
+      "description": "计算具体转移概率值",
+      "formula": "p_{i, i+1} = P(X_{n+1}=1) = \\frac{1}{2}, \\quad p_{i, i-1} = P(X_{n+1}=-1) = \\frac{1}{2}",
+      "result": null,
+      "method": "概率计算"
+    }
+  ],
+  "methods_used": [
+    "Markov 性质定义",
+    "增量独立性",
+    "条件概率计算"
+  ],
+  "verification": {
+    "is_correct": true,
+    "confidence": 1.0,
+    "check_method": "验证 Markov 性质定义、随机游走增量独立性假设及转移概率计算逻辑",
+    "error_details": "求解过程逻辑正确。简单随机游走满足 S_n = S_{n-1} + X_n，由于 X_n 独立于 {X_1, ..., X_{n-1}} 从而独立于 S_{n-1}, ..., S_0，因此满足 Markov 性质。转移概率 p_{i, i\\pm 1} = 1/2 符合 X_i 等概率取 ±1 的条件。"
+  },
+  "educational_hint": "证明核心在于利用增量的独立性，表明未来状态仅取决于当前状态而与历史路径无关。",
+  "computation_time_ms": 137409.79719161987,
+  "retry_count": 0,
+  "model_version": null,
+  "from_cache": false,
+  "cache_similarity": null,
+  "cache_matched_question": null,
+  "true_domain": null,
+  "ground_truth": null,
+  "answer_match": null
+}

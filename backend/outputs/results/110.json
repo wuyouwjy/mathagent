@@ -1,0 +1,66 @@
+{
+  "question_id": "110",
+  "timestamp": "2026-07-08T00:29:15.935492",
+  "domain": "functional_analysis",
+  "final_answer": "有限维赋范线性空间中所有范数均等价",
+  "reasoning_steps": [
+    {
+      "step_id": 1,
+      "description": "选取空间基并定义参考范数",
+      "formula": "$\\|x\\|_1 = \\sum_{i=1}^n |a_i|$",
+      "result": null,
+      "method": "基展开法"
+    },
+    {
+      "step_id": 2,
+      "description": "证明任意范数关于参考范数连续",
+      "formula": "$\\|x\\| \\le \\left(\\sum_{i=1}^n \\|e_i\\|\\right) \\|x\\|_1$",
+      "result": null,
+      "method": "三角不等式"
+    },
+    {
+      "step_id": 3,
+      "description": "利用有限维空间单位球面的紧性",
+      "formula": "$S = \\{x \\in X : \\|x\\|_1 = 1\\}$ 是紧集",
+      "result": null,
+      "method": "Heine-Borel 定理"
+    },
+    {
+      "step_id": 4,
+      "description": "在紧集上应用连续函数最值定理",
+      "formula": "$\\min_{x \\in S} \\|x\\| = m > 0, \\max_{x \\in S} \\|x\\| = M$",
+      "result": null,
+      "method": "连续函数最值定理"
+    },
+    {
+      "step_id": 5,
+      "description": "推导范数等价不等式",
+      "formula": "$m \\|x\\|_1 \\le \\|x\\| \\le M \\|x\\|_1$",
+      "result": null,
+      "method": "齐次性延拓"
+    }
+  ],
+  "methods_used": [
+    "基展开法",
+    "三角不等式",
+    "Heine-Borel 定理",
+    "连续函数最值定理",
+    "齐次性延拓"
+  ],
+  "verification": {
+    "is_correct": true,
+    "confidence": 0.95,
+    "check_method": "验证了证明步骤的逻辑连贯性：1. 基的存在性与参考范数定义是有限维空间的标准处理；2. 范数关于参考范数的连续性利用三角不等式和齐次性可得；3. 有限维空间单位球面（参考范数下）的紧性由 Heine-Borel 定理保证；4. 连续函数在紧集上必有最值；5. 利用齐次性将紧集上的界推广到全空间。所有步骤均符合泛函分析标准定理。",
+    "error_details": "推理过程无实质性数学错误。步骤表述清晰，涵盖了证明范数等价性的所有关键要素（基、连续性、紧性、最值、齐次性）。唯一可优化之处是第三步中‘单位球面’应明确指代‘参考范数单位球面’，以区分于任意范数单位球面（后者紧性尚未证明）。"
+  },
+  "educational_hint": "核心在于有限维空间单位球面的紧性，结合范数连续性通过最值定理建立范数间的上下界控制。",
+  "computation_time_ms": 196106.27937316895,
+  "retry_count": 0,
+  "model_version": null,
+  "from_cache": false,
+  "cache_similarity": null,
+  "cache_matched_question": null,
+  "true_domain": null,
+  "ground_truth": null,
+  "answer_match": null
+}

@@ -105,6 +105,7 @@ export interface BenchmarkStatus {
   estimated_remaining_seconds?: number;
   domain_accuracy: Record<string, number>;
   current_question?: string;
+  current_trace: string[];
 }
 
 export interface BenchmarkResult {
@@ -117,6 +118,40 @@ export interface BenchmarkResult {
   avg_time_per_question_ms: number;
   domain_accuracy: Record<string, number>;
   results: SolveResult[];
+}
+
+export interface WrongQuestion {
+  question_id: string;
+  domain: string;
+  predicted: string;
+  ground_truth: string;
+  time_ms: number;
+}
+
+export interface DomainStat {
+  total: number;
+  solved: number;
+  accuracy: number;
+}
+
+export interface BenchmarkRunSummary {
+  run_id: string;
+  status: string;
+  started_at: string;
+  completed_at?: string;
+  total: number;
+  solved: number;
+  accuracy: number;
+  total_time_ms: number;
+}
+
+export interface BenchmarkRunRecord extends BenchmarkRunSummary {
+  dataset: string;
+  failed: number;
+  avg_time_per_question_ms: number;
+  domain_stats: Record<string, DomainStat>;
+  wrong_questions: WrongQuestion[];
+  results?: SolveResult[];
 }
 
 // 系统配置

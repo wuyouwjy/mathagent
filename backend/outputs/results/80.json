@@ -1,0 +1,42 @@
+{
+  "final_answer": "\\frac{4}{7}",
+  "domain": "probability",
+  "reasoning_steps": [
+    {
+      "step_id": 1,
+      "description": "分析马尔可夫链性质，确定极限存在且收敛于平稳分布",
+      "formula": "\\lim_{n \\to \\infty} P_{11}^{(n)} = \\pi_1",
+      "result": null,
+      "method": "马尔可夫链遍历性定理"
+    },
+    {
+      "step_id": 2,
+      "description": "根据平稳分布定义建立线性方程组",
+      "formula": "\\pi_1 = 0.7\\pi_1 + 0.4\\pi_2, \\quad \\pi_1 + \\pi_2 = 1",
+      "result": null,
+      "method": "线性方程组求解"
+    },
+    {
+      "step_id": 3,
+      "description": "解方程组求得平稳分布分量",
+      "formula": "0.3\\pi_1 = 0.4\\pi_2 \\Rightarrow \\pi_1 = \\frac{4}{7}",
+      "result": null,
+      "method": "代数运算"
+    }
+  ],
+  "methods_used": [
+    "马尔可夫链平稳分布",
+    "线性方程组求解"
+  ],
+  "verification": {
+    "is_correct": true,
+    "confidence": 1.0,
+    "check_method": "ground_truth_match",
+    "error_details": ""
+  },
+  "educational_hint": "有限不可约非周期马尔可夫链的 n 步转移概率矩阵收敛于各行均为平稳分布的矩阵。",
+  "from_cache": true,
+  "question_id": "80",
+  "cache_similarity": 1.0,
+  "cache_matched_question": "求Markov链$P=\\begin{pmatrix}0.7&0.3\\\\0.4&0.6\\end{pmatrix}$的$n$步转移概率$P_{11}^{(n)}$的极限。"
+}

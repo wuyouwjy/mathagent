@@ -34,40 +34,56 @@ async def solve_question(body: SolveRequest):
     except Exception:
         pass  # 可能已存在
 
-    # 执行求解
+    # 执行求解（一次调用，两种格式）
     try:
-        from graph.workflow import MathAgentWorkflow
+        from user_agent import ReasoningAgent
 
-        workflow = MathAgentWorkflow(
-            enable_rag=body.enable_rag,
-            max_reflection_count=body.max_retries,
+        agent = ReasoningAgent()
+        # 比赛格式（内部已完成求解）
+        agent_result = agent.solve(
+            problem=body.question,
+            metadata={"idx": 0},
         )
-
-        result = workflow.solve(
-            question_text=body.question,
-            question_id=question_id,
-            verbose=False,
-        )
+        # 从同一次求解中获取内部详情（不重复求解）
+        detail = agent.get_last_detail() or {}
 
         # 更新问题记录
-        update_solve_result(question_id, result)
+        if detail:
+            update_solve_result(question_id, detail)
 
-        return SolveResponse(
-            question_id=result.get("question_id", question_id),
-            domain=result.get("domain", ""),
-            final_answer=result.get("final_answer", ""),
-            reasoning_steps=result.get("reasoning_steps", []),
-            methods_used=result.get("methods_used", []),
-            verification=result.get("verification", {}),
-            educational_hint=result.get("educational_hint", ""),
-            computation_time_ms=result.get("computation_time_ms", 0),
-            retry_count=result.get("retry_count", 0),
-            model_version=result.get("model_version"),
-            node_trace=result.get("node_trace", []),
-        )
+        # 构建响应（比赛格式 + 前端详情）
+        if agent_result.get("error"):
+            return SolveResponse(
+                idx=0, status="error",
+                final_response="",
+                error=agent_result["error"],
+                question_id=question_id,
+            )
+        else:
+            return SolveResponse(
+                idx=0, status="success",
+                final_response=agent_result["final_response"],
+                trace=agent_result.get("trace", []),
+                question_id=question_id,
+                domain=detail.get("domain", ""),
+                final_answer=detail.get("final_answer", ""),
+                reasoning_steps=detail.get("reasoning_steps", []),
+                methods_used=detail.get("methods_used", []),
+                verification=detail.get("verification", {}),
+                educational_hint=detail.get("educational_hint", ""),
+                computation_time_ms=detail.get("computation_time_ms", 0),
+                retry_count=detail.get("retry_count", 0),
+                model_version=detail.get("model_version"),
+                node_trace=detail.get("node_trace", []),
+            )
     except Exception as e:
         logger.error(f"[API] 求解失败: {e}")
-        raise HTTPException(status_code=500, detail=f"求解失败: {str(e)}")
+        return SolveResponse(
+            idx=0, status="error",
+            final_response="",
+            error={"type": type(e).__name__, "message": str(e)},
+            question_id=question_id,
+        )
 
 
 @router.post("/solve/upload")

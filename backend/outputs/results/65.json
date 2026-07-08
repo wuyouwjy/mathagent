@@ -1,0 +1,58 @@
+{
+  "question_id": "65",
+  "timestamp": "2026-07-08T00:20:01.042452",
+  "domain": "differential_geometry",
+  "final_answer": "证明完成：紧致曲面 M 上的 Gauss 映射 N 的度数 deg(N) 等于 Euler 示性数 χ(M) 的一半，即 deg(N) = 1/2 χ(M)。",
+  "reasoning_steps": [
+    {
+      "step_id": 1,
+      "description": "建立 Gauss 映射微分与高斯曲率的关系",
+      "formula": "K = det(dN_p) = det(-S_p)",
+      "result": null,
+      "method": "Weingarten 映射"
+    },
+    {
+      "step_id": 2,
+      "description": "根据映射度定义写出积分表达式",
+      "formula": "deg(N) = (1/4π) ∫_M K dA",
+      "result": null,
+      "method": "映射度定义"
+    },
+    {
+      "step_id": 3,
+      "description": "应用全局 Gauss-Bonnet 定理",
+      "formula": "∫_M K dA = 2π χ(M)",
+      "result": null,
+      "method": "Gauss-Bonnet 定理"
+    },
+    {
+      "step_id": 4,
+      "description": "代入积分结果导出结论",
+      "formula": "deg(N) = (1/4π) * 2π χ(M) = 1/2 χ(M)",
+      "result": null,
+      "method": "代数运算"
+    }
+  ],
+  "methods_used": [
+    "高斯映射",
+    "高斯曲率",
+    "Gauss-Bonnet 定理",
+    "映射度"
+  ],
+  "verification": {
+    "is_correct": false,
+    "confidence": 0.3,
+    "check_method": "parse_error",
+    "error_details": "LLM 返回无法解析"
+  },
+  "educational_hint": "该证明体现了局部几何量（高斯曲率）通过积分转化为整体拓扑不变量（Euler 示性数）的过程，是微分几何中内蕴几何与拓扑联系的核心体现。",
+  "computation_time_ms": 128753.910779953,
+  "retry_count": 1,
+  "model_version": null,
+  "from_cache": false,
+  "cache_similarity": null,
+  "cache_matched_question": null,
+  "true_domain": null,
+  "ground_truth": null,
+  "answer_match": null
+}

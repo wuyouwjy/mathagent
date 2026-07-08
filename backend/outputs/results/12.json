@@ -1,0 +1,57 @@
+{
+  "final_answer": "G 连通",
+  "domain": "combinatorics",
+  "reasoning_steps": [
+    {
+      "step_id": 1,
+      "description": "假设图 G 不连通",
+      "formula": "假设 G 不连通",
+      "result": null,
+      "method": "反证法"
+    },
+    {
+      "step_id": 2,
+      "description": "将顶点集划分为两个非空子集",
+      "formula": "V = V_1 \\\\cup V_2, |V_1|=k, |V_2|=n-k",
+      "result": null,
+      "method": "图划分"
+    },
+    {
+      "step_id": 3,
+      "description": "计算不连通图的最大边数",
+      "formula": "m \\\\le \\\\frac{k(k-1)}{2} + \\\\frac{(n-k)(n-k-1)}{2}",
+      "result": null,
+      "method": "组合计数"
+    },
+    {
+      "step_id": 4,
+      "description": "求边数函数的最大值",
+      "formula": "\\\\max_{1 \\\\le k \\\\le n-1} \\\\left( \\\\frac{k(k-1)}{2} + \\\\frac{(n-k)(n-k-1)}{2} \\\\right) = \\\\frac{(n-1)(n-2)}{2}",
+      "result": null,
+      "method": "极值分析"
+    },
+    {
+      "step_id": 5,
+      "description": "导出矛盾并得出结论",
+      "formula": "m > \\\\frac{(n-1)(n-2)}{2} \\\\implies G 连通",
+      "result": null,
+      "method": "矛盾推导"
+    }
+  ],
+  "methods_used": [
+    "反证法",
+    "组合计数",
+    "极值原理"
+  ],
+  "verification": {
+    "is_correct": true,
+    "confidence": 1.0,
+    "check_method": "ground_truth_match",
+    "error_details": ""
+  },
+  "educational_hint": "证明图连通性时，常通过计算不连通图所能拥有的最大边数，若实际边数超过该极限，则图必连通。",
+  "from_cache": true,
+  "question_id": "12",
+  "cache_similarity": 1.0000003576278687,
+  "cache_matched_question": "设$G$为$n$个顶点的简单图，边数为$m$。若$m > \\frac{(n-1)(n-2)}{2}$，证明$G$连通。"
+}

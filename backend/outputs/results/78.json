@@ -1,0 +1,24 @@
+{
+  "question_id": "78",
+  "timestamp": "2026-07-08T00:21:48.611575",
+  "domain": "probability",
+  "final_answer": "\",",
+  "reasoning_steps": [],
+  "methods_used": [],
+  "verification": {
+    "is_correct": false,
+    "confidence": 1.0,
+    "check_method": "检查提供的推理步骤和最终答案是否存在且数学推导正确",
+    "error_details": "输入中【推理步骤】和【最终答案】部分为空，未提供任何具体的求解过程或结果，因此无法对求解结果进行验证。"
+  },
+  "educational_hint": "",
+  "computation_time_ms": 113675.63915252686,
+  "retry_count": 1,
+  "model_version": null,
+  "from_cache": false,
+  "cache_similarity": null,
+  "cache_matched_question": null,
+  "true_domain": null,
+  "ground_truth": null,
+  "answer_match": null
+}

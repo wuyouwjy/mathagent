@@ -1,0 +1,42 @@
+{
+  "final_answer": "40",
+  "domain": "number_theory",
+  "reasoning_steps": [
+    {
+      "step_id": 1,
+      "description": "对 100 进行质因数分解",
+      "formula": "100 = 2^2 \\times 5^2",
+      "result": null,
+      "method": "质因数分解"
+    },
+    {
+      "step_id": 2,
+      "description": "应用 Euler 函数乘积公式",
+      "formula": "\\varphi(n) = n \\prod_{p|n} (1 - \\frac{1}{p})",
+      "result": null,
+      "method": "Euler 函数公式"
+    },
+    {
+      "step_id": 3,
+      "description": "代入质因数计算",
+      "formula": "\\varphi(100) = 100 \\times (1 - \\frac{1}{2}) \\times (1 - \\frac{1}{5}) = 40",
+      "result": null,
+      "method": "算术计算"
+    }
+  ],
+  "methods_used": [
+    "质因数分解",
+    "Euler 函数公式"
+  ],
+  "verification": {
+    "is_correct": true,
+    "confidence": 1.0,
+    "check_method": "ground_truth_match",
+    "error_details": ""
+  },
+  "educational_hint": "Euler 函数 \\varphi(n) 计算与 n 互质的数的个数。利用公式 \\varphi(n) = n(1-1/p_1)...(1-1/p_k) 可快速求解。",
+  "from_cache": true,
+  "question_id": "29",
+  "cache_similarity": 1.0000003576278687,
+  "cache_matched_question": "求$\\varphi(100)$的值，其中$\\varphi$为Euler函数。"
+}

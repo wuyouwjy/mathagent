@@ -1,0 +1,56 @@
+{
+  "final_answer": "-\\frac{1}{9}",
+  "domain": "differential_geometry",
+  "reasoning_steps": [
+    {
+      "step_id": 1,
+      "description": "确定曲面方程为显式形式 z=f(x,y)",
+      "formula": "f(x,y) = xy",
+      "result": null,
+      "method": "曲面参数化"
+    },
+    {
+      "step_id": 2,
+      "description": "计算一阶及二阶偏导数",
+      "formula": "f_x=y, f_y=x, f_{xx}=0, f_{yy}=0, f_{xy}=1",
+      "result": null,
+      "method": "偏导数计算"
+    },
+    {
+      "step_id": 3,
+      "description": "在点 (1,1) 处求导数值",
+      "formula": "f_x=1, f_y=1, f_{xy}=1",
+      "result": null,
+      "method": "代入求值"
+    },
+    {
+      "step_id": 4,
+      "description": "应用显式曲面的高斯曲率公式",
+      "formula": "K = \\frac{f_{xx}f_{yy} - f_{xy}^2}{(1 + f_x^2 + f_y^2)^2}",
+      "result": null,
+      "method": "高斯曲率显式公式"
+    },
+    {
+      "step_id": 5,
+      "description": "代入数值计算最终结果",
+      "formula": "K = \\frac{0 \\cdot 0 - 1^2}{(1 + 1^2 + 1^2)^2} = -\\frac{1}{9}",
+      "result": null,
+      "method": "数值计算"
+    }
+  ],
+  "methods_used": [
+    "曲面高斯曲率显式公式",
+    "偏导数计算"
+  ],
+  "verification": {
+    "is_correct": true,
+    "confidence": 1.0,
+    "check_method": "ground_truth_match",
+    "error_details": ""
+  },
+  "educational_hint": "对于显式曲面 z=f(x,y)，可直接利用一阶和二阶偏导数通过公式计算 Gauss 曲率，无需构造复杂的 Frenet 标架（Frenet 标架主要用于空间曲线）。",
+  "from_cache": true,
+  "question_id": "57",
+  "cache_similarity": 0.9999995231628418,
+  "cache_matched_question": "求曲面$z=xy$在点$(1,1,1)$处的Gauss曲率。"
+}

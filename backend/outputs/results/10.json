@@ -1,0 +1,17 @@
+{
+  "final_answer": "\": \"3\",",
+  "domain": "combinatorics",
+  "reasoning_steps": [],
+  "methods_used": [],
+  "verification": {
+    "is_correct": true,
+    "confidence": 1.0,
+    "check_method": "ground_truth_match",
+    "error_details": ""
+  },
+  "educational_hint": "",
+  "from_cache": true,
+  "question_id": "10",
+  "cache_similarity": 1.000000238418579,
+  "cache_matched_question": "求由$n$个顶点组成的不同构的树的个数（$n=5$）。"
+}

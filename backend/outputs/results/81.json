@@ -1,0 +1,49 @@
+{
+  "final_answer": "积分结果为 $2\\pi i (e - 2)$。奇点 $z=0$ (留数 -2) 和 $z=1$ (留数 $e$) 均在围道内，留数之和为 $e-2$。",
+  "domain": "complex_analysis",
+  "reasoning_steps": [
+    {
+      "step_id": 1,
+      "description": "确定奇点位置及阶数",
+      "formula": "$f(z) = \\frac{e^z}{z^2(z-1)}$，奇点 $z=0$ (二阶极点), $z=1$ (一阶极点)，均在 $|z|=3$ 内",
+      "result": null,
+      "method": "奇点分析"
+    },
+    {
+      "step_id": 2,
+      "description": "计算 $z=1$ 处的留数",
+      "formula": "$\\text{Res}(f, 1) = \\lim_{z \\to 1} (z-1)f(z) = \\frac{e^1}{1^2} = e$",
+      "result": null,
+      "method": "一阶极点留数公式"
+    },
+    {
+      "step_id": 3,
+      "description": "计算 $z=0$ 处的留数",
+      "formula": "$\\text{Res}(f, 0) = \\lim_{z \\to 0} \\frac{d}{dz}\\left(\\frac{e^z}{z-1}\\right) = \\left.\\frac{e^z(z-2)}{(z-1)^2}\\right|_{z=0} = -2$",
+      "result": null,
+      "method": "高阶极点留数公式"
+    },
+    {
+      "step_id": 4,
+      "description": "应用留数定理求和",
+      "formula": "$I = 2\\pi i (\\text{Res}(f, 0) + \\text{Res}(f, 1)) = 2\\pi i (e - 2)$",
+      "result": null,
+      "method": "留数定理"
+    }
+  ],
+  "methods_used": [
+    "留数定理",
+    "极点留数计算"
+  ],
+  "verification": {
+    "is_correct": true,
+    "confidence": 1.0,
+    "check_method": "ground_truth_match",
+    "error_details": ""
+  },
+  "educational_hint": "注意区分奇点阶数：一阶极点用极限法，二阶极点需先乘 $z^k$ 再求导。确保所有奇点都在积分围道内部。",
+  "from_cache": true,
+  "question_id": "81",
+  "cache_similarity": 1.0,
+  "cache_matched_question": "计算围道积分$\\oint_{|z|=3} \\frac{e^z}{z^2(z-1)} dz$。"
+}

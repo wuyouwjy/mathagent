@@ -1,0 +1,49 @@
+{
+  "final_answer": "y = 1.2x + 0.75",
+  "domain": "statistics",
+  "reasoning_steps": [
+    {
+      "step_id": 1,
+      "description": "计算各统计量的和",
+      "formula": "\\sum x_i = 10, \\sum y_i = 15, \\sum x_i^2 = 30, \\sum x_i y_i = 43.5",
+      "result": null,
+      "method": "最小二乘法"
+    },
+    {
+      "step_id": 2,
+      "description": "计算样本均值",
+      "formula": "\\bar{x} = 2.5, \\bar{y} = 3.75",
+      "result": null,
+      "method": "最小二乘法"
+    },
+    {
+      "step_id": 3,
+      "description": "利用最小二乘法公式计算斜率 a",
+      "formula": "a = \\frac{n\\sum x_i y_i - \\sum x_i \\sum y_i}{n\\sum x_i^2 - (\\sum x_i)^2} = 1.2",
+      "result": null,
+      "method": "最小二乘法"
+    },
+    {
+      "step_id": 4,
+      "description": "计算截距 b",
+      "formula": "b = \\bar{y} - a\\bar{x} = 3.75 - 1.2 \\times 2.5 = 0.75",
+      "result": null,
+      "method": "最小二乘法"
+    }
+  ],
+  "methods_used": [
+    "最小二乘法",
+    "线性回归模型"
+  ],
+  "verification": {
+    "is_correct": true,
+    "confidence": 1.0,
+    "check_method": "ground_truth_match",
+    "error_details": ""
+  },
+  "educational_hint": "最小二乘法通过最小化残差平方和来确定回归系数，斜率 a 反映 x 对 y 的影响程度，截距 b 为 x=0 时的预测值。",
+  "from_cache": true,
+  "question_id": "43",
+  "cache_similarity": 1.0000001192092896,
+  "cache_matched_question": "用最小二乘法求数据点$(1,2),(2,3),(3,4.5),(4,5.5)$的一次拟合直线$y=ax+b$。"
+}

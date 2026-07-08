@@ -1,0 +1,24 @@
+{
+  "question_id": "q_1",
+  "timestamp": "2026-07-06T15:31:17.498688",
+  "domain": "algebra",
+  "final_answer": "求解失败: Solver 执行异常: API connection failed",
+  "reasoning_steps": [],
+  "methods_used": [],
+  "verification": {
+    "is_correct": false,
+    "confidence": 0.3,
+    "check_method": "verification_error",
+    "error_details": "API connection failed"
+  },
+  "educational_hint": "求解过程中发生错误，请检查问题描述和系统配置。",
+  "computation_time_ms": 57214.035511016846,
+  "retry_count": 3,
+  "model_version": null,
+  "from_cache": false,
+  "cache_similarity": null,
+  "cache_matched_question": null,
+  "true_domain": null,
+  "ground_truth": null,
+  "answer_match": null
+}

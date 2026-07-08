@@ -1,0 +1,78 @@
+{
+  "question_id": "52",
+  "timestamp": "2026-07-08T00:17:52.126376",
+  "domain": "real_analysis",
+  "final_answer": "函数 $f(x)=\\frac{1}{x}$ 在 $(0,1]$ 上不是 Lebesgue 可积的",
+  "reasoning_steps": [
+    {
+      "step_id": 1,
+      "description": "确认函数非负可测",
+      "formula": "$f(x) = \\frac{1}{x}$ 在 $(0,1]$ 连续，故 Borel 可测且 $f \\ge 0$",
+      "result": null,
+      "method": "连续函数可测性"
+    },
+    {
+      "step_id": 2,
+      "description": "引用 Lebesgue 可积定义",
+      "formula": "$f \\in L^1((0,1]) \\iff \\int_{(0,1]} |f| d\\mu < +\\infty$",
+      "result": null,
+      "method": "Lebesgue 可积性定义"
+    },
+    {
+      "step_id": 3,
+      "description": "构造递增集合序列",
+      "formula": "令 $E_n = [\\frac{1}{n}, 1]$，则 $E_n \\subset E_{n+1}$ 且 $\\bigcup_{n=1}^\\infty E_n = (0,1]$",
+      "result": null,
+      "method": "集合序列逼近"
+    },
+    {
+      "step_id": 4,
+      "description": "应用单调收敛定理",
+      "formula": "$\\int_{(0,1]} f d\\mu = \\lim_{n \\to \\infty} \\int_{E_n} f d\\mu$",
+      "result": null,
+      "method": "单调收敛定理 (MCT)"
+    },
+    {
+      "step_id": 5,
+      "description": "计算子区间上的黎曼积分",
+      "formula": "$\\int_{E_n} f d\\mu = \\int_{1/n}^1 \\frac{1}{x} dx = [\\ln x]_{1/n}^1 = \\ln n$",
+      "result": null,
+      "method": "微积分基本定理"
+    },
+    {
+      "step_id": 6,
+      "description": "求极限判断发散",
+      "formula": "$\\lim_{n \\to \\infty} \\ln n = +\\infty$",
+      "result": null,
+      "method": "数列极限"
+    },
+    {
+      "step_id": 7,
+      "description": "得出结论",
+      "formula": "$\\int_{(0,1]} f d\\mu = +\\infty \\\\notin L^1((0,1])$",
+      "result": null,
+      "method": "定义判定"
+    }
+  ],
+  "methods_used": [
+    "Lebesgue 可积性定义",
+    "单调收敛定理",
+    "黎曼积分计算"
+  ],
+  "verification": {
+    "is_correct": false,
+    "confidence": 0.3,
+    "check_method": "parse_error",
+    "error_details": "LLM 返回无法解析"
+  },
+  "educational_hint": "非负函数的 Lebesgue 可积性取决于积分值是否有限。通过递增序列逼近无界区间，利用单调收敛定理将广义积分转化为极限问题，若极限发散则不可积。",
+  "computation_time_ms": 185029.1929244995,
+  "retry_count": 1,
+  "model_version": null,
+  "from_cache": false,
+  "cache_similarity": null,
+  "cache_matched_question": null,
+  "true_domain": null,
+  "ground_truth": null,
+  "answer_match": null
+}

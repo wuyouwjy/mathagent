@@ -1,0 +1,56 @@
+{
+  "question_id": "61",
+  "timestamp": "2026-07-08T00:18:39.618697",
+  "domain": "differential_geometry",
+  "final_answer": "Euler 示性数为 0，总曲率为 0",
+  "reasoning_steps": [
+    {
+      "step_id": 1,
+      "description": "确定环面拓扑类型",
+      "formula": "g=1",
+      "result": null,
+      "method": "曲面拓扑分类"
+    },
+    {
+      "step_id": 2,
+      "description": "计算 Euler 示性数",
+      "formula": "\\chi = 2 - 2g",
+      "result": null,
+      "method": "欧拉示性数公式"
+    },
+    {
+      "step_id": 3,
+      "description": "应用 Gauss-Bonnet 定理",
+      "formula": "\\int_{T^2} K dA = 2\\pi \\chi",
+      "result": null,
+      "method": "Gauss-Bonnet 定理"
+    },
+    {
+      "step_id": 4,
+      "description": "计算总曲率",
+      "formula": "2\\pi \\times 0 = 0",
+      "result": null,
+      "method": "代入计算"
+    }
+  ],
+  "methods_used": [
+    "Gauss-Bonnet 定理",
+    "曲面拓扑分类"
+  ],
+  "verification": {
+    "is_correct": true,
+    "confidence": 1.0,
+    "check_method": "验证环面拓扑亏格 g=1，应用 Euler 示性数公式 χ=2-2g 得 0，应用 Gauss-Bonnet 定理 ∫KdA=2πχ 得总曲率 0。步骤逻辑连贯，公式使用正确。",
+    "error_details": "无"
+  },
+  "educational_hint": "环面是亏格为 1 的闭可定向曲面。根据 Gauss-Bonnet 定理，闭曲面的总曲率等于 2 倍 pi 乘以其 Euler 示性数。",
+  "computation_time_ms": 86808.0849647522,
+  "retry_count": 0,
+  "model_version": null,
+  "from_cache": false,
+  "cache_similarity": null,
+  "cache_matched_question": null,
+  "true_domain": null,
+  "ground_truth": null,
+  "answer_match": null
+}

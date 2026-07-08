@@ -1,0 +1,50 @@
+{
+  "question_id": "16",
+  "timestamp": "2026-07-08T00:12:05.696257",
+  "domain": "combinatorics",
+  "final_answer": "\\frac{m-n+1}{m+1}\\binom{m+n}{n}",
+  "reasoning_steps": [
+    {
+      "step_id": 1,
+      "description": "计算从 (0,0) 到 (m,n) 的无限制最短路径总数",
+      "formula": "\\binom{m+n}{n}",
+      "result": null,
+      "method": "组合数"
+    },
+    {
+      "step_id": 2,
+      "description": "利用反射原理计算不经过对角线 y=x 上方的路径数（排除法）",
+      "formula": "\\binom{m+n}{n-1}",
+      "result": null,
+      "method": "反射原理"
+    },
+    {
+      "step_id": 3,
+      "description": "总路径数减去非法路径数并化简",
+      "formula": "\\binom{m+n}{n} - \\binom{m+n}{n-1} = \\frac{m-n+1}{m+1}\\binom{m+n}{n}",
+      "result": null,
+      "method": "代数化简"
+    }
+  ],
+  "methods_used": [
+    "组合数",
+    "反射原理",
+    "代数化简"
+  ],
+  "verification": {
+    "is_correct": false,
+    "confidence": 0.3,
+    "check_method": "parse_error",
+    "error_details": "LLM 返回无法解析"
+  },
+  "educational_hint": "此题是经典的格路问题。当 m=n 时，公式退化为卡特兰数 C_n = (1/(n+1))*C(2n, n)。解题核心是使用反射原理计算越界路径并从总数中剔除。",
+  "computation_time_ms": 146969.50721740723,
+  "retry_count": 1,
+  "model_version": null,
+  "from_cache": false,
+  "cache_similarity": null,
+  "cache_matched_question": null,
+  "true_domain": null,
+  "ground_truth": null,
+  "answer_match": null
+}

@@ -1,0 +1,50 @@
+{
+  "question_id": "84",
+  "timestamp": "2026-07-08T00:22:04.915829",
+  "domain": "complex_analysis",
+  "final_answer": "由于 $\\sin z$ 在 $z=0$ 处解析，其 Laurent 级数即为 Taylor 级数：$\\sin z = \\sum_{n=0}^{\\infty} \\frac{(-1)^n}{(2n+1)!} z^{2n+1}$",
+  "reasoning_steps": [
+    {
+      "step_id": 1,
+      "description": "判断函数奇点性质",
+      "formula": "函数 $f(z) = \\sin z$ 是整函数，在 $z=0$ 处解析，因此 Laurent 级数的主要部分（负幂项）为零。",
+      "result": null,
+      "method": "解析函数性质"
+    },
+    {
+      "step_id": 2,
+      "description": "利用已知 Taylor 级数展开",
+      "formula": "根据 $\\sin z$ 的 Maclaurin 级数公式，$\\sin z = z - \\frac{z^3}{3!} + \\frac{z^5}{5!} - \\cdots$",
+      "result": null,
+      "method": "Taylor 级数展开"
+    },
+    {
+      "step_id": 3,
+      "description": "写出求和形式",
+      "formula": "将展开式写为通项公式形式：$\\sin z = \\sum_{n=0}^{\\infty} \\frac{(-1)^n}{(2n+1)!} z^{2n+1}$",
+      "result": null,
+      "method": "级数求和"
+    }
+  ],
+  "methods_used": [
+    "解析函数性质",
+    "Laurent 级数展开",
+    "Taylor 级数展开"
+  ],
+  "verification": {
+    "is_correct": true,
+    "confidence": 1.0,
+    "check_method": "Verified that sin(z) is an entire function, meaning it is analytic at z=0. Confirmed that for a function analytic at a point, its Laurent series expansion reduces to its Taylor series (with zero coefficients for negative powers). Verified the summation formula matches the standard Maclaurin series for sin(z).",
+    "error_details": "No errors found. The reasoning correctly identifies z=0 as a regular point rather than a singularity, and correctly applies the Taylor series as the specific case of the Laurent series."
+  },
+  "educational_hint": "注意：若函数在展开点解析，Laurent 级数退化为 Taylor 级数，不含负幂项。$\\sin z$ 为整函数，收敛半径为无穷大。",
+  "computation_time_ms": 99240.53931236267,
+  "retry_count": 0,
+  "model_version": null,
+  "from_cache": false,
+  "cache_similarity": null,
+  "cache_matched_question": null,
+  "true_domain": null,
+  "ground_truth": null,
+  "answer_match": null
+}

@@ -35,6 +35,7 @@ class MathAgentWorkflow:
         enable_rag: bool = True,
         enable_checkpoint: bool = False,
         max_reflection_count: int = 3,
+        skip_cache: bool = False,
     ):
         """
         初始化工作流运行器
@@ -43,10 +44,12 @@ class MathAgentWorkflow:
             enable_rag: 是否启用 RAG 检索
             enable_checkpoint: 是否启用检查点
             max_reflection_count: 最大反思重试次数
+            skip_cache: 是否跳过缓存（benchmark模式应设为True）
         """
         self.enable_rag = enable_rag
         self.enable_checkpoint = enable_checkpoint
         self.max_reflection_count = max_reflection_count
+        self.skip_cache = skip_cache
 
         # 构建并编译图
         logger.info("[Workflow] 初始化 MathAgentWorkflow...")
@@ -94,6 +97,7 @@ class MathAgentWorkflow:
             question_id=question_id,
             question_text=question_text,
             max_reflection_count=self.max_reflection_count,
+            skip_cache=self.skip_cache,
         )
 
         # --- 运行图 ---
@@ -341,4 +345,5 @@ def create_default_workflow() -> MathAgentWorkflow:
         enable_rag=True,
         enable_checkpoint=False,
         max_reflection_count=3,
+        skip_cache=False,
     )

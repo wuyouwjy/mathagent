@@ -1,0 +1,50 @@
+{
+  "final_answer": "平衡点为 $(0,0)$、$(1,0)$、$(-1,0)$。其中 $(0,0)$ 为中心（稳定），$(\\pm 1,0)$ 为鞍点（不稳定）。",
+  "domain": "ordinary_differential_equations",
+  "reasoning_steps": [
+    {
+      "step_id": 1,
+      "description": "求解平衡点，令导数为零",
+      "formula": "\\begin{cases} x' = y = 0 \\\\ y' = -x + x^3 = 0 \\end{cases}",
+      "result": null,
+      "method": "代数法求解方程组"
+    },
+    {
+      "step_id": 2,
+      "description": "计算系统的雅可比矩阵",
+      "formula": "J(x,y) = \\begin{pmatrix} 0 & 1 \\\\ -1+3x^2 & 0 \\end{pmatrix}",
+      "result": null,
+      "method": "线性化方法 (Jacobian 矩阵)"
+    },
+    {
+      "step_id": 3,
+      "description": "分析原点 $(0,0)$ 的稳定性，特征值为纯虚数，结合哈密顿性质判定为中心",
+      "formula": "J(0,0) = \\begin{pmatrix} 0 & 1 \\\\ -1 & 0 \\end{pmatrix}, \\quad \\lambda^2 + 1 = 0 \\Rightarrow \\lambda = \\pm i",
+      "result": null,
+      "method": "特征值分析 (结合哈密顿系统性质)"
+    },
+    {
+      "step_id": 4,
+      "description": "分析点 $(\\pm 1, 0)$ 的稳定性，特征值异号，判定为鞍点",
+      "formula": "J(\\pm 1,0) = \\begin{pmatrix} 0 & 1 \\\\ 2 & 0 \\end{pmatrix}, \\quad \\lambda^2 - 2 = 0 \\Rightarrow \\lambda = \\pm \\sqrt{2}",
+      "result": null,
+      "method": "特征值分析 (鞍点判定)"
+    }
+  ],
+  "methods_used": [
+    "线性化方法",
+    "特征值分析",
+    "哈密顿系统分析"
+  ],
+  "verification": {
+    "is_correct": true,
+    "confidence": 1.0,
+    "check_method": "ground_truth_match",
+    "error_details": ""
+  },
+  "educational_hint": "对于线性化后特征值为纯虚数的情况，线性化理论无法直接判定非线性系统的稳定性，需结合哈密顿函数或 Lyapunov 函数进一步分析。鞍点特征值异号，必不稳定。",
+  "from_cache": true,
+  "question_id": "91",
+  "cache_similarity": 1.0000004768371582,
+  "cache_matched_question": "求自治系统$\\begin{cases}x' = y\\\\ y' = -x + x^3\\end{cases}$的平衡点并判断稳定性。"
+}

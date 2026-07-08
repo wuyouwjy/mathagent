@@ -35,7 +35,14 @@ class TestMathDomains:
             solver = DOMAIN_TO_SOLVER[domain]
             assert solver in [
                 "pde_solver", "ode_solver", "complex_analysis_solver",
-                "topology_solver", "optimization_solver", "algebra_solver"
+                "real_analysis_solver", "functional_analysis_solver",
+                "calculus_of_variations_solver", "algebra_solver",
+                "number_theory_solver", "group_theory_solver",
+                "topology_solver", "differential_geometry_solver",
+                "algebraic_geometry_solver", "optimization_solver",
+                "probability_solver", "statistics_solver",
+                "numerical_analysis_solver", "combinatorics_solver",
+                "mathematical_physics_solver",
             ], f"未知的 Solver: {solver}"
 
     def test_get_solver_for_domain(self):

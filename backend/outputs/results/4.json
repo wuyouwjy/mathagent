@@ -1,0 +1,64 @@
+{
+  "question_id": "4",
+  "timestamp": "2026-07-08T00:09:53.244696",
+  "domain": "group_theory",
+  "final_answer": "Z(G) \\neq \\{e\\}",
+  "reasoning_steps": [
+    {
+      "step_id": 1,
+      "description": "定义 G 在自身上的共轭作用",
+      "formula": "G \\times G \\to G, (g, x) \\mapsto gxg^{-1}",
+      "result": null,
+      "method": "群作用"
+    },
+    {
+      "step_id": 2,
+      "description": "应用轨道 - 稳定子定理",
+      "formula": "|Cl(x)| = [G : C_G(x)]",
+      "result": null,
+      "method": "轨道 - 稳定子定理"
+    },
+    {
+      "step_id": 3,
+      "description": "建立类方程",
+      "formula": "|G| = |Z(G)| + \\sum_{x \\notin Z(G)} [G : C_G(x)]",
+      "result": null,
+      "method": "类方程"
+    },
+    {
+      "step_id": 4,
+      "description": "分析 p-整除性",
+      "formula": "p \\mid [G : C_G(x)] \\quad (\\forall x \\notin Z(G))",
+      "result": null,
+      "method": "p-群性质"
+    },
+    {
+      "step_id": 5,
+      "description": "得出结论",
+      "formula": "|Z(G)| \\equiv |G| \\equiv 0 \\pmod p \\implies |Z(G)| \\ge p",
+      "result": null,
+      "method": "同余分析"
+    }
+  ],
+  "methods_used": [
+    "群作用",
+    "轨道 - 稳定子定理",
+    "类方程"
+  ],
+  "verification": {
+    "is_correct": false,
+    "confidence": 0.3,
+    "check_method": "parse_error",
+    "error_details": "LLM 返回无法解析"
+  },
+  "educational_hint": "利用共轭作用将群分解为轨道，通过类方程证明中心阶数至少为 p。",
+  "computation_time_ms": 132679.3577671051,
+  "retry_count": 1,
+  "model_version": null,
+  "from_cache": false,
+  "cache_similarity": null,
+  "cache_matched_question": null,
+  "true_domain": null,
+  "ground_truth": null,
+  "answer_match": null
+}

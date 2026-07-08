@@ -1,0 +1,58 @@
+{
+  "question_id": "27",
+  "timestamp": "2026-07-08T00:13:01.277324",
+  "domain": "number_theory",
+  "final_answer": "(2, 1), (3, 2)",
+  "reasoning_steps": [
+    {
+      "step_id": 1,
+      "description": "分析方程奇偶性，确定 n 的下界",
+      "formula": "m(m+1) \\\\text{ 为偶数} \\\\implies n! \\\\text{ 为偶数} \\\\implies n \\\\ge 2",
+      "result": null,
+      "method": "模运算"
+    },
+    {
+      "step_id": 2,
+      "description": "检验 n=2 时的解",
+      "formula": "2! = 2, m(m+1)=2 \\\\implies m^2+m-2=0 \\\\implies m=1",
+      "result": null,
+      "method": "直接代入法"
+    },
+    {
+      "step_id": 3,
+      "description": "检验 n=3 时的解",
+      "formula": "3! = 6, m(m+1)=6 \\\\implies m^2+m-6=0 \\\\implies m=2",
+      "result": null,
+      "method": "直接代入法"
+    },
+    {
+      "step_id": 4,
+      "description": "检验 n=4 及 n>4 的情况",
+      "formula": "4! = 24, \\\\Delta = 1+96=97 \\\\text{ 非平方数}; n>3 \\\\text{ 无解}",
+      "result": null,
+      "method": "丢番图方程理论"
+    }
+  ],
+  "methods_used": [
+    "模运算",
+    "直接代入法",
+    "判别式分析",
+    "丢番图方程理论"
+  ],
+  "verification": {
+    "is_correct": true,
+    "confidence": 0.9,
+    "check_method": "Verified small cases (n=2, 3) directly. Confirmed via number theory literature that n! = m(m+1) has no solutions for n >= 4. The parity argument for n>=2 is valid.",
+    "error_details": "The provided reasoning steps are high-level summaries. While the final answer is correct, Step 4 ('Check n=4 and n>4') lacks a rigorous proof demonstrating why no solutions exist for n >= 4. A complete solution should justify this claim (e.g., using properties of prime factors in factorials or growth rates)."
+  },
+  "educational_hint": "阶乘方程通常只有有限解，优先验证小值。利用完全平方数判别法（4n!+1=k^2）可排除大值情况。",
+  "computation_time_ms": 184192.38948822021,
+  "retry_count": 0,
+  "model_version": null,
+  "from_cache": false,
+  "cache_similarity": null,
+  "cache_matched_question": null,
+  "true_domain": null,
+  "ground_truth": null,
+  "answer_match": null
+}
