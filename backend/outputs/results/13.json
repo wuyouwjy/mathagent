@@ -1,0 +1,55 @@
+{
+  "final_answer": "\\binom{2n}{n}",
+  "domain": "combinatorics",
+  "reasoning_steps": [
+    {
+      "step_id": 1,
+      "description": "构造生成函数 $(1+x)^n$ 的二项式展开",
+      "formula": "$(1+x)^n = \\sum_{k=0}^{n} \\binom{n}{k} x^k$",
+      "result": null,
+      "method": "生成函数"
+    },
+    {
+      "step_id": 2,
+      "description": "考虑两个相同生成函数的乘积",
+      "formula": "$(1+x)^n (1+x)^n = (1+x)^{2n}$",
+      "result": null,
+      "method": "生成函数"
+    },
+    {
+      "step_id": 3,
+      "description": "比较等式两边 $x^n$ 项的系数",
+      "formula": "$[x^n](1+x)^{2n} = \\binom{2n}{n}$",
+      "result": null,
+      "method": "生成函数"
+    },
+    {
+      "step_id": 4,
+      "description": "计算右边乘积展开中 $x^n$ 的系数",
+      "formula": "$[x^n] \\left( \\sum_{i=0}^{n} \\binom{n}{i} x^i \\right) \\left( \\sum_{j=0}^{n} \\binom{n}{j} x^j \\right) = \\sum_{k=0}^{n} \\binom{n}{k} \\binom{n}{n-k} = \\sum_{k=0}^{n} \\binom{n}{k}^2$",
+      "result": null,
+      "method": "生成函数"
+    },
+    {
+      "step_id": 5,
+      "description": "得出结论",
+      "formula": "$\\sum_{k=0}^{n} \\binom{n}{k}^2 = \\binom{2n}{n}$",
+      "result": null,
+      "method": "生成函数"
+    }
+  ],
+  "methods_used": [
+    "生成函数"
+  ],
+  "verification": {
+    "is_correct": true,
+    "confidence": 1.0,
+    "check_method": "ground_truth_match",
+    "error_details": ""
+  },
+  "educational_hint": "利用生成函数系数比较法，将平方和转化为二项式展开中特定项的系数，这是处理组合数平方和问题的常用技巧。",
+  "from_cache": true,
+  "question_id": "13",
+  "cache_similarity": 1.0000004768371582,
+  "cache_matched_question": "求$\\sum_{k=0}^{n} \\binom{n}{k}^2$的值。"
+}

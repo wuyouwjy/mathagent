@@ -1,0 +1,29 @@
+{
+  "final_answer": "存在满足条件的 $F_\\sigma$ 集 $F$ 和零测集 $N$，使得 $E = F \\cup N$。",
+  "domain": "algebra",
+  "reasoning_steps": [
+    {
+      "step_id": 1,
+      "description": "1. 根据勒贝格测度的内正则性定理，对于任意勒贝格可测集 $E$ 和任意 \\epsilon > 0，存在闭集 $K \\subseteq E$ 使得 $m(E \\setminus K) < \\epsilon$。\n2. 取 \\epsilon_n = 1/n (n \\in \\mathbb{N}^+)，则存在闭集 $K_n \\subseteq E$ 使得 $m(E \\setminus K_n) < 1/n$。\n3. 令 $F = \\bigcup_{n=1}^{\\infty} K_n$。因为每个 $K_n$ 都是闭集，所以 $F$ 是 $F_\\sigma$ 集（可数个闭集的并）。\n4. 显然 $F \\subseteq E$。\n5. 考虑差集 $E \\setminus F = E \\setminus \\bigcup_{n=1}^{\\infty} K_n = \\bigcap_{n=1}^{\\infty} (E \\setminus K_n)$。\n6. 由于 $K_n \\subseteq E$，有 $E \\setminus F \\subseteq E \\setminus K_n$。因此 $0 \\le m",
+      "formula": null,
+      "result": null,
+      "method": null
+    }
+  ],
+  "methods_used": [
+    "勒贝格测度正则性定理",
+    "$F_\\sigma$ 集构造",
+    "测度的单调性与极限性质"
+  ],
+  "verification": {
+    "is_correct": true,
+    "confidence": 1.0,
+    "check_method": "ground_truth_match",
+    "error_details": ""
+  },
+  "educational_hint": "",
+  "from_cache": true,
+  "question_id": "51",
+  "cache_similarity": 1.0000005960464478,
+  "cache_matched_question": "设$E$为$\\mathbb{R}$的Lebesgue可测子集。证明存在$F_\\sigma$集$F$和零测集$N$使$E = F \\cup N$。"
+}

@@ -1,0 +1,49 @@
+{
+  "question_id": "92",
+  "timestamp": "2026-07-08T00:24:02.989706",
+  "domain": "ordinary_differential_equations",
+  "final_answer": "y(t) = \\frac{1}{4} t \\sin 2t；推导摘要：对方程两边施 Laplace 变换，利用初值为零化简，解出像函数 Y(s) 后通过逆变换得到特解。",
+  "reasoning_steps": [
+    {
+      "step_id": 1,
+      "description": "对方程两边进行 Laplace 变换，代入初始条件 y(0)=0, y'(0)=0",
+      "formula": "\\mathcal{L}\\{y''\\} + 4\\mathcal{L}\\{y\\} = \\mathcal{L}\\{\\cos 2t\\} \\Rightarrow (s^2 + 4)Y(s) = \\frac{s}{s^2 + 4}",
+      "result": null,
+      "method": "Laplace 变换法"
+    },
+    {
+      "step_id": 2,
+      "description": "整理代数方程，解出像函数 Y(s)",
+      "formula": "Y(s) = \\frac{s}{(s^2 + 4)^2}",
+      "result": null,
+      "method": "代数运算"
+    },
+    {
+      "step_id": 3,
+      "description": "利用 Laplace 逆变换公式求原函数 y(t)",
+      "formula": "y(t) = \\mathcal{L}^{-1}\\left\\{ \\frac{s}{(s^2 + 4)^2} \\right\\} = \\frac{1}{4} t \\sin 2t",
+      "result": null,
+      "method": "Laplace 逆变换"
+    }
+  ],
+  "methods_used": [
+    "Laplace 变换法",
+    "Laplace 逆变换"
+  ],
+  "verification": {
+    "is_correct": false,
+    "confidence": 0.3,
+    "check_method": "parse_error",
+    "error_details": "LLM 返回无法解析"
+  },
+  "educational_hint": "本题属于共振情形（激励频率等于固有频率），解中会出现 t 与三角函数的乘积项。",
+  "computation_time_ms": 117860.24689674377,
+  "retry_count": 1,
+  "model_version": null,
+  "from_cache": false,
+  "cache_similarity": null,
+  "cache_matched_question": null,
+  "true_domain": null,
+  "ground_truth": null,
+  "answer_match": null
+}

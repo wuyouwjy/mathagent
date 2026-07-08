@@ -1,0 +1,42 @@
+{
+  "final_answer": "84",
+  "domain": "combinatorics",
+  "reasoning_steps": [
+    {
+      "step_id": 1,
+      "description": "确定问题参数：球数 n=10，盒子数 k=4，约束条件为每个盒子非空",
+      "formula": "n=10, k=4",
+      "result": null,
+      "method": "问题分析"
+    },
+    {
+      "step_id": 2,
+      "description": "应用插板法模型：将 n 个相同球放入 k 个不同盒子且非空等价于在 n-1 个间隙中选 k-1 个位置放隔板",
+      "formula": "\\binom{n-1}{k-1} = \\binom{10-1}{4-1} = \\binom{9}{3}",
+      "result": null,
+      "method": "插板法"
+    },
+    {
+      "step_id": 3,
+      "description": "计算组合数具体数值",
+      "formula": "\\binom{9}{3} = \\frac{9 \\times 8 \\times 7}{3 \\times 2 \\times 1} = 84",
+      "result": null,
+      "method": "组合数计算"
+    }
+  ],
+  "methods_used": [
+    "插板法",
+    "组合数计算"
+  ],
+  "verification": {
+    "is_correct": true,
+    "confidence": 1.0,
+    "check_method": "ground_truth_match",
+    "error_details": ""
+  },
+  "educational_hint": "此类问题属于典型的‘相同元素分堆’模型，使用插板法求解，核心公式为 C(n-1, k-1)。",
+  "from_cache": true,
+  "question_id": "14",
+  "cache_similarity": 1.0,
+  "cache_matched_question": "将$10$个相同的球放入$4$个不同的盒子，要求每个盒子至少有一个球，求方法数。"
+}

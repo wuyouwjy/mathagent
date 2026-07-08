@@ -1,0 +1,17 @@
+{
+  "final_answer": "\": \"2\",",
+  "domain": "real_analysis",
+  "reasoning_steps": [],
+  "methods_used": [],
+  "verification": {
+    "is_correct": true,
+    "confidence": 1.0,
+    "check_method": "ground_truth_match",
+    "error_details": ""
+  },
+  "educational_hint": "",
+  "from_cache": true,
+  "question_id": "54",
+  "cache_similarity": 1.0000004768371582,
+  "cache_matched_question": "求$\\lim_{n\\to\\infty}\\int_0^n \\left(1-\\frac{x}{n}\\right)^n e^{x/2} dx$。"
+}

@@ -1,0 +1,64 @@
+{
+  "question_id": "100",
+  "timestamp": "2026-07-08T00:25:59.729206",
+  "domain": "functional_analysis",
+  "final_answer": "存在 X 上的线性泛函 F 使得 F|_M = f 且对任意 x∈X 有 F(x)≤p(x)",
+  "reasoning_steps": [
+    {
+      "step_id": 1,
+      "description": "构造所有受次线性泛函控制的线性延拓对构成的集合",
+      "formula": "\\mathcal{A} = \\{(N, g) \\mid M \\subseteq N \\subseteq X, g \\text{ 线性}, g|_M=f, \\forall x \\in N, g(x) \\le p(x)\\}",
+      "result": null,
+      "method": null
+    },
+    {
+      "step_id": 2,
+      "description": "在集合上定义偏序关系，包含关系与函数值一致",
+      "formula": "(N_1, g_1) \\preceq (N_2, g_2) \\iff N_1 \\subseteq N_2 \\land g_2|_{N_1} = g_1",
+      "result": null,
+      "method": null
+    },
+    {
+      "step_id": 3,
+      "description": "证明任意链存在上界，取子空间与泛函的并集",
+      "formula": "N = \\bigcup N_\\alpha, g = \\bigcup g_\\alpha",
+      "result": null,
+      "method": null
+    },
+    {
+      "step_id": 4,
+      "description": "应用 Zorn 引理得到极大元 (N^*, F^*)",
+      "formula": "Zorn's Lemma \\implies \\exists (N^*, F^*) \\in \\mathcal{A} \\text{ 极大}",
+      "result": null,
+      "method": null
+    },
+    {
+      "step_id": 5,
+      "description": "证明极大元定义域必为全空间 X，否则可进一步延拓",
+      "formula": "\\sup_{x \\in N^*}(F^*(x)-p(-x)) \\le c \\le \\inf_{x \\in N^*}(p(x)-F^*(x))",
+      "result": null,
+      "method": null
+    }
+  ],
+  "methods_used": [
+    "Zorn 引理",
+    "次线性泛函性质",
+    "线性延拓引理"
+  ],
+  "verification": {
+    "is_correct": false,
+    "confidence": 0.3,
+    "check_method": "parse_error",
+    "error_details": "LLM 返回无法解析"
+  },
+  "educational_hint": "证明核心在于利用 Zorn 引理处理无限维空间的延拓问题，关键在于通过次线性泛函确定延拓点的取值范围非空。",
+  "computation_time_ms": 151404.09302711487,
+  "retry_count": 1,
+  "model_version": null,
+  "from_cache": false,
+  "cache_similarity": null,
+  "cache_matched_question": null,
+  "true_domain": null,
+  "ground_truth": null,
+  "answer_match": null
+}

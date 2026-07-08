@@ -1,0 +1,64 @@
+{
+  "question_id": "98",
+  "timestamp": "2026-07-08T00:26:58.958985",
+  "domain": "functional_analysis",
+  "final_answer": "定理得证：若 Banach 空间上的算子族逐点有界，则一致有界。",
+  "reasoning_steps": [
+    {
+      "step_id": 1,
+      "description": "定义集合 E_n = {x in X : sup_||T_alpha x|| <= n}，利用 T_alpha 连续性证明 E_n 为闭集",
+      "formula": "E_n = \\{x \\in X : \\sup_{\\alpha} \\|T_\\alpha x\\| \\le n\\}",
+      "result": null,
+      "method": null
+    },
+    {
+      "step_id": 2,
+      "description": "由逐点有界性知 X = union E_n，即全空间被可数个闭集覆盖",
+      "formula": "X = \\bigcup_{n=1}^\\infty E_n",
+      "result": null,
+      "method": null
+    },
+    {
+      "step_id": 3,
+      "description": "利用 Baire 纲定理，因 X 完备，存在 k 使 E_k 包含非空开球 B(x_0, r)",
+      "formula": "B(x_0, r) \\subset E_k",
+      "result": null,
+      "method": null
+    },
+    {
+      "step_id": 4,
+      "description": "对任意单位向量 x，构造 y = x_0 + rx 属于开球，利用三角不等式估计范数",
+      "formula": "\\|T_\\alpha x\\| \\le \\frac{\\|T_\\alpha(x_0 + rx)\\| + \\|T_\\alpha x_0\\|}{r}",
+      "result": null,
+      "method": null
+    },
+    {
+      "step_id": 5,
+      "description": "导出算子范数上界，证明算子族一致有界",
+      "formula": "\\sup_{\\alpha} \\|T_\\alpha\\| \\le \\frac{2M}{r} < \\infty",
+      "result": null,
+      "method": null
+    }
+  ],
+  "methods_used": [
+    "Baire 纲定理",
+    "三角不等式",
+    "闭集性质"
+  ],
+  "verification": {
+    "is_correct": true,
+    "confidence": 0.95,
+    "check_method": "Verified the logical flow of the Banach-Steinhaus theorem proof sketch. Confirmed the correct application of the Baire Category Theorem on a Banach space, the closedness of the sets E_n derived from operator continuity, and the standard argument for deriving uniform boundedness from pointwise boundedness via translation and homogeneity.",
+    "error_details": "Step 4 contains a minor terminological inaccuracy: it states that y = x_0 + rx belongs to the open ball B(x_0, r). Since ||y - x_0|| = r, y lies on the boundary of the open ball. However, because E_k is closed (as proven in Step 1) and contains the open ball, it necessarily contains the closed ball, so y in E_k remains valid. This does not affect the correctness of the proof."
+  },
+  "educational_hint": "证明核心在于利用 Banach 空间的完备性（Baire 纲定理），将逐点有界性转化为某集合具有内点，进而通过线性性质导出整体的一致有界性。",
+  "computation_time_ms": 218583.4982395172,
+  "retry_count": 0,
+  "model_version": null,
+  "from_cache": false,
+  "cache_similarity": null,
+  "cache_matched_question": null,
+  "true_domain": null,
+  "ground_truth": null,
+  "answer_match": null
+}

@@ -1,0 +1,63 @@
+{
+  "question_id": "q_df9679b9",
+  "timestamp": "2026-06-22T22:23:19.933421",
+  "domain": "real_analysis",
+  "final_answer": "\\frac{\\sqrt{\\pi}}{2}",
+  "reasoning_steps": [
+    {
+      "step_id": 1,
+      "description": "设所求积分为 I",
+      "formula": "I = \\int_0^\\infty e^{-x^2} dx",
+      "result": null,
+      "method": "定义积分"
+    },
+    {
+      "step_id": 2,
+      "description": "计算 I 的平方转化为二重积分",
+      "formula": "I^2 = \\int_0^\\infty \\int_0^\\infty e^{-(x^2+y^2)} dx dy",
+      "result": null,
+      "method": "平方技巧"
+    },
+    {
+      "step_id": 3,
+      "description": "利用极坐标变换",
+      "formula": "x = r\\cos\\theta, y = r\\sin\\theta, dx dy = r dr d\\theta",
+      "result": null,
+      "method": "极坐标变换"
+    },
+    {
+      "step_id": 4,
+      "description": "计算二重积分的值",
+      "formula": "I^2 = \\int_0^{\\pi/2} d\\theta \\int_0^\\infty e^{-r^2} r dr = \\frac{\\pi}{4}",
+      "result": null,
+      "method": "累次积分计算"
+    },
+    {
+      "step_id": 5,
+      "description": "开方得到最终结果",
+      "formula": "I = \\sqrt{\\frac{\\pi}{4}} = \\frac{\\sqrt{\\pi}}{2}",
+      "result": null,
+      "method": "开方运算"
+    }
+  ],
+  "methods_used": [
+    "极坐标变换",
+    "二重积分"
+  ],
+  "verification": {
+    "is_correct": true,
+    "confidence": 1.0,
+    "check_method": "检查了推理逻辑：步骤 1-5 构成了高斯积分的标准证明链。逻辑无跳步，二重积分转化合法，极坐标变换区域（第一象限）及雅可比因子处理正确。方法适用性强，结果满足原积分收敛条件。",
+    "error_details": "[无]"
+  },
+  "educational_hint": "这是高斯积分的经典解法，通过平方将一维积分转化为二维极坐标积分求解。",
+  "computation_time_ms": 158175.27174949646,
+  "retry_count": 0,
+  "model_version": null,
+  "from_cache": false,
+  "cache_similarity": null,
+  "cache_matched_question": null,
+  "true_domain": null,
+  "ground_truth": null,
+  "answer_match": null
+}

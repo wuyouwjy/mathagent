@@ -1,0 +1,58 @@
+{
+  "question_id": "107",
+  "timestamp": "2026-07-08T00:28:02.427044",
+  "domain": "algebra",
+  "final_answer": "实对称矩阵 $A$ 可正交对角化，即存在正交矩阵 $Q$ 使得 $Q^T A Q$ 为对角矩阵。",
+  "reasoning_steps": [
+    {
+      "step_id": 1,
+      "description": "证明特征值为实数",
+      "formula": "设 $Ax = \\lambda x$ ($x \\neq 0$)，则 $\\lambda x^* x = x^* A x = (Ax)^* x = \\bar{\\lambda} x^* x \\implies \\lambda = \\bar{\\lambda}$",
+      "result": null,
+      "method": "复内积性质"
+    },
+    {
+      "step_id": 2,
+      "description": "证明不同特征值对应的特征向量正交",
+      "formula": "设 $Ax_1 = \\lambda_1 x_1, Ax_2 = \\lambda_2 x_2$，则 $\\lambda_1 x_1^T x_2 = x_1^T A x_2 = x_1^T A^T x_2 = (Ax_1)^T x_2 = \\lambda_2 x_1^T x_2 \\implies (\\lambda_1 - \\lambda_2) x_1^T x_2 = 0$",
+      "result": null,
+      "method": "对称矩阵性质"
+    },
+    {
+      "step_id": 3,
+      "description": "利用数学归纳法构造正交特征向量基",
+      "formula": "对 $n$ 阶矩阵，取单位特征向量 $v_1$，扩展为正交基，将 $A$ 分块为 $\\begin{pmatrix} \\lambda_1 & 0 \\\\ 0 & A' \\end{pmatrix}$，其中 $A'$ 为 $n-1$ 阶实对称阵",
+      "result": null,
+      "method": "数学归纳法"
+    },
+    {
+      "step_id": 4,
+      "description": "构造正交矩阵 $Q$ 完成对角化",
+      "formula": "令 $Q = [q_1, q_2, \\dots, q_n]$ 为标准正交特征向量列向量，则 $Q^T A Q = \\Lambda = \\text{diag}(\\lambda_1, \\dots, \\lambda_n)$",
+      "result": null,
+      "method": "正交变换"
+    }
+  ],
+  "methods_used": [
+    "特征值理论",
+    "正交性证明",
+    "数学归纳法",
+    "谱定理"
+  ],
+  "verification": {
+    "is_correct": true,
+    "confidence": 0.95,
+    "check_method": "验证了实对称矩阵谱定理证明的标准逻辑链条，确认特征值实数性、特征向量正交性、归纳法构造正交基及正交矩阵构造的步骤方向正确且符合线性代数理论。",
+    "error_details": "步骤概述逻辑正确，无实质性数学错误。但步骤 3 较为简略，未明确阐述归纳法中‘不变子空间’的关键性质（即特征向量的正交补空间在对称矩阵作用下保持不变），这是确保归纳步骤严谨性的核心细节。此外，未明确提及重特征值情况下的正交化过程（如 Gram-Schmidt）。"
+  },
+  "educational_hint": "核心在于利用 $A=A^T$ 证明特征值实性及特征向量正交性，进而通过归纳法保证存在一组标准正交的特征向量基。",
+  "computation_time_ms": 164707.66019821167,
+  "retry_count": 0,
+  "model_version": null,
+  "from_cache": false,
+  "cache_similarity": null,
+  "cache_matched_question": null,
+  "true_domain": null,
+  "ground_truth": null,
+  "answer_match": null
+}

@@ -1,0 +1,48 @@
+{
+  "final_answer": "\\hat{\\mu} = \\bar{X}",
+  "domain": "statistics",
+  "reasoning_steps": [
+    {
+      "step_id": 1,
+      "description": "写出正态分布样本的似然函数",
+      "formula": "L(\\mu) = \\prod_{i=1}^n \\frac{1}{\\sqrt{2\\pi\\sigma^2}} e^{-\\frac{(x_i-\\mu)^2}{2\\sigma^2}}",
+      "result": null,
+      "method": null
+    },
+    {
+      "step_id": 2,
+      "description": "取对数得到对数似然函数",
+      "formula": "l(\\mu) = \\ln L(\\mu) = -\\frac{n}{2}\\ln(2\\pi\\sigma^2) - \\frac{1}{2\\sigma^2}\\sum_{i=1}^n (x_i-\\mu)^2",
+      "result": null,
+      "method": null
+    },
+    {
+      "step_id": 3,
+      "description": "对 \\mu 求导并令导数为零",
+      "formula": "\\frac{d l(\\mu)}{d \\mu} = \\frac{1}{\\sigma^2}\\sum_{i=1}^n (x_i-\\mu) = 0",
+      "result": null,
+      "method": null
+    },
+    {
+      "step_id": 4,
+      "description": "解方程得到估计量",
+      "formula": "\\hat{\\mu} = \\frac{1}{n}\\sum_{i=1}^n x_i = \\bar{X}",
+      "result": null,
+      "method": null
+    }
+  ],
+  "methods_used": [
+    "最大似然估计"
+  ],
+  "verification": {
+    "is_correct": true,
+    "confidence": 1.0,
+    "check_method": "ground_truth_match",
+    "error_details": ""
+  },
+  "educational_hint": "对于正态分布均值，当方差已知时，最大似然估计量等于样本均值，该估计量是无偏且有效的。",
+  "from_cache": true,
+  "question_id": "93",
+  "cache_similarity": 1.000000238418579,
+  "cache_matched_question": "设$X_1,\\ldots,X_n$为来自$N(\\mu,\\sigma^2)$的随机样本。求$\\mu$的最大似然估计（$\\sigma^2$已知）。"
+}

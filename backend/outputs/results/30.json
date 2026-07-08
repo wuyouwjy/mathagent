@@ -1,0 +1,50 @@
+{
+  "question_id": "30",
+  "timestamp": "2026-07-08T00:12:06.191856",
+  "domain": "number_theory",
+  "final_answer": "任意正整数 n 均可唯一表示为二进制形式 n = \\sum_{i=0}^{k} a_i 2^i，其中 a_i \\in \\{0, 1\\}",
+  "reasoning_steps": [
+    {
+      "step_id": 1,
+      "description": "存在性证明：对 n 使用带余除法得到最低位系数",
+      "formula": "n = 2a_0 + n_1, \\quad a_0 \\in \\{0, 1\\}",
+      "result": null,
+      "method": "带余除法"
+    },
+    {
+      "step_id": 2,
+      "description": "归纳过程：重复除法直至商为 0，保证有限项表示",
+      "formula": "n_{i+1} = \\lfloor n_i / 2 \\rfloor, \\quad n_{k+1} = 0",
+      "result": null,
+      "method": "数学归纳法"
+    },
+    {
+      "step_id": 3,
+      "description": "唯一性证明：假设两种表示，比较最高不同位导出矛盾",
+      "formula": "2^k > \\sum_{i=0}^{k-1} 2^i = 2^k - 1",
+      "result": null,
+      "method": "反证法"
+    }
+  ],
+  "methods_used": [
+    "带余除法",
+    "数学归纳法",
+    "不等式性质"
+  ],
+  "verification": {
+    "is_correct": false,
+    "confidence": 0.3,
+    "check_method": "parse_error",
+    "error_details": "LLM 返回无法解析"
+  },
+  "educational_hint": "此定理确立了整数在二进制基下的唯一展开，是计算机科学与数论的基础。",
+  "computation_time_ms": 113433.8014125824,
+  "retry_count": 1,
+  "model_version": null,
+  "from_cache": false,
+  "cache_similarity": null,
+  "cache_matched_question": null,
+  "true_domain": null,
+  "ground_truth": null,
+  "answer_match": null
+}

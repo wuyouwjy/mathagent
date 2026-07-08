@@ -1,0 +1,49 @@
+{
+  "final_answer": "2\\pi i \\sin(1)",
+  "domain": "complex_analysis",
+  "reasoning_steps": [
+    {
+      "step_id": 1,
+      "description": "确定被积函数奇点并判断哪些位于围道内。",
+      "formula": "z^2+1=0 \\implies z=\\pm i, \\quad |i|=1<2, \\, |-i|=1<2",
+      "result": null,
+      "method": "奇点分析"
+    },
+    {
+      "step_id": 2,
+      "description": "计算奇点 z=i 处的留数，一级极点。",
+      "formula": "\\operatorname{Res}(f,i) = \\lim_{z\\to i} (z-i)\\frac{e^z}{z^2+1} = \\frac{e^i}{2i}",
+      "result": null,
+      "method": "留数计算（一级极点）"
+    },
+    {
+      "step_id": 3,
+      "description": "计算奇点 z=-i 处的留数。",
+      "formula": "\\operatorname{Res}(f,-i) = \\lim_{z\\to -i} (z+i)\\frac{e^z}{z^2+1} = \\frac{e^{-i}}{-2i}",
+      "result": null,
+      "method": "留数计算（一级极点）"
+    },
+    {
+      "step_id": 4,
+      "description": "求留数和并应用留数定理。",
+      "formula": "\\sum \\operatorname{Res} = \\frac{e^i}{2i} - \\frac{e^{-i}}{2i} = \\frac{e^i-e^{-i}}{2i} = \\sin(1), \\quad \\oint = 2\\pi i \\sin(1)",
+      "result": null,
+      "method": "留数定理"
+    }
+  ],
+  "methods_used": [
+    "留数定理",
+    "一级极点留数计算"
+  ],
+  "verification": {
+    "is_correct": true,
+    "confidence": 1.0,
+    "check_method": "通过留数定理验证：确定奇点z=±i均在|z|=2内，计算一级极点留数分别为e^i/(2i)和-e^{-i}/(2i)，求和得(e^i - e^{-i})/(2i)=sin(1)，故积分为2π i sin(1)。所有步骤正确。",
+    "error_details": "[无]"
+  },
+  "educational_hint": "对于分母为多项式且只含简单极点的有理函数型积分，先找出所有极点，筛选出围道内的极点，再用公式 \\operatorname{Res}(f,z_0)=\\frac{g(z_0)}{h'(z_0)} 或极限法计算留数，最后乘以 2\\pi i 求和。",
+  "from_cache": true,
+  "question_id": "q_0005",
+  "cache_similarity": 0.9999996423721313,
+  "cache_matched_question": "使用留数定理计算围道积分 $\\oint_{|z|=2} \\frac{e^z}{z^2+1} dz$"
+}

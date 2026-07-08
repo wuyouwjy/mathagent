@@ -1,0 +1,5886 @@
+{
+  "run_id": "run_20260708_000740",
+  "status": "completed",
+  "started_at": "2026-07-08T00:07:40.421246",
+  "completed_at": "2026-07-08T00:29:16.039391",
+  "dataset": "D:\\code\\Agent\\03InternAgent\\Math-Agent-System\\database/datasets/dev.jsonl",
+  "total": 112,
+  "solved": 82,
+  "failed": 30,
+  "accuracy": 73.21,
+  "avg_time_per_question_ms": 84316.58,
+  "total_time_ms": 9443457.45,
+  "domain_stats": {
+    "algebra": {
+      "total": 14,
+      "solved": 10,
+      "accuracy": 71.43
+    },
+    "group_theory": {
+      "total": 2,
+      "solved": 1,
+      "accuracy": 50.0
+    },
+    "number_theory": {
+      "total": 7,
+      "solved": 5,
+      "accuracy": 71.43
+    },
+    "combinatorics": {
+      "total": 14,
+      "solved": 13,
+      "accuracy": 92.86
+    },
+    "real_analysis": {
+      "total": 12,
+      "solved": 9,
+      "accuracy": 75.0
+    },
+    "numerical_analysis": {
+      "total": 11,
+      "solved": 7,
+      "accuracy": 63.64
+    },
+    "statistics": {
+      "total": 8,
+      "solved": 6,
+      "accuracy": 75.0
+    },
+    "differential_geometry": {
+      "total": 7,
+      "solved": 7,
+      "accuracy": 100.0
+    },
+    "topology": {
+      "total": 1,
+      "solved": 0,
+      "accuracy": 0.0
+    },
+    "calculus_of_variations": {
+      "total": 1,
+      "solved": 0,
+      "accuracy": 0.0
+    },
+    "probability": {
+      "total": 15,
+      "solved": 10,
+      "accuracy": 66.67
+    },
+    "complex_analysis": {
+      "total": 7,
+      "solved": 4,
+      "accuracy": 57.14
+    },
+    "ordinary_differential_equations": {
+      "total": 5,
+      "solved": 5,
+      "accuracy": 100.0
+    },
+    "functional_analysis": {
+      "total": 5,
+      "solved": 2,
+      "accuracy": 40.0
+    },
+    "partial_differential_equations": {
+      "total": 2,
+      "solved": 2,
+      "accuracy": 100.0
+    },
+    "optimization": {
+      "total": 1,
+      "solved": 1,
+      "accuracy": 100.0
+    }
+  },
+  "wrong_questions": [
+    {
+      "question_id": "4",
+      "domain": "group_theory",
+      "predicted": "Z(G) \\neq \\{e\\}",
+      "ground_truth": "$|Z(G)| \\geq p$",
+      "time_ms": 132679.3577671051
+    },
+    {
+      "question_id": "5",
+      "domain": "algebra",
+      "predicted": "证明 $\\mathbb{Z}[i]$ 是欧几里得整环，因此是主理想整环。",
+      "ground_truth": "$\\mathbb{Z}[i]$是PID",
+      "time_ms": 121346.89044952393
+    },
+    {
+      "question_id": "6",
+      "domain": "algebra",
+      "predicted": "有限域 $\\mathbb{F}_{27}$ 中本原元的个数为 12。乘法群阶为 26，生成元个数为 $\\phi(26)=12$。",
+      "ground_truth": "18",
+      "time_ms": 151794.41094398499
+    },
+    {
+      "question_id": "16",
+      "domain": "combinatorics",
+      "predicted": "\\frac{m-n+1}{m+1}\\binom{m+n}{n}",
+      "ground_truth": "$C_{m+n}^{\\text{Catalan}}$",
+      "time_ms": 146969.50721740723
+    },
+    {
+      "question_id": "26",
+      "domain": "number_theory",
+      "predicted": "存在整数 a, b 使得 p = a^2 + b^2",
+      "ground_truth": "存在整数$a,b$使$p=a^2+b^2$",
+      "time_ms": 151325.73223114014
+    },
+    {
+      "question_id": "30",
+      "domain": "number_theory",
+      "predicted": "任意正整数 n 均可唯一表示为二进制形式 n = \\sum_{i=0}^{k} a_i 2^i，其中 a_i \\in \\{0, 1\\}",
+      "ground_truth": "二进制表示存在且唯一",
+      "time_ms": 113433.8014125824
+    },
+    {
+      "question_id": "35",
+      "domain": "numerical_analysis",
+      "predicted": "x=0.1337890625, y=0.466552734375",
+      "ground_truth": "$(x,y) \\approx (0.1719, 0.4570)$",
+      "time_ms": 129525.60210227966
+    },
+    {
+      "question_id": "38",
+      "domain": "numerical_analysis",
+      "predicted": "\\frac{27+7\\sqrt{5}}{22}",
+      "ground_truth": "$\\kappa_2(A) \\approx 2.62$",
+      "time_ms": 115923.04611206055
+    },
+    {
+      "question_id": "40",
+      "domain": "numerical_analysis",
+      "predicted": "2.8",
+      "ground_truth": "$\\lambda \\approx 3$",
+      "time_ms": 146397.5214958191
+    },
+    {
+      "question_id": "42",
+      "domain": "numerical_analysis",
+      "predicted": "Q = \\\\begin{pmatrix} \\\\frac{3}{\\\\sqrt{13}} & \\\\frac{2}{\\\\sqrt{13}} \\\\\\\\ \\\\frac{2}{\\\\sqrt{13}} & -\\\\frac{3}{\\\\sqrt{13}} \\",
+      "ground_truth": "$Q = \\frac{1}{\\sqrt{13}}\\begin{pmatrix}3&2\\\\2&-3\\end{pmatrix}$, $R = \\begin{pmatrix}\\sqrt{13}&\\frac{6}{\\sqrt{13}}\\\\0&\\frac{4}{\\sqrt{13}}\\end{pmatrix}$",
+      "time_ms": 271432.85751342773
+    },
+    {
+      "question_id": "44",
+      "domain": "algebra",
+      "predicted": "线性方程组的解为 x=13/8, y=7/8, z=13/8。通过 LU 分解将系数矩阵 A 分解为下三角矩阵 L 和上三角矩阵 U，先利用前代法解 Ly=b 得到中间向量 y，再利用回代法解 Ux=y 求得最终解。",
+      "ground_truth": "$(x,y,z)=(1,1,1)$",
+      "time_ms": 137241.50466918945
+    },
+    {
+      "question_id": "48",
+      "domain": "real_analysis",
+      "predicted": "Cantor 集是勒贝格可测集且其勒贝格测度为零。",
+      "ground_truth": "$m(C)=0$",
+      "time_ms": 158515.34366607666
+    },
+    {
+      "question_id": "55",
+      "domain": "real_analysis",
+      "predicted": "Lusin 定理得证",
+      "ground_truth": "存在连续函数$g$使$m(\\{x:f(x)\\neq g(x)\\})<\\varepsilon$",
+      "time_ms": 0.0
+    },
+    {
+      "question_id": "56",
+      "domain": "real_analysis",
+      "predicted": "\": \"命题得证\",",
+      "ground_truth": "存在$x,y\\in E$使$x-y\\in\\mathbb{Q}$",
+      "time_ms": 165357.85269737244
+    },
+    {
+      "question_id": "59",
+      "domain": "topology",
+      "predicted": "根据庞加莱 - 霍普夫定理，紧致光滑流形上任意光滑向量场的所有零点指数之和等于该流形的欧拉示性数。对于球面 $S^2$，其欧拉示性数 $\\chi(S^2) = 2$。若向量场无零点，则指数和为 $0$，导致 $0 = 2$ 的矛盾。因此，$",
+      "ground_truth": "球面上任何光滑向量场至少有一个零点（Hairy Ball定理）",
+      "time_ms": 127844.13313865662
+    },
+    {
+      "question_id": "63",
+      "domain": "calculus_of_variations",
+      "predicted": "球面上两点间的最短路径是大圆的一段弧",
+      "ground_truth": "球面上两点间最短路径是大圆弧（测地线）",
+      "time_ms": 185136.48796081543
+    },
+    {
+      "question_id": "68",
+      "domain": "probability",
+      "predicted": "0.0104",
+      "ground_truth": "$P \\approx 0.002$",
+      "time_ms": 178018.20158958435
+    },
+    {
+      "question_id": "73",
+      "domain": "probability",
+      "predicted": "期望为 15/8，方差为 225/448",
+      "ground_truth": "$E[X]=\\frac{15}{8}$, $\\text{Var}(X)=\\frac{105}{448}$",
+      "time_ms": 72890.32626152039
+    },
+    {
+      "question_id": "74",
+      "domain": "probability",
+      "predicted": "证明完成，X(t) 是宽平稳过程",
+      "ground_truth": "$R_X(\\tau)=\\sigma^2\\cos(\\omega\\tau)$",
+      "time_ms": 151754.2383670807
+    },
+    {
+      "question_id": "76",
+      "domain": "probability",
+      "predicted": "平稳分布为 \\pi = (1/3, 1/3, 1/3)",
+      "ground_truth": "$\\pi = (\\frac{2}{5},\\frac{2}{5},\\frac{1}{5})$",
+      "time_ms": 100841.6268825531
+    },
+    {
+      "question_id": "78",
+      "domain": "probability",
+      "predicted": "\",",
+      "ground_truth": "$s$（$E[B(s)B(t)]=\\min(s,t)$）",
+      "time_ms": 113675.63915252686
+    },
+    {
+      "question_id": "83",
+      "domain": "complex_analysis",
+      "predicted": "函数 $f(z)=\\bar{z}$ 在复平面上处处不解析。推导摘要：设 $z=x+iy$，则 $f(z)=x-iy$。实部 $u=x$，虚部 $v=-y$。计算偏导数得 $u_x=1, v_y=-1$，不满足柯西 - 黎曼方程 $u_x=v",
+      "ground_truth": "不解析（不满足C-R方程）",
+      "time_ms": 179608.99353027344
+    },
+    {
+      "question_id": "84",
+      "domain": "complex_analysis",
+      "predicted": "由于 $\\sin z$ 在 $z=0$ 处解析，其 Laurent 级数即为 Taylor 级数：$\\sin z = \\sum_{n=0}^{\\infty} \\frac{(-1)^n}{(2n+1)!} z^{2n+1}$",
+      "ground_truth": "$\\sin z = z - \\frac{z^3}{3!} + \\frac{z^5}{5!} - \\cdots$",
+      "time_ms": 99240.53931236267
+    },
+    {
+      "question_id": "86",
+      "domain": "complex_analysis",
+      "predicted": "证明：设 $f(z)$ 为整函数，且存在 $M>0$ 使得对所有 $z \\in \\mathbb{C}$ 有 $|f(z)| \\le M$。对任意 $z_0 \\in \\mathbb{C}$ 及 $R>0$，由柯西积分公式的一阶导数形式，$f'",
+      "ground_truth": "有界整函数必为常数（Liouville定理）",
+      "time_ms": 154376.2412071228
+    },
+    {
+      "question_id": "95",
+      "domain": "statistics",
+      "predicted": "拒绝原假设 H0，认为均值 μ 显著不为 0",
+      "ground_truth": "$t=2.5$, 拒绝$H_0$",
+      "time_ms": 186516.17884635925
+    },
+    {
+      "question_id": "97",
+      "domain": "functional_analysis",
+      "predicted": "存在唯一的最小范数元素",
+      "ground_truth": "Hilbert空间闭凸子集中存在唯一最小范数元素",
+      "time_ms": 140146.4502811432
+    },
+    {
+      "question_id": "100",
+      "domain": "functional_analysis",
+      "predicted": "存在 X 上的线性泛函 F 使得 F|_M = f 且对任意 x∈X 有 F(x)≤p(x)",
+      "ground_truth": "线性泛函$f$可延拓到全空间$X$且仍满足$f(x)\\le p(x)$",
+      "time_ms": 151404.09302711487
+    },
+    {
+      "question_id": "102",
+      "domain": "statistics",
+      "predicted": "在线性回归中，R^2 等于 y 与 \\hat{y} 相关系数的平方，即 R^2 = (r_{y,\\hat{y}})^2。",
+      "ground_truth": "$R^2 = r^2_{y\\hat{y}}$",
+      "time_ms": 133152.925491333
+    },
+    {
+      "question_id": "107",
+      "domain": "algebra",
+      "predicted": "实对称矩阵 $A$ 可正交对角化，即存在正交矩阵 $Q$ 使得 $Q^T A Q$ 为对角矩阵。",
+      "ground_truth": "实对称矩阵可正交对角化：$Q^TAQ=\\Lambda$（谱定理）",
+      "time_ms": 164707.66019821167
+    },
+    {
+      "question_id": "110",
+      "domain": "functional_analysis",
+      "predicted": "有限维赋范线性空间中所有范数均等价",
+      "ground_truth": "$\\exists c_1,c_2>0$使$c_1\\|x\\|_a \\le \\|x\\|_b \\le c_2\\|x\\|_a$",
+      "time_ms": 196106.27937316895
+    }
+  ],
+  "results": [
+    {
+      "question_id": "0",
+      "timestamp": "2026-07-08T00:10:42.546924",
+      "domain": "algebra",
+      "final_answer": "\": \"72",
+      "reasoning_steps": [],
+      "methods_used": [],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "",
+      "computation_time_ms": 181977.08797454834,
+      "retry_count": 1,
+      "model_version": null,
+      "from_cache": false,
+      "cache_similarity": null,
+      "cache_matched_question": null,
+      "true_domain": null,
+      "ground_truth": "72",
+      "answer_match": true
+    },
+    {
+      "question_id": "1",
+      "timestamp": "2026-07-08T00:10:38.129116",
+      "domain": "group_theory",
+      "final_answer": "\": \"G \\\\cong A_5\",",
+      "reasoning_steps": [],
+      "methods_used": [],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "",
+      "computation_time_ms": 177589.28775787354,
+      "retry_count": 0,
+      "model_version": null,
+      "from_cache": false,
+      "cache_similarity": null,
+      "cache_matched_question": null,
+      "true_domain": null,
+      "ground_truth": "$G \\cong A_5$",
+      "answer_match": true
+    },
+    {
+      "final_answer": "$R/I$ 为整环",
+      "domain": "algebra",
+      "reasoning_steps": [
+        {
+          "step_id": 1,
+          "description": "1. 回顾定义：素理想 $I$ 满足 $I \\\\neq R$ 且若 $ab \\\\in I$ 则 $a \\\\in I$ 或 $b \\\\in I$。整环是含幺交换环且无零因子。\n2. 交换性与单位元：因 $R$ 交换含幺，故 $R/I$ 也交换含幺，单位元为 $1+I$。由于 $I$ 是素理想，$I \\\\neq R$，故 $1+I \\\\neq 0+I$，即单位元不为零元。\n3. 零因子检验：设 $\\\\bar{a}, \\\\bar{b} \\\\in R/I$ 且 $\\\\bar{a}\\\\bar{b} = \\\\bar{0}$。这意味着 $(a+I)(b+I) = 0+I$，即 $ab \\\\in I$。\n4. 应用素理想性质：由 $ab \\\\in I$ 及 $I$ 为素理想，可得 $a \\\\in I$ 或 $b \\\\in I$。\n5. 结论：若 $a \\\\in I$ 则 $\\\\bar{a} = \\\\bar{0}$，若 $b \\\\in I$ 则 $\\\\bar{b} = \\\\bar{0}$。因此 $\\\\bar{a}\\\\bar{b} = \\\\bar{0} \\\\implies \\\\bar{a} = \\\\bar",
+          "formula": null,
+          "result": null,
+          "method": null
+        }
+      ],
+      "methods_used": [
+        "定义法",
+        "商环性质",
+        "素理想定义"
+      ],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "",
+      "from_cache": true,
+      "question_id": "2",
+      "cache_similarity": 1.000000238418579,
+      "cache_matched_question": "设$R$为含幺交换环，$I$为$R$的素理想。证明$R/I$为整环。",
+      "ground_truth": "$R/I$为整环",
+      "answer_match": true
+    },
+    {
+      "question_id": "3",
+      "timestamp": "2026-07-08T00:09:56.960174",
+      "domain": "algebra",
+      "final_answer": "\": \"多项式 f(x)=x^4-2x^3+3x^2-4x+5 在有理数域 \\mathbb{Q} 上的 Galois 群是对称群 S_4。\",",
+      "reasoning_steps": [],
+      "methods_used": [],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "",
+      "computation_time_ms": 136399.3411064148,
+      "retry_count": 1,
+      "model_version": null,
+      "from_cache": false,
+      "cache_similarity": null,
+      "cache_matched_question": null,
+      "true_domain": null,
+      "ground_truth": "$S_4$",
+      "answer_match": true
+    },
+    {
+      "question_id": "4",
+      "timestamp": "2026-07-08T00:09:53.244696",
+      "domain": "group_theory",
+      "final_answer": "Z(G) \\neq \\{e\\}",
+      "reasoning_steps": [
+        {
+          "step_id": 1,
+          "description": "定义 G 在自身上的共轭作用",
+          "formula": "G \\times G \\to G, (g, x) \\mapsto gxg^{-1}",
+          "result": null,
+          "method": "群作用"
+        },
+        {
+          "step_id": 2,
+          "description": "应用轨道 - 稳定子定理",
+          "formula": "|Cl(x)| = [G : C_G(x)]",
+          "result": null,
+          "method": "轨道 - 稳定子定理"
+        },
+        {
+          "step_id": 3,
+          "description": "建立类方程",
+          "formula": "|G| = |Z(G)| + \\sum_{x \\notin Z(G)} [G : C_G(x)]",
+          "result": null,
+          "method": "类方程"
+        },
+        {
+          "step_id": 4,
+          "description": "分析 p-整除性",
+          "formula": "p \\mid [G : C_G(x)] \\quad (\\forall x \\notin Z(G))",
+          "result": null,
+          "method": "p-群性质"
+        },
+        {
+          "step_id": 5,
+          "description": "得出结论",
+          "formula": "|Z(G)| \\equiv |G| \\equiv 0 \\pmod p \\implies |Z(G)| \\ge p",
+          "result": null,
+          "method": "同余分析"
+        }
+      ],
+      "methods_used": [
+        "群作用",
+        "轨道 - 稳定子定理",
+        "类方程"
+      ],
+      "verification": {
+        "is_correct": false,
+        "confidence": 0.0,
+        "check_method": "ground_truth_match",
+        "error_details": "pred=Z(G) \\neq \\{e\\}, gt=$|Z(G)| \\geq p$"
+      },
+      "educational_hint": "利用共轭作用将群分解为轨道，通过类方程证明中心阶数至少为 p。",
+      "computation_time_ms": 132679.3577671051,
+      "retry_count": 1,
+      "model_version": null,
+      "from_cache": false,
+      "cache_similarity": null,
+      "cache_matched_question": null,
+      "true_domain": null,
+      "ground_truth": "$|Z(G)| \\geq p$",
+      "answer_match": false
+    },
+    {
+      "question_id": "5",
+      "timestamp": "2026-07-08T00:09:41.860715",
+      "domain": "algebra",
+      "final_answer": "证明 $\\mathbb{Z}[i]$ 是欧几里得整环，因此是主理想整环。",
+      "reasoning_steps": [
+        {
+          "step_id": 1,
+          "description": "定义高斯整数环上的范数函数。",
+          "formula": "$N(a+bi) = a^2 + b^2$",
+          "result": null,
+          "method": "范数定义"
+        },
+        {
+          "step_id": 2,
+          "description": "证明欧几里得除法算法成立。",
+          "formula": "$\\alpha = \\beta\\gamma + \\rho, \\quad N(\\rho) < N(\\beta) \\text{ 或 } \\rho=0$",
+          "result": null,
+          "method": "复平面几何逼近"
+        },
+        {
+          "step_id": 3,
+          "description": "利用欧几里得整环性质推导主理想整环。",
+          "formula": "$\\text{ED} \\implies \\text{PID}$",
+          "result": null,
+          "method": "环论定理"
+        }
+      ],
+      "methods_used": [
+        "定义范数",
+        "欧几里得除法算法",
+        "欧几里得整环蕴含主理想整环"
+      ],
+      "verification": {
+        "is_correct": false,
+        "confidence": 0.0,
+        "check_method": "ground_truth_match",
+        "error_details": "pred=证明 $\\mathbb{Z}[i]$ 是欧几里得整环，因此是主理想整环。, gt=$\\mathbb{Z}[i]$是PID"
+      },
+      "educational_hint": "证明高斯整数环是主理想整环的标准方法是先证明它是欧几里得整环。关键在于构造合适的范数函数并利用复平面上的几何性质进行除法运算。",
+      "computation_time_ms": 121346.89044952393,
+      "retry_count": 0,
+      "model_version": null,
+      "from_cache": false,
+      "cache_similarity": null,
+      "cache_matched_question": null,
+      "true_domain": null,
+      "ground_truth": "$\\mathbb{Z}[i]$是PID",
+      "answer_match": false
+    },
+    {
+      "question_id": "6",
+      "timestamp": "2026-07-08T00:10:12.364247",
+      "domain": "algebra",
+      "final_answer": "有限域 $\\mathbb{F}_{27}$ 中本原元的个数为 12。乘法群阶为 26，生成元个数为 $\\phi(26)=12$。",
+      "reasoning_steps": [
+        {
+          "step_id": 1,
+          "description": "确定乘法群的阶",
+          "formula": "$|\\mathbb{F}_{27}^*| = 27 - 1 = 26$",
+          "result": null,
+          "method": "有限域定义"
+        },
+        {
+          "step_id": 2,
+          "description": "应用本原元计数公式",
+          "formula": "个数 = $\\phi(|\\mathbb{F}_{27}^*|)$",
+          "result": null,
+          "method": "循环群生成元性质"
+        },
+        {
+          "step_id": 3,
+          "description": "计算欧拉函数值",
+          "formula": "$\\phi(26) = \\phi(2)\\phi(13) = 1 \\times 12 = 12$",
+          "result": null,
+          "method": "欧拉函数计算"
+        }
+      ],
+      "methods_used": [
+        "有限域乘法群的循环性",
+        "欧拉函数计算"
+      ],
+      "verification": {
+        "is_correct": false,
+        "confidence": 0.0,
+        "check_method": "ground_truth_match",
+        "error_details": "pred=有限域 $\\mathbb{F}_{27}$ 中本原元的个数为 12。乘法群阶为 26，生成元个数为 $\\phi(26)=12$。, gt=18"
+      },
+      "educational_hint": "有限域 $\\mathbb{F}_q$ 的非零元素构成阶为 $q-1$ 的循环群，本原元即该群的生成元，其个数由欧拉函数 $\\phi(q-1)$ 给出。",
+      "computation_time_ms": 151794.41094398499,
+      "retry_count": 1,
+      "model_version": null,
+      "from_cache": false,
+      "cache_similarity": null,
+      "cache_matched_question": null,
+      "true_domain": null,
+      "ground_truth": "18",
+      "answer_match": false
+    },
+    {
+      "question_id": "7",
+      "timestamp": "2026-07-08T00:09:37.607633",
+      "domain": "algebra",
+      "final_answer": "证明：由于 $A$ 为幂零矩阵，其特征多项式为 $p(\\lambda) = \\lambda^n$，故 $A$ 的所有特征值 $\\lambda_i$ 均为 0。矩阵 $I+A$ 的特征值为 $1+\\lambda_i = 1$。根据行列式等于特征值之积的性质，有 $\\det(I+A) = \\prod_{i=1}^n 1 = 1$。",
+      "reasoning_steps": [
+        {
+          "step_id": 1,
+          "description": "确定幂零矩阵的特征值性质",
+          "formula": "\\lambda_i(A) = 0, \\quad i=1, 2, \\dots, n",
+          "result": null,
+          "method": "幂零矩阵定义"
+        },
+        {
+          "step_id": 2,
+          "description": "计算 $I+A$ 的特征值",
+          "formula": "\\lambda_i(I+A) = 1 + \\lambda_i(A) = 1",
+          "result": null,
+          "method": "谱映射定理"
+        },
+        {
+          "step_id": 3,
+          "description": "利用特征值计算行列式",
+          "formula": "\\det(I+A) = \\prod_{i=1}^n \\lambda_i(I+A) = 1^n = 1",
+          "result": null,
+          "method": "行列式与特征值关系"
+        }
+      ],
+      "methods_used": [
+        "特征值理论",
+        "行列式性质"
+      ],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "幂零矩阵的关键特征是所有特征值均为零。在处理涉及 $I+A$ 的行列式问题时，利用特征值的平移性质（谱映射定理）是最简便的方法。",
+      "computation_time_ms": 117073.3072757721,
+      "retry_count": 0,
+      "model_version": null,
+      "from_cache": false,
+      "cache_similarity": null,
+      "cache_matched_question": null,
+      "true_domain": null,
+      "ground_truth": "$\\det(I+A)=1$",
+      "answer_match": true
+    },
+    {
+      "final_answer": "88",
+      "domain": "number_theory",
+      "reasoning_steps": [
+        {
+          "step_id": 1,
+          "description": "确定集合 S 的总元素个数",
+          "formula": "|S| = 100",
+          "result": null,
+          "method": "集合定义"
+        },
+        {
+          "step_id": 2,
+          "description": "计算集合 A 中完全平方数的个数",
+          "formula": "|A| = \\lfloor \\sqrt{100} \\rfloor = 10",
+          "result": null,
+          "method": "完全幂计数"
+        },
+        {
+          "step_id": 3,
+          "description": "计算集合 B 中完全立方数的个数",
+          "formula": "|B| = \\lfloor \\sqrt[3]{100} \\rfloor = 4",
+          "result": null,
+          "method": "完全幂计数"
+        },
+        {
+          "step_id": 4,
+          "description": "计算交集 A ∩ B 中完全六次方数的个数",
+          "formula": "|A \\cap B| = \\lfloor \\sqrt[6]{100} \\rfloor = 2",
+          "result": null,
+          "method": "最小公倍数性质"
+        },
+        {
+          "step_id": 5,
+          "description": "利用容斥原理计算并集 A ∪ B 的元素个数",
+          "formula": "|A \\cup B| = |A| + |B| - |A \\cap B| = 10 + 4 - 2 = 12",
+          "result": null,
+          "method": "容斥原理"
+        },
+        {
+          "step_id": 6,
+          "description": "计算既不是完全平方数也不是完全立方数的元素个数",
+          "formula": "100 - 12 = 88",
+          "result": null,
+          "method": "补集计数"
+        }
+      ],
+      "methods_used": [
+        "容斥原理",
+        "完全幂计数"
+      ],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "解决此类问题通常使用容斥原理。首先分别计算满足条件的子集大小，然后减去重复计算的交集部分（即同时满足两个条件的数，这里是六次方数），最后从总数中减去并集的大小。",
+      "from_cache": true,
+      "question_id": "8",
+      "cache_similarity": 1.0000001192092896,
+      "cache_matched_question": "求集合$\\{1,2,\\ldots,100\\}$中既不是完全平方数也不是完全立方数的元素个数。",
+      "ground_truth": "89",
+      "answer_match": true
+    },
+    {
+      "question_id": "9",
+      "timestamp": "2026-07-08T00:09:54.762292",
+      "domain": "combinatorics",
+      "final_answer": "证明完成：任意 6 个人中必有 3 人互相认识或 3 人互相不认识。",
+      "reasoning_steps": [
+        {
+          "step_id": 1,
+          "description": "建立图论模型，将 6 个人视为完全图 K6 的顶点，两人关系视为边，认识染红色，不认识染蓝色",
+          "formula": "G=(V, E), |V|=6, 边集 E 染红/蓝",
+          "result": null,
+          "method": "图论建模"
+        },
+        {
+          "step_id": 2,
+          "description": "任选一个顶点 v，它与其他 5 个顶点相连，共有 5 条边",
+          "formula": "d(v) = 5",
+          "result": null,
+          "method": "图论性质"
+        },
+        {
+          "step_id": 3,
+          "description": "应用鸽巢原理，5 条边分为 2 种颜色，必有至少 ceil(5/2)=3 条边颜色相同",
+          "formula": "\\lceil 5/2 \\rceil = 3",
+          "result": null,
+          "method": "鸽巢原理"
+        },
+        {
+          "step_id": 4,
+          "description": "设这 3 条同色边连接的顶点为 u1, u2, u3，考察 u1, u2, u3 之间的边。若其中有一条边与 v 连出的边同色，则构成同色三角形；否则 u1, u2, u3 之间全为异色边，构成另一种颜色的三角形",
+          "formula": "\\text{单色三角形存在}",
+          "result": null,
+          "method": "分类讨论"
+        },
+        {
+          "step_id": 5,
+          "description": "结论：必然存在单色三角形，即 3 人互相认识或 3 人互相不认识，这是拉姆齐数 R(3,3)=6 的体现",
+          "formula": "R(3,3)=6",
+          "result": null,
+          "method": "拉姆齐理论"
+        }
+      ],
+      "methods_used": [
+        "鸽巢原理",
+        "拉姆齐理论"
+      ],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "将实际问题转化为图论模型，利用鸽巢原理分析顶点的邻接边颜色，这是拉姆齐理论中最经典的 R(3,3)=6 问题。",
+      "computation_time_ms": 115846.71902656555,
+      "retry_count": 0,
+      "model_version": null,
+      "from_cache": false,
+      "cache_similarity": null,
+      "cache_matched_question": null,
+      "true_domain": null,
+      "ground_truth": "$R(3,3)=6$, 即任意6人中必有3人互相认识或3人互不认识",
+      "answer_match": true
+    },
+    {
+      "final_answer": "\": \"3\",",
+      "domain": "combinatorics",
+      "reasoning_steps": [],
+      "methods_used": [],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "",
+      "from_cache": true,
+      "question_id": "10",
+      "cache_similarity": 1.000000238418579,
+      "cache_matched_question": "求由$n$个顶点组成的不同构的树的个数（$n=5$）。",
+      "ground_truth": "3",
+      "answer_match": true
+    },
+    {
+      "final_answer": "220",
+      "domain": "combinatorics",
+      "reasoning_steps": [
+        {
+          "step_id": 1,
+          "description": "分析问题，确定这是一个从 10 个元素中选取 3 个元素的可重复组合问题",
+          "formula": "1 \\le a \\le b \\le c \\le 10",
+          "result": null,
+          "method": "组合计数"
+        },
+        {
+          "step_id": 2,
+          "description": "利用可重复组合公式 H_n^k = C(n+k-1, k)，其中 n=10, k=3",
+          "formula": "\\binom{n+k-1}{k} = \\binom{10+3-1}{3}",
+          "result": null,
+          "method": "可重复组合公式"
+        },
+        {
+          "step_id": 3,
+          "description": "代入数值计算组合数",
+          "formula": "\\binom{12}{3} = \\frac{12 \\times 11 \\times 10}{3 \\times 2 \\times 1}",
+          "result": null,
+          "method": "组合数计算"
+        },
+        {
+          "step_id": 4,
+          "description": "得出最终结果",
+          "formula": "2 \\times 11 \\times 10 = 220",
+          "result": null,
+          "method": "算术运算"
+        }
+      ],
+      "methods_used": [
+        "可重复组合",
+        "组合数计算"
+      ],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "此类问题等价于从 n 个不同元素中取 k 个元素的组合（允许重复），可通过公式 \\binom{n+k-1}{k} 直接求解，或通过变量代换转化为严格不等式求解。",
+      "from_cache": true,
+      "question_id": "11",
+      "cache_similarity": 1.0000001192092896,
+      "cache_matched_question": "求满足$1\\le a \\le b \\le c \\le 10$的三元组$(a,b,c)$的个数。",
+      "ground_truth": "220",
+      "answer_match": true
+    },
+    {
+      "final_answer": "G 连通",
+      "domain": "combinatorics",
+      "reasoning_steps": [
+        {
+          "step_id": 1,
+          "description": "假设图 G 不连通",
+          "formula": "假设 G 不连通",
+          "result": null,
+          "method": "反证法"
+        },
+        {
+          "step_id": 2,
+          "description": "将顶点集划分为两个非空子集",
+          "formula": "V = V_1 \\\\cup V_2, |V_1|=k, |V_2|=n-k",
+          "result": null,
+          "method": "图划分"
+        },
+        {
+          "step_id": 3,
+          "description": "计算不连通图的最大边数",
+          "formula": "m \\\\le \\\\frac{k(k-1)}{2} + \\\\frac{(n-k)(n-k-1)}{2}",
+          "result": null,
+          "method": "组合计数"
+        },
+        {
+          "step_id": 4,
+          "description": "求边数函数的最大值",
+          "formula": "\\\\max_{1 \\\\le k \\\\le n-1} \\\\left( \\\\frac{k(k-1)}{2} + \\\\frac{(n-k)(n-k-1)}{2} \\\\right) = \\\\frac{(n-1)(n-2)}{2}",
+          "result": null,
+          "method": "极值分析"
+        },
+        {
+          "step_id": 5,
+          "description": "导出矛盾并得出结论",
+          "formula": "m > \\\\frac{(n-1)(n-2)}{2} \\\\implies G 连通",
+          "result": null,
+          "method": "矛盾推导"
+        }
+      ],
+      "methods_used": [
+        "反证法",
+        "组合计数",
+        "极值原理"
+      ],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "证明图连通性时，常通过计算不连通图所能拥有的最大边数，若实际边数超过该极限，则图必连通。",
+      "from_cache": true,
+      "question_id": "12",
+      "cache_similarity": 1.0000003576278687,
+      "cache_matched_question": "设$G$为$n$个顶点的简单图，边数为$m$。若$m > \\frac{(n-1)(n-2)}{2}$，证明$G$连通。",
+      "ground_truth": "$G$连通",
+      "answer_match": true
+    },
+    {
+      "final_answer": "\\binom{2n}{n}",
+      "domain": "combinatorics",
+      "reasoning_steps": [
+        {
+          "step_id": 1,
+          "description": "构造生成函数 $(1+x)^n$ 的二项式展开",
+          "formula": "$(1+x)^n = \\sum_{k=0}^{n} \\binom{n}{k} x^k$",
+          "result": null,
+          "method": "生成函数"
+        },
+        {
+          "step_id": 2,
+          "description": "考虑两个相同生成函数的乘积",
+          "formula": "$(1+x)^n (1+x)^n = (1+x)^{2n}$",
+          "result": null,
+          "method": "生成函数"
+        },
+        {
+          "step_id": 3,
+          "description": "比较等式两边 $x^n$ 项的系数",
+          "formula": "$[x^n](1+x)^{2n} = \\binom{2n}{n}$",
+          "result": null,
+          "method": "生成函数"
+        },
+        {
+          "step_id": 4,
+          "description": "计算右边乘积展开中 $x^n$ 的系数",
+          "formula": "$[x^n] \\left( \\sum_{i=0}^{n} \\binom{n}{i} x^i \\right) \\left( \\sum_{j=0}^{n} \\binom{n}{j} x^j \\right) = \\sum_{k=0}^{n} \\binom{n}{k} \\binom{n}{n-k} = \\sum_{k=0}^{n} \\binom{n}{k}^2$",
+          "result": null,
+          "method": "生成函数"
+        },
+        {
+          "step_id": 5,
+          "description": "得出结论",
+          "formula": "$\\sum_{k=0}^{n} \\binom{n}{k}^2 = \\binom{2n}{n}$",
+          "result": null,
+          "method": "生成函数"
+        }
+      ],
+      "methods_used": [
+        "生成函数"
+      ],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "利用生成函数系数比较法，将平方和转化为二项式展开中特定项的系数，这是处理组合数平方和问题的常用技巧。",
+      "from_cache": true,
+      "question_id": "13",
+      "cache_similarity": 1.0000004768371582,
+      "cache_matched_question": "求$\\sum_{k=0}^{n} \\binom{n}{k}^2$的值。",
+      "ground_truth": "$\\binom{2n}{n}$",
+      "answer_match": true
+    },
+    {
+      "final_answer": "84",
+      "domain": "combinatorics",
+      "reasoning_steps": [
+        {
+          "step_id": 1,
+          "description": "确定问题参数：球数 n=10，盒子数 k=4，约束条件为每个盒子非空",
+          "formula": "n=10, k=4",
+          "result": null,
+          "method": "问题分析"
+        },
+        {
+          "step_id": 2,
+          "description": "应用插板法模型：将 n 个相同球放入 k 个不同盒子且非空等价于在 n-1 个间隙中选 k-1 个位置放隔板",
+          "formula": "\\binom{n-1}{k-1} = \\binom{10-1}{4-1} = \\binom{9}{3}",
+          "result": null,
+          "method": "插板法"
+        },
+        {
+          "step_id": 3,
+          "description": "计算组合数具体数值",
+          "formula": "\\binom{9}{3} = \\frac{9 \\times 8 \\times 7}{3 \\times 2 \\times 1} = 84",
+          "result": null,
+          "method": "组合数计算"
+        }
+      ],
+      "methods_used": [
+        "插板法",
+        "组合数计算"
+      ],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "此类问题属于典型的‘相同元素分堆’模型，使用插板法求解，核心公式为 C(n-1, k-1)。",
+      "from_cache": true,
+      "question_id": "14",
+      "cache_similarity": 1.0,
+      "cache_matched_question": "将$10$个相同的球放入$4$个不同的盒子，要求每个盒子至少有一个球，求方法数。",
+      "ground_truth": "$\\binom{9}{3}=84$",
+      "answer_match": true
+    },
+    {
+      "final_answer": "\": \"7\",",
+      "domain": "combinatorics",
+      "reasoning_steps": [],
+      "methods_used": [],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "",
+      "from_cache": true,
+      "question_id": "15",
+      "cache_similarity": 0.9999996423721313,
+      "cache_matched_question": "设平面图$G$有$V=8$个顶点，$E=13$条边，求$G$的面数$F$。",
+      "ground_truth": "7",
+      "answer_match": true
+    },
+    {
+      "question_id": "16",
+      "timestamp": "2026-07-08T00:12:05.696257",
+      "domain": "combinatorics",
+      "final_answer": "\\frac{m-n+1}{m+1}\\binom{m+n}{n}",
+      "reasoning_steps": [
+        {
+          "step_id": 1,
+          "description": "计算从 (0,0) 到 (m,n) 的无限制最短路径总数",
+          "formula": "\\binom{m+n}{n}",
+          "result": null,
+          "method": "组合数"
+        },
+        {
+          "step_id": 2,
+          "description": "利用反射原理计算不经过对角线 y=x 上方的路径数（排除法）",
+          "formula": "\\binom{m+n}{n-1}",
+          "result": null,
+          "method": "反射原理"
+        },
+        {
+          "step_id": 3,
+          "description": "总路径数减去非法路径数并化简",
+          "formula": "\\binom{m+n}{n} - \\binom{m+n}{n-1} = \\frac{m-n+1}{m+1}\\binom{m+n}{n}",
+          "result": null,
+          "method": "代数化简"
+        }
+      ],
+      "methods_used": [
+        "组合数",
+        "反射原理",
+        "代数化简"
+      ],
+      "verification": {
+        "is_correct": false,
+        "confidence": 0.0,
+        "check_method": "ground_truth_match",
+        "error_details": "pred=\\frac{m-n+1}{m+1}\\binom{m+n}{n}, gt=$C_{m+n}^{\\text{Catalan}}$"
+      },
+      "educational_hint": "此题是经典的格路问题。当 m=n 时，公式退化为卡特兰数 C_n = (1/(n+1))*C(2n, n)。解题核心是使用反射原理计算越界路径并从总数中剔除。",
+      "computation_time_ms": 146969.50721740723,
+      "retry_count": 1,
+      "model_version": null,
+      "from_cache": false,
+      "cache_similarity": null,
+      "cache_matched_question": null,
+      "true_domain": null,
+      "ground_truth": "$C_{m+n}^{\\text{Catalan}}$",
+      "answer_match": false
+    },
+    {
+      "final_answer": "2^{\\frac{n(n-1)}{2}}",
+      "domain": "combinatorics",
+      "reasoning_steps": [
+        {
+          "step_id": 1,
+          "description": "Calculate the total number of ordered pairs in the Cartesian product S \\times S.",
+          "formula": "|S \\\\times S| = n^2",
+          "result": null,
+          "method": "Cartesian Product"
+        },
+        {
+          "step_id": 2,
+          "description": "Apply the reflexivity condition which requires all diagonal elements (i, i) to be in the relation.",
+          "formula": "Diagonal pairs = n, choices = 1",
+          "result": null,
+          "method": "Constraint Application"
+        },
+        {
+          "step_id": 3,
+          "description": "Apply the symmetry condition which couples off-diagonal elements (i, j) and (j, i) for i \\neq j.",
+          "formula": "Number of off-diagonal pairs = \\\\binom{n}{2} = \\\\frac{n(n-1)}{2}",
+          "result": null,
+          "method": "Symmetry Analysis"
+        },
+        {
+          "step_id": 4,
+          "description": "Calculate the total number of valid relations by multiplying the number of choices for independent components.",
+          "formula": "Total = 1^n \\\\times 2^{\\\\binom{n}{2}} = 2^{\\\\frac{n(n-1)}{2}}",
+          "result": null,
+          "method": "Multiplication Principle"
+        }
+      ],
+      "methods_used": [
+        "Combinatorial Counting",
+        "Constraint Analysis"
+      ],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "Reflexive relations fix the diagonal entries, while symmetric relations treat off-diagonal entries as coupled pairs, reducing the degrees of freedom to the number of unique pairs.",
+      "from_cache": true,
+      "question_id": "17",
+      "cache_similarity": 1.0000004768371582,
+      "cache_matched_question": "设$S$为$n$元集，求$S$上自反且对称的关系的个数。",
+      "ground_truth": "$2^{\\frac{n(n-1)}{2}}$",
+      "answer_match": true
+    },
+    {
+      "final_answer": "命题得证：n 个顶点 m 条边的简单平面图满足 m <= 3n - 6 (n >= 3)",
+      "domain": "combinatorics",
+      "reasoning_steps": [
+        {
+          "step_id": 1,
+          "description": "应用欧拉公式联系顶点数、边数和面数",
+          "formula": "n - m + f = 2",
+          "result": null,
+          "method": null
+        },
+        {
+          "step_id": 2,
+          "description": "根据简单平面图性质，每个面至少由 3 条边围成",
+          "formula": "3f \\le 2m",
+          "result": null,
+          "method": null
+        },
+        {
+          "step_id": 3,
+          "description": "将 f 代入不等式并整理得到 m 的上界",
+          "formula": "3(2 - n + m) \\le 2m \\Rightarrow m \\le 3n - 6",
+          "result": null,
+          "method": null
+        }
+      ],
+      "methods_used": [
+        "欧拉公式",
+        "不等式推导"
+      ],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "证明的关键在于利用欧拉公式 n-m+f=2 以及简单平面图中每个面至少包含 3 条边的性质（3f <= 2m）。",
+      "from_cache": true,
+      "question_id": "18",
+      "cache_similarity": 1.0000001192092896,
+      "cache_matched_question": "证明：$n$个顶点$m$条边的平面图满足$m \\le 3n - 6$（$n \\ge 3$）。",
+      "ground_truth": "$m \\le 3n-6$",
+      "answer_match": true
+    },
+    {
+      "final_answer": "42",
+      "domain": "combinatorics",
+      "reasoning_steps": [
+        {
+          "step_id": 1,
+          "description": "将二进制序列中的 0 视为左括号，1 视为右括号，题目条件等价于括号序列合法。",
+          "formula": "问题等价于求长度为 $2n$ 的 Dyck 路径数",
+          "result": null,
+          "method": "模型转化"
+        },
+        {
+          "step_id": 2,
+          "description": "应用卡特兰数公式计算满足条件的序列数，其中 n=5。",
+          "formula": "$C_n = \\\\frac{1}{n+1}\\\\binom{2n}{n}$",
+          "result": null,
+          "method": "卡特兰数公式"
+        },
+        {
+          "step_id": 3,
+          "description": "代入数值计算组合数，进而求得 C_5。",
+          "formula": "$C_5 = \\\\frac{1}{6} \\\\times 252 = 42$",
+          "result": null,
+          "method": "组合计算"
+        }
+      ],
+      "methods_used": [
+        "卡特兰数 (Catalan Numbers)",
+        "组合计数 (Combinatorial Counting)"
+      ],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "此类前缀约束问题通常对应 Dyck 路径或合法括号序列，可直接使用卡特兰数公式求解。",
+      "from_cache": true,
+      "question_id": "19",
+      "cache_similarity": 1.0000003576278687,
+      "cache_matched_question": "求包含$5$个$0$和$5$个$1$且任意前缀中$0$的个数不少于$1$的个数的二进制序列数。",
+      "ground_truth": "42",
+      "answer_match": true
+    },
+    {
+      "final_answer": "\\frac{n(n-1)}{2}",
+      "domain": "combinatorics",
+      "reasoning_steps": [
+        {
+          "step_id": 1,
+          "description": "完全图 K_n 定义为具有 n 个顶点的简单图",
+          "formula": "|V| = n",
+          "result": null,
+          "method": "图论定义"
+        },
+        {
+          "step_id": 2,
+          "description": "任意两个不同顶点之间恰好有一条边相连",
+          "formula": "边对应顶点对",
+          "result": null,
+          "method": "图论定义"
+        },
+        {
+          "step_id": 3,
+          "description": "边数等于从 n 个顶点中选取 2 个的组合数",
+          "formula": "\\binom{n}{2}",
+          "result": null,
+          "method": "组合计数"
+        },
+        {
+          "step_id": 4,
+          "description": "展开组合数公式计算边数",
+          "formula": "\\binom{n}{2} = \\frac{n(n-1)}{2}",
+          "result": null,
+          "method": "代数计算"
+        }
+      ],
+      "methods_used": [
+        "图论定义",
+        "组合计数"
+      ],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "完全图的边数问题转化为从 n 个顶点中无序选取 2 个顶点的组合问题，即二项式系数 C(n, 2)。",
+      "from_cache": true,
+      "question_id": "20",
+      "cache_similarity": 0.9999997615814209,
+      "cache_matched_question": "设$G$为$n$阶完全图$K_n$，求$G$的边数。",
+      "ground_truth": "$\\frac{n(n-1)}{2}$",
+      "answer_match": true
+    },
+    {
+      "question_id": "21",
+      "timestamp": "2026-07-08T00:11:26.113087",
+      "domain": "number_theory",
+      "final_answer": "53",
+      "reasoning_steps": [
+        {
+          "step_id": 1,
+          "description": "分解模数 91 为互质因子",
+          "formula": "91 = 7 \\times 13",
+          "result": null,
+          "method": null
+        },
+        {
+          "step_id": 2,
+          "description": "计算底数 1234 对因子的同余值",
+          "formula": "1234 \\equiv 2 \\pmod 7, \\quad 1234 \\equiv -1 \\pmod{13}",
+          "result": null,
+          "method": null
+        },
+        {
+          "step_id": 3,
+          "description": "利用费马小定理计算模 7 的幂",
+          "formula": "2^{5678} \\equiv 2^{5678 \\bmod 6} \\equiv 2^2 \\equiv 4 \\pmod 7",
+          "result": null,
+          "method": null
+        },
+        {
+          "step_id": 4,
+          "description": "计算模 13 的幂",
+          "formula": "(-1)^{5678} \\equiv 1 \\pmod{13}",
+          "result": null,
+          "method": null
+        },
+        {
+          "step_id": 5,
+          "description": "利用中国剩余定理合并结果",
+          "formula": "x \\equiv 4 \\pmod 7, x \\equiv 1 \\pmod{13} \\Rightarrow x = 53",
+          "result": null,
+          "method": null
+        }
+      ],
+      "methods_used": [
+        "模运算",
+        "费马小定理",
+        "中国剩余定理"
+      ],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "将大模数分解为互质素数，分别求解同余方程组后合并。",
+      "computation_time_ms": 103759.59277153015,
+      "retry_count": 0,
+      "model_version": null,
+      "from_cache": false,
+      "cache_similarity": null,
+      "cache_matched_question": null,
+      "true_domain": null,
+      "ground_truth": "53",
+      "answer_match": true
+    },
+    {
+      "final_answer": "n 个顶点的树恰好有 n-1 条边",
+      "domain": "combinatorics",
+      "reasoning_steps": [
+        {
+          "step_id": 1,
+          "description": "基础情况验证：当 n=1 时，树只有 1 个顶点，0 条边，满足 1-1=0",
+          "formula": "E = n - 1 \\Rightarrow 0 = 1 - 1",
+          "result": null,
+          "method": "数学归纳法"
+        },
+        {
+          "step_id": 2,
+          "description": "归纳假设：假设对于 k 个顶点的树，边数为 k-1",
+          "formula": "E_k = k - 1",
+          "result": null,
+          "method": "数学归纳法"
+        },
+        {
+          "step_id": 3,
+          "description": "归纳递推：对于 k+1 个顶点的树，移除一个叶子节点及其关联边，剩余图为 k 个顶点的树，边数为 (k-1)+1 = k",
+          "formula": "E_{k+1} = (k - 1) + 1 = k",
+          "result": null,
+          "method": "数学归纳法"
+        }
+      ],
+      "methods_used": [
+        "数学归纳法",
+        "树的性质"
+      ],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "证明树的基本性质通常使用数学归纳法，关键在于利用树中存在叶子节点这一特征进行递推。",
+      "from_cache": true,
+      "question_id": "22",
+      "cache_similarity": 0.9999998211860657,
+      "cache_matched_question": "证明：$n$个顶点的树恰好有$n-1$条边。",
+      "ground_truth": "$n-1$条边",
+      "answer_match": true
+    },
+    {
+      "final_answer": "31",
+      "domain": "algebra",
+      "reasoning_steps": [
+        {
+          "step_id": 1,
+          "description": "1. 设 $N = 2^{100}$。2. 正整数 $N$ 的十进制位数公式为 $d = \\lfloor \\log_{10} N \\rfloor + 1$。3. 利用对数性质，$\\log_{10} (2^{100}) = 100 \\log_{10} 2$。4. 取近似值 $\\log_{10} 2 \\approx 0.30103$。5. 计算得 $100 \\times 0.30103 = 30.103$。6. 取整 $\\lfloor 30.103 \\rfloor = 30$，故位数 $d = 30 + 1 = 31$。",
+          "formula": null,
+          "result": null,
+          "method": null
+        }
+      ],
+      "methods_used": [],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "",
+      "from_cache": true,
+      "question_id": "23",
+      "cache_similarity": 0.9999998807907104,
+      "cache_matched_question": "求$2^{100}$的十进制表示中的位数。",
+      "ground_truth": "31",
+      "answer_match": true
+    },
+    {
+      "question_id": "24",
+      "timestamp": "2026-07-08T00:15:32.802192",
+      "domain": "combinatorics",
+      "final_answer": "2 \\le \\text{diam}(G) \\le 3",
+      "reasoning_steps": [
+        {
+          "step_id": 1,
+          "description": "分析直径为 1 的情形",
+          "formula": "若 \\text{diam}(G)=1，则 G 为完全图 K_n，其补图 \\bar{G} 无边，当 n>1 时不连通",
+          "result": null,
+          "method": "图论基本性质"
+        },
+        {
+          "step_id": 2,
+          "description": "确定直径的上界",
+          "formula": "若 G 与 \\bar{G} 均连通，则 \\text{diam}(G) \\le 3",
+          "result": null,
+          "method": "图论定理"
+        },
+        {
+          "step_id": 3,
+          "description": "构造实例验证下界与上界可达",
+          "formula": "C_5 的直径为 2 且 \\bar{C_5} 连通；P_4 的直径为 3 且 \\bar{P_4} 连通",
+          "result": null,
+          "method": "构造法"
+        },
+        {
+          "step_id": 4,
+          "description": "综合得出取值范围",
+          "formula": "2 \\le \\text{diam}(G) \\le 3",
+          "result": null,
+          "method": "综合推理"
+        }
+      ],
+      "methods_used": [
+        "图论基本性质",
+        "图论定理",
+        "构造法",
+        "综合推理"
+      ],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "本题考察连通图及其补图的直径性质。关键结论是：若图 G 及其补图 \\bar{G} 均连通，则 G 的直径不能为 1（否则 G 为完全图，补图不连通），且不超过 3。通过 C_5 和 P_4 实例可知 2 和 3 均可取。",
+      "computation_time_ms": 339277.1589756012,
+      "retry_count": 0,
+      "model_version": null,
+      "from_cache": false,
+      "cache_similarity": null,
+      "cache_matched_question": null,
+      "true_domain": null,
+      "ground_truth": "$2 \\le \\text{diam}(G) \\le n-2$",
+      "answer_match": true
+    },
+    {
+      "final_answer": "13",
+      "domain": "algebra",
+      "reasoning_steps": [],
+      "methods_used": [],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "",
+      "from_cache": true,
+      "question_id": "25",
+      "cache_similarity": 0.9999996423721313,
+      "cache_matched_question": "求满足$1+2+\\cdots+n \\le 100$的最大正整数$n$。",
+      "ground_truth": "13",
+      "answer_match": true
+    },
+    {
+      "question_id": "26",
+      "timestamp": "2026-07-08T00:12:26.362337",
+      "domain": "number_theory",
+      "final_answer": "存在整数 a, b 使得 p = a^2 + b^2",
+      "reasoning_steps": [
+        {
+          "step_id": 1,
+          "description": "由 Euler 准则，因 p ≡ 1 (mod 4)，故 (-1)^((p-1)/2) ≡ 1 (mod p)，存在 x 使 x^2 ≡ -1 (mod p)",
+          "formula": "(-1)^{\\frac{p-1}{2}} \\equiv 1 \\pmod{p}",
+          "result": null,
+          "method": null
+        },
+        {
+          "step_id": 2,
+          "description": "考虑 (⌊√p⌋+1)^2 个大于 p 的整数对，由鸽巢原理存在不同对 (u1, v1), (u2, v2) 满足 u1 + x v1 ≡ u2 + x v2 (mod p)",
+          "formula": "u_1 + x v_1 \\equiv u_2 + x v_2 \\pmod{p}",
+          "result": null,
+          "method": null
+        },
+        {
+          "step_id": 3,
+          "description": "令 a = u1 - u2, b = v2 - v1，则 a ≡ -xb (mod p)，代入得 a^2 + b^2 ≡ 0 (mod p)",
+          "formula": "a^2 + b^2 \\equiv 0 \\pmod{p}",
+          "result": null,
+          "method": null
+        },
+        {
+          "step_id": 4,
+          "description": "因 |a|, |b| < √p，故 0 < a^2 + b^2 < 2p，结合 p | (a^2 + b^2) 得 a^2 + b^2 = p",
+          "formula": "0 < a^2 + b^2 < 2p",
+          "result": null,
+          "method": null
+        }
+      ],
+      "methods_used": [
+        "Euler 准则",
+        "鸽巢原理",
+        "同余性质",
+        "放缩法"
+      ],
+      "verification": {
+        "is_correct": false,
+        "confidence": 0.0,
+        "check_method": "ground_truth_match",
+        "error_details": "pred=存在整数 a, b 使得 p = a^2 + b^2, gt=存在整数$a,b$使$p=a^2+b^2$"
+      },
+      "educational_hint": "这是费马平方和定理的证明。核心在于利用 p≡1(mod 4) 构造 -1 的模平方根，再利用鸽巢原理找到较小的平方和倍数。",
+      "computation_time_ms": 151325.73223114014,
+      "retry_count": 0,
+      "model_version": null,
+      "from_cache": false,
+      "cache_similarity": null,
+      "cache_matched_question": null,
+      "true_domain": null,
+      "ground_truth": "存在整数$a,b$使$p=a^2+b^2$",
+      "answer_match": false
+    },
+    {
+      "question_id": "27",
+      "timestamp": "2026-07-08T00:13:01.277324",
+      "domain": "number_theory",
+      "final_answer": "(2, 1), (3, 2)",
+      "reasoning_steps": [
+        {
+          "step_id": 1,
+          "description": "分析方程奇偶性，确定 n 的下界",
+          "formula": "m(m+1) \\\\text{ 为偶数} \\\\implies n! \\\\text{ 为偶数} \\\\implies n \\\\ge 2",
+          "result": null,
+          "method": "模运算"
+        },
+        {
+          "step_id": 2,
+          "description": "检验 n=2 时的解",
+          "formula": "2! = 2, m(m+1)=2 \\\\implies m^2+m-2=0 \\\\implies m=1",
+          "result": null,
+          "method": "直接代入法"
+        },
+        {
+          "step_id": 3,
+          "description": "检验 n=3 时的解",
+          "formula": "3! = 6, m(m+1)=6 \\\\implies m^2+m-6=0 \\\\implies m=2",
+          "result": null,
+          "method": "直接代入法"
+        },
+        {
+          "step_id": 4,
+          "description": "检验 n=4 及 n>4 的情况",
+          "formula": "4! = 24, \\\\Delta = 1+96=97 \\\\text{ 非平方数}; n>3 \\\\text{ 无解}",
+          "result": null,
+          "method": "丢番图方程理论"
+        }
+      ],
+      "methods_used": [
+        "模运算",
+        "直接代入法",
+        "判别式分析",
+        "丢番图方程理论"
+      ],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "阶乘方程通常只有有限解，优先验证小值。利用完全平方数判别法（4n!+1=k^2）可排除大值情况。",
+      "computation_time_ms": 184192.38948822021,
+      "retry_count": 0,
+      "model_version": null,
+      "from_cache": false,
+      "cache_similarity": null,
+      "cache_matched_question": null,
+      "true_domain": null,
+      "ground_truth": "$(n,m)=(1,1),(3,2)$",
+      "answer_match": true
+    },
+    {
+      "final_answer": "n \\cdot 2^{n-1}",
+      "domain": "real_analysis",
+      "reasoning_steps": [
+        {
+          "step_id": 1,
+          "description": "利用二项式定理将有限和转化为闭式函数",
+          "formula": "f(x) = \\sum_{k=0}^{n} \\binom{n}{k} x^k = (1+x)^n",
+          "result": null,
+          "method": "二项式定理"
+        },
+        {
+          "step_id": 2,
+          "description": "对闭式函数应用求导法则",
+          "formula": "f'(x) = \\frac{d}{dx}(1+x)^n = n(1+x)^{n-1}",
+          "result": null,
+          "method": "幂函数求导法则"
+        },
+        {
+          "step_id": 3,
+          "description": "代入 x=1 计算导数值",
+          "formula": "f'(1) = n(1+1)^{n-1} = n \\cdot 2^{n-1}",
+          "result": null,
+          "method": "代入求值"
+        }
+      ],
+      "methods_used": [
+        "二项式定理",
+        "幂函数求导法则"
+      ],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "对于多项式求和，优先识别二项式结构可简化求导过程，避免逐项求导的繁琐计算。",
+      "from_cache": true,
+      "question_id": "28",
+      "cache_similarity": 1.0,
+      "cache_matched_question": "设$f(x)=\\sum_{k=0}^{n} \\binom{n}{k} x^k$，求$f'(1)$。",
+      "ground_truth": "$n \\cdot 2^{n-1}$",
+      "answer_match": true
+    },
+    {
+      "final_answer": "40",
+      "domain": "number_theory",
+      "reasoning_steps": [
+        {
+          "step_id": 1,
+          "description": "对 100 进行质因数分解",
+          "formula": "100 = 2^2 \\times 5^2",
+          "result": null,
+          "method": "质因数分解"
+        },
+        {
+          "step_id": 2,
+          "description": "应用 Euler 函数乘积公式",
+          "formula": "\\varphi(n) = n \\prod_{p|n} (1 - \\frac{1}{p})",
+          "result": null,
+          "method": "Euler 函数公式"
+        },
+        {
+          "step_id": 3,
+          "description": "代入质因数计算",
+          "formula": "\\varphi(100) = 100 \\times (1 - \\frac{1}{2}) \\times (1 - \\frac{1}{5}) = 40",
+          "result": null,
+          "method": "算术计算"
+        }
+      ],
+      "methods_used": [
+        "质因数分解",
+        "Euler 函数公式"
+      ],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "Euler 函数 \\varphi(n) 计算与 n 互质的数的个数。利用公式 \\varphi(n) = n(1-1/p_1)...(1-1/p_k) 可快速求解。",
+      "from_cache": true,
+      "question_id": "29",
+      "cache_similarity": 1.0000003576278687,
+      "cache_matched_question": "求$\\varphi(100)$的值，其中$\\varphi$为Euler函数。",
+      "ground_truth": "40",
+      "answer_match": true
+    },
+    {
+      "question_id": "30",
+      "timestamp": "2026-07-08T00:12:06.191856",
+      "domain": "number_theory",
+      "final_answer": "任意正整数 n 均可唯一表示为二进制形式 n = \\sum_{i=0}^{k} a_i 2^i，其中 a_i \\in \\{0, 1\\}",
+      "reasoning_steps": [
+        {
+          "step_id": 1,
+          "description": "存在性证明：对 n 使用带余除法得到最低位系数",
+          "formula": "n = 2a_0 + n_1, \\quad a_0 \\in \\{0, 1\\}",
+          "result": null,
+          "method": "带余除法"
+        },
+        {
+          "step_id": 2,
+          "description": "归纳过程：重复除法直至商为 0，保证有限项表示",
+          "formula": "n_{i+1} = \\lfloor n_i / 2 \\rfloor, \\quad n_{k+1} = 0",
+          "result": null,
+          "method": "数学归纳法"
+        },
+        {
+          "step_id": 3,
+          "description": "唯一性证明：假设两种表示，比较最高不同位导出矛盾",
+          "formula": "2^k > \\sum_{i=0}^{k-1} 2^i = 2^k - 1",
+          "result": null,
+          "method": "反证法"
+        }
+      ],
+      "methods_used": [
+        "带余除法",
+        "数学归纳法",
+        "不等式性质"
+      ],
+      "verification": {
+        "is_correct": false,
+        "confidence": 0.0,
+        "check_method": "ground_truth_match",
+        "error_details": "pred=任意正整数 n 均可唯一表示为二进制形式 n = \\sum_{i=0}^{k} a_i 2^i，其中 a_i \\in \\{0, 1\\}, gt=二进制表示存在且唯一"
+      },
+      "educational_hint": "此定理确立了整数在二进制基下的唯一展开，是计算机科学与数论的基础。",
+      "computation_time_ms": 113433.8014125824,
+      "retry_count": 1,
+      "model_version": null,
+      "from_cache": false,
+      "cache_similarity": null,
+      "cache_matched_question": null,
+      "true_domain": null,
+      "ground_truth": "二进制表示存在且唯一",
+      "answer_match": false
+    },
+    {
+      "final_answer": "|S \\\\cup T| = |S|",
+      "domain": "algebra",
+      "reasoning_steps": [],
+      "methods_used": [
+        "构造双射法",
+        "基数运算",
+        "无限集性质"
+      ],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "此结论展示了无限集与有限集的本质区别。对于有限集，增加元素会改变基数；但对于无限集，增加一个可数集不会改变其基数。这类似于希尔伯特旅馆悖论：即使旅馆住满了人，只要房间数是无限的，仍可容纳新客人。证明的关键在于从无限集 $S$ 中“腾出”一个可数子集的空间来容纳 $T$。",
+      "from_cache": true,
+      "question_id": "31",
+      "cache_similarity": 1.000000238418579,
+      "cache_matched_question": "设$S$为无限集，$T$为可数集。证明$S \\cup T$与$S$等势。",
+      "ground_truth": "$|S \\cup T| = |S|$",
+      "answer_match": true
+    },
+    {
+      "final_answer": "\\sqrt{2} 是无理数",
+      "domain": "number_theory",
+      "reasoning_steps": [
+        {
+          "step_id": 1,
+          "description": "假设 \\sqrt{2} 是有理数，则存在互素的正整数 a, b 使得 \\sqrt{2} = a/b",
+          "formula": "\\sqrt{2} = \\frac{a}{b}, \\gcd(a, b) = 1",
+          "result": null,
+          "method": "有理数定义"
+        },
+        {
+          "step_id": 2,
+          "description": "两边平方并整理得到整数方程",
+          "formula": "a^2 = 2b^2",
+          "result": null,
+          "method": "代数变形"
+        },
+        {
+          "step_id": 3,
+          "description": "利用算术基本定理分析素数 2 的指数",
+          "formula": "v_2(a^2) = 2v_2(a) \\text{ 为偶数}, v_2(2b^2) = 1 + 2v_2(b) \\text{ 为奇数}",
+          "result": null,
+          "method": "算术基本定理"
+        },
+        {
+          "step_id": 4,
+          "description": "得出矛盾，假设不成立",
+          "formula": "\\text{偶数} \\neq \\text{奇数}",
+          "result": null,
+          "method": "反证法"
+        },
+        {
+          "step_id": 5,
+          "description": "结论：\\sqrt{2} 是无理数",
+          "formula": "\\sqrt{2} \\notin \\mathbb{Q}",
+          "result": null,
+          "method": "结论"
+        }
+      ],
+      "methods_used": [
+        "反证法",
+        "算术基本定理",
+        "互素性"
+      ],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "证明无理数通常采用反证法，结合算术基本定理中素因数分解的唯一性，通过比较等式两边特定素因子的指数奇偶性导出矛盾。",
+      "from_cache": true,
+      "question_id": "32",
+      "cache_similarity": 0.9999997019767761,
+      "cache_matched_question": "证明：$\\sqrt{2}$是无理数。",
+      "ground_truth": "$\\sqrt{2}$是无理数",
+      "answer_match": true
+    },
+    {
+      "question_id": "33",
+      "timestamp": "2026-07-08T00:12:48.947487",
+      "domain": "numerical_analysis",
+      "final_answer": "1.732051",
+      "reasoning_steps": [
+        {
+          "step_id": 1,
+          "description": "构造方程 f(x)=x^2-3=0，导出 Newton 迭代公式",
+          "formula": "x_{n+1} = \\frac{1}{2}\\left(x_n + \\frac{3}{x_n}\\right)",
+          "result": null,
+          "method": "Newton 法"
+        },
+        {
+          "step_id": 2,
+          "description": "第一次迭代：代入 x_0=2",
+          "formula": "x_1 = \\frac{1}{2}(2 + \\frac{3}{2}) = 1.75",
+          "result": null,
+          "method": "Newton 法"
+        },
+        {
+          "step_id": 3,
+          "description": "第二次迭代：代入 x_1=1.75",
+          "formula": "x_2 = \\frac{1}{2}(1.75 + \\frac{3}{1.75}) = \\frac{97}{56} \\approx 1.732143",
+          "result": null,
+          "method": "Newton 法"
+        },
+        {
+          "step_id": 4,
+          "description": "第三次迭代：代入 x_2=97/56",
+          "formula": "x_3 = \\frac{1}{2}(\\frac{97}{56} + \\frac{168}{97}) = \\frac{18817}{10864} \\approx 1.732051",
+          "result": null,
+          "method": "Newton 法"
+        }
+      ],
+      "methods_used": [
+        "Newton 法"
+      ],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "Newton 法求平方根具有二次收敛性，初始值 x_0=2 接近 \\sqrt{3}，收敛迅速。",
+      "computation_time_ms": 130358.7474822998,
+      "retry_count": 1,
+      "model_version": null,
+      "from_cache": false,
+      "cache_similarity": null,
+      "cache_matched_question": null,
+      "true_domain": null,
+      "ground_truth": "$x_3 \\approx 1.73205$",
+      "answer_match": true
+    },
+    {
+      "final_answer": "0.742984",
+      "domain": "numerical_analysis",
+      "reasoning_steps": [
+        {
+          "step_id": 1,
+          "description": "计算步长 h",
+          "formula": "h = (1-0)/4 = 0.25",
+          "result": null,
+          "method": "梯形法则"
+        },
+        {
+          "step_id": 2,
+          "description": "计算节点函数值",
+          "formula": "f(0)=1, f(0.25)≈0.939413, f(0.5)≈0.778801, f(0.75)≈0.569783, f(1)≈0.367879",
+          "result": null,
+          "method": "函数求值"
+        },
+        {
+          "step_id": 3,
+          "description": "代入梯形公式",
+          "formula": "T_4 = (0.25/2) * [1 + 2*(0.939413+0.778801+0.569783) + 0.367879]",
+          "result": null,
+          "method": "梯形法则"
+        },
+        {
+          "step_id": 4,
+          "description": "计算最终结果",
+          "formula": "T_4 ≈ 0.742984",
+          "result": null,
+          "method": "数值计算"
+        }
+      ],
+      "methods_used": [
+        "梯形法则",
+        "数值积分"
+      ],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "梯形法则通过将区间分割为 n 个小梯形，利用公式 T_n = h/2 * [f(x_0) + 2Σf(x_i) + f(x_n)] 近似计算定积分。",
+      "from_cache": true,
+      "question_id": "34",
+      "cache_similarity": 1.000000238418579,
+      "cache_matched_question": "利用梯形法则将$[0,1]$等分为$4$份，求$\\int_0^1 e^{-x^2}dx$的近似值。",
+      "ground_truth": "约$0.742984$",
+      "answer_match": true
+    },
+    {
+      "question_id": "35",
+      "timestamp": "2026-07-08T00:12:52.345874",
+      "domain": "numerical_analysis",
+      "final_answer": "x=0.1337890625, y=0.466552734375",
+      "reasoning_steps": [
+        {
+          "step_id": 1,
+          "description": "将线性方程组转化为 Gauss-Seidel 迭代格式",
+          "formula": "$x_{k+1} = \\frac{1 - y_k}{4}, \\quad y_{k+1} = \\frac{2 - x_{k+1}}{4}$",
+          "result": null,
+          "method": "方程变形"
+        },
+        {
+          "step_id": 2,
+          "description": "执行第 1 次迭代",
+          "formula": "$x_1 = \\frac{1 - 0}{4} = 0.25, \\quad y_1 = \\frac{2 - 0.25}{4} = 0.4375$",
+          "result": null,
+          "method": "代入计算"
+        },
+        {
+          "step_id": 3,
+          "description": "执行第 2 次迭代",
+          "formula": "$x_2 = \\frac{1 - 0.4375}{4} = 0.140625, \\quad y_2 = \\frac{2 - 0.140625}{4} = 0.46484375$",
+          "result": null,
+          "method": "代入计算"
+        },
+        {
+          "step_id": 4,
+          "description": "执行第 3 次迭代",
+          "formula": "$x_3 = \\frac{1 - 0.46484375}{4} = 0.1337890625, \\quad y_3 = \\frac{2 - 0.1337890625}{4} = 0.466552734375$",
+          "result": null,
+          "method": "代入计算"
+        }
+      ],
+      "methods_used": [
+        "Gauss-Seidel 迭代法"
+      ],
+      "verification": {
+        "is_correct": false,
+        "confidence": 0.0,
+        "check_method": "ground_truth_match",
+        "error_details": "pred=x=0.1337890625, y=0.466552734375, gt=$(x,y) \\approx (0.1719, 0.4570)$"
+      },
+      "educational_hint": "Gauss-Seidel 法在迭代时使用最新计算出的变量值，通常比 Jacobi 法收敛更快。本题系数矩阵严格对角占优，保证迭代收敛。",
+      "computation_time_ms": 129525.60210227966,
+      "retry_count": 0,
+      "model_version": null,
+      "from_cache": false,
+      "cache_similarity": null,
+      "cache_matched_question": null,
+      "true_domain": null,
+      "ground_truth": "$(x,y) \\approx (0.1719, 0.4570)$",
+      "answer_match": false
+    },
+    {
+      "question_id": "36",
+      "timestamp": "2026-07-08T00:15:07.198335",
+      "domain": "numerical_analysis",
+      "final_answer": "2.09375",
+      "reasoning_steps": [
+        {
+          "step_id": 1,
+          "description": "初始区间 [2,3]，f(2)=-1, f(3)=16，第 1 次迭代中点 c1=2.5，f(c1)=5.625>0，新区间 [2, 2.5]",
+          "formula": "c1=(2+3)/2",
+          "result": null,
+          "method": "二分法"
+        },
+        {
+          "step_id": 2,
+          "description": "第 2 次迭代中点 c2=2.25，f(c2)=1.8906>0，新区间 [2, 2.25]",
+          "formula": "c2=(2+2.5)/2",
+          "result": null,
+          "method": "二分法"
+        },
+        {
+          "step_id": 3,
+          "description": "第 3 次迭代中点 c3=2.125，f(c3)=0.3457>0，新区间 [2, 2.125]",
+          "formula": "c3=(2+2.25)/2",
+          "result": null,
+          "method": "二分法"
+        },
+        {
+          "step_id": 4,
+          "description": "第 4 次迭代中点 c4=2.0625，f(c4)=-0.3457<0，新区间 [2.0625, 2.125]",
+          "formula": "c4=(2+2.125)/2",
+          "result": null,
+          "method": "二分法"
+        },
+        {
+          "step_id": 5,
+          "description": "第 5 次迭代中点 c5=2.09375，f(c5)≈-0.004<0，新区间 [2.09375, 2.125]",
+          "formula": "c5=(2.0625+2.125)/2",
+          "result": null,
+          "method": "二分法"
+        }
+      ],
+      "methods_used": [
+        "二分法"
+      ],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "二分法通过不断缩小区间范围来逼近根，每次迭代将区间长度减半，保证收敛。",
+      "computation_time_ms": 220765.296459198,
+      "retry_count": 1,
+      "model_version": null,
+      "from_cache": false,
+      "cache_similarity": null,
+      "cache_matched_question": null,
+      "true_domain": null,
+      "ground_truth": "$x \\approx 2.094$",
+      "answer_match": true
+    },
+    {
+      "final_answer": "P(x) = x^2 + x + 1",
+      "domain": "numerical_analysis",
+      "reasoning_steps": [
+        {
+          "step_id": 1,
+          "description": "确定插值节点与函数值",
+          "formula": "x_0=0, y_0=1; x_1=1, y_1=3; x_2=2, y_2=7; x_3=3, y_3=13",
+          "result": null,
+          "method": "数据提取"
+        },
+        {
+          "step_id": 2,
+          "description": "构造 Lagrange 基多项式",
+          "formula": "L_i(x) = \\prod_{j \\neq i} \\frac{x-x_j}{x_i-x_j}",
+          "result": null,
+          "method": "基函数构造"
+        },
+        {
+          "step_id": 3,
+          "description": "代入 Lagrange 插值公式",
+          "formula": "P(x) = \\sum_{i=0}^3 y_i L_i(x)",
+          "result": null,
+          "method": "插值公式应用"
+        },
+        {
+          "step_id": 4,
+          "description": "展开并化简多项式",
+          "formula": "P(x) = x^2 + x + 1",
+          "result": null,
+          "method": "代数化简"
+        }
+      ],
+      "methods_used": [
+        "Lagrange 插值",
+        "多项式化简"
+      ],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "Lagrange 插值通过线性组合基函数构建多项式，本题中数据呈现二次规律，最终化简为二次多项式。",
+      "from_cache": true,
+      "question_id": "37",
+      "cache_similarity": 1.0000003576278687,
+      "cache_matched_question": "用Lagrange插值求经过点$(0,1),(1,3),(2,7),(3,13)$的多项式。",
+      "ground_truth": "$P(x)=x^2+x+1$",
+      "answer_match": true
+    },
+    {
+      "question_id": "38",
+      "timestamp": "2026-07-08T00:14:01.772245",
+      "domain": "numerical_analysis",
+      "final_answer": "\\frac{27+7\\sqrt{5}}{22}",
+      "reasoning_steps": [
+        {
+          "step_id": 1,
+          "description": "计算矩阵 A 的特征多项式",
+          "formula": "\\det(A - \\lambda I) = (4-\\lambda)(3-\\lambda) - 1 = \\lambda^2 - 7\\lambda + 11 = 0",
+          "result": null,
+          "method": "特征值计算"
+        },
+        {
+          "step_id": 2,
+          "description": "求解特征值",
+          "formula": "\\lambda = \\frac{7 \\pm \\sqrt{49 - 44}}{2} = \\frac{7 \\pm \\sqrt{5}}{2}",
+          "result": null,
+          "method": "求根公式"
+        },
+        {
+          "step_id": 3,
+          "description": "确定最大和最小特征值",
+          "formula": "\\lambda_{\\max} = \\frac{7 + \\sqrt{5}}{2}, \\quad \\lambda_{\\min} = \\frac{7 - \\sqrt{5}}{2}",
+          "result": null,
+          "method": "特征值排序"
+        },
+        {
+          "step_id": 4,
+          "description": "计算谱条件数",
+          "formula": "\\kappa_2(A) = \\frac{\\lambda_{\\max}}{\\lambda_{\\min}} = \\frac{7 + \\sqrt{5}}{7 - \\sqrt{5}} = \\frac{27 + 7\\sqrt{5}}{22}",
+          "result": null,
+          "method": "条件数定义"
+        }
+      ],
+      "methods_used": [
+        "特征值分析",
+        "谱范数条件数计算"
+      ],
+      "verification": {
+        "is_correct": false,
+        "confidence": 0.0,
+        "check_method": "ground_truth_match",
+        "error_details": "pred=\\frac{27+7\\sqrt{5}}{22}, gt=$\\kappa_2(A) \\approx 2.62$"
+      },
+      "educational_hint": "对于对称正定矩阵，2-范数条件数等于最大特征值与最小特征值之比。",
+      "computation_time_ms": 115923.04611206055,
+      "retry_count": 0,
+      "model_version": null,
+      "from_cache": false,
+      "cache_similarity": null,
+      "cache_matched_question": null,
+      "true_domain": null,
+      "ground_truth": "$\\kappa_2(A) \\approx 2.62$",
+      "answer_match": false
+    },
+    {
+      "final_answer": "0.459862",
+      "domain": "numerical_analysis",
+      "reasoning_steps": [
+        {
+          "step_id": 1,
+          "description": "计算步长 h=1 时的梯形近似值 T1",
+          "formula": "T_1 = \\frac{1-0}{2}[\\sin(0) + \\sin(1)]",
+          "result": null,
+          "method": "梯形法则"
+        },
+        {
+          "step_id": 2,
+          "description": "计算步长 h=0.5 时的梯形近似值 T2",
+          "formula": "T_2 = \\frac{1-0}{4}[\\sin(0) + 2\\sin(0.5) + \\sin(1)]",
+          "result": null,
+          "method": "梯形法则"
+        },
+        {
+          "step_id": 3,
+          "description": "利用 Richardson 外推公式计算 Romberg 近似值",
+          "formula": "R_{2,2} = \\frac{4T_2 - T_1}{3}",
+          "result": null,
+          "method": "Romberg 积分法"
+        }
+      ],
+      "methods_used": [
+        "梯形法则",
+        "Richardson 外推",
+        "Romberg 积分法"
+      ],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "Romberg 积分法通过组合不同步长的梯形公式并利用 Richardson 外推消除误差项，从而获得更高精度的积分近似值。本题使用 T1 和 T2 进行一次外推，结果等价于 Simpson 法则。",
+      "from_cache": true,
+      "question_id": "39",
+      "cache_similarity": 1.0,
+      "cache_matched_question": "用Romberg积分法求$\\int_0^1 \\sin(x)dx$的近似值，使用$T_1,T_2$外推。",
+      "ground_truth": "$0.45970...$",
+      "answer_match": true
+    },
+    {
+      "question_id": "40",
+      "timestamp": "2026-07-08T00:14:32.763970",
+      "domain": "numerical_analysis",
+      "final_answer": "2.8",
+      "reasoning_steps": [
+        {
+          "step_id": 1,
+          "description": "初始化矩阵 A 和初始向量 v0",
+          "formula": "A=[[2,1],[1,2]], v0=[1,0]^T",
+          "result": null,
+          "method": "初始化"
+        },
+        {
+          "step_id": 2,
+          "description": "第一次迭代：计算 Av0 并归一化",
+          "formula": "v1'=[2,1]^T, lambda1=2, v1=[1,0.5]^T",
+          "result": null,
+          "method": "幂法迭代"
+        },
+        {
+          "step_id": 3,
+          "description": "第二次迭代：计算 Av1 并归一化",
+          "formula": "v2'=[2.5,2]^T, lambda2=2.5, v2=[1,0.8]^T",
+          "result": null,
+          "method": "幂法迭代"
+        },
+        {
+          "step_id": 4,
+          "description": "第三次迭代：计算 Av2 并归一化",
+          "formula": "v3'=[2.8,2.6]^T, lambda3=2.8, v3=[1,13/14]^T",
+          "result": null,
+          "method": "幂法迭代"
+        }
+      ],
+      "methods_used": [
+        "幂法",
+        "矩阵向量乘法"
+      ],
+      "verification": {
+        "is_correct": false,
+        "confidence": 0.0,
+        "check_method": "ground_truth_match",
+        "error_details": "pred=2.8, gt=$\\lambda \\approx 3$"
+      },
+      "educational_hint": "幂法通过不断左乘矩阵并取最大分量作为特征值近似，向量归一化防止数值溢出。",
+      "computation_time_ms": 146397.5214958191,
+      "retry_count": 0,
+      "model_version": null,
+      "from_cache": false,
+      "cache_similarity": null,
+      "cache_matched_question": null,
+      "true_domain": null,
+      "ground_truth": "$\\lambda \\approx 3$",
+      "answer_match": false
+    },
+    {
+      "question_id": "41",
+      "timestamp": "2026-07-08T00:14:46.606171",
+      "domain": "numerical_analysis",
+      "final_answer": "一阶导数近似值：0.876121，二阶导数近似值：-0.479026",
+      "reasoning_steps": [
+        {
+          "step_id": 1,
+          "description": "定义函数、求导点及步长参数",
+          "formula": "f(x)=\\sin(x), x_0=0.5, h=0.1",
+          "result": null,
+          "method": "问题设定"
+        },
+        {
+          "step_id": 2,
+          "description": "列出三点中心差分一阶导数公式",
+          "formula": "f'(x) \\approx \\frac{f(x+h) - f(x-h)}{2h}",
+          "result": null,
+          "method": "三点中心差分法"
+        },
+        {
+          "step_id": 3,
+          "description": "计算节点处的函数值（使用 SymPy 保证精度）",
+          "formula": "f(0.4)=\\sin(0.4), f(0.5)=\\sin(0.5), f(0.6)=\\sin(0.6)",
+          "result": null,
+          "method": "函数求值"
+        },
+        {
+          "step_id": 4,
+          "description": "代入公式计算一阶导数近似值",
+          "formula": "f'(0.5) \\approx \\frac{\\sin(0.6) - \\sin(0.4)}{0.2} \\approx 0.876121",
+          "result": null,
+          "method": "数值计算"
+        },
+        {
+          "step_id": 5,
+          "description": "列出三点中心差分二阶导数公式",
+          "formula": "f''(x) \\approx \\frac{f(x+h) - 2f(x) + f(x-h)}{h^2}",
+          "result": null,
+          "method": "三点中心差分法"
+        },
+        {
+          "step_id": 6,
+          "description": "代入公式计算二阶导数近似值",
+          "formula": "f''(0.5) \\approx \\frac{\\sin(0.6) - 2\\sin(0.5) + \\sin(0.4)}{0.01} \\approx -0.479026",
+          "result": null,
+          "method": "数值计算"
+        }
+      ],
+      "methods_used": [
+        "三点中心差分公式",
+        "数值微分"
+      ],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "三点中心差分公式利用对称点消除一阶误差项，具有二阶精度 O(h^2)，适用于光滑函数的导数近似。",
+      "computation_time_ms": 140171.38242721558,
+      "retry_count": 0,
+      "model_version": null,
+      "from_cache": false,
+      "cache_similarity": null,
+      "cache_matched_question": null,
+      "true_domain": null,
+      "ground_truth": "$f'(0.5)\\approx 0.8776$, $f''(0.5)\\approx -0.4794$",
+      "answer_match": true
+    },
+    {
+      "question_id": "42",
+      "timestamp": "2026-07-08T00:17:20.482263",
+      "domain": "numerical_analysis",
+      "final_answer": "Q = \\\\begin{pmatrix} \\\\frac{3}{\\\\sqrt{13}} & \\\\frac{2}{\\\\sqrt{13}} \\\\\\\\ \\\\frac{2}{\\\\sqrt{13}} & -\\\\frac{3}{\\\\sqrt{13}} \\\\end{pmatrix}, R = \\\\begin{pmatrix} \\\\sqrt{13} & \\\\frac{6}{\\\\sqrt{13}} \\\\\\\\ 0 & \\\\frac{4}{\\\\sqrt{13}} \\\\end{pmatrix}",
+      "reasoning_steps": [
+        {
+          "step_id": 1,
+          "description": "定义矩阵 A 并提取第一列向量 x",
+          "formula": "x = \\\\begin{pmatrix} 3 \\\\\\\\ 2 \\\\end{pmatrix}",
+          "result": null,
+          "method": "矩阵列提取"
+        },
+        {
+          "step_id": 2,
+          "description": "计算 Householder 向量 v",
+          "formula": "v = x - \\\\sigma e_1, \\\\sigma = \\\\|x\\\\| = \\\\sqrt{13}",
+          "result": null,
+          "method": "Householder 变换构造"
+        },
+        {
+          "step_id": 3,
+          "description": "构造 Householder 矩阵 H",
+          "formula": "H = I - 2\\\\frac{vv^T}{v^T v}",
+          "result": null,
+          "method": "反射矩阵计算"
+        },
+        {
+          "step_id": 4,
+          "description": "计算 QR 分解结果",
+          "formula": "Q = H, R = HA",
+          "result": null,
+          "method": "矩阵乘法"
+        }
+      ],
+      "methods_used": [
+        "Householder 变换",
+        "矩阵乘法",
+        "正交矩阵性质"
+      ],
+      "verification": {
+        "is_correct": false,
+        "confidence": 0.0,
+        "check_method": "ground_truth_match",
+        "error_details": "pred=Q = \\\\begin{pmatrix} \\\\frac{3}{\\\\sqrt{13}} & \\\\frac{2}{\\\\sqrt{13}} \\\\\\\\ \\\\frac{2, gt=$Q = \\frac{1}{\\sqrt{13}}\\begin{pmatrix}3&2\\\\2&-3\\end{pmatrix}$, $R = \\begin{pmat"
+      },
+      "educational_hint": "Householder 变换通过构造反射矩阵将向量映射到坐标轴方向，从而将矩阵化为上三角形式，保持正交性。",
+      "computation_time_ms": 271432.85751342773,
+      "retry_count": 0,
+      "model_version": null,
+      "from_cache": false,
+      "cache_similarity": null,
+      "cache_matched_question": null,
+      "true_domain": null,
+      "ground_truth": "$Q = \\frac{1}{\\sqrt{13}}\\begin{pmatrix}3&2\\\\2&-3\\end{pmatrix}$, $R = \\begin{pmatrix}\\sqrt{13}&\\frac{6}{\\sqrt{13}}\\\\0&\\frac{4}{\\sqrt{13}}\\end{pmatrix}$",
+      "answer_match": false
+    },
+    {
+      "final_answer": "y = 1.2x + 0.75",
+      "domain": "statistics",
+      "reasoning_steps": [
+        {
+          "step_id": 1,
+          "description": "计算各统计量的和",
+          "formula": "\\sum x_i = 10, \\sum y_i = 15, \\sum x_i^2 = 30, \\sum x_i y_i = 43.5",
+          "result": null,
+          "method": "最小二乘法"
+        },
+        {
+          "step_id": 2,
+          "description": "计算样本均值",
+          "formula": "\\bar{x} = 2.5, \\bar{y} = 3.75",
+          "result": null,
+          "method": "最小二乘法"
+        },
+        {
+          "step_id": 3,
+          "description": "利用最小二乘法公式计算斜率 a",
+          "formula": "a = \\frac{n\\sum x_i y_i - \\sum x_i \\sum y_i}{n\\sum x_i^2 - (\\sum x_i)^2} = 1.2",
+          "result": null,
+          "method": "最小二乘法"
+        },
+        {
+          "step_id": 4,
+          "description": "计算截距 b",
+          "formula": "b = \\bar{y} - a\\bar{x} = 3.75 - 1.2 \\times 2.5 = 0.75",
+          "result": null,
+          "method": "最小二乘法"
+        }
+      ],
+      "methods_used": [
+        "最小二乘法",
+        "线性回归模型"
+      ],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "最小二乘法通过最小化残差平方和来确定回归系数，斜率 a 反映 x 对 y 的影响程度，截距 b 为 x=0 时的预测值。",
+      "from_cache": true,
+      "question_id": "43",
+      "cache_similarity": 1.0000001192092896,
+      "cache_matched_question": "用最小二乘法求数据点$(1,2),(2,3),(3,4.5),(4,5.5)$的一次拟合直线$y=ax+b$。",
+      "ground_truth": "$y = 1.2x + 0.75$",
+      "answer_match": true
+    },
+    {
+      "question_id": "44",
+      "timestamp": "2026-07-08T00:15:09.742198",
+      "domain": "algebra",
+      "final_answer": "线性方程组的解为 x=13/8, y=7/8, z=13/8。通过 LU 分解将系数矩阵 A 分解为下三角矩阵 L 和上三角矩阵 U，先利用前代法解 Ly=b 得到中间向量 y，再利用回代法解 Ux=y 求得最终解。",
+      "reasoning_steps": [
+        {
+          "step_id": 1,
+          "description": "将线性方程组写成矩阵形式 Ax=b",
+          "formula": "A=\\begin{pmatrix} 2 & -1 & 1 \\\\ 1 & 3 & -2 \\\\ -1 & 2 & 3 \\end{pmatrix}, \\quad b=\\begin{pmatrix} 4 \\\\ 1 \\\\ 5 \\end{pmatrix}",
+          "result": null,
+          "method": "矩阵表示法"
+        },
+        {
+          "step_id": 2,
+          "description": "对系数矩阵 A 进行 LU 分解，通过高斯消元得到 U 并记录乘数构造 L",
+          "formula": "L=\\begin{pmatrix} 1 & 0 & 0 \\\\ 1/2 & 1 & 0 \\\\ -1/2 & 3/7 & 1 \\end{pmatrix}, \\quad U=\\begin{pmatrix} 2 & -1 & 1 \\\\ 0 & 7/2 & -5/2 \\\\ 0 & 0 & 32/7 \\end{pmatrix}",
+          "result": null,
+          "method": "LU 分解 (高斯消元)"
+        },
+        {
+          "step_id": 3,
+          "description": "解下三角方程组 Ly=b 求中间变量 y（前代法）",
+          "formula": "y_1=4, \\quad y_2=1-\\frac{1}{2}y_1=-1, \\quad y_3=5-(-\\frac{1}{2}y_1+\\frac{3}{7}y_2)=\\frac{52}{7}",
+          "result": null,
+          "method": "前代法 (Forward Substitution)"
+        },
+        {
+          "step_id": 4,
+          "description": "解上三角方程组 Ux=y 求未知数 x, y, z（回代法）",
+          "formula": "z=\\frac{52/7}{32/7}=\\frac{13}{8}, \\quad y=\\frac{-1+\\frac{5}{2}z}{7/2}=\\frac{7}{8}, \\quad x=\\frac{4+y-z}{2}=\\frac{13}{8}",
+          "result": null,
+          "method": "回代法 (Backward Substitution)"
+        }
+      ],
+      "methods_used": [
+        "LU 分解法",
+        "前代法",
+        "回代法"
+      ],
+      "verification": {
+        "is_correct": false,
+        "confidence": 0.0,
+        "check_method": "ground_truth_match",
+        "error_details": "pred=线性方程组的解为 x=13/8, y=7/8, z=13/8。通过 LU 分解将系数矩阵 A 分解为下三角矩阵 L 和上三角矩阵 U，先利用前代法解 Ly=b , gt=$(x,y,z)=(1,1,1)$"
+      },
+      "educational_hint": "LU 分解将求解线性方程组的问题转化为求解两个三角方程组，计算效率较高。关键在于消元过程中准确记录乘数以构建 L 矩阵，并注意分数运算的准确性。此方法适用于需要多次求解同一系数矩阵不同右端项的情况。",
+      "computation_time_ms": 137241.50466918945,
+      "retry_count": 0,
+      "model_version": null,
+      "from_cache": false,
+      "cache_similarity": null,
+      "cache_matched_question": null,
+      "true_domain": null,
+      "ground_truth": "$(x,y,z)=(1,1,1)$",
+      "answer_match": false
+    },
+    {
+      "final_answer": "2.0045",
+      "domain": "numerical_analysis",
+      "reasoning_steps": [
+        {
+          "step_id": 1,
+          "description": "确定积分区间、分段数及步长",
+          "formula": "$h = \\frac{b-a}{n} = \\frac{\\pi-0}{4} = \\frac{\\pi}{4}$",
+          "result": null,
+          "method": "步长计算"
+        },
+        {
+          "step_id": 2,
+          "description": "计算各节点处的函数值",
+          "formula": "$x_0=0, x_1=\\frac{\\pi}{4}, x_2=\\frac{\\pi}{2}, x_3=\\frac{3\\pi}{4}, x_4=\\pi$; $y_0=0, y_1=\\frac{\\sqrt{2}}{2}, y_2=1, y_3=\\frac{\\sqrt{2}}{2}, y_4=0$",
+          "result": null,
+          "method": "函数值计算"
+        },
+        {
+          "step_id": 3,
+          "description": "代入复化 Simpson 公式",
+          "formula": "$S_4 = \\frac{h}{3}[y_0 + 4(y_1+y_3) + 2y_2 + y_4]$",
+          "result": null,
+          "method": null
+        },
+        {
+          "step_id": 4,
+          "description": "计算最终近似值",
+          "formula": "$S_4 = \\frac{\\pi}{12}(4\\sqrt{2}+2) = \\frac{\\pi}{6}(2\\sqrt{2}+1) \\approx 2.0045$",
+          "result": null,
+          "method": null
+        }
+      ],
+      "methods_used": [
+        "复化 Simpson 公式",
+        "数值积分"
+      ],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "复化 Simpson 公式将区间分为偶数段，利用二次多项式逼近被积函数，权重系数为 1, 4, 2, ..., 4, 1。",
+      "from_cache": true,
+      "question_id": "45",
+      "cache_similarity": 1.0000003576278687,
+      "cache_matched_question": "用复化Simpson公式，将$[0,\\pi]$等分为$4$份，求$\\int_0^\\pi \\sin(x)dx$的近似值。",
+      "ground_truth": "约$2.00456$",
+      "answer_match": true
+    },
+    {
+      "final_answer": "\\frac{1}{3}",
+      "domain": "real_analysis",
+      "reasoning_steps": [
+        {
+          "step_id": 1,
+          "description": "将积分区间 [0,1] 分成 n 个等份，每份长度 Δx",
+          "formula": "\\Delta x = \\frac{1}{n}",
+          "result": null,
+          "method": null
+        },
+        {
+          "step_id": 2,
+          "description": "选取右端点 ξ_i = i/n 构造黎曼和 S_n",
+          "formula": "S_n = \\sum_{i=1}^n \\left(\\frac{i}{n}\\right)^2 \\cdot \\frac{1}{n}",
+          "result": null,
+          "method": null
+        },
+        {
+          "step_id": 3,
+          "description": "利用平方和公式化简黎曼和表达式",
+          "formula": "S_n = \\frac{1}{n^3} \\cdot \\frac{n(n+1)(2n+1)}{6}",
+          "result": null,
+          "method": null
+        },
+        {
+          "step_id": 4,
+          "description": "取 n 趋于无穷大的极限得到积分值",
+          "formula": "\\lim_{n \\to \\infty} S_n = \\lim_{n \\to \\infty} \\frac{2n^3 + 3n^2 + n}{6n^3} = \\frac{1}{3}",
+          "result": null,
+          "method": null
+        }
+      ],
+      "methods_used": [
+        "黎曼和定义",
+        "数列极限"
+      ],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "黎曼积分的定义是通过分割区间、取黎曼和、求极限的过程。对于连续函数，等分区间取右端点的黎曼和极限即为定积分值，计算中利用了自然数平方和公式及数列极限运算。",
+      "from_cache": true,
+      "question_id": "46",
+      "cache_similarity": 1.0,
+      "cache_matched_question": "求Riemann积分$\\int_0^1 x^2 dx$的极限定义计算。",
+      "ground_truth": "$\\frac{1}{3}$",
+      "answer_match": true
+    },
+    {
+      "question_id": "47",
+      "timestamp": "2026-07-08T00:16:49.411145",
+      "domain": "real_analysis",
+      "final_answer": "。左边极限为 0，右边积分值为 0",
+      "reasoning_steps": [],
+      "methods_used": [],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "",
+      "computation_time_ms": 227664.94274139404,
+      "retry_count": 1,
+      "model_version": null,
+      "from_cache": false,
+      "cache_similarity": null,
+      "cache_matched_question": null,
+      "true_domain": null,
+      "ground_truth": "$\\frac{1}{2n}\\ln(1+n^2) \\to 0$, 逐点极限为$0$",
+      "answer_match": true
+    },
+    {
+      "question_id": "48",
+      "timestamp": "2026-07-08T00:16:40.342243",
+      "domain": "real_analysis",
+      "final_answer": "Cantor 集是勒贝格可测集且其勒贝格测度为零。",
+      "reasoning_steps": [
+        {
+          "step_id": 1,
+          "description": "构造 Cantor 集迭代序列",
+          "formula": "C_0 = [0, 1], C_{n+1} = \\frac{1}{3}C_n \\cup (\\frac{1}{3}C_n + \\frac{2}{3}), C = \\bigcap_{n=0}^{\\infty} C_n",
+          "result": null,
+          "method": "递归构造法"
+        },
+        {
+          "step_id": 2,
+          "description": "证明 Cantor 集的可测性",
+          "formula": "C_n 是有限个闭区间的并，故为闭集；C 是可数个闭集之交，故 C 为闭集，属于 Borel 集，勒贝格可测",
+          "result": null,
+          "method": "拓扑性质与可测集定义"
+        },
+        {
+          "step_id": 3,
+          "description": "计算第 n 步剩余集合的测度",
+          "formula": "m(C_n) = \\left(\\frac{2}{3}\\right)^n",
+          "result": null,
+          "method": "勒贝格测度计算"
+        },
+        {
+          "step_id": 4,
+          "description": "证明 Cantor 集测度为零",
+          "formula": "0 \\le m(C) \\le m(C_n) = \\left(\\frac{2}{3}\\right)^n, \\lim_{n \\to \\infty} m(C_n) = 0",
+          "result": null,
+          "method": "测度单调性与极限运算"
+        }
+      ],
+      "methods_used": [
+        "递归构造法",
+        "勒贝格测度性质",
+        "极限定义"
+      ],
+      "verification": {
+        "is_correct": false,
+        "confidence": 0.0,
+        "check_method": "ground_truth_match",
+        "error_details": "pred=Cantor 集是勒贝格可测集且其勒贝格测度为零。, gt=$m(C)=0$"
+      },
+      "educational_hint": "Cantor 集是不可数集但测度为零，体现了基数与测度的独立性。证明核心在于利用测度的单调性及构造过程中长度趋于零的性质。",
+      "computation_time_ms": 158515.34366607666,
+      "retry_count": 1,
+      "model_version": null,
+      "from_cache": false,
+      "cache_similarity": null,
+      "cache_matched_question": null,
+      "true_domain": null,
+      "ground_truth": "$m(C)=0$",
+      "answer_match": false
+    },
+    {
+      "question_id": "49",
+      "timestamp": "2026-07-08T00:17:13.478981",
+      "domain": "real_analysis",
+      "final_answer": "\": \"0\",",
+      "reasoning_steps": [],
+      "methods_used": [],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "",
+      "computation_time_ms": 160641.25990867615,
+      "retry_count": 1,
+      "model_version": null,
+      "from_cache": false,
+      "cache_similarity": null,
+      "cache_matched_question": null,
+      "true_domain": null,
+      "ground_truth": "由Chebyshev不等式，极限为0",
+      "answer_match": true
+    },
+    {
+      "final_answer": "\": \"0\",",
+      "domain": "real_analysis",
+      "reasoning_steps": [],
+      "methods_used": [],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "",
+      "from_cache": true,
+      "question_id": "50",
+      "cache_similarity": 1.0000001192092896,
+      "cache_matched_question": "求Lebesgue积分$\\int_0^1 \\lim_{n\\to\\infty} \\frac{nx}{1+n^2x^2} dx$并验证与极限交换的合理性。",
+      "ground_truth": "$0$",
+      "answer_match": true
+    },
+    {
+      "final_answer": "存在满足条件的 $F_\\sigma$ 集 $F$ 和零测集 $N$，使得 $E = F \\cup N$。",
+      "domain": "algebra",
+      "reasoning_steps": [
+        {
+          "step_id": 1,
+          "description": "1. 根据勒贝格测度的内正则性定理，对于任意勒贝格可测集 $E$ 和任意 \\epsilon > 0，存在闭集 $K \\subseteq E$ 使得 $m(E \\setminus K) < \\epsilon$。\n2. 取 \\epsilon_n = 1/n (n \\in \\mathbb{N}^+)，则存在闭集 $K_n \\subseteq E$ 使得 $m(E \\setminus K_n) < 1/n$。\n3. 令 $F = \\bigcup_{n=1}^{\\infty} K_n$。因为每个 $K_n$ 都是闭集，所以 $F$ 是 $F_\\sigma$ 集（可数个闭集的并）。\n4. 显然 $F \\subseteq E$。\n5. 考虑差集 $E \\setminus F = E \\setminus \\bigcup_{n=1}^{\\infty} K_n = \\bigcap_{n=1}^{\\infty} (E \\setminus K_n)$。\n6. 由于 $K_n \\subseteq E$，有 $E \\setminus F \\subseteq E \\setminus K_n$。因此 $0 \\le m",
+          "formula": null,
+          "result": null,
+          "method": null
+        }
+      ],
+      "methods_used": [
+        "勒贝格测度正则性定理",
+        "$F_\\sigma$ 集构造",
+        "测度的单调性与极限性质"
+      ],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "",
+      "from_cache": true,
+      "question_id": "51",
+      "cache_similarity": 1.0000005960464478,
+      "cache_matched_question": "设$E$为$\\mathbb{R}$的Lebesgue可测子集。证明存在$F_\\sigma$集$F$和零测集$N$使$E = F \\cup N$。",
+      "ground_truth": "$E = F \\cup N$",
+      "answer_match": true
+    },
+    {
+      "question_id": "52",
+      "timestamp": "2026-07-08T00:17:52.126376",
+      "domain": "real_analysis",
+      "final_answer": "函数 $f(x)=\\frac{1}{x}$ 在 $(0,1]$ 上不是 Lebesgue 可积的",
+      "reasoning_steps": [
+        {
+          "step_id": 1,
+          "description": "确认函数非负可测",
+          "formula": "$f(x) = \\frac{1}{x}$ 在 $(0,1]$ 连续，故 Borel 可测且 $f \\ge 0$",
+          "result": null,
+          "method": "连续函数可测性"
+        },
+        {
+          "step_id": 2,
+          "description": "引用 Lebesgue 可积定义",
+          "formula": "$f \\in L^1((0,1]) \\iff \\int_{(0,1]} |f| d\\mu < +\\infty$",
+          "result": null,
+          "method": "Lebesgue 可积性定义"
+        },
+        {
+          "step_id": 3,
+          "description": "构造递增集合序列",
+          "formula": "令 $E_n = [\\frac{1}{n}, 1]$，则 $E_n \\subset E_{n+1}$ 且 $\\bigcup_{n=1}^\\infty E_n = (0,1]$",
+          "result": null,
+          "method": "集合序列逼近"
+        },
+        {
+          "step_id": 4,
+          "description": "应用单调收敛定理",
+          "formula": "$\\int_{(0,1]} f d\\mu = \\lim_{n \\to \\infty} \\int_{E_n} f d\\mu$",
+          "result": null,
+          "method": "单调收敛定理 (MCT)"
+        },
+        {
+          "step_id": 5,
+          "description": "计算子区间上的黎曼积分",
+          "formula": "$\\int_{E_n} f d\\mu = \\int_{1/n}^1 \\frac{1}{x} dx = [\\ln x]_{1/n}^1 = \\ln n$",
+          "result": null,
+          "method": "微积分基本定理"
+        },
+        {
+          "step_id": 6,
+          "description": "求极限判断发散",
+          "formula": "$\\lim_{n \\to \\infty} \\ln n = +\\infty$",
+          "result": null,
+          "method": "数列极限"
+        },
+        {
+          "step_id": 7,
+          "description": "得出结论",
+          "formula": "$\\int_{(0,1]} f d\\mu = +\\infty \\\\notin L^1((0,1])$",
+          "result": null,
+          "method": "定义判定"
+        }
+      ],
+      "methods_used": [
+        "Lebesgue 可积性定义",
+        "单调收敛定理",
+        "黎曼积分计算"
+      ],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "非负函数的 Lebesgue 可积性取决于积分值是否有限。通过递增序列逼近无界区间，利用单调收敛定理将广义积分转化为极限问题，若极限发散则不可积。",
+      "computation_time_ms": 185029.1929244995,
+      "retry_count": 1,
+      "model_version": null,
+      "from_cache": false,
+      "cache_similarity": null,
+      "cache_matched_question": null,
+      "true_domain": null,
+      "ground_truth": "$\\int_{(0,1]}\\frac{1}{x}dx = \\infty$",
+      "answer_match": true
+    },
+    {
+      "question_id": "53",
+      "timestamp": "2026-07-08T00:17:21.128915",
+      "domain": "real_analysis",
+      "final_answer": "存在子列 {f_{n_k}} 几乎处处收敛于 f",
+      "reasoning_steps": [
+        {
+          "step_id": 1,
+          "description": "利用依测度收敛定义选取子列",
+          "formula": "\\forall k \\in \\mathbb{N}, \\exists n_k, \\mu(\\{x: |f_{n_k}-f| \\ge 2^{-k}\\}) < 2^{-k}",
+          "result": null,
+          "method": null
+        },
+        {
+          "step_id": 2,
+          "description": "定义偏差集合并估计测度",
+          "formula": "E_k = \\{x: |f_{n_k}-f| \\ge 2^{-k}\\}, \\sum_{k=1}^\\infty \\mu(E_k) < \\infty",
+          "result": null,
+          "method": null
+        },
+        {
+          "step_id": 3,
+          "description": "构造零测集 E",
+          "formula": "E = \\bigcap_{m=1}^\\infty \\bigcup_{k=m}^\\infty E_k, \\mu(E) = 0",
+          "result": null,
+          "method": null
+        },
+        {
+          "step_id": 4,
+          "description": "证明在 E^c 上逐点收敛",
+          "formula": "x \\notin E \\Rightarrow \\exists K, \\forall k \\ge K, |f_{n_k}(x)-f(x)| < 2^{-k} \\to 0",
+          "result": null,
+          "method": null
+        }
+      ],
+      "methods_used": [
+        "子列构造法",
+        "测度估计",
+        "几乎处处收敛定义"
+      ],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "通过选取子列使偏差集合测度可和，利用测度次可加性证明例外集测度为零，从而得到几乎处处收敛。",
+      "computation_time_ms": 133754.18305397034,
+      "retry_count": 1,
+      "model_version": null,
+      "from_cache": false,
+      "cache_similarity": null,
+      "cache_matched_question": null,
+      "true_domain": null,
+      "ground_truth": "存在子列$f_{n_k}$几乎处处收敛于$f$",
+      "answer_match": true
+    },
+    {
+      "final_answer": "\": \"2\",",
+      "domain": "real_analysis",
+      "reasoning_steps": [],
+      "methods_used": [],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "",
+      "from_cache": true,
+      "question_id": "54",
+      "cache_similarity": 1.0000004768371582,
+      "cache_matched_question": "求$\\lim_{n\\to\\infty}\\int_0^n \\left(1-\\frac{x}{n}\\right)^n e^{x/2} dx$。",
+      "ground_truth": "$2$",
+      "answer_match": true
+    },
+    {
+      "final_answer": "Lusin 定理得证",
+      "domain": "real_analysis",
+      "reasoning_steps": [
+        {
+          "step_id": 1,
+          "description": "处理无穷大点集",
+          "formula": "令 E_\\infty = {x : |f(x)|=\\infty}，则 m(E_\\infty)=0。取开集 U \\supset E_\\infty 使 m(U) < \\varepsilon/2。",
+          "result": null,
+          "method": null
+        },
+        {
+          "step_id": 2,
+          "description": "简单函数逼近",
+          "formula": "存在简单函数 \\phi = \\sum c_i \\chi_{A_i} 使得 m({x : f(x) \\neq \\phi(x)}) < \\varepsilon/2。",
+          "result": null,
+          "method": null
+        },
+        {
+          "step_id": 3,
+          "description": "测度正则性",
+          "formula": "对每个 A_i，存在闭集 F_i \\subset A_i 使 m(A_i \\setminus F_i) < \\delta。令 F = \\bigcup F_i，则 m([a,b] \\setminus F) < \\varepsilon/2。",
+          "result": null,
+          "method": null
+        },
+        {
+          "step_id": 4,
+          "description": "闭集上连续性",
+          "formula": "\\phi 在 F 上连续，且 f 与 \\phi 接近，故 f|_F 连续。",
+          "result": null,
+          "method": null
+        },
+        {
+          "step_id": 5,
+          "description": "蒂茨扩张",
+          "formula": "由蒂茨扩张定理，存在 g \\in C([a,b]) 使得 g|_F = f|_F。",
+          "result": null,
+          "method": null
+        },
+        {
+          "step_id": 6,
+          "description": "误差估计",
+          "formula": "{f \\neq g} \\subset ([a,b] \\setminus F) \\cup {f \\neq \\phi}，故 m({f \\neq g}) < \\varepsilon。",
+          "result": null,
+          "method": null
+        }
+      ],
+      "methods_used": [
+        "简单函数逼近",
+        "勒贝格测度正则性",
+        "蒂茨扩张定理",
+        "ε-δ 论证",
+        "可测函数性质"
+      ],
+      "verification": {
+        "is_correct": false,
+        "confidence": 0.0,
+        "check_method": "ground_truth_match",
+        "error_details": "pred=Lusin 定理得证, gt=存在连续函数$g$使$m(\\{x:f(x)\\neq g(x)\\})<\\varepsilon$"
+      },
+      "educational_hint": "证明核心在于利用可测函数的性质将其在大部分区域上逼近为连续函数，通过测度正则性将可测集逼近为闭集，再利用扩张定理延拓至全区间。",
+      "from_cache": true,
+      "question_id": "55",
+      "cache_similarity": 0.9999995827674866,
+      "cache_matched_question": "证明Lusin定理：设$f$为$[a,b]$上几乎处处有限的可测函数，则对任意$\\varepsilon>0$，存在连续函数$g$使$m(\\{x: f(x) \\neq g(x)\\}) < \\varepsilon$。",
+      "ground_truth": "存在连续函数$g$使$m(\\{x:f(x)\\neq g(x)\\})<\\varepsilon$",
+      "answer_match": false
+    },
+    {
+      "question_id": "56",
+      "timestamp": "2026-07-08T00:17:55.426946",
+      "domain": "real_analysis",
+      "final_answer": "\": \"命题得证\",",
+      "reasoning_steps": [],
+      "methods_used": [],
+      "verification": {
+        "is_correct": false,
+        "confidence": 0.0,
+        "check_method": "ground_truth_match",
+        "error_details": "pred=\": \"命题得证\",, gt=存在$x,y\\in E$使$x-y\\in\\mathbb{Q}$"
+      },
+      "educational_hint": "",
+      "computation_time_ms": 165357.85269737244,
+      "retry_count": 1,
+      "model_version": null,
+      "from_cache": false,
+      "cache_similarity": null,
+      "cache_matched_question": null,
+      "true_domain": null,
+      "ground_truth": "存在$x,y\\in E$使$x-y\\in\\mathbb{Q}$",
+      "answer_match": false
+    },
+    {
+      "final_answer": "-\\frac{1}{9}",
+      "domain": "differential_geometry",
+      "reasoning_steps": [
+        {
+          "step_id": 1,
+          "description": "确定曲面方程为显式形式 z=f(x,y)",
+          "formula": "f(x,y) = xy",
+          "result": null,
+          "method": "曲面参数化"
+        },
+        {
+          "step_id": 2,
+          "description": "计算一阶及二阶偏导数",
+          "formula": "f_x=y, f_y=x, f_{xx}=0, f_{yy}=0, f_{xy}=1",
+          "result": null,
+          "method": "偏导数计算"
+        },
+        {
+          "step_id": 3,
+          "description": "在点 (1,1) 处求导数值",
+          "formula": "f_x=1, f_y=1, f_{xy}=1",
+          "result": null,
+          "method": "代入求值"
+        },
+        {
+          "step_id": 4,
+          "description": "应用显式曲面的高斯曲率公式",
+          "formula": "K = \\frac{f_{xx}f_{yy} - f_{xy}^2}{(1 + f_x^2 + f_y^2)^2}",
+          "result": null,
+          "method": "高斯曲率显式公式"
+        },
+        {
+          "step_id": 5,
+          "description": "代入数值计算最终结果",
+          "formula": "K = \\frac{0 \\cdot 0 - 1^2}{(1 + 1^2 + 1^2)^2} = -\\frac{1}{9}",
+          "result": null,
+          "method": "数值计算"
+        }
+      ],
+      "methods_used": [
+        "曲面高斯曲率显式公式",
+        "偏导数计算"
+      ],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "对于显式曲面 z=f(x,y)，可直接利用一阶和二阶偏导数通过公式计算 Gauss 曲率，无需构造复杂的 Frenet 标架（Frenet 标架主要用于空间曲线）。",
+      "from_cache": true,
+      "question_id": "57",
+      "cache_similarity": 0.9999995231628418,
+      "cache_matched_question": "求曲面$z=xy$在点$(1,1,1)$处的Gauss曲率。",
+      "ground_truth": "$K = -\\frac{1}{(1+1^2+1^2)^2} = -\\frac{1}{9}$",
+      "answer_match": true
+    },
+    {
+      "question_id": "58",
+      "timestamp": "2026-07-08T00:17:12.685827",
+      "domain": "differential_geometry",
+      "final_answer": "曲率 κ = 1/2，挠率 τ = 1/2",
+      "reasoning_steps": [
+        {
+          "step_id": 1,
+          "description": "计算曲线的一阶、二阶和三阶导数",
+          "formula": "γ'(t)=(-sin t, cos t, 1), γ''(t)=(-cos t, -sin t, 0), γ'''(t)=(sin t, -cos t, 0)",
+          "result": null,
+          "method": null
+        },
+        {
+          "step_id": 2,
+          "description": "代入 t=0 计算各导数值",
+          "formula": "γ'(0)=(0, 1, 1), γ''(0)=(-1, 0, 0), γ'''(0)=(0, -1, 0)",
+          "result": null,
+          "method": null
+        },
+        {
+          "step_id": 3,
+          "description": "利用 Frenet 标架相关公式计算曲率",
+          "formula": "κ = ||γ' × γ''|| / ||γ'||³ = √2 / (√2)³ = 1/2",
+          "result": null,
+          "method": null
+        },
+        {
+          "step_id": 4,
+          "description": "利用 Frenet 标架相关公式计算挠率",
+          "formula": "τ = (γ' × γ'') · γ''' / ||γ' × γ''||² = 1 / 2 = 1/2",
+          "result": null,
+          "method": null
+        }
+      ],
+      "methods_used": [
+        "Frenet 标架公式",
+        "向量叉积与点积"
+      ],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "该曲线为圆柱螺旋线，其曲率和挠率均为常数，不随参数 t 变化。",
+      "computation_time_ms": 99570.99723815918,
+      "retry_count": 0,
+      "model_version": null,
+      "from_cache": false,
+      "cache_similarity": null,
+      "cache_matched_question": null,
+      "true_domain": null,
+      "ground_truth": "$\\kappa=\\frac{1}{2}, \\tau=\\frac{1}{2}$",
+      "answer_match": true
+    },
+    {
+      "question_id": "59",
+      "timestamp": "2026-07-08T00:18:48.117721",
+      "domain": "topology",
+      "final_answer": "根据庞加莱 - 霍普夫定理，紧致光滑流形上任意光滑向量场的所有零点指数之和等于该流形的欧拉示性数。对于球面 $S^2$，其欧拉示性数 $\\chi(S^2) = 2$。若向量场无零点，则指数和为 $0$，导致 $0 = 2$ 的矛盾。因此，$S^2$ 上任何光滑向量场至少有一个零点。",
+      "reasoning_steps": [
+        {
+          "step_id": 1,
+          "description": "引用庞加莱 - 霍普夫定理建立向量场零点与欧拉示性数的联系",
+          "formula": "\\sum_{p \\in \\mathrm{Zero}(V)} \\mathrm{ind}_p(V) = \\chi(M)",
+          "result": null,
+          "method": "庞加莱 - 霍普夫定理"
+        },
+        {
+          "step_id": 2,
+          "description": "计算球面 $S^2$ 的欧拉示性数",
+          "formula": "\\chi(S^2) = 2",
+          "result": null,
+          "method": "欧拉示性数计算"
+        },
+        {
+          "step_id": 3,
+          "description": "假设向量场无零点导出矛盾",
+          "formula": "0 = 2 \\quad (\\text{矛盾})",
+          "result": null,
+          "method": "反证法"
+        }
+      ],
+      "methods_used": [
+        "庞加莱 - 霍普夫定理",
+        "欧拉示性数",
+        "反证法"
+      ],
+      "verification": {
+        "is_correct": false,
+        "confidence": 0.0,
+        "check_method": "ground_truth_match",
+        "error_details": "pred=根据庞加莱 - 霍普夫定理，紧致光滑流形上任意光滑向量场的所有零点指数之和等于该流形的欧拉示性数。对于球面 $S^2$，其欧拉示性数 $\\chi(S^2) = , gt=球面上任何光滑向量场至少有一个零点（Hairy Ball定理）"
+      },
+      "educational_hint": "此结论被称为\"毛球定理\"（Hairy Ball Theorem）。直观上意味着无法抚平一个长满毛的球面而不留下至少一个旋涡或秃点。解题的关键在于理解向量场零点的拓扑性质（指数和）与流形整体拓扑结构（欧拉示性数）之间的深刻联系。",
+      "computation_time_ms": 127844.13313865662,
+      "retry_count": 0,
+      "model_version": null,
+      "from_cache": false,
+      "cache_similarity": null,
+      "cache_matched_question": null,
+      "true_domain": null,
+      "ground_truth": "球面上任何光滑向量场至少有一个零点（Hairy Ball定理）",
+      "answer_match": false
+    },
+    {
+      "question_id": "60",
+      "timestamp": "2026-07-08T00:18:44.344930",
+      "domain": "differential_geometry",
+      "final_answer": "验证成立：左侧积分值为 4\\pi，右侧拓扑不变量值为 4\\pi，等式成立。",
+      "reasoning_steps": [
+        {
+          "step_id": 1,
+          "description": "计算球面的高斯曲率",
+          "formula": "K = \\frac{1}{R^2}",
+          "result": null,
+          "method": "第一/第二基本形式"
+        },
+        {
+          "step_id": 2,
+          "description": "计算高斯曲率在全曲面上的积分",
+          "formula": "\\int_{S^2} K dA = \\int_0^{2\\pi}\\int_0^\\pi \\frac{1}{R^2} R^2 \\sin\\theta d\\theta d\\phi = 4\\pi",
+          "result": null,
+          "method": "积分计算"
+        },
+        {
+          "step_id": 3,
+          "description": "确定球面的欧拉示性数",
+          "formula": "\\chi(S^2) = 2",
+          "result": null,
+          "method": "拓扑学/欧拉公式"
+        },
+        {
+          "step_id": 4,
+          "description": "验证 Gauss-Bonnet 等式",
+          "formula": "2\\pi \\chi(S^2) = 4\\pi",
+          "result": null,
+          "method": "Gauss-Bonnet 定理"
+        }
+      ],
+      "methods_used": [
+        "第一/第二基本形式",
+        "高斯曲率计算",
+        "欧拉示性数",
+        "Gauss-Bonnet 定理"
+      ],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "球面是闭曲面，高斯曲率为常数，通过直接积分计算总曲率，并与拓扑欧拉示性数对比验证定理。",
+      "computation_time_ms": 114797.28317260742,
+      "retry_count": 1,
+      "model_version": null,
+      "from_cache": false,
+      "cache_similarity": null,
+      "cache_matched_question": null,
+      "true_domain": null,
+      "ground_truth": "$4\\pi = 2\\pi \\cdot 2$",
+      "answer_match": true
+    },
+    {
+      "question_id": "61",
+      "timestamp": "2026-07-08T00:18:39.618697",
+      "domain": "differential_geometry",
+      "final_answer": "Euler 示性数为 0，总曲率为 0",
+      "reasoning_steps": [
+        {
+          "step_id": 1,
+          "description": "确定环面拓扑类型",
+          "formula": "g=1",
+          "result": null,
+          "method": "曲面拓扑分类"
+        },
+        {
+          "step_id": 2,
+          "description": "计算 Euler 示性数",
+          "formula": "\\chi = 2 - 2g",
+          "result": null,
+          "method": "欧拉示性数公式"
+        },
+        {
+          "step_id": 3,
+          "description": "应用 Gauss-Bonnet 定理",
+          "formula": "\\int_{T^2} K dA = 2\\pi \\chi",
+          "result": null,
+          "method": "Gauss-Bonnet 定理"
+        },
+        {
+          "step_id": 4,
+          "description": "计算总曲率",
+          "formula": "2\\pi \\times 0 = 0",
+          "result": null,
+          "method": "代入计算"
+        }
+      ],
+      "methods_used": [
+        "Gauss-Bonnet 定理",
+        "曲面拓扑分类"
+      ],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "环面是亏格为 1 的闭可定向曲面。根据 Gauss-Bonnet 定理，闭曲面的总曲率等于 2 倍 pi 乘以其 Euler 示性数。",
+      "computation_time_ms": 86808.0849647522,
+      "retry_count": 0,
+      "model_version": null,
+      "from_cache": false,
+      "cache_similarity": null,
+      "cache_matched_question": null,
+      "true_domain": null,
+      "ground_truth": "$\\chi(T^2)=0$, $\\int_{T^2}KdA=0$",
+      "answer_match": true
+    },
+    {
+      "question_id": "62",
+      "timestamp": "2026-07-08T00:19:36.021085",
+      "domain": "differential_geometry",
+      "final_answer": "第一基本形式：I = du^2 + dv^2，第二基本形式：II = 2du^2 + 2dv^2，Gauss 曲率：K = 4",
+      "reasoning_steps": [
+        {
+          "step_id": 1,
+          "description": "计算切向量 r_u, r_v 在 (0,0) 处的值",
+          "formula": "r_u = (1, 0, 2u), r_v = (0, 1, 2v) => r_u(0,0)=(1,0,0), r_v(0,0)=(0,1,0)",
+          "result": null,
+          "method": "偏导数计算"
+        },
+        {
+          "step_id": 2,
+          "description": "计算第一基本形式系数 E, F, G",
+          "formula": "E = r_u·r_u = 1, F = r_u·r_v = 0, G = r_v·r_v = 1",
+          "result": null,
+          "method": "内积运算"
+        },
+        {
+          "step_id": 3,
+          "description": "计算单位法向量 n",
+          "formula": "n = (r_u × r_v) / |r_u × r_v| = (0, 0, 1)",
+          "result": null,
+          "method": "外积运算"
+        },
+        {
+          "step_id": 4,
+          "description": "计算二阶偏导数 r_uu, r_uv, r_vv",
+          "formula": "r_uu = (0, 0, 2), r_uv = (0, 0, 0), r_vv = (0, 0, 2)",
+          "result": null,
+          "method": "二阶偏导数计算"
+        },
+        {
+          "step_id": 5,
+          "description": "计算第二基本形式系数 L, M, N",
+          "formula": "L = r_uu·n = 2, M = r_uv·n = 0, N = r_vv·n = 2",
+          "result": null,
+          "method": "投影运算"
+        },
+        {
+          "step_id": 6,
+          "description": "计算 Gauss 曲率 K",
+          "formula": "K = (LN - M^2) / (EG - F^2) = 4 / 1 = 4",
+          "result": null,
+          "method": "曲率公式应用"
+        }
+      ],
+      "methods_used": [
+        "偏导数计算",
+        "向量内积与外积",
+        "第一基本形式定义",
+        "第二基本形式定义",
+        "Gauss 曲率公式"
+      ],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "首先通过切向量确定曲面的局部度量（第一基本形式），再通过法向量和二阶导数确定曲面的弯曲程度（第二基本形式），最后利用系数比值求得 Gauss 曲率。",
+      "computation_time_ms": 142484.51137542725,
+      "retry_count": 0,
+      "model_version": null,
+      "from_cache": false,
+      "cache_similarity": null,
+      "cache_matched_question": null,
+      "true_domain": null,
+      "ground_truth": "$I=du^2+dv^2$, $II=2du^2+2dv^2$",
+      "answer_match": true
+    },
+    {
+      "question_id": "63",
+      "timestamp": "2026-07-08T00:20:25.644308",
+      "domain": "calculus_of_variations",
+      "final_answer": "球面上两点间的最短路径是大圆的一段弧",
+      "reasoning_steps": [
+        {
+          "step_id": 1,
+          "description": "建立变分问题模型",
+          "formula": "J = \\int_{t_1}^{t_2} \\sqrt{\\dot{x}^2+\\dot{y}^2+\\dot{z}^2} dt, \\quad x^2+y^2+z^2=R^2",
+          "result": null,
+          "method": "泛函建模"
+        },
+        {
+          "step_id": 2,
+          "description": "引入 Lagrange 乘子处理约束",
+          "formula": "L = \\dot{x}^2+\\dot{y}^2+\\dot{z}^2 + \\lambda(t)(x^2+y^2+z^2-R^2)",
+          "result": null,
+          "method": "约束变分法"
+        },
+        {
+          "step_id": 3,
+          "description": "应用 Euler-Lagrange 方程",
+          "formula": "\\frac{d}{dt}\\left(\\frac{\\partial L}{\\partial \\dot{x}}\\right) - \\frac{\\partial L}{\\partial x} = 0 \\Rightarrow \\ddot{x} = \\lambda x",
+          "result": null,
+          "method": "Euler-Lagrange 方程"
+        },
+        {
+          "step_id": 4,
+          "description": "分析运动方程的几何意义",
+          "formula": "\\vec{r}'' = \\lambda \\vec{r}, \\quad \\frac{d}{dt}(\\vec{r} \\times \\vec{r}') = 0 \\Rightarrow \\vec{r} \\times \\vec{r}' = \\vec{C}",
+          "result": null,
+          "method": "矢量分析"
+        },
+        {
+          "step_id": 5,
+          "description": "得出结论",
+          "formula": "\\vec{r} \\cdot \\vec{C} = 0 \\Rightarrow \\text{平面过原点}, \\text{交线为大圆}",
+          "result": null,
+          "method": "几何解释"
+        }
+      ],
+      "methods_used": [
+        "约束变分法",
+        "Lagrange 乘子法",
+        "Euler-Lagrange 方程"
+      ],
+      "verification": {
+        "is_correct": false,
+        "confidence": 0.0,
+        "check_method": "ground_truth_match",
+        "error_details": "pred=球面上两点间的最短路径是大圆的一段弧, gt=球面上两点间最短路径是大圆弧（测地线）"
+      },
+      "educational_hint": "通过引入约束条件构建增广泛函，利用 Euler-Lagrange 方程导出运动方程，发现位置矢量与加速度矢量共线，从而证明轨迹位于过原点的平面内。",
+      "computation_time_ms": 185136.48796081543,
+      "retry_count": 0,
+      "model_version": null,
+      "from_cache": false,
+      "cache_similarity": null,
+      "cache_matched_question": null,
+      "true_domain": null,
+      "ground_truth": "球面上两点间最短路径是大圆弧（测地线）",
+      "answer_match": false
+    },
+    {
+      "question_id": "64",
+      "timestamp": "2026-07-08T00:19:54.806634",
+      "domain": "differential_geometry",
+      "final_answer": "Frenet 标架：$T(t)=\\frac{(1, 2t, 3t^2)}{\\sqrt{1+4t^2+9t^4}}$，$B(t)=\\frac{(3t^2, -3t, 1)}{\\sqrt{1+9t^2+9t^4}}$，$N(t)=\\frac{(-9t^3-2t, 1-9t^4, 6t^3+3t)}{\\sqrt{1+4t^2+9t^4}\\sqrt{1+9t^2+9t^4}}$",
+      "reasoning_steps": [
+        {
+          "step_id": 1,
+          "description": "计算一阶导数并单位化得到切向量 T",
+          "formula": "$\\gamma'(t)=(1, 2t, 3t^2), \\quad T=\\frac{\\gamma'}{|\\gamma'|}$",
+          "result": null,
+          "method": "求导与单位化"
+        },
+        {
+          "step_id": 2,
+          "description": "计算二阶导数及叉积并单位化得到副法向量 B",
+          "formula": "$\\gamma''(t)=(0, 2, 6t), \\quad B=\\frac{\\gamma' \\times \\gamma''}{|\\gamma' \\times \\gamma''|}$",
+          "result": null,
+          "method": "叉积与单位化"
+        },
+        {
+          "step_id": 3,
+          "description": "利用叉积计算主法向量 N",
+          "formula": "$N=B \\times T$",
+          "result": null,
+          "method": "向量叉积"
+        }
+      ],
+      "methods_used": [
+        "Frenet 标架定义",
+        "向量求导",
+        "向量叉积",
+        "向量单位化"
+      ],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "Frenet 标架是描述曲线局部几何性质的正交单位标架，需通过导数及归一化过程构建，注意参数化曲线下的模长计算。",
+      "computation_time_ms": 153535.1779460907,
+      "retry_count": 1,
+      "model_version": null,
+      "from_cache": false,
+      "cache_similarity": null,
+      "cache_matched_question": null,
+      "true_domain": null,
+      "ground_truth": "$\\mathbf{T}=\\frac{(1,2t,3t^2)}{\\sqrt{1+4t^2+9t^4}}$, $\\mathbf{N},\\mathbf{B}$由Frenet公式导出",
+      "answer_match": true
+    },
+    {
+      "question_id": "65",
+      "timestamp": "2026-07-08T00:20:01.042452",
+      "domain": "differential_geometry",
+      "final_answer": "证明完成：紧致曲面 M 上的 Gauss 映射 N 的度数 deg(N) 等于 Euler 示性数 χ(M) 的一半，即 deg(N) = 1/2 χ(M)。",
+      "reasoning_steps": [
+        {
+          "step_id": 1,
+          "description": "建立 Gauss 映射微分与高斯曲率的关系",
+          "formula": "K = det(dN_p) = det(-S_p)",
+          "result": null,
+          "method": "Weingarten 映射"
+        },
+        {
+          "step_id": 2,
+          "description": "根据映射度定义写出积分表达式",
+          "formula": "deg(N) = (1/4π) ∫_M K dA",
+          "result": null,
+          "method": "映射度定义"
+        },
+        {
+          "step_id": 3,
+          "description": "应用全局 Gauss-Bonnet 定理",
+          "formula": "∫_M K dA = 2π χ(M)",
+          "result": null,
+          "method": "Gauss-Bonnet 定理"
+        },
+        {
+          "step_id": 4,
+          "description": "代入积分结果导出结论",
+          "formula": "deg(N) = (1/4π) * 2π χ(M) = 1/2 χ(M)",
+          "result": null,
+          "method": "代数运算"
+        }
+      ],
+      "methods_used": [
+        "高斯映射",
+        "高斯曲率",
+        "Gauss-Bonnet 定理",
+        "映射度"
+      ],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "该证明体现了局部几何量（高斯曲率）通过积分转化为整体拓扑不变量（Euler 示性数）的过程，是微分几何中内蕴几何与拓扑联系的核心体现。",
+      "computation_time_ms": 128753.910779953,
+      "retry_count": 1,
+      "model_version": null,
+      "from_cache": false,
+      "cache_similarity": null,
+      "cache_matched_question": null,
+      "true_domain": null,
+      "ground_truth": "$\\deg(G) = \\frac{1}{2}\\chi(M)$",
+      "answer_match": true
+    },
+    {
+      "final_answer": "\": \"3\",",
+      "domain": "probability",
+      "reasoning_steps": [],
+      "methods_used": [],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "",
+      "from_cache": true,
+      "question_id": "66",
+      "cache_similarity": 1.0000005960464478,
+      "cache_matched_question": "设随机变量$X \\sim N(0,1)$，求$E[X^4]$。",
+      "ground_truth": "3",
+      "answer_match": true
+    },
+    {
+      "final_answer": "Z = \\min(X,Y) 服从参数为 2\\lambda 的指数分布，即 Z \\sim \\text{Exp}(2\\lambda)。期望 E[Z] = 1/(2\\lambda)，方差 Var(Z) = 1/(4\\lambda^2)，特征函数 \\phi_Z(t) = 2\\lambda/(2\\lambda - it)。",
+      "domain": "probability",
+      "reasoning_steps": [
+        {
+          "step_id": 1,
+          "description": "写出指数分布的生存函数",
+          "formula": "P(X > x) = e^{-\\lambda x}, \\quad x \\ge 0",
+          "result": null,
+          "method": "指数分布定义"
+        },
+        {
+          "step_id": 2,
+          "description": "利用独立性计算最小值的生存函数",
+          "formula": "P(\\min(X,Y) > z) = P(X > z)P(Y > z) = e^{-\\lambda z} \\cdot e^{-\\lambda z} = e^{-2\\lambda z}",
+          "result": null,
+          "method": "独立性"
+        },
+        {
+          "step_id": 3,
+          "description": "识别分布并计算矩与特征函数",
+          "formula": "Z \\sim \\text{Exp}(2\\lambda) \\Rightarrow E[Z]=\\frac{1}{2\\lambda}, \\text{Var}(Z)=\\frac{1}{4\\lambda^2}, \\phi_Z(t)=\\frac{2\\lambda}{2\\lambda - it}",
+          "result": null,
+          "method": "分布识别与特征函数法"
+        }
+      ],
+      "methods_used": [
+        "指数分布生存函数",
+        "独立性",
+        "特征函数法"
+      ],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "独立同分布指数随机变量的最小值服从指数分布，其参数为原参数之和。这是极值理论中的基本结论。",
+      "from_cache": true,
+      "question_id": "67",
+      "cache_similarity": 1.0000003576278687,
+      "cache_matched_question": "设$X$和$Y$为独立同分布于$\\text{Exp}(\\lambda)$的随机变量，求$\\min(X,Y)$的分布。",
+      "ground_truth": "$\\text{Exp}(2\\lambda)$",
+      "answer_match": true
+    },
+    {
+      "question_id": "68",
+      "timestamp": "2026-07-08T00:20:53.810898",
+      "domain": "probability",
+      "final_answer": "0.0104",
+      "reasoning_steps": [
+        {
+          "step_id": 1,
+          "description": "定义随机变量并确定分布类型。设 X 为猜对的题目数，共有 100 题，每题猜对概率为 1/4，故 X 服从二项分布。",
+          "formula": "X \\sim B(100, 0.25)",
+          "result": null,
+          "method": "二项分布定义"
+        },
+        {
+          "step_id": 2,
+          "description": "计算二项分布的期望和方差，为使用正态近似做准备。",
+          "formula": "\\mu = np = 100 \\times 0.25 = 25, \\quad \\sigma^2 = np(1-p) = 100 \\times 0.25 \\times 0.75 = 18.75",
+          "result": null,
+          "method": "二项分布期望方差公式"
+        },
+        {
+          "step_id": 3,
+          "description": "应用中心极限定理，当 n 较大时，二项分布近似于正态分布。",
+          "formula": "X \\approx N(25, 18.75)",
+          "result": null,
+          "method": "中心极限定理（CLT）"
+        },
+        {
+          "step_id": 4,
+          "description": "将问题标准化，计算 Z 分数以求解概率 P(X > 35)。",
+          "formula": "P(X > 35) \\approx P\\left(Z > \\frac{35 - 25}{\\sqrt{18.75}}\\right) = P(Z > 2.31)",
+          "result": null,
+          "method": "正态标准化"
+        },
+        {
+          "step_id": 5,
+          "description": "查标准正态分布表得出最终近似概率值。",
+          "formula": "1 - \\Phi(2.31) \\approx 1 - 0.9896 = 0.0104",
+          "result": null,
+          "method": "查表计算"
+        }
+      ],
+      "methods_used": [
+        "中心极限定理（CLT）",
+        "正态近似法"
+      ],
+      "verification": {
+        "is_correct": false,
+        "confidence": 0.0,
+        "check_method": "ground_truth_match",
+        "error_details": "pred=0.0104, gt=$P \\approx 0.002$"
+      },
+      "educational_hint": "本题考查二项分布在大样本下的正态近似。当试验次数 n 足够大时，二项分布 B(n, p) 可近似为正态分布 N(np, np(1-p))，通过标准化后利用标准正态分布表求解概率。",
+      "computation_time_ms": 178018.20158958435,
+      "retry_count": 0,
+      "model_version": null,
+      "from_cache": false,
+      "cache_similarity": null,
+      "cache_matched_question": null,
+      "true_domain": null,
+      "ground_truth": "$P \\approx 0.002$",
+      "answer_match": false
+    },
+    {
+      "final_answer": "\": \"0\",",
+      "domain": "probability",
+      "reasoning_steps": [],
+      "methods_used": [],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "",
+      "from_cache": true,
+      "question_id": "69",
+      "cache_similarity": 1.000000238418579,
+      "cache_matched_question": "设随机变量序列$\\{X_n\\}$独立同分布于$\\text{Uniform}(0,1)$。求$\\lim_{n\\to\\infty}P\\left(\\left|\\frac{1}{n}\\sum_{i=1}^n X_i - \\frac{1}{2}\\right| > 0.01\\right)$。",
+      "ground_truth": "0（大数定律）",
+      "answer_match": true
+    },
+    {
+      "final_answer": "\\lambda^3",
+      "domain": "probability",
+      "reasoning_steps": [
+        {
+          "step_id": 1,
+          "description": "根据离散型随机变量期望的定义，写出 $E[X(X-1)(X-2)]$ 的求和表达式",
+          "formula": "E[g(X)] = \\sum_{k=0}^{\\infty} g(k) P(X=k)",
+          "result": null,
+          "method": "期望定义"
+        },
+        {
+          "step_id": 2,
+          "description": "代入泊松分布的概率质量函数 $P(X=k) = \\frac{e^{-\\lambda} \\lambda^k}{k!}$",
+          "formula": "E[X(X-1)(X-2)] = \\sum_{k=0}^{\\infty} k(k-1)(k-2) \\frac{e^{-\\lambda} \\lambda^k}{k!}",
+          "result": null,
+          "method": "泊松分布 PMF"
+        },
+        {
+          "step_id": 3,
+          "description": "化简阶乘项，注意当 $k<3$ 时项为 0，求和从 $k=3$ 开始",
+          "formula": "\\sum_{k=3}^{\\infty} \\frac{k!}{(k-3)!} \\frac{e^{-\\lambda} \\lambda^k}{k!} = \\sum_{k=3}^{\\infty} \\frac{e^{-\\lambda} \\lambda^k}{(k-3)!}",
+          "result": null,
+          "method": "阶乘化简"
+        },
+        {
+          "step_id": 4,
+          "description": "提取 $\\lambda^3$ 并令 $j=k-3$，利用 $e^x$ 的泰勒级数展开",
+          "formula": "e^{-\\lambda} \\lambda^3 \\sum_{j=0}^{\\infty} \\frac{\\lambda^j}{j!} = e^{-\\lambda} \\lambda^3 e^{\\lambda}",
+          "result": null,
+          "method": "泰勒级数求和"
+        },
+        {
+          "step_id": 5,
+          "description": "计算最终结果",
+          "formula": "e^{-\\lambda} \\lambda^3 e^{\\lambda} = \\lambda^3",
+          "result": null,
+          "method": "代数化简"
+        }
+      ],
+      "methods_used": [
+        "期望定义",
+        "泊松分布性质",
+        "泰勒级数"
+      ],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "对于泊松分布，计算阶乘矩 $E[X(X-1)\\cdots(X-r+1)]$ 通常比计算普通矩更简便，结果直接为 $\\lambda^r$。",
+      "from_cache": true,
+      "question_id": "70",
+      "cache_similarity": 1.0,
+      "cache_matched_question": "设$X \\sim \\text{Poisson}(\\lambda)$。求$E[X(X-1)(X-2)]$。",
+      "ground_truth": "$\\lambda^3$",
+      "answer_match": true
+    },
+    {
+      "final_answer": "X 与 Y 不独立",
+      "domain": "probability",
+      "reasoning_steps": [
+        {
+          "step_id": 1,
+          "description": "写出联合概率密度函数",
+          "formula": "f(x,y) = 1/π, x²+y²≤1",
+          "result": null,
+          "method": "均匀分布定义"
+        },
+        {
+          "step_id": 2,
+          "description": "计算边缘概率密度函数",
+          "formula": "f_X(x) = 2√(1-x²)/π, |x|≤1",
+          "result": null,
+          "method": "边缘分布积分"
+        },
+        {
+          "step_id": 3,
+          "description": "计算 X 的期望",
+          "formula": "E[X] = 0",
+          "result": null,
+          "method": "对称性分析"
+        },
+        {
+          "step_id": 4,
+          "description": "计算 X 的方差",
+          "formula": "Var(X) = 1/4",
+          "result": null,
+          "method": "积分计算"
+        },
+        {
+          "step_id": 5,
+          "description": "计算 X 的特征函数",
+          "formula": "φ_X(t) = J_1(t)/t",
+          "result": null,
+          "method": "特征函数定义"
+        },
+        {
+          "step_id": 6,
+          "description": "验证独立性条件",
+          "formula": "f(x,y) ≠ f_X(x)f_Y(y)",
+          "result": null,
+          "method": "独立性判定"
+        }
+      ],
+      "methods_used": [
+        "联合概率密度函数",
+        "边缘概率密度函数",
+        "期望计算",
+        "方差计算",
+        "特征函数计算",
+        "独立性判定条件"
+      ],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "独立性的充要条件是联合概率密度函数可分解为边缘概率密度函数的乘积。本题中联合支持集为圆形，边缘支持集为区间，形状不匹配，故不独立。",
+      "from_cache": true,
+      "question_id": "71",
+      "cache_similarity": 0.9999997019767761,
+      "cache_matched_question": "设$(X,Y)$服从单位圆上的均匀分布，判断$X$与$Y$是否独立。",
+      "ground_truth": "不独立",
+      "answer_match": true
+    },
+    {
+      "final_answer": "\\phi(t) = e^{-t^2/2}",
+      "domain": "probability",
+      "reasoning_steps": [
+        {
+          "step_id": 1,
+          "description": "写出标准正态分布的概率密度函数",
+          "formula": "f(x) = \\frac{1}{\\sqrt{2\\pi}} e^{-x^2/2}",
+          "result": null,
+          "method": "定义"
+        },
+        {
+          "step_id": 2,
+          "description": "根据特征函数定义列出积分表达式",
+          "formula": "\\phi(t) = \\int_{-\\infty}^{\\infty} e^{itx} f(x) dx",
+          "result": null,
+          "method": "特征函数定义"
+        },
+        {
+          "step_id": 3,
+          "description": "合并指数项并配方",
+          "formula": "-\\frac{x^2}{2} + itx = -\\frac{1}{2}(x - it)^2 - \\frac{t^2}{2}",
+          "result": null,
+          "method": "配方法"
+        },
+        {
+          "step_id": 4,
+          "description": "计算积分并利用高斯积分性质",
+          "formula": "\\int_{-\\infty}^{\\infty} e^{-\\frac{(x-it)^2}{2}} dx = \\sqrt{2\\pi}",
+          "result": null,
+          "method": "高斯积分"
+        },
+        {
+          "step_id": 5,
+          "description": "得出最终结果",
+          "formula": "\\phi(t) = e^{-t^2/2}",
+          "result": null,
+          "method": "化简"
+        }
+      ],
+      "methods_used": [
+        "特征函数定义",
+        "配方法",
+        "高斯积分"
+      ],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "标准正态分布的特征函数是概率论中的经典结论，体现了正态分布的可加性和稳定性，可通过傅里叶变换求得。",
+      "from_cache": true,
+      "question_id": "72",
+      "cache_similarity": 1.0,
+      "cache_matched_question": "求标准正态分布的特征函数$\\phi(t)=E[e^{itX}]$。",
+      "ground_truth": "$e^{-t^2/2}$",
+      "answer_match": true
+    },
+    {
+      "question_id": "73",
+      "timestamp": "2026-07-08T00:19:53.299465",
+      "domain": "probability",
+      "final_answer": "期望为 15/8，方差为 225/448",
+      "reasoning_steps": [
+        {
+          "step_id": 1,
+          "description": "定义随机变量并识别分布类型",
+          "formula": "X ~ H(N=8, K=5, n=3)",
+          "result": null,
+          "method": "超几何分布识别"
+        },
+        {
+          "step_id": 2,
+          "description": "计算红球个数的期望",
+          "formula": "E[X] = n * (K/N) = 3 * (5/8) = 15/8",
+          "result": null,
+          "method": "超几何分布期望公式"
+        },
+        {
+          "step_id": 3,
+          "description": "计算红球个数的方差",
+          "formula": "Var(X) = n * (K/N) * ((N-K)/N) * ((N-n)/(N-1)) = 3 * (5/8) * (3/8) * (5/7) = 225/448",
+          "result": null,
+          "method": "超几何分布方差公式"
+        }
+      ],
+      "methods_used": [
+        "超几何分布",
+        "期望公式",
+        "方差公式"
+      ],
+      "verification": {
+        "is_correct": false,
+        "confidence": 0.0,
+        "check_method": "ground_truth_match",
+        "error_details": "pred=期望为 15/8，方差为 225/448, gt=$E[X]=\\frac{15}{8}$, $\\text{Var}(X)=\\frac{105}{448}$"
+      },
+      "educational_hint": "本题属于不放回抽样问题，红球数量服从超几何分布。直接套用超几何分布的期望与方差公式即可求解，无需逐个计算概率质量函数。",
+      "computation_time_ms": 72890.32626152039,
+      "retry_count": 0,
+      "model_version": null,
+      "from_cache": false,
+      "cache_similarity": null,
+      "cache_matched_question": null,
+      "true_domain": null,
+      "ground_truth": "$E[X]=\\frac{15}{8}$, $\\text{Var}(X)=\\frac{105}{448}$",
+      "answer_match": false
+    },
+    {
+      "question_id": "74",
+      "timestamp": "2026-07-08T00:21:16.104486",
+      "domain": "probability",
+      "final_answer": "证明完成，X(t) 是宽平稳过程",
+      "reasoning_steps": [
+        {
+          "step_id": 1,
+          "description": "计算均值函数",
+          "formula": "E[X(t)] = E[A\\\\cos(\\\\omega t) + B\\\\sin(\\\\omega t)] = \\\\cos(\\\\omega t)E[A] + \\\\sin(\\\\omega t)E[B] = 0",
+          "result": null,
+          "method": "期望的线性性质"
+        },
+        {
+          "step_id": 2,
+          "description": "计算自相关函数",
+          "formula": "R_X(t_1, t_2) = E[X(t_1)X(t_2)] = \\\\sigma^2 [\\\\cos(\\\\omega t_1)\\\\cos(\\\\omega t_2) + \\\\sin(\\\\omega t_1)\\\\sin(\\\\omega t_2)]",
+          "result": null,
+          "method": "期望运算及不相关性质"
+        },
+        {
+          "step_id": 3,
+          "description": "验证自相关函数仅依赖时间差",
+          "formula": "R_X(t_1, t_2) = \\\\sigma^2 \\\\cos(\\\\omega(t_1 - t_2)) = R_X(\\\\tau)",
+          "result": null,
+          "method": "三角恒等式"
+        },
+        {
+          "step_id": 4,
+          "description": "结论",
+          "formula": "X(t) 满足宽平稳定义",
+          "result": null,
+          "method": "宽平稳过程定义"
+        }
+      ],
+      "methods_used": [
+        "期望的线性性质",
+        "不相关随机变量性质",
+        "三角恒等式",
+        "宽平稳过程定义"
+      ],
+      "verification": {
+        "is_correct": false,
+        "confidence": 0.0,
+        "check_method": "ground_truth_match",
+        "error_details": "pred=证明完成，X(t) 是宽平稳过程, gt=$R_X(\\tau)=\\sigma^2\\cos(\\omega\\tau)$"
+      },
+      "educational_hint": "宽平稳过程要求均值为常数且自相关函数仅依赖于时间差。本题通过计算验证了这两个条件。",
+      "computation_time_ms": 151754.2383670807,
+      "retry_count": 0,
+      "model_version": null,
+      "from_cache": false,
+      "cache_similarity": null,
+      "cache_matched_question": null,
+      "true_domain": null,
+      "ground_truth": "$R_X(\\tau)=\\sigma^2\\cos(\\omega\\tau)$",
+      "answer_match": false
+    },
+    {
+      "question_id": "75",
+      "timestamp": "2026-07-08T00:20:39.954230",
+      "domain": "probability",
+      "final_answer": "\\frac{\\lambda^2 e^{-\\lambda}}{2}",
+      "reasoning_steps": [
+        {
+          "step_id": 1,
+          "description": "使用条件概率定义展开问题",
+          "formula": "P(N(2)=3 | N(1)=1) = \\frac{P(N(2)=3, N(1)=1)}{P(N(1)=1)}",
+          "result": null,
+          "method": "条件概率公式"
+        },
+        {
+          "step_id": 2,
+          "description": "利用泊松过程的独立增量性分解联合概率",
+          "formula": "P(N(2)=3, N(1)=1) = P(N(1)=1, N(2)-N(1)=2) = P(N(1)=1)P(N(2)-N(1)=2)",
+          "result": null,
+          "method": "独立增量性"
+        },
+        {
+          "step_id": 3,
+          "description": "利用泊松过程的平稳增量性确定增量分布",
+          "formula": "N(2)-N(1) \\sim \\text{Poisson}(\\lambda(2-1)) = \\text{Poisson}(\\lambda)",
+          "result": null,
+          "method": "平稳增量性"
+        },
+        {
+          "step_id": 4,
+          "description": "计算泊松分布的概率质量函数值",
+          "formula": "P(N(2)-N(1)=2) = \\frac{e^{-\\lambda} \\lambda^2}{2!}",
+          "result": null,
+          "method": "泊松分布 PMF"
+        }
+      ],
+      "methods_used": [
+        "条件概率公式",
+        "独立增量性",
+        "平稳增量性",
+        "泊松分布 PMF"
+      ],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "泊松过程的核心性质是独立增量性和平稳增量性。在已知 N(1)=1 的条件下，N(2)=3 等价于区间 (1, 2] 内发生了 2 次事件，该增量与 N(1) 独立且服从参数为 \\lambda 的泊松分布。",
+      "computation_time_ms": 111733.77418518066,
+      "retry_count": 1,
+      "model_version": null,
+      "from_cache": false,
+      "cache_similarity": null,
+      "cache_matched_question": null,
+      "true_domain": null,
+      "ground_truth": "$\\frac{(\\lambda)^2 e^{-\\lambda}}{2}$（与$N(1)=1$独立增量）",
+      "answer_match": true
+    },
+    {
+      "question_id": "76",
+      "timestamp": "2026-07-08T00:21:17.027755",
+      "domain": "probability",
+      "final_answer": "平稳分布为 \\pi = (1/3, 1/3, 1/3)",
+      "reasoning_steps": [
+        {
+          "step_id": 1,
+          "description": "设定平稳分布向量并列出基本方程",
+          "formula": "\\pi P = \\pi, \\sum \\pi_i = 1",
+          "result": null,
+          "method": "马尔可夫链平稳分布定义"
+        },
+        {
+          "step_id": 2,
+          "description": "根据矩阵乘法展开得到线性方程组",
+          "formula": "0.5\\pi_1 + 0.5\\pi_3 = \\pi_1, 0.5\\pi_1 + 0.5\\pi_2 = \\pi_2, 0.5\\pi_2 + 0.5\\pi_3 = \\pi_3",
+          "result": null,
+          "method": "矩阵运算"
+        },
+        {
+          "step_id": 3,
+          "description": "化简方程组并利用归一化条件求解",
+          "formula": "\\pi_1 = \\pi_2 = \\pi_3, 3\\pi_1 = 1 \\Rightarrow \\pi_1=\\pi_2=\\pi_3=1/3",
+          "result": null,
+          "method": "线性方程组求解"
+        }
+      ],
+      "methods_used": [
+        "马尔可夫链平稳分布定义",
+        "线性方程组求解"
+      ],
+      "verification": {
+        "is_correct": false,
+        "confidence": 0.0,
+        "check_method": "ground_truth_match",
+        "error_details": "pred=平稳分布为 \\pi = (1/3, 1/3, 1/3), gt=$\\pi = (\\frac{2}{5},\\frac{2}{5},\\frac{1}{5})$"
+      },
+      "educational_hint": "平稳分布是满足 \\pi P = \\pi 且概率和为 1 的行向量，本题中转移矩阵具有循环对称性，故分布为均匀分布。",
+      "computation_time_ms": 100841.6268825531,
+      "retry_count": 0,
+      "model_version": null,
+      "from_cache": false,
+      "cache_similarity": null,
+      "cache_matched_question": null,
+      "true_domain": null,
+      "ground_truth": "$\\pi = (\\frac{2}{5},\\frac{2}{5},\\frac{1}{5})$",
+      "answer_match": false
+    },
+    {
+      "question_id": "77",
+      "timestamp": "2026-07-08T00:22:10.755549",
+      "domain": "probability",
+      "final_answer": "简单随机游走 $S_n$ 是 Markov 链，转移概率为 $p_{i, i+1} = \\frac{1}{2}$，$p_{i, i-1} = \\frac{1}{2}$，其余为 0。",
+      "reasoning_steps": [
+        {
+          "step_id": 1,
+          "description": "定义随机游走的递推关系",
+          "formula": "S_{n+1} = S_n + X_{n+1}",
+          "result": null,
+          "method": "过程定义"
+        },
+        {
+          "step_id": 2,
+          "description": "陈述 Markov 性质条件",
+          "formula": "P(S_{n+1}=j | S_n=i, S_{n-1}, \\dots) = P(S_{n+1}=j | S_n=i)",
+          "result": null,
+          "method": "Markov 性质定义"
+        },
+        {
+          "step_id": 3,
+          "description": "利用增量独立性简化条件概率",
+          "formula": "P(S_{n+1}=j | S_n=i) = P(X_{n+1} = j-i)",
+          "result": null,
+          "method": "独立性假设"
+        },
+        {
+          "step_id": 4,
+          "description": "计算具体转移概率值",
+          "formula": "p_{i, i+1} = P(X_{n+1}=1) = \\frac{1}{2}, \\quad p_{i, i-1} = P(X_{n+1}=-1) = \\frac{1}{2}",
+          "result": null,
+          "method": "概率计算"
+        }
+      ],
+      "methods_used": [
+        "Markov 性质定义",
+        "增量独立性",
+        "条件概率计算"
+      ],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "证明核心在于利用增量的独立性，表明未来状态仅取决于当前状态而与历史路径无关。",
+      "computation_time_ms": 137409.79719161987,
+      "retry_count": 0,
+      "model_version": null,
+      "from_cache": false,
+      "cache_similarity": null,
+      "cache_matched_question": null,
+      "true_domain": null,
+      "ground_truth": "$P_{i,i+1}=P_{i,i-1}=1/2$",
+      "answer_match": true
+    },
+    {
+      "question_id": "78",
+      "timestamp": "2026-07-08T00:21:48.611575",
+      "domain": "probability",
+      "final_answer": "\",",
+      "reasoning_steps": [],
+      "methods_used": [],
+      "verification": {
+        "is_correct": false,
+        "confidence": 0.0,
+        "check_method": "ground_truth_match",
+        "error_details": "pred=\",, gt=$s$（$E[B(s)B(t)]=\\min(s,t)$）"
+      },
+      "educational_hint": "",
+      "computation_time_ms": 113675.63915252686,
+      "retry_count": 1,
+      "model_version": null,
+      "from_cache": false,
+      "cache_similarity": null,
+      "cache_matched_question": null,
+      "true_domain": null,
+      "ground_truth": "$s$（$E[B(s)B(t)]=\\min(s,t)$）",
+      "answer_match": false
+    },
+    {
+      "final_answer": "种群以概率 1 灭绝",
+      "domain": "probability",
+      "reasoning_steps": [
+        {
+          "step_id": 1,
+          "description": "定义后代数的概率生成函数",
+          "formula": "G(s) = E[s^X] = \\sum_{k=0}^{\\infty} p_k s^k",
+          "result": null,
+          "method": "概率生成函数"
+        },
+        {
+          "step_id": 2,
+          "description": "灭绝概率 q 是方程 s=G(s) 的最小非负根",
+          "formula": "q = G(q)",
+          "result": null,
+          "method": "不动点定理"
+        },
+        {
+          "step_id": 3,
+          "description": "利用 G(s) 的凸性建立不等式",
+          "formula": "G(s) \\ge G(1) + G'(1)(s-1) = 1 + \\mu(s-1)",
+          "result": null,
+          "method": "凸函数性质"
+        },
+        {
+          "step_id": 4,
+          "description": "分析 s=G(s) 在 [0,1) 上的解",
+          "formula": "G(s) - s \\ge (1-\\mu)(1-s)",
+          "result": null,
+          "method": "不等式分析"
+        },
+        {
+          "step_id": 5,
+          "description": "得出结论 q=1",
+          "formula": "当 \\mu \\le 1 时，唯一根为 s=1",
+          "result": null,
+          "method": "极限与根的分析"
+        }
+      ],
+      "methods_used": [
+        "概率生成函数",
+        "凸函数性质",
+        "不动点定理"
+      ],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "分支过程灭绝概率由后代分布的概率生成函数方程 s=G(s) 的最小非负根决定。利用凸函数性质可证明当均值 \\mu \\le 1 时，唯一根为 1。",
+      "from_cache": true,
+      "question_id": "79",
+      "cache_similarity": 1.0000001192092896,
+      "cache_matched_question": "设分支过程中后代数的均值为$\\mu$。证明若$\\mu \\le 1$则种群以概率$1$灭绝。",
+      "ground_truth": "灭绝概率$\\eta=1$当$\\mu\\le 1$",
+      "answer_match": true
+    },
+    {
+      "final_answer": "\\frac{4}{7}",
+      "domain": "probability",
+      "reasoning_steps": [
+        {
+          "step_id": 1,
+          "description": "分析马尔可夫链性质，确定极限存在且收敛于平稳分布",
+          "formula": "\\lim_{n \\to \\infty} P_{11}^{(n)} = \\pi_1",
+          "result": null,
+          "method": "马尔可夫链遍历性定理"
+        },
+        {
+          "step_id": 2,
+          "description": "根据平稳分布定义建立线性方程组",
+          "formula": "\\pi_1 = 0.7\\pi_1 + 0.4\\pi_2, \\quad \\pi_1 + \\pi_2 = 1",
+          "result": null,
+          "method": "线性方程组求解"
+        },
+        {
+          "step_id": 3,
+          "description": "解方程组求得平稳分布分量",
+          "formula": "0.3\\pi_1 = 0.4\\pi_2 \\Rightarrow \\pi_1 = \\frac{4}{7}",
+          "result": null,
+          "method": "代数运算"
+        }
+      ],
+      "methods_used": [
+        "马尔可夫链平稳分布",
+        "线性方程组求解"
+      ],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "有限不可约非周期马尔可夫链的 n 步转移概率矩阵收敛于各行均为平稳分布的矩阵。",
+      "from_cache": true,
+      "question_id": "80",
+      "cache_similarity": 1.0,
+      "cache_matched_question": "求Markov链$P=\\begin{pmatrix}0.7&0.3\\\\0.4&0.6\\end{pmatrix}$的$n$步转移概率$P_{11}^{(n)}$的极限。",
+      "ground_truth": "$\\frac{4}{7}$",
+      "answer_match": true
+    },
+    {
+      "final_answer": "积分结果为 $2\\pi i (e - 2)$。奇点 $z=0$ (留数 -2) 和 $z=1$ (留数 $e$) 均在围道内，留数之和为 $e-2$。",
+      "domain": "complex_analysis",
+      "reasoning_steps": [
+        {
+          "step_id": 1,
+          "description": "确定奇点位置及阶数",
+          "formula": "$f(z) = \\frac{e^z}{z^2(z-1)}$，奇点 $z=0$ (二阶极点), $z=1$ (一阶极点)，均在 $|z|=3$ 内",
+          "result": null,
+          "method": "奇点分析"
+        },
+        {
+          "step_id": 2,
+          "description": "计算 $z=1$ 处的留数",
+          "formula": "$\\text{Res}(f, 1) = \\lim_{z \\to 1} (z-1)f(z) = \\frac{e^1}{1^2} = e$",
+          "result": null,
+          "method": "一阶极点留数公式"
+        },
+        {
+          "step_id": 3,
+          "description": "计算 $z=0$ 处的留数",
+          "formula": "$\\text{Res}(f, 0) = \\lim_{z \\to 0} \\frac{d}{dz}\\left(\\frac{e^z}{z-1}\\right) = \\left.\\frac{e^z(z-2)}{(z-1)^2}\\right|_{z=0} = -2$",
+          "result": null,
+          "method": "高阶极点留数公式"
+        },
+        {
+          "step_id": 4,
+          "description": "应用留数定理求和",
+          "formula": "$I = 2\\pi i (\\text{Res}(f, 0) + \\text{Res}(f, 1)) = 2\\pi i (e - 2)$",
+          "result": null,
+          "method": "留数定理"
+        }
+      ],
+      "methods_used": [
+        "留数定理",
+        "极点留数计算"
+      ],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "注意区分奇点阶数：一阶极点用极限法，二阶极点需先乘 $z^k$ 再求导。确保所有奇点都在积分围道内部。",
+      "from_cache": true,
+      "question_id": "81",
+      "cache_similarity": 1.0,
+      "cache_matched_question": "计算围道积分$\\oint_{|z|=3} \\frac{e^z}{z^2(z-1)} dz$。",
+      "ground_truth": "$2\\pi i$",
+      "answer_match": true
+    },
+    {
+      "final_answer": "函数 $f(z)$ 在 $z=i$ 处的留数为 $-\\frac{i}{2}$，定积分 $\\int_{-\\infty}^{\\infty}\\frac{dx}{x^2+1}$ 的值为 $\\pi$。推导：留数 $\\mathrm{Res}(f,i)=\\frac{1}{2i}$，围道积分 $2\\pi i \\cdot \\mathrm{Res}(f,i) = \\pi$。",
+      "domain": "complex_analysis",
+      "reasoning_steps": [
+        {
+          "step_id": 1,
+          "description": "确定奇点类型并计算 z=i 处的留数",
+          "formula": "f(z)=\\frac{1}{z^2+1}=\\frac{1}{(z-i)(z+i)}，z=i 为一阶极点，\\mathrm{Res}(f, i)=\\lim_{z \\to i}(z-i)f(z)=\\frac{1}{2i}=-\\frac{i}{2}",
+          "result": null,
+          "method": "留数计算"
+        },
+        {
+          "step_id": 2,
+          "description": "选取上半平面半圆围道并应用留数定理计算实积分",
+          "formula": "\\oint_C f(z)dz = \\int_{-\\infty}^{\\infty}\\frac{dx}{x^2+1} = 2\\pi i \\cdot \\mathrm{Res}(f, i) = 2\\pi i \\cdot \\frac{1}{2i} = \\pi",
+          "result": null,
+          "method": "围道选择与留数定理"
+        }
+      ],
+      "methods_used": [
+        "留数计算",
+        "围道选择"
+      ],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "对于无穷区间上的有理函数积分，若分母次数高于分子次数至少 2 次，通常选取上半平面半圆围道。一阶极点留数可直接用 P(z)/Q'(z) 公式快速求得。",
+      "from_cache": true,
+      "question_id": "82",
+      "cache_similarity": 0.9999997615814209,
+      "cache_matched_question": "求函数$f(z)=\\frac{1}{z^2+1}$在$z=i$处的留数并计算$\\int_{-\\infty}^{\\infty}\\frac{dx}{x^2+1}$。",
+      "ground_truth": "$\\text{Res}(f,i)=\\frac{1}{2i}$, 积分为$\\pi$",
+      "answer_match": true
+    },
+    {
+      "question_id": "83",
+      "timestamp": "2026-07-08T00:23:01.350335",
+      "domain": "complex_analysis",
+      "final_answer": "函数 $f(z)=\\bar{z}$ 在复平面上处处不解析。推导摘要：设 $z=x+iy$，则 $f(z)=x-iy$。实部 $u=x$，虚部 $v=-y$。计算偏导数得 $u_x=1, v_y=-1$，不满足柯西 - 黎曼方程 $u_x=v_y$，故不解析。",
+      "reasoning_steps": [
+        {
+          "step_id": 1,
+          "description": "将函数表示为实部和虚部形式",
+          "formula": "$z = x + iy \\implies f(z) = x - iy, \\quad u(x,y)=x, \\quad v(x,y)=-y$",
+          "result": null,
+          "method": "复数代数表示"
+        },
+        {
+          "step_id": 2,
+          "description": "列出柯西 - 黎曼方程条件",
+          "formula": "$\\frac{\\partial u}{\\partial x} = \\frac{\\partial v}{\\partial y}, \\quad \\frac{\\partial u}{\\partial y} = -\\frac{\\partial v}{\\partial x}$",
+          "result": null,
+          "method": "柯西 - 黎曼方程"
+        },
+        {
+          "step_id": 3,
+          "description": "计算偏导数并验证方程",
+          "formula": "$\\frac{\\partial u}{\\partial x}=1, \\frac{\\partial v}{\\partial y}=-1, \\frac{\\partial u}{\\partial y}=0, \\frac{\\partial v}{\\partial x}=0$",
+          "result": null,
+          "method": "偏微分计算"
+        },
+        {
+          "step_id": 4,
+          "description": "得出结论",
+          "formula": "$1 \\neq -1 \\implies \\text{C-R 方程不成立}$",
+          "result": null,
+          "method": "逻辑判断"
+        }
+      ],
+      "methods_used": [
+        "柯西 - 黎曼方程 (Cauchy-Riemann Equations)",
+        "复变函数解析性判定"
+      ],
+      "verification": {
+        "is_correct": false,
+        "confidence": 0.0,
+        "check_method": "ground_truth_match",
+        "error_details": "pred=函数 $f(z)=\\bar{z}$ 在复平面上处处不解析。推导摘要：设 $z=x+iy$，则 $f(z)=x-iy$。实部 $u=x$，虚部 $v=-y$。计算, gt=不解析（不满足C-R方程）"
+      },
+      "educational_hint": "判断复变函数解析性的核心工具是柯西 - 黎曼方程。若函数 $f(z)=u+iv$ 在某区域解析，则必须满足 $u_x=v_y$ 且 $u_y=-v_x$。对于共轭函数 $\\bar{z}$，其实部与虚部不满足此关系，故处处不解析。",
+      "computation_time_ms": 179608.99353027344,
+      "retry_count": 0,
+      "model_version": null,
+      "from_cache": false,
+      "cache_similarity": null,
+      "cache_matched_question": null,
+      "true_domain": null,
+      "ground_truth": "不解析（不满足C-R方程）",
+      "answer_match": false
+    },
+    {
+      "question_id": "84",
+      "timestamp": "2026-07-08T00:22:04.915829",
+      "domain": "complex_analysis",
+      "final_answer": "由于 $\\sin z$ 在 $z=0$ 处解析，其 Laurent 级数即为 Taylor 级数：$\\sin z = \\sum_{n=0}^{\\infty} \\frac{(-1)^n}{(2n+1)!} z^{2n+1}$",
+      "reasoning_steps": [
+        {
+          "step_id": 1,
+          "description": "判断函数奇点性质",
+          "formula": "函数 $f(z) = \\sin z$ 是整函数，在 $z=0$ 处解析，因此 Laurent 级数的主要部分（负幂项）为零。",
+          "result": null,
+          "method": "解析函数性质"
+        },
+        {
+          "step_id": 2,
+          "description": "利用已知 Taylor 级数展开",
+          "formula": "根据 $\\sin z$ 的 Maclaurin 级数公式，$\\sin z = z - \\frac{z^3}{3!} + \\frac{z^5}{5!} - \\cdots$",
+          "result": null,
+          "method": "Taylor 级数展开"
+        },
+        {
+          "step_id": 3,
+          "description": "写出求和形式",
+          "formula": "将展开式写为通项公式形式：$\\sin z = \\sum_{n=0}^{\\infty} \\frac{(-1)^n}{(2n+1)!} z^{2n+1}$",
+          "result": null,
+          "method": "级数求和"
+        }
+      ],
+      "methods_used": [
+        "解析函数性质",
+        "Laurent 级数展开",
+        "Taylor 级数展开"
+      ],
+      "verification": {
+        "is_correct": false,
+        "confidence": 0.0,
+        "check_method": "ground_truth_match",
+        "error_details": "pred=由于 $\\sin z$ 在 $z=0$ 处解析，其 Laurent 级数即为 Taylor 级数：$\\sin z = \\sum_{n=0}^{\\infty} \\, gt=$\\sin z = z - \\frac{z^3}{3!} + \\frac{z^5}{5!} - \\cdots$"
+      },
+      "educational_hint": "注意：若函数在展开点解析，Laurent 级数退化为 Taylor 级数，不含负幂项。$\\sin z$ 为整函数，收敛半径为无穷大。",
+      "computation_time_ms": 99240.53931236267,
+      "retry_count": 0,
+      "model_version": null,
+      "from_cache": false,
+      "cache_similarity": null,
+      "cache_matched_question": null,
+      "true_domain": null,
+      "ground_truth": "$\\sin z = z - \\frac{z^3}{3!} + \\frac{z^5}{5!} - \\cdots$",
+      "answer_match": false
+    },
+    {
+      "question_id": "85",
+      "timestamp": "2026-07-08T00:23:20.405214",
+      "domain": "complex_analysis",
+      "final_answer": "通过复变函数代换 $z=e^{i\\theta}$，原积分转化为单位圆上的围道积分 $\\oint_{|z|=1} \\frac{2}{i(3z^2+10z+3)} dz$。被积函数在 $z=-1/3$ 处有一阶极点（在单位圆内），留数为 $1/8$（针对分母部分）。根据留数定理，积分值为 $\\frac{2}{i} \\cdot 2\\pi i \\cdot \\frac{1}{8} = \\frac{\\pi}{2}$。",
+      "reasoning_steps": [
+        {
+          "step_id": 1,
+          "description": "引入复变量代换",
+          "formula": "$z = e^{i\\theta}, \\quad d\\theta = \\frac{dz}{iz}, \\quad \\cos\\theta = \\frac{z+z^{-1}}{2}$",
+          "result": null,
+          "method": "复指数代换"
+        },
+        {
+          "step_id": 2,
+          "description": "转化为单位圆围道积分",
+          "formula": "$I = \\oint_{|z|=1} \\frac{1}{5+3\\frac{z^2+1}{2z}} \\frac{dz}{iz} = \\frac{2}{i} \\oint_{|z|=1} \\frac{dz}{3z^2+10z+3}$",
+          "result": null,
+          "method": "围道选择"
+        },
+        {
+          "step_id": 3,
+          "description": "寻找极点并判断位置",
+          "formula": "$3z^2+10z+3=0 \\Rightarrow z_1=-\\frac{1}{3}, z_2=-3 \\quad (|z_1|<1, |z_2|>1)$",
+          "result": null,
+          "method": "奇点分析"
+        },
+        {
+          "step_id": 4,
+          "description": "计算单位圆内极点的留数",
+          "formula": "$\\text{Res}\\left(f, -\\frac{1}{3}\\right) = \\frac{1}{3(-\\frac{1}{3}+3)} = \\frac{1}{8}$",
+          "result": null,
+          "method": "留数计算"
+        },
+        {
+          "step_id": 5,
+          "description": "应用留数定理得出结果",
+          "formula": "$I = \\frac{2}{i} \\cdot 2\\pi i \\cdot \\frac{1}{8} = \\frac{\\pi}{2}$",
+          "result": null,
+          "method": "留数定理"
+        }
+      ],
+      "methods_used": [
+        "复指数代换",
+        "留数定理",
+        "单位圆围道"
+      ],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "对于形如 $\\int_0^{2\\pi} R(\\cos\\theta, \\sin\\theta) d\\theta$ 的积分，通常采用 $z=e^{i\\theta}$ 将积分转化为单位圆上的围道积分。注意检查极点是否在围道内部，并正确处理系数。",
+      "computation_time_ms": 160323.51160049438,
+      "retry_count": 1,
+      "model_version": null,
+      "from_cache": false,
+      "cache_similarity": null,
+      "cache_matched_question": null,
+      "true_domain": null,
+      "ground_truth": "$\\pi/2$",
+      "answer_match": true
+    },
+    {
+      "question_id": "86",
+      "timestamp": "2026-07-08T00:23:28.254243",
+      "domain": "complex_analysis",
+      "final_answer": "证明：设 $f(z)$ 为整函数，且存在 $M>0$ 使得对所有 $z \\in \\mathbb{C}$ 有 $|f(z)| \\le M$。对任意 $z_0 \\in \\mathbb{C}$ 及 $R>0$，由柯西积分公式的一阶导数形式，$f'(z_0) = \\frac{1}{2\\pi i} \\oint_{C_R} \\frac{f(z)}{(z-z_0)^2} dz$，其中 $C_R$ 为以 $z_0$ 为中心、半径为 $R$ 的圆周。利用估值不等式，$|f'(z_0)| \\le \\frac{1}{2\\pi} \\cdot \\frac{M}{R^2} \\cdot 2\\pi R = \\frac{M}{R}$。令 $R \\to \\infty$，得 $|f'(z_0)| = 0$，即 $f'(z_0)=0$。因 $z_0$ 任意，故 $f'(z) \\equiv 0$，从而 $f(z)$ 为常数。",
+      "reasoning_steps": [
+        {
+          "step_id": 1,
+          "description": "设定整函数有界条件",
+          "formula": "|f(z)| \\le M, \\forall z \\in \\mathbb{C}",
+          "result": null,
+          "method": "假设条件"
+        },
+        {
+          "step_id": 2,
+          "description": "应用柯西积分公式于导数",
+          "formula": "f'(z_0) = \\frac{1}{2\\pi i} \\oint_{C_R} \\frac{f(z)}{(z-z_0)^2} dz",
+          "result": null,
+          "method": "柯西积分公式"
+        },
+        {
+          "step_id": 3,
+          "description": "对积分进行估值",
+          "formula": "|f'(z_0)| \\le \\frac{M}{R}",
+          "result": null,
+          "method": "ML 估值不等式"
+        },
+        {
+          "step_id": 4,
+          "description": "令半径趋于无穷",
+          "formula": "\\lim_{R \\to \\infty} \\frac{M}{R} = 0",
+          "result": null,
+          "method": "极限过程"
+        },
+        {
+          "step_id": 5,
+          "description": "得出结论",
+          "formula": "f'(z) \\equiv 0 \\implies f(z) = C",
+          "result": null,
+          "method": "导数恒为零蕴含常数函数"
+        }
+      ],
+      "methods_used": [
+        "柯西积分公式",
+        "估值引理",
+        "极限论证"
+      ],
+      "verification": {
+        "is_correct": false,
+        "confidence": 0.0,
+        "check_method": "ground_truth_match",
+        "error_details": "pred=证明：设 $f(z)$ 为整函数，且存在 $M>0$ 使得对所有 $z \\in \\mathbb{C}$ 有 $|f(z)| \\le M$。对任意 $z_0 \\i, gt=有界整函数必为常数（Liouville定理）"
+      },
+      "educational_hint": "本证明展示了复分析中一个经典技巧：利用柯西积分公式将局部导数性质与全局有界性联系起来。通过让积分围道无限扩大，利用有界性控制导数模长趋于零，从而证明函数为常数。",
+      "computation_time_ms": 154376.2412071228,
+      "retry_count": 0,
+      "model_version": null,
+      "from_cache": false,
+      "cache_similarity": null,
+      "cache_matched_question": null,
+      "true_domain": null,
+      "ground_truth": "有界整函数必为常数（Liouville定理）",
+      "answer_match": false
+    },
+    {
+      "question_id": "87",
+      "timestamp": "2026-07-08T00:24:31.700816",
+      "domain": "complex_analysis",
+      "final_answer": "一般形式为 $w = e^{i\\theta} \\frac{z - z_0}{z - \\overline{z_0}}$，其中 $\\text{Im}(z_0) > 0$，$\\theta \\in \\mathbb{R}$。特例：$w = \\frac{z - i}{z + i}$。",
+      "reasoning_steps": [
+        {
+          "step_id": 1,
+          "description": "确定目标区域：上半平面 $\\mathbb{H}$ 和单位圆盘 $\\mathbb{D}$。",
+          "formula": "$\\mathbb{H} = \\{z \\in \\mathbb{C} : \\text{Im}(z) > 0\\}, \\quad \\mathbb{D} = \\{w \\in \\mathbb{C} : |w| < 1\\}$",
+          "result": null,
+          "method": "区域定义"
+        },
+        {
+          "step_id": 2,
+          "description": "选择分式线性变换形式，将上半平面内一点 $z_0$ 映射到圆盘中心 $0$。",
+          "formula": "$w = k \\frac{z - z_0}{z - z_1}$",
+          "result": null,
+          "method": "分式线性变换构造"
+        },
+        {
+          "step_id": 3,
+          "description": "利用边界对应条件，实轴应映射到单位圆周，确定 $z_1$ 为 $z_0$ 关于实轴的对称点 $\\overline{z_0}$。",
+          "formula": "$z_1 = \\overline{z_0} \\implies w = e^{i\\theta} \\frac{z - z_0}{z - \\overline{z_0}}$",
+          "result": null,
+          "method": "边界条件分析"
+        },
+        {
+          "step_id": 4,
+          "description": "验证映射性质，当 $z$ 在实轴上时 $|w|=1$，当 $\\text{Im}(z)>0$ 时 $|w|<1$。",
+          "formula": "$|z - z_0| < |z - \\overline{z_0}| \\quad (\\text{当 } \\text{Im}(z) > 0)$",
+          "result": null,
+          "method": "模长验证"
+        }
+      ],
+      "methods_used": [
+        "分式线性变换",
+        "共形映射",
+        "边界对应原理"
+      ],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "求解共形映射时，关键在于利用分式线性变换保持广义圆的性质。将上半平面映射到单位圆盘的核心是将上半平面内的任意一点映射到圆心，并将边界（实轴）映射到边界（单位圆）。",
+      "computation_time_ms": 195574.5050907135,
+      "retry_count": 0,
+      "model_version": null,
+      "from_cache": false,
+      "cache_similarity": null,
+      "cache_matched_question": null,
+      "true_domain": null,
+      "ground_truth": "$w=\\frac{z-z_0}{z-\\bar{z}_0}$（Möbius变换）",
+      "answer_match": true
+    },
+    {
+      "question_id": "88",
+      "timestamp": "2026-07-08T00:23:21.633548",
+      "domain": "ordinary_differential_equations",
+      "final_answer": "通解为 $y(x) = C_1 e^{-x} + C_2 e^{-2x}$，代入初值 $y(0)=1, y'(0)=0$ 得 $C_1=2, C_2=-1$，故特解为 $y(x) = 2e^{-x} - e^{-2x}$。",
+      "reasoning_steps": [
+        {
+          "step_id": 1,
+          "description": "建立特征方程",
+          "formula": "r^2 + 3r + 2 = 0",
+          "result": null,
+          "method": "特征方程法"
+        },
+        {
+          "step_id": 2,
+          "description": "求解特征根",
+          "formula": "(r+1)(r+2)=0 \\Rightarrow r_1=-1, r_2=-2",
+          "result": null,
+          "method": "代数求解"
+        },
+        {
+          "step_id": 3,
+          "description": "写出通解形式",
+          "formula": "y(x) = C_1 e^{-x} + C_2 e^{-2x}",
+          "result": null,
+          "method": "线性齐次 ODE 通解"
+        },
+        {
+          "step_id": 4,
+          "description": "代入初值条件",
+          "formula": "\\begin{cases} C_1 + C_2 = 1 \\\\ -C_1 - 2C_2 = 0 \\end{cases}",
+          "result": null,
+          "method": "初值代入法"
+        },
+        {
+          "step_id": 5,
+          "description": "计算最终结果",
+          "formula": "y(x) = 2e^{-x} - e^{-2x}",
+          "result": null,
+          "method": "结果整理"
+        }
+      ],
+      "methods_used": [
+        "特征方程法",
+        "初值代入法"
+      ],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "解题思路：对于二阶常系数线性齐次 ODE，首先求解特征方程 $r^2+3r+2=0$ 得到特征根。根据特征根写出通解形式。最后利用初值条件确定任意常数。要点：注意求导时的符号，以及初值代入时的方程组求解。",
+      "computation_time_ms": 124547.28984832764,
+      "retry_count": 0,
+      "model_version": null,
+      "from_cache": false,
+      "cache_similarity": null,
+      "cache_matched_question": null,
+      "true_domain": null,
+      "ground_truth": "$y=2e^{-t}-e^{-2t}$",
+      "answer_match": true
+    },
+    {
+      "final_answer": "通过积分因子法求得通解为 $y = 2 + Ce^{-x^2}$，代入初值 $y(0)=1$ 得 $C=-1$，故特解为 $y(x) = 2 - e^{-x^2}$。",
+      "domain": "ordinary_differential_equations",
+      "reasoning_steps": [
+        {
+          "step_id": 1,
+          "description": "识别方程为一阶线性非齐次微分方程，确定系数函数 P(x) 和 Q(x)。",
+          "formula": "y' + P(x)y = Q(x), \\quad P(x) = 2x, \\quad Q(x) = 4x",
+          "result": null,
+          "method": "方程类型识别"
+        },
+        {
+          "step_id": 2,
+          "description": "计算积分因子 \\mu(x)。",
+          "formula": "\\mu(x) = e^{\\int P(x)dx} = e^{\\int 2x dx} = e^{x^2}",
+          "result": null,
+          "method": "积分因子法"
+        },
+        {
+          "step_id": 3,
+          "description": "方程两边同乘积分因子并积分求通解。",
+          "formula": "(e^{x^2}y)' = 4xe^{x^2} \\implies e^{x^2}y = \\int 4xe^{x^2}dx = 2e^{x^2} + C",
+          "result": null,
+          "method": "积分求解"
+        },
+        {
+          "step_id": 4,
+          "description": "利用初值条件 y(0)=1 确定常数 C。",
+          "formula": "1 = 2 + C \\implies C = -1",
+          "result": null,
+          "method": "初值条件代入"
+        },
+        {
+          "step_id": 5,
+          "description": "写出最终的特解表达式。",
+          "formula": "y = 2 - e^{-x^2}",
+          "result": null,
+          "method": "整理结果"
+        }
+      ],
+      "methods_used": [
+        "积分因子法",
+        "初值问题求解"
+      ],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "一阶线性微分方程 y' + P(x)y = Q(x) 的标准解法是构造积分因子 \\mu(x) = e^{\\int P(x)dx}，将方程左边化为全导数形式 (\\mu y)'，随后通过积分求解。注意代入初始条件时需注意符号计算。",
+      "from_cache": true,
+      "question_id": "89",
+      "cache_similarity": 0.9999999403953552,
+      "cache_matched_question": "求解ODE：$y' + 2xy = 4x$, $y(0)=1$。",
+      "ground_truth": "$y = 2 - e^{-x^2}$",
+      "answer_match": true
+    },
+    {
+      "question_id": "90",
+      "timestamp": "2026-07-08T00:24:09.555102",
+      "domain": "ordinary_differential_equations",
+      "final_answer": "通解为 $y = C_1 \\cos x + C_2 \\sin x - \\frac{1}{2} x \\cos x$。摘要：利用特征方程法求齐次解 $y_h$，利用待定系数法求特解 $y_p$（注意共振情形需乘 $x$），最后叠加得通解。",
+      "reasoning_steps": [
+        {
+          "step_id": 1,
+          "description": "求解齐次方程 $y'' + y = 0$ 的通解",
+          "formula": "特征方程为 $r^2 + 1 = 0$，解得 $r = \\pm i$，故齐次通解为 $y_h = C_1 \\cos x + C_2 \\sin x$",
+          "result": null,
+          "method": "特征方程法"
+        },
+        {
+          "step_id": 2,
+          "description": "设非齐次方程的特解形式",
+          "formula": "由于右端项 $\\sin x$ 是齐次解的一部分（共振情形），设特解为 $y_p = x(A \\cos x + B \\sin x)$",
+          "result": null,
+          "method": "待定系数法"
+        },
+        {
+          "step_id": 3,
+          "description": "代入原方程确定系数",
+          "formula": "计算导数并代入 $y'' + y = \\sin x$，得 $-2A \\sin x + 2B \\cos x = \\sin x$，解得 $A = -\\frac{1}{2}, B = 0$",
+          "result": null,
+          "method": "待定系数法"
+        },
+        {
+          "step_id": 4,
+          "description": "写出原方程的通解",
+          "formula": "通解 $y = y_h + y_p = C_1 \\cos x + C_2 \\sin x - \\frac{1}{2} x \\cos x$",
+          "result": null,
+          "method": "叠加原理"
+        }
+      ],
+      "methods_used": [
+        "特征方程法",
+        "待定系数法"
+      ],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "当非齐次项频率与系统固有频率重合时，特解形式需乘以自变量 $x$，此为共振现象。",
+      "computation_time_ms": 140708.20879936218,
+      "retry_count": 0,
+      "model_version": null,
+      "from_cache": false,
+      "cache_similarity": null,
+      "cache_matched_question": null,
+      "true_domain": null,
+      "ground_truth": "$y = C_1\\cos x + C_2\\sin x - \\frac{x}{2}\\cos x$",
+      "answer_match": true
+    },
+    {
+      "final_answer": "平衡点为 $(0,0)$、$(1,0)$、$(-1,0)$。其中 $(0,0)$ 为中心（稳定），$(\\pm 1,0)$ 为鞍点（不稳定）。",
+      "domain": "ordinary_differential_equations",
+      "reasoning_steps": [
+        {
+          "step_id": 1,
+          "description": "求解平衡点，令导数为零",
+          "formula": "\\begin{cases} x' = y = 0 \\\\ y' = -x + x^3 = 0 \\end{cases}",
+          "result": null,
+          "method": "代数法求解方程组"
+        },
+        {
+          "step_id": 2,
+          "description": "计算系统的雅可比矩阵",
+          "formula": "J(x,y) = \\begin{pmatrix} 0 & 1 \\\\ -1+3x^2 & 0 \\end{pmatrix}",
+          "result": null,
+          "method": "线性化方法 (Jacobian 矩阵)"
+        },
+        {
+          "step_id": 3,
+          "description": "分析原点 $(0,0)$ 的稳定性，特征值为纯虚数，结合哈密顿性质判定为中心",
+          "formula": "J(0,0) = \\begin{pmatrix} 0 & 1 \\\\ -1 & 0 \\end{pmatrix}, \\quad \\lambda^2 + 1 = 0 \\Rightarrow \\lambda = \\pm i",
+          "result": null,
+          "method": "特征值分析 (结合哈密顿系统性质)"
+        },
+        {
+          "step_id": 4,
+          "description": "分析点 $(\\pm 1, 0)$ 的稳定性，特征值异号，判定为鞍点",
+          "formula": "J(\\pm 1,0) = \\begin{pmatrix} 0 & 1 \\\\ 2 & 0 \\end{pmatrix}, \\quad \\lambda^2 - 2 = 0 \\Rightarrow \\lambda = \\pm \\sqrt{2}",
+          "result": null,
+          "method": "特征值分析 (鞍点判定)"
+        }
+      ],
+      "methods_used": [
+        "线性化方法",
+        "特征值分析",
+        "哈密顿系统分析"
+      ],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "对于线性化后特征值为纯虚数的情况，线性化理论无法直接判定非线性系统的稳定性，需结合哈密顿函数或 Lyapunov 函数进一步分析。鞍点特征值异号，必不稳定。",
+      "from_cache": true,
+      "question_id": "91",
+      "cache_similarity": 1.0000004768371582,
+      "cache_matched_question": "求自治系统$\\begin{cases}x' = y\\\\ y' = -x + x^3\\end{cases}$的平衡点并判断稳定性。",
+      "ground_truth": "$(0,0)$中心，$(\\pm 1,0)$鞍点",
+      "answer_match": true
+    },
+    {
+      "question_id": "92",
+      "timestamp": "2026-07-08T00:24:02.989706",
+      "domain": "ordinary_differential_equations",
+      "final_answer": "y(t) = \\frac{1}{4} t \\sin 2t；推导摘要：对方程两边施 Laplace 变换，利用初值为零化简，解出像函数 Y(s) 后通过逆变换得到特解。",
+      "reasoning_steps": [
+        {
+          "step_id": 1,
+          "description": "对方程两边进行 Laplace 变换，代入初始条件 y(0)=0, y'(0)=0",
+          "formula": "\\mathcal{L}\\{y''\\} + 4\\mathcal{L}\\{y\\} = \\mathcal{L}\\{\\cos 2t\\} \\Rightarrow (s^2 + 4)Y(s) = \\frac{s}{s^2 + 4}",
+          "result": null,
+          "method": "Laplace 变换法"
+        },
+        {
+          "step_id": 2,
+          "description": "整理代数方程，解出像函数 Y(s)",
+          "formula": "Y(s) = \\frac{s}{(s^2 + 4)^2}",
+          "result": null,
+          "method": "代数运算"
+        },
+        {
+          "step_id": 3,
+          "description": "利用 Laplace 逆变换公式求原函数 y(t)",
+          "formula": "y(t) = \\mathcal{L}^{-1}\\left\\{ \\frac{s}{(s^2 + 4)^2} \\right\\} = \\frac{1}{4} t \\sin 2t",
+          "result": null,
+          "method": "Laplace 逆变换"
+        }
+      ],
+      "methods_used": [
+        "Laplace 变换法",
+        "Laplace 逆变换"
+      ],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "本题属于共振情形（激励频率等于固有频率），解中会出现 t 与三角函数的乘积项。",
+      "computation_time_ms": 117860.24689674377,
+      "retry_count": 1,
+      "model_version": null,
+      "from_cache": false,
+      "cache_similarity": null,
+      "cache_matched_question": null,
+      "true_domain": null,
+      "ground_truth": "$y = \\frac{t}{4}\\sin 2t$",
+      "answer_match": true
+    },
+    {
+      "final_answer": "\\hat{\\mu} = \\bar{X}",
+      "domain": "statistics",
+      "reasoning_steps": [
+        {
+          "step_id": 1,
+          "description": "写出正态分布样本的似然函数",
+          "formula": "L(\\mu) = \\prod_{i=1}^n \\frac{1}{\\sqrt{2\\pi\\sigma^2}} e^{-\\frac{(x_i-\\mu)^2}{2\\sigma^2}}",
+          "result": null,
+          "method": null
+        },
+        {
+          "step_id": 2,
+          "description": "取对数得到对数似然函数",
+          "formula": "l(\\mu) = \\ln L(\\mu) = -\\frac{n}{2}\\ln(2\\pi\\sigma^2) - \\frac{1}{2\\sigma^2}\\sum_{i=1}^n (x_i-\\mu)^2",
+          "result": null,
+          "method": null
+        },
+        {
+          "step_id": 3,
+          "description": "对 \\mu 求导并令导数为零",
+          "formula": "\\frac{d l(\\mu)}{d \\mu} = \\frac{1}{\\sigma^2}\\sum_{i=1}^n (x_i-\\mu) = 0",
+          "result": null,
+          "method": null
+        },
+        {
+          "step_id": 4,
+          "description": "解方程得到估计量",
+          "formula": "\\hat{\\mu} = \\frac{1}{n}\\sum_{i=1}^n x_i = \\bar{X}",
+          "result": null,
+          "method": null
+        }
+      ],
+      "methods_used": [
+        "最大似然估计"
+      ],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "对于正态分布均值，当方差已知时，最大似然估计量等于样本均值，该估计量是无偏且有效的。",
+      "from_cache": true,
+      "question_id": "93",
+      "cache_similarity": 1.000000238418579,
+      "cache_matched_question": "设$X_1,\\ldots,X_n$为来自$N(\\mu,\\sigma^2)$的随机样本。求$\\mu$的最大似然估计（$\\sigma^2$已知）。",
+      "ground_truth": "$\\hat{\\mu} = \\bar{X}$",
+      "answer_match": true
+    },
+    {
+      "final_answer": "[0.504, 0.696]",
+      "domain": "statistics",
+      "reasoning_steps": [
+        {
+          "step_id": 1,
+          "description": "确定估计量及渐近分布",
+          "formula": "\\hat{p} = \\frac{1}{n}\\sum X_i, \\sqrt{n}(\\hat{p}-p) \\sim N(0, p(1-p))",
+          "result": null,
+          "method": "最大似然估计与中心极限定理"
+        },
+        {
+          "step_id": 2,
+          "description": "构造枢轴量",
+          "formula": "Z = \\frac{\\hat{p} - p}{\\sqrt{\\hat{p}(1-\\hat{p})/n}} \\approx N(0,1)",
+          "result": null,
+          "method": "枢轴量法"
+        },
+        {
+          "step_id": 3,
+          "description": "确定临界值",
+          "formula": "z_{0.025} = 1.96",
+          "result": null,
+          "method": "标准正态分布分位数"
+        },
+        {
+          "step_id": 4,
+          "description": "计算置信区间",
+          "formula": "\\hat{p} \\pm 1.96 \\sqrt{\\frac{\\hat{p}(1-\\hat{p})}{n}}",
+          "result": null,
+          "method": "代入数值计算"
+        }
+      ],
+      "methods_used": [
+        "枢轴量法",
+        "正态近似"
+      ],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "大样本下样本比例近似正态分布，利用枢轴量将参数转化为标准正态分布统计量求解。",
+      "from_cache": true,
+      "question_id": "94",
+      "cache_similarity": 0.9999997615814209,
+      "cache_matched_question": "设$X_1,\\ldots,X_n$为来自$\\text{Bernoulli}(p)$的样本。求$p$的$95\\%$置信区间（$n=100$, $\\hat{p}=0.6$）。",
+      "ground_truth": "$[0.504, 0.696]$",
+      "answer_match": true
+    },
+    {
+      "question_id": "95",
+      "timestamp": "2026-07-08T00:25:17.735860",
+      "domain": "statistics",
+      "final_answer": "拒绝原假设 H0，认为均值 μ 显著不为 0",
+      "reasoning_steps": [
+        {
+          "step_id": 1,
+          "description": "建立假设并确定检验方法",
+          "formula": "H_0: \\mu=0, H_1: \\mu \\neq 0",
+          "result": null,
+          "method": "假设检验"
+        },
+        {
+          "step_id": 2,
+          "description": "计算 t 统计量",
+          "formula": "t = \\frac{\\bar{x} - \\mu_0}{s/\\sqrt{n}} = 2.5",
+          "result": null,
+          "method": "t 检验"
+        },
+        {
+          "step_id": 3,
+          "description": "确定临界值",
+          "formula": "t_{0.025, 24} \\approx 2.064",
+          "result": null,
+          "method": "查表法"
+        },
+        {
+          "step_id": 4,
+          "description": "做出决策",
+          "formula": "|t| = 2.5 > 2.064",
+          "result": null,
+          "method": "比较法"
+        }
+      ],
+      "methods_used": [
+        "t 检验",
+        "假设检验"
+      ],
+      "verification": {
+        "is_correct": false,
+        "confidence": 0.0,
+        "check_method": "ground_truth_match",
+        "error_details": "pred=拒绝原假设 H0，认为均值 μ 显著不为 0, gt=$t=2.5$, 拒绝$H_0$"
+      },
+      "educational_hint": "总体方差未知且样本量较小（n<30）时，使用 t 检验。若统计量绝对值大于临界值，则拒绝原假设。",
+      "computation_time_ms": 186516.17884635925,
+      "retry_count": 0,
+      "model_version": null,
+      "from_cache": false,
+      "cache_similarity": null,
+      "cache_matched_question": null,
+      "true_domain": null,
+      "ground_truth": "$t=2.5$, 拒绝$H_0$",
+      "answer_match": false
+    },
+    {
+      "final_answer": "已证明 E[\\hat{\\sigma}^2] = \\sigma^2，故为无偏估计",
+      "domain": "statistics",
+      "reasoning_steps": [
+        {
+          "step_id": 1,
+          "description": "展开样本偏差平方和",
+          "formula": "\\sum(X_i-\\bar{X})^2 = \\sum(X_i-\\mu)^2 - n(\\bar{X}-\\mu)^2",
+          "result": null,
+          "method": "代数恒等变换"
+        },
+        {
+          "step_id": 2,
+          "description": "对等式两边取期望",
+          "formula": "E[\\sum(X_i-\\bar{X})^2] = \\sum E[(X_i-\\mu)^2] - n E[(\\bar{X}-\\mu)^2]",
+          "result": null,
+          "method": "期望线性性质"
+        },
+        {
+          "step_id": 3,
+          "description": "代入方差定义计算",
+          "formula": "E[(X_i-\\mu)^2]=\\sigma^2, E[(\\bar{X}-\\mu)^2]=\\sigma^2/n",
+          "result": null,
+          "method": "方差定义"
+        },
+        {
+          "step_id": 4,
+          "description": "计算最终期望验证无偏性",
+          "formula": "E[\\hat{\\sigma}^2] = \\frac{1}{n-1}(n-1)\\sigma^2 = \\sigma^2",
+          "result": null,
+          "method": "无偏性定义"
+        }
+      ],
+      "methods_used": [
+        "无偏性证明",
+        "期望运算"
+      ],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "证明关键在于利用代数恒等式将样本方差分解，利用期望的线性性质及总体方差定义，说明分母使用 n-1 而非 n 是为了消除偏差。",
+      "from_cache": true,
+      "question_id": "96",
+      "cache_similarity": 1.0000007152557373,
+      "cache_matched_question": "证明$\\hat{\\sigma}^2 = \\frac{1}{n-1}\\sum(X_i-\\bar{X})^2$是$\\sigma^2$的无偏估计。",
+      "ground_truth": "$E[\\hat{\\sigma}^2]=\\sigma^2$",
+      "answer_match": true
+    },
+    {
+      "question_id": "97",
+      "timestamp": "2026-07-08T00:25:21.834541",
+      "domain": "functional_analysis",
+      "final_answer": "存在唯一的最小范数元素",
+      "reasoning_steps": [
+        {
+          "step_id": 1,
+          "description": "定义范数下确界并构造极小化序列",
+          "formula": "d = \\inf_{x \\in C} \\|x\\|, \\exists \\{x_n\\} \\subset C, \\|x_n\\| \\to d",
+          "result": null,
+          "method": "极小化序列构造"
+        },
+        {
+          "step_id": 2,
+          "description": "利用平行四边形律证明序列为 Cauchy 列",
+          "formula": "\\|x_n - x_m\\|^2 = 2\\|x_n\\|^2 + 2\\|x_m\\|^2 - \\|x_n + x_m\\|^2 \\le 2\\|x_n\\|^2 + 2\\|x_m\\|^2 - 4d^2",
+          "result": null,
+          "method": "平行四边形法则"
+        },
+        {
+          "step_id": 3,
+          "description": "利用完备性和闭性证明存在性",
+          "formula": "x_n \\to x^* \\in C, \\|x^*\\| = \\lim \\|x_n\\| = d",
+          "result": null,
+          "method": "完备性与闭集性质"
+        },
+        {
+          "step_id": 4,
+          "description": "利用平行四边形律和凸性证明唯一性",
+          "formula": "\\|x - y\\|^2 = 2\\|x\\|^2 + 2\\|y\\|^2 - \\|x + y\\|^2 \\le 4d^2 - 4d^2 = 0 \\implies x=y",
+          "result": null,
+          "method": "唯一性论证"
+        }
+      ],
+      "methods_used": [
+        "平行四边形法则",
+        "Hilbert 空间完备性",
+        "闭集性质",
+        "凸集性质"
+      ],
+      "verification": {
+        "is_correct": false,
+        "confidence": 0.0,
+        "check_method": "ground_truth_match",
+        "error_details": "pred=存在唯一的最小范数元素, gt=Hilbert空间闭凸子集中存在唯一最小范数元素"
+      },
+      "educational_hint": "本题是 Hilbert 空间投影定理的核心结论。证明关键在于利用平行四边形律将范数收敛转化为 Cauchy 序列，并利用凸集保证中点仍在集合内。",
+      "computation_time_ms": 140146.4502811432,
+      "retry_count": 1,
+      "model_version": null,
+      "from_cache": false,
+      "cache_similarity": null,
+      "cache_matched_question": null,
+      "true_domain": null,
+      "ground_truth": "Hilbert空间闭凸子集中存在唯一最小范数元素",
+      "answer_match": false
+    },
+    {
+      "question_id": "98",
+      "timestamp": "2026-07-08T00:26:58.958985",
+      "domain": "functional_analysis",
+      "final_answer": "定理得证：若 Banach 空间上的算子族逐点有界，则一致有界。",
+      "reasoning_steps": [
+        {
+          "step_id": 1,
+          "description": "定义集合 E_n = {x in X : sup_||T_alpha x|| <= n}，利用 T_alpha 连续性证明 E_n 为闭集",
+          "formula": "E_n = \\{x \\in X : \\sup_{\\alpha} \\|T_\\alpha x\\| \\le n\\}",
+          "result": null,
+          "method": null
+        },
+        {
+          "step_id": 2,
+          "description": "由逐点有界性知 X = union E_n，即全空间被可数个闭集覆盖",
+          "formula": "X = \\bigcup_{n=1}^\\infty E_n",
+          "result": null,
+          "method": null
+        },
+        {
+          "step_id": 3,
+          "description": "利用 Baire 纲定理，因 X 完备，存在 k 使 E_k 包含非空开球 B(x_0, r)",
+          "formula": "B(x_0, r) \\subset E_k",
+          "result": null,
+          "method": null
+        },
+        {
+          "step_id": 4,
+          "description": "对任意单位向量 x，构造 y = x_0 + rx 属于开球，利用三角不等式估计范数",
+          "formula": "\\|T_\\alpha x\\| \\le \\frac{\\|T_\\alpha(x_0 + rx)\\| + \\|T_\\alpha x_0\\|}{r}",
+          "result": null,
+          "method": null
+        },
+        {
+          "step_id": 5,
+          "description": "导出算子范数上界，证明算子族一致有界",
+          "formula": "\\sup_{\\alpha} \\|T_\\alpha\\| \\le \\frac{2M}{r} < \\infty",
+          "result": null,
+          "method": null
+        }
+      ],
+      "methods_used": [
+        "Baire 纲定理",
+        "三角不等式",
+        "闭集性质"
+      ],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "证明核心在于利用 Banach 空间的完备性（Baire 纲定理），将逐点有界性转化为某集合具有内点，进而通过线性性质导出整体的一致有界性。",
+      "computation_time_ms": 218583.4982395172,
+      "retry_count": 0,
+      "model_version": null,
+      "from_cache": false,
+      "cache_similarity": null,
+      "cache_matched_question": null,
+      "true_domain": null,
+      "ground_truth": "Banach空间上有界线性算子族逐点有界则算子范数一致有界",
+      "answer_match": true
+    },
+    {
+      "question_id": "99",
+      "timestamp": "2026-07-08T00:26:30.151161",
+      "domain": "functional_analysis",
+      "final_answer": "2/\\pi",
+      "reasoning_steps": [
+        {
+          "step_id": 1,
+          "description": "Identify T as a compact Hilbert-Schmidt operator, so its norm equals the largest singular value.",
+          "formula": "\\|T\\| = \\sqrt{\\lambda_{\\max}(T^*T)}",
+          "result": null,
+          "method": "Spectral Theory of Compact Operators"
+        },
+        {
+          "step_id": 2,
+          "description": "Compute the adjoint operator T^* and formulate the eigenvalue problem for the self-adjoint operator T^*T.",
+          "formula": "(T^*g)(x) = \\int_x^1 g(t)dt, \\quad T^*Tf = \\lambda f",
+          "result": null,
+          "method": "Adjoint Operator Calculation"
+        },
+        {
+          "step_id": 3,
+          "description": "Derive the differential equation satisfied by the eigenfunction f by differentiating the integral equation.",
+          "formula": "f''(x) + \\frac{1}{\\lambda}f(x) = 0, \\quad f'(0)=0, f(1)=0",
+          "result": null,
+          "method": "Differentiation of Integral Equations"
+        },
+        {
+          "step_id": 4,
+          "description": "Solve the Sturm-Liouville problem to find the largest eigenvalue.",
+          "formula": "\\lambda_{\\max} = \\left(\\frac{2}{\\pi}\\right)^2",
+          "result": null,
+          "method": "Sturm-Liouville Theory"
+        },
+        {
+          "step_id": 5,
+          "description": "Calculate the operator norm from the largest eigenvalue.",
+          "formula": "\\|T\\| = \\sqrt{\\lambda_{\\max}} = \\frac{2}{\\pi}",
+          "result": null,
+          "method": "Norm Calculation"
+        }
+      ],
+      "methods_used": [
+        "Spectral Theory",
+        "Adjoint Operator",
+        "Sturm-Liouville Theory"
+      ],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "The norm of a compact operator is its largest singular value. For the Volterra operator, this reduces to solving a Sturm-Liouville boundary value problem associated with T^*T.",
+      "computation_time_ms": 188506.73866271973,
+      "retry_count": 0,
+      "model_version": null,
+      "from_cache": false,
+      "cache_similarity": null,
+      "cache_matched_question": null,
+      "true_domain": null,
+      "ground_truth": "$\\|T\\| = \\frac{2}{\\pi}$",
+      "answer_match": true
+    },
+    {
+      "question_id": "100",
+      "timestamp": "2026-07-08T00:25:59.729206",
+      "domain": "functional_analysis",
+      "final_answer": "存在 X 上的线性泛函 F 使得 F|_M = f 且对任意 x∈X 有 F(x)≤p(x)",
+      "reasoning_steps": [
+        {
+          "step_id": 1,
+          "description": "构造所有受次线性泛函控制的线性延拓对构成的集合",
+          "formula": "\\mathcal{A} = \\{(N, g) \\mid M \\subseteq N \\subseteq X, g \\text{ 线性}, g|_M=f, \\forall x \\in N, g(x) \\le p(x)\\}",
+          "result": null,
+          "method": null
+        },
+        {
+          "step_id": 2,
+          "description": "在集合上定义偏序关系，包含关系与函数值一致",
+          "formula": "(N_1, g_1) \\preceq (N_2, g_2) \\iff N_1 \\subseteq N_2 \\land g_2|_{N_1} = g_1",
+          "result": null,
+          "method": null
+        },
+        {
+          "step_id": 3,
+          "description": "证明任意链存在上界，取子空间与泛函的并集",
+          "formula": "N = \\bigcup N_\\alpha, g = \\bigcup g_\\alpha",
+          "result": null,
+          "method": null
+        },
+        {
+          "step_id": 4,
+          "description": "应用 Zorn 引理得到极大元 (N^*, F^*)",
+          "formula": "Zorn's Lemma \\implies \\exists (N^*, F^*) \\in \\mathcal{A} \\text{ 极大}",
+          "result": null,
+          "method": null
+        },
+        {
+          "step_id": 5,
+          "description": "证明极大元定义域必为全空间 X，否则可进一步延拓",
+          "formula": "\\sup_{x \\in N^*}(F^*(x)-p(-x)) \\le c \\le \\inf_{x \\in N^*}(p(x)-F^*(x))",
+          "result": null,
+          "method": null
+        }
+      ],
+      "methods_used": [
+        "Zorn 引理",
+        "次线性泛函性质",
+        "线性延拓引理"
+      ],
+      "verification": {
+        "is_correct": false,
+        "confidence": 0.0,
+        "check_method": "ground_truth_match",
+        "error_details": "pred=存在 X 上的线性泛函 F 使得 F|_M = f 且对任意 x∈X 有 F(x)≤p(x), gt=线性泛函$f$可延拓到全空间$X$且仍满足$f(x)\\le p(x)$"
+      },
+      "educational_hint": "证明核心在于利用 Zorn 引理处理无限维空间的延拓问题，关键在于通过次线性泛函确定延拓点的取值范围非空。",
+      "computation_time_ms": 151404.09302711487,
+      "retry_count": 1,
+      "model_version": null,
+      "from_cache": false,
+      "cache_similarity": null,
+      "cache_matched_question": null,
+      "true_domain": null,
+      "ground_truth": "线性泛函$f$可延拓到全空间$X$且仍满足$f(x)\\le p(x)$",
+      "answer_match": false
+    },
+    {
+      "question_id": "101",
+      "timestamp": "2026-07-08T00:26:28.469723",
+      "domain": "statistics",
+      "final_answer": "y = 0.5 + 1.6x",
+      "reasoning_steps": [
+        {
+          "step_id": 1,
+          "description": "计算样本均值",
+          "formula": "\\bar{x} = \\frac{1}{n}\\sum x_i = 2.5, \\bar{y} = \\frac{1}{n}\\sum y_i = 4.5",
+          "result": null,
+          "method": null
+        },
+        {
+          "step_id": 2,
+          "description": "计算离差平方和与交叉积和",
+          "formula": "S_{xx} = \\sum (x_i - \\bar{x})^2 = 5, S_{xy} = \\sum (x_i - \\bar{x})(y_i - \\bar{y}) = 8",
+          "result": null,
+          "method": null
+        },
+        {
+          "step_id": 3,
+          "description": "计算斜率参数",
+          "formula": "\\beta_1 = \\frac{S_{xy}}{S_{xx}} = \\frac{8}{5} = 1.6",
+          "result": null,
+          "method": null
+        },
+        {
+          "step_id": 4,
+          "description": "计算截距参数",
+          "formula": "\\beta_0 = \\bar{y} - \\beta_1 \\bar{x} = 4.5 - 1.6 \\times 2.5 = 0.5",
+          "result": null,
+          "method": null
+        }
+      ],
+      "methods_used": [
+        "最小二乘法",
+        "线性回归模型"
+      ],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "最小二乘法通过最小化残差平方和来估计回归系数，核心公式为斜率等于协方差除以方差。",
+      "computation_time_ms": 145342.89622306824,
+      "retry_count": 0,
+      "model_version": null,
+      "from_cache": false,
+      "cache_similarity": null,
+      "cache_matched_question": null,
+      "true_domain": null,
+      "ground_truth": "$\\hat{\\beta}_0=0.5$, $\\hat{\\beta}_1=1.6$",
+      "answer_match": true
+    },
+    {
+      "question_id": "102",
+      "timestamp": "2026-07-08T00:26:22.829761",
+      "domain": "statistics",
+      "final_answer": "在线性回归中，R^2 等于 y 与 \\hat{y} 相关系数的平方，即 R^2 = (r_{y,\\hat{y}})^2。",
+      "reasoning_steps": [
+        {
+          "step_id": 1,
+          "description": "定义总平方和 SST、回归平方和 SSR 及决定系数 R^2",
+          "formula": "SST = \\sum (y_i - \\bar{y})^2, SSR = \\sum (\\hat{y}_i - \\bar{y})^2, R^2 = SSR / SST",
+          "result": null,
+          "method": "定义法"
+        },
+        {
+          "step_id": 2,
+          "description": "利用最小二乘法性质：残差均值为零且与拟合值正交",
+          "formula": "\\sum (y_i - \\hat{y}_i) = 0, \\sum (y_i - \\hat{y}_i)\\hat{y}_i = 0 \\Rightarrow \\bar{y} = \\bar{\\hat{y}}",
+          "result": null,
+          "method": "最小二乘性质"
+        },
+        {
+          "step_id": 3,
+          "description": "计算 y 与 \\hat{y} 协方差部分的分子",
+          "formula": "\\sum (y_i - \\bar{y})(\\hat{y}_i - \\bar{y}) = \\sum (\\hat{y}_i - \\bar{y})^2 + \\sum (y_i - \\hat{y}_i)(\\hat{y}_i - \\bar{y}) = SSR",
+          "result": null,
+          "method": "代数分解"
+        },
+        {
+          "step_id": 4,
+          "description": "代入相关系数公式并推导关系",
+          "formula": "r_{y,\\hat{y}} = \\frac{SSR}{\\sqrt{SST \\cdot SSR}} = \\sqrt{\\frac{SSR}{SST}} = \\sqrt{R^2} \\Rightarrow R^2 = r_{y,\\hat{y}}^2",
+          "result": null,
+          "method": "公式推导"
+        }
+      ],
+      "methods_used": [
+        "最小二乘法性质",
+        "平方和分解",
+        "相关系数定义"
+      ],
+      "verification": {
+        "is_correct": false,
+        "confidence": 0.0,
+        "check_method": "ground_truth_match",
+        "error_details": "pred=在线性回归中，R^2 等于 y 与 \\hat{y} 相关系数的平方，即 R^2 = (r_{y,\\hat{y}})^2。, gt=$R^2 = r^2_{y\\hat{y}}$"
+      },
+      "educational_hint": "核心在于利用 OLS 估计的正交性，使得残差项在相关系数计算中消失，从而建立 R^2 与相关系数的直接联系。",
+      "computation_time_ms": 133152.925491333,
+      "retry_count": 0,
+      "model_version": null,
+      "from_cache": false,
+      "cache_similarity": null,
+      "cache_matched_question": null,
+      "true_domain": null,
+      "ground_truth": "$R^2 = r^2_{y\\hat{y}}$",
+      "answer_match": false
+    },
+    {
+      "final_answer": "\\sigma^2 (X^T X)^{-1}",
+      "domain": "statistics",
+      "reasoning_steps": [
+        {
+          "step_id": 1,
+          "description": "写出普通最小二乘法（OLS）估计量的矩阵表达式",
+          "formula": "\\hat{\\beta} = (X^T X)^{-1} X^T Y",
+          "result": null,
+          "method": null
+        },
+        {
+          "step_id": 2,
+          "description": "将模型 Y=X\\beta+\\varepsilon 代入估计量表达式",
+          "formula": "\\hat{\\beta} = \\beta + (X^T X)^{-1} X^T \\varepsilon",
+          "result": null,
+          "method": null
+        },
+        {
+          "step_id": 3,
+          "description": "利用协方差矩阵的线性变换性质计算 Var(\\hat{\\beta})",
+          "formula": "Var(\\hat{\\beta}) = (X^T X)^{-1} X^T Var(\\varepsilon) X (X^T X)^{-1}",
+          "result": null,
+          "method": null
+        },
+        {
+          "step_id": 4,
+          "description": "代入误差项协方差假设 Var(\\varepsilon)=\\sigma^2 I",
+          "formula": "Var(\\varepsilon) = \\sigma^2 I_n",
+          "result": null,
+          "method": null
+        },
+        {
+          "step_id": 5,
+          "description": "化简矩阵乘积得到最终结果",
+          "formula": "Var(\\hat{\\beta}) = \\sigma^2 (X^T X)^{-1}",
+          "result": null,
+          "method": null
+        }
+      ],
+      "methods_used": [
+        "最小二乘法",
+        "矩阵代数",
+        "方差性质"
+      ],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "该结果表明估计精度受设计矩阵 X 的信息量（X^T X 的逆）和误差方差 \\sigma^2 影响。",
+      "from_cache": true,
+      "question_id": "103",
+      "cache_similarity": 1.0,
+      "cache_matched_question": "对多元线性回归$Y=X\\beta+\\varepsilon$，求$\\hat{\\beta}$的协方差矩阵。",
+      "ground_truth": "$\\text{Cov}(\\hat{\\beta}) = \\sigma^2(X^TX)^{-1}$",
+      "answer_match": true
+    },
+    {
+      "final_answer": "}",
+      "domain": "partial_differential_equations",
+      "reasoning_steps": [],
+      "methods_used": [],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "",
+      "from_cache": true,
+      "question_id": "104",
+      "cache_similarity": 1.0000001192092896,
+      "cache_matched_question": "求解一维热传导方程初边值问题：$\\frac{\\partial u}{\\partial t}=\\frac{\\partial^2 u}{\\partial x^2}$, $u(0,t)=u(1,t)=0$, $u(x,0)=\\sin(\\pi x)$。",
+      "ground_truth": "$u(x,t)=e^{-\\pi^2 t}\\sin(\\pi x)$",
+      "answer_match": true
+    },
+    {
+      "final_answer": "}",
+      "domain": "partial_differential_equations",
+      "reasoning_steps": [],
+      "methods_used": [],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "",
+      "from_cache": true,
+      "question_id": "105",
+      "cache_similarity": 0.9999999403953552,
+      "cache_matched_question": "求解一维波动方程：$\\frac{\\partial^2 u}{\\partial t^2}=c^2\\frac{\\partial^2 u}{\\partial x^2}$, $u(x,0)=f(x)$, $u_t(x,0)=0$。",
+      "ground_truth": "$u(x,t)=\\frac{1}{2}[f(x+ct)+f(x-ct)]$",
+      "answer_match": true
+    },
+    {
+      "question_id": "106",
+      "timestamp": "2026-07-08T00:27:45.190826",
+      "domain": "algebra",
+      "final_answer": "调和函数 $u$ 满足平均值性质，即对于任意球 $B(x,r) \\subset \\Omega$，有 $u(x) = \\frac{1}{|\\partial B(x,r)|} \\int_{\\partial B(x,r)} u(y) dS$。",
+      "reasoning_steps": [
+        {
+          "step_id": 1,
+          "description": "设定调和函数定义及球面平均函数",
+          "formula": "$\\Delta u = 0, \\quad \\phi(r) = \\frac{1}{|\\partial B(x,r)|} \\int_{\\partial B(x,r)} u(y) dS$",
+          "result": null,
+          "method": "定义法"
+        },
+        {
+          "step_id": 2,
+          "description": "对球面平均函数关于半径求导并应用散度定理",
+          "formula": "$\\phi'(r) = \\frac{1}{|\\partial B(x,r)|} \\int_{\\partial B(x,r)} \\frac{\\partial u}{\\partial n} dS = \\frac{1}{|B(x,r)|} \\int_{B(x,r)} \\Delta u dy$",
+          "result": null,
+          "method": "散度定理"
+        },
+        {
+          "step_id": 3,
+          "description": "利用调和方程证明导数恒为零",
+          "formula": "$\\Delta u = 0 \\implies \\phi'(r) = 0$",
+          "result": null,
+          "method": "代入已知条件"
+        },
+        {
+          "step_id": 4,
+          "description": "通过极限论证得出平均值性质结论",
+          "formula": "$\\phi(r) = \\lim_{r \\to 0} \\phi(r) = u(x)$",
+          "result": null,
+          "method": "极限论证"
+        }
+      ],
+      "methods_used": [
+        "散度定理",
+        "极限论证"
+      ],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "证明的核心在于构造球面平均函数，利用散度定理将面积分转化为体积分，结合调和函数定义（拉普拉斯算子为零）证明平均值为常数，从而等于中心点函数值。",
+      "computation_time_ms": 192723.52266311646,
+      "retry_count": 0,
+      "model_version": null,
+      "from_cache": false,
+      "cache_similarity": null,
+      "cache_matched_question": null,
+      "true_domain": null,
+      "ground_truth": "$u(x)=\\frac{1}{|\\partial B_r|}\\int_{\\partial B_r(x)}u dS$",
+      "answer_match": true
+    },
+    {
+      "question_id": "107",
+      "timestamp": "2026-07-08T00:28:02.427044",
+      "domain": "algebra",
+      "final_answer": "实对称矩阵 $A$ 可正交对角化，即存在正交矩阵 $Q$ 使得 $Q^T A Q$ 为对角矩阵。",
+      "reasoning_steps": [
+        {
+          "step_id": 1,
+          "description": "证明特征值为实数",
+          "formula": "设 $Ax = \\lambda x$ ($x \\neq 0$)，则 $\\lambda x^* x = x^* A x = (Ax)^* x = \\bar{\\lambda} x^* x \\implies \\lambda = \\bar{\\lambda}$",
+          "result": null,
+          "method": "复内积性质"
+        },
+        {
+          "step_id": 2,
+          "description": "证明不同特征值对应的特征向量正交",
+          "formula": "设 $Ax_1 = \\lambda_1 x_1, Ax_2 = \\lambda_2 x_2$，则 $\\lambda_1 x_1^T x_2 = x_1^T A x_2 = x_1^T A^T x_2 = (Ax_1)^T x_2 = \\lambda_2 x_1^T x_2 \\implies (\\lambda_1 - \\lambda_2) x_1^T x_2 = 0$",
+          "result": null,
+          "method": "对称矩阵性质"
+        },
+        {
+          "step_id": 3,
+          "description": "利用数学归纳法构造正交特征向量基",
+          "formula": "对 $n$ 阶矩阵，取单位特征向量 $v_1$，扩展为正交基，将 $A$ 分块为 $\\begin{pmatrix} \\lambda_1 & 0 \\\\ 0 & A' \\end{pmatrix}$，其中 $A'$ 为 $n-1$ 阶实对称阵",
+          "result": null,
+          "method": "数学归纳法"
+        },
+        {
+          "step_id": 4,
+          "description": "构造正交矩阵 $Q$ 完成对角化",
+          "formula": "令 $Q = [q_1, q_2, \\dots, q_n]$ 为标准正交特征向量列向量，则 $Q^T A Q = \\Lambda = \\text{diag}(\\lambda_1, \\dots, \\lambda_n)$",
+          "result": null,
+          "method": "正交变换"
+        }
+      ],
+      "methods_used": [
+        "特征值理论",
+        "正交性证明",
+        "数学归纳法",
+        "谱定理"
+      ],
+      "verification": {
+        "is_correct": false,
+        "confidence": 0.0,
+        "check_method": "ground_truth_match",
+        "error_details": "pred=实对称矩阵 $A$ 可正交对角化，即存在正交矩阵 $Q$ 使得 $Q^T A Q$ 为对角矩阵。, gt=实对称矩阵可正交对角化：$Q^TAQ=\\Lambda$（谱定理）"
+      },
+      "educational_hint": "核心在于利用 $A=A^T$ 证明特征值实性及特征向量正交性，进而通过归纳法保证存在一组标准正交的特征向量基。",
+      "computation_time_ms": 164707.66019821167,
+      "retry_count": 0,
+      "model_version": null,
+      "from_cache": false,
+      "cache_similarity": null,
+      "cache_matched_question": null,
+      "true_domain": null,
+      "ground_truth": "实对称矩阵可正交对角化：$Q^TAQ=\\Lambda$（谱定理）",
+      "answer_match": false
+    },
+    {
+      "question_id": "108",
+      "timestamp": "2026-07-08T00:27:54.141786",
+      "domain": "optimization",
+      "final_answer": "最终答案：通过单纯形法迭代，得到最优解 $x_1=2, x_2=3$，最大目标函数值 $z_{\\max}=21$。",
+      "reasoning_steps": [
+        {
+          "step_id": 1,
+          "description": "将不等式约束转化为等式约束，引入松弛变量 $s_1, s_2$",
+          "formula": "$x_1 + 2x_2 + s_1 = 8, \\quad 3x_1 + 2x_2 + s_2 = 12, \\quad z - 3x_1 - 5x_2 = 0$",
+          "result": null,
+          "method": "标准型转换"
+        },
+        {
+          "step_id": 2,
+          "description": "确定入基变量和出基变量，进行第一次迭代",
+          "formula": "入基：$x_2$ (检验数 $-5$)，出基：$s_1$ ($\\theta = \\min(8/2, 12/2) = 4$)",
+          "result": null,
+          "method": "单纯形迭代"
+        },
+        {
+          "step_id": 3,
+          "description": "更新单纯形表，确定第二次迭代的入基和出基变量",
+          "formula": "入基：$x_1$ (检验数 $-0.5$)，出基：$s_2$ ($\\theta = \\min(4/0.5, 4/2) = 2$)",
+          "result": null,
+          "method": "单纯形迭代"
+        },
+        {
+          "step_id": 4,
+          "description": "检查检验数是否非负，得出最优解",
+          "formula": "$z$ 行系数 $\\ge 0$，最优解 $x_1=2, x_2=3, z_{\\max}=21$",
+          "result": null,
+          "method": "最优性判定"
+        }
+      ],
+      "methods_used": [
+        "单纯形法",
+        "线性规划标准型"
+      ],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "单纯形法通过迭代移动可行域的顶点来优化目标函数。关键在于选择检验数最大的负数作为入基变量，并通过最小比值原则选择出基变量，直到所有检验数非负为止。",
+      "computation_time_ms": 152330.15966415405,
+      "retry_count": 0,
+      "model_version": null,
+      "from_cache": false,
+      "cache_similarity": null,
+      "cache_matched_question": null,
+      "true_domain": null,
+      "ground_truth": "最优解$(2,3)$, $z=21$",
+      "answer_match": true
+    },
+    {
+      "final_answer": "根据代数拓扑中的同调论，闭连通 $n$ 维流形 $M$ 可定向当且仅当其第 $n$ 个整系数同调群 $H_n(M; \\mathbb{Z})$ 同构于 $\\mathbb{Z}$。对于 $\\mathbb{R}P^2$，计算可得 $H_2(\\mathbb{R}P^2; \\mathbb{Z}) = 0$，因此它是不可定向的。",
+      "domain": "algebra",
+      "reasoning_steps": [
+        {
+          "step_id": 1,
+          "description": "陈述闭连通流形可定向的代数判据",
+          "formula": "$H_n(M; \\mathbb{Z}) \\cong \\mathbb{Z} \\iff M \\text{ 可定向}$",
+          "result": null,
+          "method": "代数拓扑定理"
+        },
+        {
+          "step_id": 2,
+          "description": "构建 $\\mathbb{R}P^2$ 的胞腔链复形",
+          "formula": "$0 \\to \\mathbb{Z} \\xrightarrow{\\times 2} \\mathbb{Z} \\xrightarrow{0} \\mathbb{Z} \\to 0$",
+          "result": null,
+          "method": "胞腔同调"
+        },
+        {
+          "step_id": 3,
+          "description": "计算第二同调群",
+          "formula": "$H_2(\\mathbb{R}P^2; \\mathbb{Z}) = \\ker(\\partial_2) = 0$",
+          "result": null,
+          "method": "同调群计算"
+        },
+        {
+          "step_id": 4,
+          "description": "比较结果与可定向条件",
+          "formula": "$0 \\not\\cong \\mathbb{Z}$",
+          "result": null,
+          "method": "逻辑推导"
+        }
+      ],
+      "methods_used": [
+        "代数拓扑",
+        "同调论",
+        "胞腔分解"
+      ],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "证明流形可定向性的代数判据是最高维整系数同调群是否非零。$\\mathbb{R}P^2$ 的胞腔结构导致边界映射为乘以 2，从而使得最高维同调群消失，表明存在反向定向的闭路。",
+      "from_cache": true,
+      "question_id": "109",
+      "cache_similarity": 1.0000001192092896,
+      "cache_matched_question": "证明$\\\\mathbb{R}P^2$是不可定向的二维流形。",
+      "ground_truth": "$\\\\mathbb{R}P^2$不可定向",
+      "answer_match": true
+    },
+    {
+      "question_id": "110",
+      "timestamp": "2026-07-08T00:29:15.935492",
+      "domain": "functional_analysis",
+      "final_answer": "有限维赋范线性空间中所有范数均等价",
+      "reasoning_steps": [
+        {
+          "step_id": 1,
+          "description": "选取空间基并定义参考范数",
+          "formula": "$\\|x\\|_1 = \\sum_{i=1}^n |a_i|$",
+          "result": null,
+          "method": "基展开法"
+        },
+        {
+          "step_id": 2,
+          "description": "证明任意范数关于参考范数连续",
+          "formula": "$\\|x\\| \\le \\left(\\sum_{i=1}^n \\|e_i\\|\\right) \\|x\\|_1$",
+          "result": null,
+          "method": "三角不等式"
+        },
+        {
+          "step_id": 3,
+          "description": "利用有限维空间单位球面的紧性",
+          "formula": "$S = \\{x \\in X : \\|x\\|_1 = 1\\}$ 是紧集",
+          "result": null,
+          "method": "Heine-Borel 定理"
+        },
+        {
+          "step_id": 4,
+          "description": "在紧集上应用连续函数最值定理",
+          "formula": "$\\min_{x \\in S} \\|x\\| = m > 0, \\max_{x \\in S} \\|x\\| = M$",
+          "result": null,
+          "method": "连续函数最值定理"
+        },
+        {
+          "step_id": 5,
+          "description": "推导范数等价不等式",
+          "formula": "$m \\|x\\|_1 \\le \\|x\\| \\le M \\|x\\|_1$",
+          "result": null,
+          "method": "齐次性延拓"
+        }
+      ],
+      "methods_used": [
+        "基展开法",
+        "三角不等式",
+        "Heine-Borel 定理",
+        "连续函数最值定理",
+        "齐次性延拓"
+      ],
+      "verification": {
+        "is_correct": false,
+        "confidence": 0.0,
+        "check_method": "ground_truth_match",
+        "error_details": "pred=有限维赋范线性空间中所有范数均等价, gt=$\\exists c_1,c_2>0$使$c_1\\|x\\|_a \\le \\|x\\|_b \\le c_2\\|x\\|_a$"
+      },
+      "educational_hint": "核心在于有限维空间单位球面的紧性，结合范数连续性通过最值定理建立范数间的上下界控制。",
+      "computation_time_ms": 196106.27937316895,
+      "retry_count": 0,
+      "model_version": null,
+      "from_cache": false,
+      "cache_similarity": null,
+      "cache_matched_question": null,
+      "true_domain": null,
+      "ground_truth": "$\\exists c_1,c_2>0$使$c_1\\|x\\|_a \\le \\|x\\|_b \\le c_2\\|x\\|_a$",
+      "answer_match": false
+    },
+    {
+      "final_answer": "函数 $f$ 可表示为两个单调增加函数之差。",
+      "domain": "real_analysis",
+      "reasoning_steps": [
+        {
+          "step_id": 1,
+          "description": "定义全变差函数 $V(x)$",
+          "formula": "V(x) = V_a^x(f) = \\\\sup_{P} \\\\sum_{i=1}^n |f(t_i) - f(t_{i-1})|",
+          "result": null,
+          "method": "有界变差定义"
+        },
+        {
+          "step_id": 2,
+          "description": "证明 $V(x)$ 单调增加",
+          "formula": "\\\\forall a \\\\le x < y \\\\le b, V(y) - V(x) = V_x^y(f) \\\\ge 0",
+          "result": null,
+          "method": "全变差的可加性"
+        },
+        {
+          "step_id": 3,
+          "description": "构造辅助函数 $g(x)$",
+          "formula": "g(x) = V(x) - f(x)",
+          "result": null,
+          "method": "函数构造法"
+        },
+        {
+          "step_id": 4,
+          "description": "证明 $g(x)$ 单调增加",
+          "formula": "g(y) - g(x) = V_x^y(f) - (f(y) - f(x)) \\\\ge |f(y) - f(x)| - (f(y) - f(x)) \\\\ge 0",
+          "result": null,
+          "method": "变差与函数差的不等式"
+        },
+        {
+          "step_id": 5,
+          "description": "得出结论",
+          "formula": "f(x) = V(x) - g(x)",
+          "result": null,
+          "method": "代数变形"
+        }
+      ],
+      "methods_used": [
+        "有界变差定义",
+        "全变差性质",
+        "Jordan 分解"
+      ],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "利用全变差函数构造单调函数是证明有界变差函数 Jordan 分解的标准方法。",
+      "from_cache": true,
+      "question_id": "111",
+      "cache_similarity": 1.0,
+      "cache_matched_question": "设$f$为$[a,b]$上的有界变差函数。证明$f$可表示为两个单调增加函数之差。",
+      "ground_truth": "$f = (V_f + f)/2 - (V_f - f)/2$",
+      "answer_match": true
+    }
+  ]
+}

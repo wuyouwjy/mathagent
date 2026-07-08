@@ -1,0 +1,64 @@
+{
+  "question_id": "85",
+  "timestamp": "2026-07-08T00:23:20.405214",
+  "domain": "complex_analysis",
+  "final_answer": "通过复变函数代换 $z=e^{i\\theta}$，原积分转化为单位圆上的围道积分 $\\oint_{|z|=1} \\frac{2}{i(3z^2+10z+3)} dz$。被积函数在 $z=-1/3$ 处有一阶极点（在单位圆内），留数为 $1/8$（针对分母部分）。根据留数定理，积分值为 $\\frac{2}{i} \\cdot 2\\pi i \\cdot \\frac{1}{8} = \\frac{\\pi}{2}$。",
+  "reasoning_steps": [
+    {
+      "step_id": 1,
+      "description": "引入复变量代换",
+      "formula": "$z = e^{i\\theta}, \\quad d\\theta = \\frac{dz}{iz}, \\quad \\cos\\theta = \\frac{z+z^{-1}}{2}$",
+      "result": null,
+      "method": "复指数代换"
+    },
+    {
+      "step_id": 2,
+      "description": "转化为单位圆围道积分",
+      "formula": "$I = \\oint_{|z|=1} \\frac{1}{5+3\\frac{z^2+1}{2z}} \\frac{dz}{iz} = \\frac{2}{i} \\oint_{|z|=1} \\frac{dz}{3z^2+10z+3}$",
+      "result": null,
+      "method": "围道选择"
+    },
+    {
+      "step_id": 3,
+      "description": "寻找极点并判断位置",
+      "formula": "$3z^2+10z+3=0 \\Rightarrow z_1=-\\frac{1}{3}, z_2=-3 \\quad (|z_1|<1, |z_2|>1)$",
+      "result": null,
+      "method": "奇点分析"
+    },
+    {
+      "step_id": 4,
+      "description": "计算单位圆内极点的留数",
+      "formula": "$\\text{Res}\\left(f, -\\frac{1}{3}\\right) = \\frac{1}{3(-\\frac{1}{3}+3)} = \\frac{1}{8}$",
+      "result": null,
+      "method": "留数计算"
+    },
+    {
+      "step_id": 5,
+      "description": "应用留数定理得出结果",
+      "formula": "$I = \\frac{2}{i} \\cdot 2\\pi i \\cdot \\frac{1}{8} = \\frac{\\pi}{2}$",
+      "result": null,
+      "method": "留数定理"
+    }
+  ],
+  "methods_used": [
+    "复指数代换",
+    "留数定理",
+    "单位圆围道"
+  ],
+  "verification": {
+    "is_correct": false,
+    "confidence": 0.3,
+    "check_method": "parse_error",
+    "error_details": "LLM 返回无法解析"
+  },
+  "educational_hint": "对于形如 $\\int_0^{2\\pi} R(\\cos\\theta, \\sin\\theta) d\\theta$ 的积分，通常采用 $z=e^{i\\theta}$ 将积分转化为单位圆上的围道积分。注意检查极点是否在围道内部，并正确处理系数。",
+  "computation_time_ms": 160323.51160049438,
+  "retry_count": 1,
+  "model_version": null,
+  "from_cache": false,
+  "cache_similarity": null,
+  "cache_matched_question": null,
+  "true_domain": null,
+  "ground_truth": null,
+  "answer_match": null
+}

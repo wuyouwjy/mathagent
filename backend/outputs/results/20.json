@@ -1,0 +1,49 @@
+{
+  "final_answer": "\\frac{n(n-1)}{2}",
+  "domain": "combinatorics",
+  "reasoning_steps": [
+    {
+      "step_id": 1,
+      "description": "完全图 K_n 定义为具有 n 个顶点的简单图",
+      "formula": "|V| = n",
+      "result": null,
+      "method": "图论定义"
+    },
+    {
+      "step_id": 2,
+      "description": "任意两个不同顶点之间恰好有一条边相连",
+      "formula": "边对应顶点对",
+      "result": null,
+      "method": "图论定义"
+    },
+    {
+      "step_id": 3,
+      "description": "边数等于从 n 个顶点中选取 2 个的组合数",
+      "formula": "\\binom{n}{2}",
+      "result": null,
+      "method": "组合计数"
+    },
+    {
+      "step_id": 4,
+      "description": "展开组合数公式计算边数",
+      "formula": "\\binom{n}{2} = \\frac{n(n-1)}{2}",
+      "result": null,
+      "method": "代数计算"
+    }
+  ],
+  "methods_used": [
+    "图论定义",
+    "组合计数"
+  ],
+  "verification": {
+    "is_correct": true,
+    "confidence": 1.0,
+    "check_method": "ground_truth_match",
+    "error_details": ""
+  },
+  "educational_hint": "完全图的边数问题转化为从 n 个顶点中无序选取 2 个顶点的组合问题，即二项式系数 C(n, 2)。",
+  "from_cache": true,
+  "question_id": "20",
+  "cache_similarity": 0.9999997615814209,
+  "cache_matched_question": "设$G$为$n$阶完全图$K_n$，求$G$的边数。"
+}

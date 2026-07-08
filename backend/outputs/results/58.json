@@ -1,0 +1,56 @@
+{
+  "question_id": "58",
+  "timestamp": "2026-07-08T00:17:12.685827",
+  "domain": "differential_geometry",
+  "final_answer": "曲率 κ = 1/2，挠率 τ = 1/2",
+  "reasoning_steps": [
+    {
+      "step_id": 1,
+      "description": "计算曲线的一阶、二阶和三阶导数",
+      "formula": "γ'(t)=(-sin t, cos t, 1), γ''(t)=(-cos t, -sin t, 0), γ'''(t)=(sin t, -cos t, 0)",
+      "result": null,
+      "method": null
+    },
+    {
+      "step_id": 2,
+      "description": "代入 t=0 计算各导数值",
+      "formula": "γ'(0)=(0, 1, 1), γ''(0)=(-1, 0, 0), γ'''(0)=(0, -1, 0)",
+      "result": null,
+      "method": null
+    },
+    {
+      "step_id": 3,
+      "description": "利用 Frenet 标架相关公式计算曲率",
+      "formula": "κ = ||γ' × γ''|| / ||γ'||³ = √2 / (√2)³ = 1/2",
+      "result": null,
+      "method": null
+    },
+    {
+      "step_id": 4,
+      "description": "利用 Frenet 标架相关公式计算挠率",
+      "formula": "τ = (γ' × γ'') · γ''' / ||γ' × γ''||² = 1 / 2 = 1/2",
+      "result": null,
+      "method": null
+    }
+  ],
+  "methods_used": [
+    "Frenet 标架公式",
+    "向量叉积与点积"
+  ],
+  "verification": {
+    "is_correct": true,
+    "confidence": 1.0,
+    "check_method": "重新计算了曲线 γ(t) 在 t=0 处的一阶、二阶及三阶导数：γ'(0)=(0,1,1), γ''(0)=(-1,0,0), γ'''(0)=(0,-1,0)。代入曲率公式 κ = ||γ' × γ''|| / ||γ'||³ 计算得 √2 / (√2)³ = 1/2。代入挠率公式 τ = ((γ' × γ'') · γ''') / ||γ' × γ''||² 计算得 1 / 2 = 1/2。计算过程严谨，结果与给定答案完全一致。",
+    "error_details": "无"
+  },
+  "educational_hint": "该曲线为圆柱螺旋线，其曲率和挠率均为常数，不随参数 t 变化。",
+  "computation_time_ms": 99570.99723815918,
+  "retry_count": 0,
+  "model_version": null,
+  "from_cache": false,
+  "cache_similarity": null,
+  "cache_matched_question": null,
+  "true_domain": null,
+  "ground_truth": null,
+  "answer_match": null
+}

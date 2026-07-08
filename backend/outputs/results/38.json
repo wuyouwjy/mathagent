@@ -1,0 +1,56 @@
+{
+  "question_id": "38",
+  "timestamp": "2026-07-08T00:14:01.772245",
+  "domain": "numerical_analysis",
+  "final_answer": "\\frac{27+7\\sqrt{5}}{22}",
+  "reasoning_steps": [
+    {
+      "step_id": 1,
+      "description": "计算矩阵 A 的特征多项式",
+      "formula": "\\det(A - \\lambda I) = (4-\\lambda)(3-\\lambda) - 1 = \\lambda^2 - 7\\lambda + 11 = 0",
+      "result": null,
+      "method": "特征值计算"
+    },
+    {
+      "step_id": 2,
+      "description": "求解特征值",
+      "formula": "\\lambda = \\frac{7 \\pm \\sqrt{49 - 44}}{2} = \\frac{7 \\pm \\sqrt{5}}{2}",
+      "result": null,
+      "method": "求根公式"
+    },
+    {
+      "step_id": 3,
+      "description": "确定最大和最小特征值",
+      "formula": "\\lambda_{\\max} = \\frac{7 + \\sqrt{5}}{2}, \\quad \\lambda_{\\min} = \\frac{7 - \\sqrt{5}}{2}",
+      "result": null,
+      "method": "特征值排序"
+    },
+    {
+      "step_id": 4,
+      "description": "计算谱条件数",
+      "formula": "\\kappa_2(A) = \\frac{\\lambda_{\\max}}{\\lambda_{\\min}} = \\frac{7 + \\sqrt{5}}{7 - \\sqrt{5}} = \\frac{27 + 7\\sqrt{5}}{22}",
+      "result": null,
+      "method": "条件数定义"
+    }
+  ],
+  "methods_used": [
+    "特征值分析",
+    "谱范数条件数计算"
+  ],
+  "verification": {
+    "is_correct": true,
+    "confidence": 1.0,
+    "check_method": "Verified characteristic polynomial calculation: det(A - λI) = (4-λ)(3-λ) - 1 = λ² - 7λ + 11. Solved for eigenvalues: λ = (7 ± √5)/2. Since A is symmetric positive definite, κ₂(A) = λ_max/λ_min = (7+√5)/(7-√5). Rationalizing the denominator yields (54 + 14√5)/44 = (27 + 7√5)/22, which matches the provided final answer. The method of using spectral norm via eigenvalues is appropriate for symmetric matrices.",
+    "error_details": "No errors detected in the mathematical derivation or final result."
+  },
+  "educational_hint": "对于对称正定矩阵，2-范数条件数等于最大特征值与最小特征值之比。",
+  "computation_time_ms": 115923.04611206055,
+  "retry_count": 0,
+  "model_version": null,
+  "from_cache": false,
+  "cache_similarity": null,
+  "cache_matched_question": null,
+  "true_domain": null,
+  "ground_truth": null,
+  "answer_match": null
+}

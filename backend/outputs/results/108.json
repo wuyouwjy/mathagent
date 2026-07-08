@@ -1,0 +1,56 @@
+{
+  "question_id": "108",
+  "timestamp": "2026-07-08T00:27:54.141786",
+  "domain": "optimization",
+  "final_answer": "最终答案：通过单纯形法迭代，得到最优解 $x_1=2, x_2=3$，最大目标函数值 $z_{\\max}=21$。",
+  "reasoning_steps": [
+    {
+      "step_id": 1,
+      "description": "将不等式约束转化为等式约束，引入松弛变量 $s_1, s_2$",
+      "formula": "$x_1 + 2x_2 + s_1 = 8, \\quad 3x_1 + 2x_2 + s_2 = 12, \\quad z - 3x_1 - 5x_2 = 0$",
+      "result": null,
+      "method": "标准型转换"
+    },
+    {
+      "step_id": 2,
+      "description": "确定入基变量和出基变量，进行第一次迭代",
+      "formula": "入基：$x_2$ (检验数 $-5$)，出基：$s_1$ ($\\theta = \\min(8/2, 12/2) = 4$)",
+      "result": null,
+      "method": "单纯形迭代"
+    },
+    {
+      "step_id": 3,
+      "description": "更新单纯形表，确定第二次迭代的入基和出基变量",
+      "formula": "入基：$x_1$ (检验数 $-0.5$)，出基：$s_2$ ($\\theta = \\min(4/0.5, 4/2) = 2$)",
+      "result": null,
+      "method": "单纯形迭代"
+    },
+    {
+      "step_id": 4,
+      "description": "检查检验数是否非负，得出最优解",
+      "formula": "$z$ 行系数 $\\ge 0$，最优解 $x_1=2, x_2=3, z_{\\max}=21$",
+      "result": null,
+      "method": "最优性判定"
+    }
+  ],
+  "methods_used": [
+    "单纯形法",
+    "线性规划标准型"
+  ],
+  "verification": {
+    "is_correct": true,
+    "confidence": 1.0,
+    "check_method": "通过代入约束条件验证解的可行性，计算目标函数值，并复现单纯形法迭代步骤确认最优解。",
+    "error_details": "无。计算结果正确，约束条件均满足（$2+2\times3=8$, $3\times2+2\times3=12$），目标函数值 $3\times2+5\times3=21$ 为最大值。单纯形法迭代逻辑正确，最终检验数均非负，达到最优。"
+  },
+  "educational_hint": "单纯形法通过迭代移动可行域的顶点来优化目标函数。关键在于选择检验数最大的负数作为入基变量，并通过最小比值原则选择出基变量，直到所有检验数非负为止。",
+  "computation_time_ms": 152330.15966415405,
+  "retry_count": 0,
+  "model_version": null,
+  "from_cache": false,
+  "cache_similarity": null,
+  "cache_matched_question": null,
+  "true_domain": null,
+  "ground_truth": null,
+  "answer_match": null
+}

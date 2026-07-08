@@ -1,0 +1,35 @@
+{
+  "final_answer": "函数 $f(z)$ 在 $z=i$ 处的留数为 $-\\frac{i}{2}$，定积分 $\\int_{-\\infty}^{\\infty}\\frac{dx}{x^2+1}$ 的值为 $\\pi$。推导：留数 $\\mathrm{Res}(f,i)=\\frac{1}{2i}$，围道积分 $2\\pi i \\cdot \\mathrm{Res}(f,i) = \\pi$。",
+  "domain": "complex_analysis",
+  "reasoning_steps": [
+    {
+      "step_id": 1,
+      "description": "确定奇点类型并计算 z=i 处的留数",
+      "formula": "f(z)=\\frac{1}{z^2+1}=\\frac{1}{(z-i)(z+i)}，z=i 为一阶极点，\\mathrm{Res}(f, i)=\\lim_{z \\to i}(z-i)f(z)=\\frac{1}{2i}=-\\frac{i}{2}",
+      "result": null,
+      "method": "留数计算"
+    },
+    {
+      "step_id": 2,
+      "description": "选取上半平面半圆围道并应用留数定理计算实积分",
+      "formula": "\\oint_C f(z)dz = \\int_{-\\infty}^{\\infty}\\frac{dx}{x^2+1} = 2\\pi i \\cdot \\mathrm{Res}(f, i) = 2\\pi i \\cdot \\frac{1}{2i} = \\pi",
+      "result": null,
+      "method": "围道选择与留数定理"
+    }
+  ],
+  "methods_used": [
+    "留数计算",
+    "围道选择"
+  ],
+  "verification": {
+    "is_correct": true,
+    "confidence": 1.0,
+    "check_method": "ground_truth_match",
+    "error_details": ""
+  },
+  "educational_hint": "对于无穷区间上的有理函数积分，若分母次数高于分子次数至少 2 次，通常选取上半平面半圆围道。一阶极点留数可直接用 P(z)/Q'(z) 公式快速求得。",
+  "from_cache": true,
+  "question_id": "82",
+  "cache_similarity": 0.9999997615814209,
+  "cache_matched_question": "求函数$f(z)=\\frac{1}{z^2+1}$在$z=i$处的留数并计算$\\int_{-\\infty}^{\\infty}\\frac{dx}{x^2+1}$。"
+}

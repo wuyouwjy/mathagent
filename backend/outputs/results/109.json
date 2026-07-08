@@ -1,0 +1,50 @@
+{
+  "final_answer": "根据代数拓扑中的同调论，闭连通 $n$ 维流形 $M$ 可定向当且仅当其第 $n$ 个整系数同调群 $H_n(M; \\mathbb{Z})$ 同构于 $\\mathbb{Z}$。对于 $\\mathbb{R}P^2$，计算可得 $H_2(\\mathbb{R}P^2; \\mathbb{Z}) = 0$，因此它是不可定向的。",
+  "domain": "algebra",
+  "reasoning_steps": [
+    {
+      "step_id": 1,
+      "description": "陈述闭连通流形可定向的代数判据",
+      "formula": "$H_n(M; \\mathbb{Z}) \\cong \\mathbb{Z} \\iff M \\text{ 可定向}$",
+      "result": null,
+      "method": "代数拓扑定理"
+    },
+    {
+      "step_id": 2,
+      "description": "构建 $\\mathbb{R}P^2$ 的胞腔链复形",
+      "formula": "$0 \\to \\mathbb{Z} \\xrightarrow{\\times 2} \\mathbb{Z} \\xrightarrow{0} \\mathbb{Z} \\to 0$",
+      "result": null,
+      "method": "胞腔同调"
+    },
+    {
+      "step_id": 3,
+      "description": "计算第二同调群",
+      "formula": "$H_2(\\mathbb{R}P^2; \\mathbb{Z}) = \\ker(\\partial_2) = 0$",
+      "result": null,
+      "method": "同调群计算"
+    },
+    {
+      "step_id": 4,
+      "description": "比较结果与可定向条件",
+      "formula": "$0 \\not\\cong \\mathbb{Z}$",
+      "result": null,
+      "method": "逻辑推导"
+    }
+  ],
+  "methods_used": [
+    "代数拓扑",
+    "同调论",
+    "胞腔分解"
+  ],
+  "verification": {
+    "is_correct": true,
+    "confidence": 1.0,
+    "check_method": "ground_truth_match",
+    "error_details": ""
+  },
+  "educational_hint": "证明流形可定向性的代数判据是最高维整系数同调群是否非零。$\\mathbb{R}P^2$ 的胞腔结构导致边界映射为乘以 2，从而使得最高维同调群消失，表明存在反向定向的闭路。",
+  "from_cache": true,
+  "question_id": "109",
+  "cache_similarity": 1.0000001192092896,
+  "cache_matched_question": "证明$\\\\mathbb{R}P^2$是不可定向的二维流形。"
+}

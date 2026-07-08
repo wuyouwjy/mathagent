@@ -1,0 +1,56 @@
+{
+  "question_id": "106",
+  "timestamp": "2026-07-08T00:27:45.190826",
+  "domain": "algebra",
+  "final_answer": "调和函数 $u$ 满足平均值性质，即对于任意球 $B(x,r) \\subset \\Omega$，有 $u(x) = \\frac{1}{|\\partial B(x,r)|} \\int_{\\partial B(x,r)} u(y) dS$。",
+  "reasoning_steps": [
+    {
+      "step_id": 1,
+      "description": "设定调和函数定义及球面平均函数",
+      "formula": "$\\Delta u = 0, \\quad \\phi(r) = \\frac{1}{|\\partial B(x,r)|} \\int_{\\partial B(x,r)} u(y) dS$",
+      "result": null,
+      "method": "定义法"
+    },
+    {
+      "step_id": 2,
+      "description": "对球面平均函数关于半径求导并应用散度定理",
+      "formula": "$\\phi'(r) = \\frac{1}{|\\partial B(x,r)|} \\int_{\\partial B(x,r)} \\frac{\\partial u}{\\partial n} dS = \\frac{1}{|B(x,r)|} \\int_{B(x,r)} \\Delta u dy$",
+      "result": null,
+      "method": "散度定理"
+    },
+    {
+      "step_id": 3,
+      "description": "利用调和方程证明导数恒为零",
+      "formula": "$\\Delta u = 0 \\implies \\phi'(r) = 0$",
+      "result": null,
+      "method": "代入已知条件"
+    },
+    {
+      "step_id": 4,
+      "description": "通过极限论证得出平均值性质结论",
+      "formula": "$\\phi(r) = \\lim_{r \\to 0} \\phi(r) = u(x)$",
+      "result": null,
+      "method": "极限论证"
+    }
+  ],
+  "methods_used": [
+    "散度定理",
+    "极限论证"
+  ],
+  "verification": {
+    "is_correct": true,
+    "confidence": 0.9,
+    "check_method": "Verified the logical consistency of the proof steps against standard PDE theory. Confirmed that using the Divergence Theorem on the spherical mean derivative and the Laplace equation is the correct approach to prove the Mean Value Property. The final formula correctly states the surface mean value property.",
+    "error_details": "1. The mathematical field is mislabeled as algebra; this problem belongs to Partial Differential Equations or Mathematical Analysis. 2. The reasoning steps lack explicit mathematical formulas, making it impossible to verify the derivation rigorously, though the logical outline is correct."
+  },
+  "educational_hint": "证明的核心在于构造球面平均函数，利用散度定理将面积分转化为体积分，结合调和函数定义（拉普拉斯算子为零）证明平均值为常数，从而等于中心点函数值。",
+  "computation_time_ms": 192723.52266311646,
+  "retry_count": 0,
+  "model_version": null,
+  "from_cache": false,
+  "cache_similarity": null,
+  "cache_matched_question": null,
+  "true_domain": null,
+  "ground_truth": null,
+  "answer_match": null
+}

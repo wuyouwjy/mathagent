@@ -1,0 +1,50 @@
+{
+  "question_id": "59",
+  "timestamp": "2026-07-08T00:18:48.117721",
+  "domain": "topology",
+  "final_answer": "根据庞加莱 - 霍普夫定理，紧致光滑流形上任意光滑向量场的所有零点指数之和等于该流形的欧拉示性数。对于球面 $S^2$，其欧拉示性数 $\\chi(S^2) = 2$。若向量场无零点，则指数和为 $0$，导致 $0 = 2$ 的矛盾。因此，$S^2$ 上任何光滑向量场至少有一个零点。",
+  "reasoning_steps": [
+    {
+      "step_id": 1,
+      "description": "引用庞加莱 - 霍普夫定理建立向量场零点与欧拉示性数的联系",
+      "formula": "\\sum_{p \\in \\mathrm{Zero}(V)} \\mathrm{ind}_p(V) = \\chi(M)",
+      "result": null,
+      "method": "庞加莱 - 霍普夫定理"
+    },
+    {
+      "step_id": 2,
+      "description": "计算球面 $S^2$ 的欧拉示性数",
+      "formula": "\\chi(S^2) = 2",
+      "result": null,
+      "method": "欧拉示性数计算"
+    },
+    {
+      "step_id": 3,
+      "description": "假设向量场无零点导出矛盾",
+      "formula": "0 = 2 \\quad (\\text{矛盾})",
+      "result": null,
+      "method": "反证法"
+    }
+  ],
+  "methods_used": [
+    "庞加莱 - 霍普夫定理",
+    "欧拉示性数",
+    "反证法"
+  ],
+  "verification": {
+    "is_correct": true,
+    "confidence": 1.0,
+    "check_method": "验证庞加莱 - 霍普夫定理的适用条件（紧致无边流形），确认球面欧拉示性数计算正确，审查反证法逻辑链条是否完整。",
+    "error_details": "无。证明过程逻辑严密，定理引用准确，数值计算正确，结论有效。"
+  },
+  "educational_hint": "此结论被称为\"毛球定理\"（Hairy Ball Theorem）。直观上意味着无法抚平一个长满毛的球面而不留下至少一个旋涡或秃点。解题的关键在于理解向量场零点的拓扑性质（指数和）与流形整体拓扑结构（欧拉示性数）之间的深刻联系。",
+  "computation_time_ms": 127844.13313865662,
+  "retry_count": 0,
+  "model_version": null,
+  "from_cache": false,
+  "cache_similarity": null,
+  "cache_matched_question": null,
+  "true_domain": null,
+  "ground_truth": null,
+  "answer_match": null
+}

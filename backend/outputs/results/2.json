@@ -1,0 +1,29 @@
+{
+  "final_answer": "$R/I$ 为整环",
+  "domain": "algebra",
+  "reasoning_steps": [
+    {
+      "step_id": 1,
+      "description": "1. 回顾定义：素理想 $I$ 满足 $I \\\\neq R$ 且若 $ab \\\\in I$ 则 $a \\\\in I$ 或 $b \\\\in I$。整环是含幺交换环且无零因子。\n2. 交换性与单位元：因 $R$ 交换含幺，故 $R/I$ 也交换含幺，单位元为 $1+I$。由于 $I$ 是素理想，$I \\\\neq R$，故 $1+I \\\\neq 0+I$，即单位元不为零元。\n3. 零因子检验：设 $\\\\bar{a}, \\\\bar{b} \\\\in R/I$ 且 $\\\\bar{a}\\\\bar{b} = \\\\bar{0}$。这意味着 $(a+I)(b+I) = 0+I$，即 $ab \\\\in I$。\n4. 应用素理想性质：由 $ab \\\\in I$ 及 $I$ 为素理想，可得 $a \\\\in I$ 或 $b \\\\in I$。\n5. 结论：若 $a \\\\in I$ 则 $\\\\bar{a} = \\\\bar{0}$，若 $b \\\\in I$ 则 $\\\\bar{b} = \\\\bar{0}$。因此 $\\\\bar{a}\\\\bar{b} = \\\\bar{0} \\\\implies \\\\bar{a} = \\\\bar",
+      "formula": null,
+      "result": null,
+      "method": null
+    }
+  ],
+  "methods_used": [
+    "定义法",
+    "商环性质",
+    "素理想定义"
+  ],
+  "verification": {
+    "is_correct": true,
+    "confidence": 1.0,
+    "check_method": "ground_truth_match",
+    "error_details": ""
+  },
+  "educational_hint": "",
+  "from_cache": true,
+  "question_id": "2",
+  "cache_similarity": 1.000000238418579,
+  "cache_matched_question": "设$R$为含幺交换环，$I$为$R$的素理想。证明$R/I$为整环。"
+}

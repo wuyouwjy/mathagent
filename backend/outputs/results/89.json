@@ -1,0 +1,56 @@
+{
+  "final_answer": "通过积分因子法求得通解为 $y = 2 + Ce^{-x^2}$，代入初值 $y(0)=1$ 得 $C=-1$，故特解为 $y(x) = 2 - e^{-x^2}$。",
+  "domain": "ordinary_differential_equations",
+  "reasoning_steps": [
+    {
+      "step_id": 1,
+      "description": "识别方程为一阶线性非齐次微分方程，确定系数函数 P(x) 和 Q(x)。",
+      "formula": "y' + P(x)y = Q(x), \\quad P(x) = 2x, \\quad Q(x) = 4x",
+      "result": null,
+      "method": "方程类型识别"
+    },
+    {
+      "step_id": 2,
+      "description": "计算积分因子 \\mu(x)。",
+      "formula": "\\mu(x) = e^{\\int P(x)dx} = e^{\\int 2x dx} = e^{x^2}",
+      "result": null,
+      "method": "积分因子法"
+    },
+    {
+      "step_id": 3,
+      "description": "方程两边同乘积分因子并积分求通解。",
+      "formula": "(e^{x^2}y)' = 4xe^{x^2} \\implies e^{x^2}y = \\int 4xe^{x^2}dx = 2e^{x^2} + C",
+      "result": null,
+      "method": "积分求解"
+    },
+    {
+      "step_id": 4,
+      "description": "利用初值条件 y(0)=1 确定常数 C。",
+      "formula": "1 = 2 + C \\implies C = -1",
+      "result": null,
+      "method": "初值条件代入"
+    },
+    {
+      "step_id": 5,
+      "description": "写出最终的特解表达式。",
+      "formula": "y = 2 - e^{-x^2}",
+      "result": null,
+      "method": "整理结果"
+    }
+  ],
+  "methods_used": [
+    "积分因子法",
+    "初值问题求解"
+  ],
+  "verification": {
+    "is_correct": true,
+    "confidence": 1.0,
+    "check_method": "ground_truth_match",
+    "error_details": ""
+  },
+  "educational_hint": "一阶线性微分方程 y' + P(x)y = Q(x) 的标准解法是构造积分因子 \\mu(x) = e^{\\int P(x)dx}，将方程左边化为全导数形式 (\\mu y)'，随后通过积分求解。注意代入初始条件时需注意符号计算。",
+  "from_cache": true,
+  "question_id": "89",
+  "cache_similarity": 0.9999999403953552,
+  "cache_matched_question": "求解ODE：$y' + 2xy = 4x$, $y(0)=1$。"
+}

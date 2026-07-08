@@ -1,0 +1,1 @@
+invalid type: string "[{\"step_id\": 1, \"description\": \"定义调和函数及球面平均值函数 phi(r)。\", \"formula\": \"\\\\Delta u = 0, \\\\quad \\\\phi(r) = \\\\frac{1}{|\\\\partial B(x, r)|} \\\\int_{\\\\partial B(x, r)} u(y) \\\\, dS(y)\", \"result\": null, \"method\": \"定义法\"}, {\"step_id\": 2, \"description\": \"对球面平均值函数 phi(r) 关于半径 r 求导。\", \"on

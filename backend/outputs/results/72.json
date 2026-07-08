@@ -1,0 +1,57 @@
+{
+  "final_answer": "\\phi(t) = e^{-t^2/2}",
+  "domain": "probability",
+  "reasoning_steps": [
+    {
+      "step_id": 1,
+      "description": "写出标准正态分布的概率密度函数",
+      "formula": "f(x) = \\frac{1}{\\sqrt{2\\pi}} e^{-x^2/2}",
+      "result": null,
+      "method": "定义"
+    },
+    {
+      "step_id": 2,
+      "description": "根据特征函数定义列出积分表达式",
+      "formula": "\\phi(t) = \\int_{-\\infty}^{\\infty} e^{itx} f(x) dx",
+      "result": null,
+      "method": "特征函数定义"
+    },
+    {
+      "step_id": 3,
+      "description": "合并指数项并配方",
+      "formula": "-\\frac{x^2}{2} + itx = -\\frac{1}{2}(x - it)^2 - \\frac{t^2}{2}",
+      "result": null,
+      "method": "配方法"
+    },
+    {
+      "step_id": 4,
+      "description": "计算积分并利用高斯积分性质",
+      "formula": "\\int_{-\\infty}^{\\infty} e^{-\\frac{(x-it)^2}{2}} dx = \\sqrt{2\\pi}",
+      "result": null,
+      "method": "高斯积分"
+    },
+    {
+      "step_id": 5,
+      "description": "得出最终结果",
+      "formula": "\\phi(t) = e^{-t^2/2}",
+      "result": null,
+      "method": "化简"
+    }
+  ],
+  "methods_used": [
+    "特征函数定义",
+    "配方法",
+    "高斯积分"
+  ],
+  "verification": {
+    "is_correct": true,
+    "confidence": 1.0,
+    "check_method": "ground_truth_match",
+    "error_details": ""
+  },
+  "educational_hint": "标准正态分布的特征函数是概率论中的经典结论，体现了正态分布的可加性和稳定性，可通过傅里叶变换求得。",
+  "from_cache": true,
+  "question_id": "72",
+  "cache_similarity": 1.0,
+  "cache_matched_question": "求标准正态分布的特征函数$\\phi(t)=E[e^{itX}]$。"
+}

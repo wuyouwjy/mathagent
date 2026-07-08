@@ -1,0 +1,57 @@
+{
+  "final_answer": "\\sqrt{2} 是无理数",
+  "domain": "number_theory",
+  "reasoning_steps": [
+    {
+      "step_id": 1,
+      "description": "假设 \\sqrt{2} 是有理数，则存在互素的正整数 a, b 使得 \\sqrt{2} = a/b",
+      "formula": "\\sqrt{2} = \\frac{a}{b}, \\gcd(a, b) = 1",
+      "result": null,
+      "method": "有理数定义"
+    },
+    {
+      "step_id": 2,
+      "description": "两边平方并整理得到整数方程",
+      "formula": "a^2 = 2b^2",
+      "result": null,
+      "method": "代数变形"
+    },
+    {
+      "step_id": 3,
+      "description": "利用算术基本定理分析素数 2 的指数",
+      "formula": "v_2(a^2) = 2v_2(a) \\text{ 为偶数}, v_2(2b^2) = 1 + 2v_2(b) \\text{ 为奇数}",
+      "result": null,
+      "method": "算术基本定理"
+    },
+    {
+      "step_id": 4,
+      "description": "得出矛盾，假设不成立",
+      "formula": "\\text{偶数} \\neq \\text{奇数}",
+      "result": null,
+      "method": "反证法"
+    },
+    {
+      "step_id": 5,
+      "description": "结论：\\sqrt{2} 是无理数",
+      "formula": "\\sqrt{2} \\notin \\mathbb{Q}",
+      "result": null,
+      "method": "结论"
+    }
+  ],
+  "methods_used": [
+    "反证法",
+    "算术基本定理",
+    "互素性"
+  ],
+  "verification": {
+    "is_correct": true,
+    "confidence": 1.0,
+    "check_method": "ground_truth_match",
+    "error_details": ""
+  },
+  "educational_hint": "证明无理数通常采用反证法，结合算术基本定理中素因数分解的唯一性，通过比较等式两边特定素因子的指数奇偶性导出矛盾。",
+  "from_cache": true,
+  "question_id": "32",
+  "cache_similarity": 0.9999997019767761,
+  "cache_matched_question": "证明：$\\sqrt{2}$是无理数。"
+}

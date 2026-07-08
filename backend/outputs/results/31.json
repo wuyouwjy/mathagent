@@ -1,0 +1,21 @@
+{
+  "final_answer": "|S \\\\cup T| = |S|",
+  "domain": "algebra",
+  "reasoning_steps": [],
+  "methods_used": [
+    "构造双射法",
+    "基数运算",
+    "无限集性质"
+  ],
+  "verification": {
+    "is_correct": true,
+    "confidence": 1.0,
+    "check_method": "ground_truth_match",
+    "error_details": ""
+  },
+  "educational_hint": "此结论展示了无限集与有限集的本质区别。对于有限集，增加元素会改变基数；但对于无限集，增加一个可数集不会改变其基数。这类似于希尔伯特旅馆悖论：即使旅馆住满了人，只要房间数是无限的，仍可容纳新客人。证明的关键在于从无限集 $S$ 中“腾出”一个可数子集的空间来容纳 $T$。",
+  "from_cache": true,
+  "question_id": "31",
+  "cache_similarity": 1.000000238418579,
+  "cache_matched_question": "设$S$为无限集，$T$为可数集。证明$S \\cup T$与$S$等势。"
+}

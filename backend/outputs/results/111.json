@@ -1,0 +1,57 @@
+{
+  "final_answer": "函数 $f$ 可表示为两个单调增加函数之差。",
+  "domain": "real_analysis",
+  "reasoning_steps": [
+    {
+      "step_id": 1,
+      "description": "定义全变差函数 $V(x)$",
+      "formula": "V(x) = V_a^x(f) = \\\\sup_{P} \\\\sum_{i=1}^n |f(t_i) - f(t_{i-1})|",
+      "result": null,
+      "method": "有界变差定义"
+    },
+    {
+      "step_id": 2,
+      "description": "证明 $V(x)$ 单调增加",
+      "formula": "\\\\forall a \\\\le x < y \\\\le b, V(y) - V(x) = V_x^y(f) \\\\ge 0",
+      "result": null,
+      "method": "全变差的可加性"
+    },
+    {
+      "step_id": 3,
+      "description": "构造辅助函数 $g(x)$",
+      "formula": "g(x) = V(x) - f(x)",
+      "result": null,
+      "method": "函数构造法"
+    },
+    {
+      "step_id": 4,
+      "description": "证明 $g(x)$ 单调增加",
+      "formula": "g(y) - g(x) = V_x^y(f) - (f(y) - f(x)) \\\\ge |f(y) - f(x)| - (f(y) - f(x)) \\\\ge 0",
+      "result": null,
+      "method": "变差与函数差的不等式"
+    },
+    {
+      "step_id": 5,
+      "description": "得出结论",
+      "formula": "f(x) = V(x) - g(x)",
+      "result": null,
+      "method": "代数变形"
+    }
+  ],
+  "methods_used": [
+    "有界变差定义",
+    "全变差性质",
+    "Jordan 分解"
+  ],
+  "verification": {
+    "is_correct": true,
+    "confidence": 1.0,
+    "check_method": "ground_truth_match",
+    "error_details": ""
+  },
+  "educational_hint": "利用全变差函数构造单调函数是证明有界变差函数 Jordan 分解的标准方法。",
+  "from_cache": true,
+  "question_id": "111",
+  "cache_similarity": 1.0,
+  "cache_matched_question": "设$f$为$[a,b]$上的有界变差函数。证明$f$可表示为两个单调增加函数之差。"
+}

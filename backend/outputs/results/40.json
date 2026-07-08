@@ -1,0 +1,56 @@
+{
+  "question_id": "40",
+  "timestamp": "2026-07-08T00:14:32.763970",
+  "domain": "numerical_analysis",
+  "final_answer": "2.8",
+  "reasoning_steps": [
+    {
+      "step_id": 1,
+      "description": "初始化矩阵 A 和初始向量 v0",
+      "formula": "A=[[2,1],[1,2]], v0=[1,0]^T",
+      "result": null,
+      "method": "初始化"
+    },
+    {
+      "step_id": 2,
+      "description": "第一次迭代：计算 Av0 并归一化",
+      "formula": "v1'=[2,1]^T, lambda1=2, v1=[1,0.5]^T",
+      "result": null,
+      "method": "幂法迭代"
+    },
+    {
+      "step_id": 3,
+      "description": "第二次迭代：计算 Av1 并归一化",
+      "formula": "v2'=[2.5,2]^T, lambda2=2.5, v2=[1,0.8]^T",
+      "result": null,
+      "method": "幂法迭代"
+    },
+    {
+      "step_id": 4,
+      "description": "第三次迭代：计算 Av2 并归一化",
+      "formula": "v3'=[2.8,2.6]^T, lambda3=2.8, v3=[1,13/14]^T",
+      "result": null,
+      "method": "幂法迭代"
+    }
+  ],
+  "methods_used": [
+    "幂法",
+    "矩阵向量乘法"
+  ],
+  "verification": {
+    "is_correct": true,
+    "confidence": 0.95,
+    "check_method": "Re-calculated the power method iterations manually. Using infinity norm normalization (max absolute value), the eigenvalue approximations after 1, 2, and 3 iterations are 2, 2.5, and 2.8 respectively. The final answer 2.8 is correct.",
+    "error_details": "No mathematical errors found. The steps logically follow the power method. The only minor omission is not specifying the norm used for normalization, but the result implies infinity norm."
+  },
+  "educational_hint": "幂法通过不断左乘矩阵并取最大分量作为特征值近似，向量归一化防止数值溢出。",
+  "computation_time_ms": 146397.5214958191,
+  "retry_count": 0,
+  "model_version": null,
+  "from_cache": false,
+  "cache_similarity": null,
+  "cache_matched_question": null,
+  "true_domain": null,
+  "ground_truth": null,
+  "answer_match": null
+}

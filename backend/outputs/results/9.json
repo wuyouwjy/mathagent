@@ -1,0 +1,63 @@
+{
+  "question_id": "9",
+  "timestamp": "2026-07-08T00:09:54.762292",
+  "domain": "combinatorics",
+  "final_answer": "证明完成：任意 6 个人中必有 3 人互相认识或 3 人互相不认识。",
+  "reasoning_steps": [
+    {
+      "step_id": 1,
+      "description": "建立图论模型，将 6 个人视为完全图 K6 的顶点，两人关系视为边，认识染红色，不认识染蓝色",
+      "formula": "G=(V, E), |V|=6, 边集 E 染红/蓝",
+      "result": null,
+      "method": "图论建模"
+    },
+    {
+      "step_id": 2,
+      "description": "任选一个顶点 v，它与其他 5 个顶点相连，共有 5 条边",
+      "formula": "d(v) = 5",
+      "result": null,
+      "method": "图论性质"
+    },
+    {
+      "step_id": 3,
+      "description": "应用鸽巢原理，5 条边分为 2 种颜色，必有至少 ceil(5/2)=3 条边颜色相同",
+      "formula": "\\lceil 5/2 \\rceil = 3",
+      "result": null,
+      "method": "鸽巢原理"
+    },
+    {
+      "step_id": 4,
+      "description": "设这 3 条同色边连接的顶点为 u1, u2, u3，考察 u1, u2, u3 之间的边。若其中有一条边与 v 连出的边同色，则构成同色三角形；否则 u1, u2, u3 之间全为异色边，构成另一种颜色的三角形",
+      "formula": "\\text{单色三角形存在}",
+      "result": null,
+      "method": "分类讨论"
+    },
+    {
+      "step_id": 5,
+      "description": "结论：必然存在单色三角形，即 3 人互相认识或 3 人互相不认识，这是拉姆齐数 R(3,3)=6 的体现",
+      "formula": "R(3,3)=6",
+      "result": null,
+      "method": "拉姆齐理论"
+    }
+  ],
+  "methods_used": [
+    "鸽巢原理",
+    "拉姆齐理论"
+  ],
+  "verification": {
+    "is_correct": true,
+    "confidence": 0.99,
+    "check_method": "Verified the standard Ramsey Theory proof for R(3,3). Confirmed the graph modeling (K6), the application of the Pigeonhole Principle on the 5 edges incident to a vertex, and the case analysis regarding the triangle formed by the neighbors connected by same-colored edges.",
+    "error_details": "The proof is logically sound and mathematically correct. There are no errors in the derivation or logic. The phrasing in Step 4 ('全为异色边') is slightly informal but correctly implies that if no edge among the neighbors shares the color with the edges from v, then all edges among the neighbors must be the opposite color, forming the second monochromatic triangle."
+  },
+  "educational_hint": "将实际问题转化为图论模型，利用鸽巢原理分析顶点的邻接边颜色，这是拉姆齐理论中最经典的 R(3,3)=6 问题。",
+  "computation_time_ms": 115846.71902656555,
+  "retry_count": 0,
+  "model_version": null,
+  "from_cache": false,
+  "cache_similarity": null,
+  "cache_matched_question": null,
+  "true_domain": null,
+  "ground_truth": null,
+  "answer_match": null
+}

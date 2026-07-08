@@ -1,0 +1,57 @@
+{
+  "final_answer": "\\sigma^2 (X^T X)^{-1}",
+  "domain": "statistics",
+  "reasoning_steps": [
+    {
+      "step_id": 1,
+      "description": "写出普通最小二乘法（OLS）估计量的矩阵表达式",
+      "formula": "\\hat{\\beta} = (X^T X)^{-1} X^T Y",
+      "result": null,
+      "method": null
+    },
+    {
+      "step_id": 2,
+      "description": "将模型 Y=X\\beta+\\varepsilon 代入估计量表达式",
+      "formula": "\\hat{\\beta} = \\beta + (X^T X)^{-1} X^T \\varepsilon",
+      "result": null,
+      "method": null
+    },
+    {
+      "step_id": 3,
+      "description": "利用协方差矩阵的线性变换性质计算 Var(\\hat{\\beta})",
+      "formula": "Var(\\hat{\\beta}) = (X^T X)^{-1} X^T Var(\\varepsilon) X (X^T X)^{-1}",
+      "result": null,
+      "method": null
+    },
+    {
+      "step_id": 4,
+      "description": "代入误差项协方差假设 Var(\\varepsilon)=\\sigma^2 I",
+      "formula": "Var(\\varepsilon) = \\sigma^2 I_n",
+      "result": null,
+      "method": null
+    },
+    {
+      "step_id": 5,
+      "description": "化简矩阵乘积得到最终结果",
+      "formula": "Var(\\hat{\\beta}) = \\sigma^2 (X^T X)^{-1}",
+      "result": null,
+      "method": null
+    }
+  ],
+  "methods_used": [
+    "最小二乘法",
+    "矩阵代数",
+    "方差性质"
+  ],
+  "verification": {
+    "is_correct": true,
+    "confidence": 1.0,
+    "check_method": "ground_truth_match",
+    "error_details": ""
+  },
+  "educational_hint": "该结果表明估计精度受设计矩阵 X 的信息量（X^T X 的逆）和误差方差 \\sigma^2 影响。",
+  "from_cache": true,
+  "question_id": "103",
+  "cache_similarity": 1.0,
+  "cache_matched_question": "对多元线性回归$Y=X\\beta+\\varepsilon$，求$\\hat{\\beta}$的协方差矩阵。"
+}

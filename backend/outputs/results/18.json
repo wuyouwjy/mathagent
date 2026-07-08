@@ -1,0 +1,42 @@
+{
+  "final_answer": "命题得证：n 个顶点 m 条边的简单平面图满足 m <= 3n - 6 (n >= 3)",
+  "domain": "combinatorics",
+  "reasoning_steps": [
+    {
+      "step_id": 1,
+      "description": "应用欧拉公式联系顶点数、边数和面数",
+      "formula": "n - m + f = 2",
+      "result": null,
+      "method": null
+    },
+    {
+      "step_id": 2,
+      "description": "根据简单平面图性质，每个面至少由 3 条边围成",
+      "formula": "3f \\le 2m",
+      "result": null,
+      "method": null
+    },
+    {
+      "step_id": 3,
+      "description": "将 f 代入不等式并整理得到 m 的上界",
+      "formula": "3(2 - n + m) \\le 2m \\Rightarrow m \\le 3n - 6",
+      "result": null,
+      "method": null
+    }
+  ],
+  "methods_used": [
+    "欧拉公式",
+    "不等式推导"
+  ],
+  "verification": {
+    "is_correct": true,
+    "confidence": 1.0,
+    "check_method": "ground_truth_match",
+    "error_details": ""
+  },
+  "educational_hint": "证明的关键在于利用欧拉公式 n-m+f=2 以及简单平面图中每个面至少包含 3 条边的性质（3f <= 2m）。",
+  "from_cache": true,
+  "question_id": "18",
+  "cache_similarity": 1.0000001192092896,
+  "cache_matched_question": "证明：$n$个顶点$m$条边的平面图满足$m \\le 3n - 6$（$n \\ge 3$）。"
+}

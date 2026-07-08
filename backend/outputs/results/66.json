@@ -1,0 +1,17 @@
+{
+  "final_answer": "\": \"3\",",
+  "domain": "probability",
+  "reasoning_steps": [],
+  "methods_used": [],
+  "verification": {
+    "is_correct": true,
+    "confidence": 1.0,
+    "check_method": "ground_truth_match",
+    "error_details": ""
+  },
+  "educational_hint": "",
+  "from_cache": true,
+  "question_id": "66",
+  "cache_similarity": 1.0000005960464478,
+  "cache_matched_question": "设随机变量$X \\sim N(0,1)$，求$E[X^4]$。"
+}

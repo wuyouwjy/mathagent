@@ -1,0 +1,49 @@
+{
+  "final_answer": "2^{\\frac{n(n-1)}{2}}",
+  "domain": "combinatorics",
+  "reasoning_steps": [
+    {
+      "step_id": 1,
+      "description": "Calculate the total number of ordered pairs in the Cartesian product S \\times S.",
+      "formula": "|S \\\\times S| = n^2",
+      "result": null,
+      "method": "Cartesian Product"
+    },
+    {
+      "step_id": 2,
+      "description": "Apply the reflexivity condition which requires all diagonal elements (i, i) to be in the relation.",
+      "formula": "Diagonal pairs = n, choices = 1",
+      "result": null,
+      "method": "Constraint Application"
+    },
+    {
+      "step_id": 3,
+      "description": "Apply the symmetry condition which couples off-diagonal elements (i, j) and (j, i) for i \\neq j.",
+      "formula": "Number of off-diagonal pairs = \\\\binom{n}{2} = \\\\frac{n(n-1)}{2}",
+      "result": null,
+      "method": "Symmetry Analysis"
+    },
+    {
+      "step_id": 4,
+      "description": "Calculate the total number of valid relations by multiplying the number of choices for independent components.",
+      "formula": "Total = 1^n \\\\times 2^{\\\\binom{n}{2}} = 2^{\\\\frac{n(n-1)}{2}}",
+      "result": null,
+      "method": "Multiplication Principle"
+    }
+  ],
+  "methods_used": [
+    "Combinatorial Counting",
+    "Constraint Analysis"
+  ],
+  "verification": {
+    "is_correct": true,
+    "confidence": 1.0,
+    "check_method": "ground_truth_match",
+    "error_details": ""
+  },
+  "educational_hint": "Reflexive relations fix the diagonal entries, while symmetric relations treat off-diagonal entries as coupled pairs, reducing the degrees of freedom to the number of unique pairs.",
+  "from_cache": true,
+  "question_id": "17",
+  "cache_similarity": 1.0000004768371582,
+  "cache_matched_question": "设$S$为$n$元集，求$S$上自反且对称的关系的个数。"
+}

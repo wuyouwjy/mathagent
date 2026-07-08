@@ -1,0 +1,58 @@
+{
+  "question_id": "26",
+  "timestamp": "2026-07-08T00:12:26.362337",
+  "domain": "number_theory",
+  "final_answer": "存在整数 a, b 使得 p = a^2 + b^2",
+  "reasoning_steps": [
+    {
+      "step_id": 1,
+      "description": "由 Euler 准则，因 p ≡ 1 (mod 4)，故 (-1)^((p-1)/2) ≡ 1 (mod p)，存在 x 使 x^2 ≡ -1 (mod p)",
+      "formula": "(-1)^{\\frac{p-1}{2}} \\equiv 1 \\pmod{p}",
+      "result": null,
+      "method": null
+    },
+    {
+      "step_id": 2,
+      "description": "考虑 (⌊√p⌋+1)^2 个大于 p 的整数对，由鸽巢原理存在不同对 (u1, v1), (u2, v2) 满足 u1 + x v1 ≡ u2 + x v2 (mod p)",
+      "formula": "u_1 + x v_1 \\equiv u_2 + x v_2 \\pmod{p}",
+      "result": null,
+      "method": null
+    },
+    {
+      "step_id": 3,
+      "description": "令 a = u1 - u2, b = v2 - v1，则 a ≡ -xb (mod p)，代入得 a^2 + b^2 ≡ 0 (mod p)",
+      "formula": "a^2 + b^2 \\equiv 0 \\pmod{p}",
+      "result": null,
+      "method": null
+    },
+    {
+      "step_id": 4,
+      "description": "因 |a|, |b| < √p，故 0 < a^2 + b^2 < 2p，结合 p | (a^2 + b^2) 得 a^2 + b^2 = p",
+      "formula": "0 < a^2 + b^2 < 2p",
+      "result": null,
+      "method": null
+    }
+  ],
+  "methods_used": [
+    "Euler 准则",
+    "鸽巢原理",
+    "同余性质",
+    "放缩法"
+  ],
+  "verification": {
+    "is_correct": true,
+    "confidence": 0.95,
+    "check_method": "基于数论标准定理（费马平方和定理）的证明逻辑，逐一验证欧拉准则的应用、鸽巢原理的条件满足、同余变换的正确性以及不等式放缩的边界分析。",
+    "error_details": "Step 2 描述存在语病，'大于 p 的整数对'表述错误，应为'取值范围在 [0, ⌊√p⌋] 内的整数对'。Step 3 中由同余式推导出的符号关系 a ≡ xb (mod p) 与文中 a ≡ -xb (mod p) 不一致，虽不影响最终平方和同余结论，但推导细节有误。"
+  },
+  "educational_hint": "这是费马平方和定理的证明。核心在于利用 p≡1(mod 4) 构造 -1 的模平方根，再利用鸽巢原理找到较小的平方和倍数。",
+  "computation_time_ms": 151325.73223114014,
+  "retry_count": 0,
+  "model_version": null,
+  "from_cache": false,
+  "cache_similarity": null,
+  "cache_matched_question": null,
+  "true_domain": null,
+  "ground_truth": null,
+  "answer_match": null
+}

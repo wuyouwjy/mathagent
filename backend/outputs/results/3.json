@@ -1,0 +1,24 @@
+{
+  "question_id": "3",
+  "timestamp": "2026-07-08T00:09:56.960174",
+  "domain": "algebra",
+  "final_answer": "\": \"多项式 f(x)=x^4-2x^3+3x^2-4x+5 在有理数域 \\mathbb{Q} 上的 Galois 群是对称群 S_4。\",",
+  "reasoning_steps": [],
+  "methods_used": [],
+  "verification": {
+    "is_correct": false,
+    "confidence": 0.3,
+    "check_method": "parse_error",
+    "error_details": "LLM 返回无法解析"
+  },
+  "educational_hint": "",
+  "computation_time_ms": 136399.3411064148,
+  "retry_count": 1,
+  "model_version": null,
+  "from_cache": false,
+  "cache_similarity": null,
+  "cache_matched_question": null,
+  "true_domain": null,
+  "ground_truth": null,
+  "answer_match": null
+}

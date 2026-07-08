@@ -1,0 +1,49 @@
+{
+  "final_answer": "0.742984",
+  "domain": "numerical_analysis",
+  "reasoning_steps": [
+    {
+      "step_id": 1,
+      "description": "计算步长 h",
+      "formula": "h = (1-0)/4 = 0.25",
+      "result": null,
+      "method": "梯形法则"
+    },
+    {
+      "step_id": 2,
+      "description": "计算节点函数值",
+      "formula": "f(0)=1, f(0.25)≈0.939413, f(0.5)≈0.778801, f(0.75)≈0.569783, f(1)≈0.367879",
+      "result": null,
+      "method": "函数求值"
+    },
+    {
+      "step_id": 3,
+      "description": "代入梯形公式",
+      "formula": "T_4 = (0.25/2) * [1 + 2*(0.939413+0.778801+0.569783) + 0.367879]",
+      "result": null,
+      "method": "梯形法则"
+    },
+    {
+      "step_id": 4,
+      "description": "计算最终结果",
+      "formula": "T_4 ≈ 0.742984",
+      "result": null,
+      "method": "数值计算"
+    }
+  ],
+  "methods_used": [
+    "梯形法则",
+    "数值积分"
+  ],
+  "verification": {
+    "is_correct": true,
+    "confidence": 1.0,
+    "check_method": "ground_truth_match",
+    "error_details": ""
+  },
+  "educational_hint": "梯形法则通过将区间分割为 n 个小梯形，利用公式 T_n = h/2 * [f(x_0) + 2Σf(x_i) + f(x_n)] 近似计算定积分。",
+  "from_cache": true,
+  "question_id": "34",
+  "cache_similarity": 1.000000238418579,
+  "cache_matched_question": "利用梯形法则将$[0,1]$等分为$4$份，求$\\int_0^1 e^{-x^2}dx$的近似值。"
+}

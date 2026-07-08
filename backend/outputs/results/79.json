@@ -1,0 +1,57 @@
+{
+  "final_answer": "种群以概率 1 灭绝",
+  "domain": "probability",
+  "reasoning_steps": [
+    {
+      "step_id": 1,
+      "description": "定义后代数的概率生成函数",
+      "formula": "G(s) = E[s^X] = \\sum_{k=0}^{\\infty} p_k s^k",
+      "result": null,
+      "method": "概率生成函数"
+    },
+    {
+      "step_id": 2,
+      "description": "灭绝概率 q 是方程 s=G(s) 的最小非负根",
+      "formula": "q = G(q)",
+      "result": null,
+      "method": "不动点定理"
+    },
+    {
+      "step_id": 3,
+      "description": "利用 G(s) 的凸性建立不等式",
+      "formula": "G(s) \\ge G(1) + G'(1)(s-1) = 1 + \\mu(s-1)",
+      "result": null,
+      "method": "凸函数性质"
+    },
+    {
+      "step_id": 4,
+      "description": "分析 s=G(s) 在 [0,1) 上的解",
+      "formula": "G(s) - s \\ge (1-\\mu)(1-s)",
+      "result": null,
+      "method": "不等式分析"
+    },
+    {
+      "step_id": 5,
+      "description": "得出结论 q=1",
+      "formula": "当 \\mu \\le 1 时，唯一根为 s=1",
+      "result": null,
+      "method": "极限与根的分析"
+    }
+  ],
+  "methods_used": [
+    "概率生成函数",
+    "凸函数性质",
+    "不动点定理"
+  ],
+  "verification": {
+    "is_correct": true,
+    "confidence": 1.0,
+    "check_method": "ground_truth_match",
+    "error_details": ""
+  },
+  "educational_hint": "分支过程灭绝概率由后代分布的概率生成函数方程 s=G(s) 的最小非负根决定。利用凸函数性质可证明当均值 \\mu \\le 1 时，唯一根为 1。",
+  "from_cache": true,
+  "question_id": "79",
+  "cache_similarity": 1.0000001192092896,
+  "cache_matched_question": "设分支过程中后代数的均值为$\\mu$。证明若$\\mu \\le 1$则种群以概率$1$灭绝。"
+}

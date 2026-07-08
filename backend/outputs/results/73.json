@@ -1,0 +1,50 @@
+{
+  "question_id": "73",
+  "timestamp": "2026-07-08T00:19:53.299465",
+  "domain": "probability",
+  "final_answer": "期望为 15/8，方差为 225/448",
+  "reasoning_steps": [
+    {
+      "step_id": 1,
+      "description": "定义随机变量并识别分布类型",
+      "formula": "X ~ H(N=8, K=5, n=3)",
+      "result": null,
+      "method": "超几何分布识别"
+    },
+    {
+      "step_id": 2,
+      "description": "计算红球个数的期望",
+      "formula": "E[X] = n * (K/N) = 3 * (5/8) = 15/8",
+      "result": null,
+      "method": "超几何分布期望公式"
+    },
+    {
+      "step_id": 3,
+      "description": "计算红球个数的方差",
+      "formula": "Var(X) = n * (K/N) * ((N-K)/N) * ((N-n)/(N-1)) = 3 * (5/8) * (3/8) * (5/7) = 225/448",
+      "result": null,
+      "method": "超几何分布方差公式"
+    }
+  ],
+  "methods_used": [
+    "超几何分布",
+    "期望公式",
+    "方差公式"
+  ],
+  "verification": {
+    "is_correct": true,
+    "confidence": 1.0,
+    "check_method": "使用超几何分布公式进行验证。总体 N=8（5 红 +3 蓝），成功状态 K=5（红球），抽样数 n=3。期望 E[X] = n * (K/N) = 3 * (5/8) = 15/8。方差 Var[X] = n * (K/N) * ((N-K)/N) * ((N-n)/(N-1)) = 3 * (5/8) * (3/8) * (5/7) = 225/448。计算结果与给定答案完全一致。",
+    "error_details": "无"
+  },
+  "educational_hint": "本题属于不放回抽样问题，红球数量服从超几何分布。直接套用超几何分布的期望与方差公式即可求解，无需逐个计算概率质量函数。",
+  "computation_time_ms": 72890.32626152039,
+  "retry_count": 0,
+  "model_version": null,
+  "from_cache": false,
+  "cache_similarity": null,
+  "cache_matched_question": null,
+  "true_domain": null,
+  "ground_truth": null,
+  "answer_match": null
+}

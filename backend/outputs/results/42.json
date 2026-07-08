@@ -1,0 +1,57 @@
+{
+  "question_id": "42",
+  "timestamp": "2026-07-08T00:17:20.482263",
+  "domain": "numerical_analysis",
+  "final_answer": "Q = \\\\begin{pmatrix} \\\\frac{3}{\\\\sqrt{13}} & \\\\frac{2}{\\\\sqrt{13}} \\\\\\\\ \\\\frac{2}{\\\\sqrt{13}} & -\\\\frac{3}{\\\\sqrt{13}} \\\\end{pmatrix}, R = \\\\begin{pmatrix} \\\\sqrt{13} & \\\\frac{6}{\\\\sqrt{13}} \\\\\\\\ 0 & \\\\frac{4}{\\\\sqrt{13}} \\\\end{pmatrix}",
+  "reasoning_steps": [
+    {
+      "step_id": 1,
+      "description": "定义矩阵 A 并提取第一列向量 x",
+      "formula": "x = \\\\begin{pmatrix} 3 \\\\\\\\ 2 \\\\end{pmatrix}",
+      "result": null,
+      "method": "矩阵列提取"
+    },
+    {
+      "step_id": 2,
+      "description": "计算 Householder 向量 v",
+      "formula": "v = x - \\\\sigma e_1, \\\\sigma = \\\\|x\\\\| = \\\\sqrt{13}",
+      "result": null,
+      "method": "Householder 变换构造"
+    },
+    {
+      "step_id": 3,
+      "description": "构造 Householder 矩阵 H",
+      "formula": "H = I - 2\\\\frac{vv^T}{v^T v}",
+      "result": null,
+      "method": "反射矩阵计算"
+    },
+    {
+      "step_id": 4,
+      "description": "计算 QR 分解结果",
+      "formula": "Q = H, R = HA",
+      "result": null,
+      "method": "矩阵乘法"
+    }
+  ],
+  "methods_used": [
+    "Householder 变换",
+    "矩阵乘法",
+    "正交矩阵性质"
+  ],
+  "verification": {
+    "is_correct": true,
+    "confidence": 1.0,
+    "check_method": "验证了矩阵乘积 A=QR 成立（逐元素核对），检查了 Q 矩阵的正交性（Q^T Q = I 且 Q 对称），检查了 R 矩阵的上三角性质（R_21=0），并确认 Q 符合 Householder 矩阵定义（Q^2=I，det(Q)=-1）。所有数值计算准确，符合 Householder QR 分解的数学定义。",
+    "error_details": "无"
+  },
+  "educational_hint": "Householder 变换通过构造反射矩阵将向量映射到坐标轴方向，从而将矩阵化为上三角形式，保持正交性。",
+  "computation_time_ms": 271432.85751342773,
+  "retry_count": 0,
+  "model_version": null,
+  "from_cache": false,
+  "cache_similarity": null,
+  "cache_matched_question": null,
+  "true_domain": null,
+  "ground_truth": null,
+  "answer_match": null
+}

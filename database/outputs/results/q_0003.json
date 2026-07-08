@@ -1,0 +1,57 @@
+{
+  "final_answer": "u(x,t) = e^{-\\pi^2 t} \\sin(\\pi x)",
+  "domain": "partial_differential_equations",
+  "reasoning_steps": [
+    {
+      "step_id": 1,
+      "description": "识别方程类型：一维热传导方程，抛物型，齐次狄利克雷边界条件。可采用分离变量法求解。",
+      "formula": "\\frac{\\partial u}{\\partial t} = \\frac{\\partial^2 u}{\\partial x^2}, \\quad u(0,t)=u(1,t)=0, \\quad u(x,0)=\\sin(\\pi x)",
+      "result": null,
+      "method": "分离变量法"
+    },
+    {
+      "step_id": 2,
+      "description": "设解形式为 u(x,t) = X(x)T(t)，代入方程并分离变量，得到两个常微分方程。令分离常数为 -\\lambda。",
+      "formula": "\\frac{X''}{X} = \\frac{T'}{T} = -\\lambda",
+      "result": null,
+      "method": "分离变量"
+    },
+    {
+      "step_id": 3,
+      "description": "求解空间部分：X'' + \\lambda X = 0，X(0)=X(1)=0。得到特征值 \\lambda_n = n^2\\pi^2 及特征函数。",
+      "formula": "\\lambda_n = n^2\\pi^2, \\quad X_n(x) = \\sin(n\\pi x), \\quad n=1,2,\\dots",
+      "result": null,
+      "method": "边值问题求解"
+    },
+    {
+      "step_id": 4,
+      "description": "求解时间部分：T' + \\lambda_n T = 0，得到 T_n(t) = e^{-\\lambda_n t}。由线性叠加原理写出一般解。",
+      "formula": "T_n(t) = e^{-n^2\\pi^2 t}, \\quad u(x,t) = \\sum_{n=1}^{\\infty} b_n e^{-n^2\\pi^2 t} \\sin(n\\pi x)",
+      "result": null,
+      "method": "常微分方程求解"
+    },
+    {
+      "step_id": 5,
+      "description": "利用初始条件 u(x,0) = \\sin(\\pi x) 确定系数。比较得 b_1 = 1，其余 b_n = 0。最终解为第一项。",
+      "formula": "u(x,0) = \\sum b_n \\sin(n\\pi x) = \\sin(\\pi x) \\implies b_1=1 \\implies u(x,t)=e^{-\\pi^2 t}\\sin(\\pi x)",
+      "result": null,
+      "method": "傅里叶级数展开"
+    }
+  ],
+  "methods_used": [
+    "分离变量法",
+    "特征值问题",
+    "傅里叶级数"
+  ],
+  "verification": {
+    "is_correct": true,
+    "confidence": 1.0,
+    "check_method": "代入原方程验证、边界条件与初始条件检验，以及分离变量法标准步骤的逻辑审查。",
+    "error_details": "[无]"
+  },
+  "educational_hint": "初始条件恰为第一特征函数 sin(πx)，因此解中仅保留 n=1 的模式，所有更高模式系数为0，解的形式极为简洁。",
+  "from_cache": true,
+  "question_id": "q_0003",
+  "cache_similarity": 1.0000004768371582,
+  "cache_matched_question": "求解偏微分方程 $\\frac{\\partial u}{\\partial t} = \\frac{\\partial^2 u}{\\partial x^2}$, $u(0,t)=u(1,t)=0$, $u(x,0)=\\sin(\\pi x)$"
+}

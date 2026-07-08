@@ -1,0 +1,55 @@
+{
+  "question_id": "33",
+  "timestamp": "2026-07-08T00:12:48.947487",
+  "domain": "numerical_analysis",
+  "final_answer": "1.732051",
+  "reasoning_steps": [
+    {
+      "step_id": 1,
+      "description": "构造方程 f(x)=x^2-3=0，导出 Newton 迭代公式",
+      "formula": "x_{n+1} = \\frac{1}{2}\\left(x_n + \\frac{3}{x_n}\\right)",
+      "result": null,
+      "method": "Newton 法"
+    },
+    {
+      "step_id": 2,
+      "description": "第一次迭代：代入 x_0=2",
+      "formula": "x_1 = \\frac{1}{2}(2 + \\frac{3}{2}) = 1.75",
+      "result": null,
+      "method": "Newton 法"
+    },
+    {
+      "step_id": 3,
+      "description": "第二次迭代：代入 x_1=1.75",
+      "formula": "x_2 = \\frac{1}{2}(1.75 + \\frac{3}{1.75}) = \\frac{97}{56} \\approx 1.732143",
+      "result": null,
+      "method": "Newton 法"
+    },
+    {
+      "step_id": 4,
+      "description": "第三次迭代：代入 x_2=97/56",
+      "formula": "x_3 = \\frac{1}{2}(\\frac{97}{56} + \\frac{168}{97}) = \\frac{18817}{10864} \\approx 1.732051",
+      "result": null,
+      "method": "Newton 法"
+    }
+  ],
+  "methods_used": [
+    "Newton 法"
+  ],
+  "verification": {
+    "is_correct": false,
+    "confidence": 0.3,
+    "check_method": "parse_error",
+    "error_details": "LLM 返回无法解析"
+  },
+  "educational_hint": "Newton 法求平方根具有二次收敛性，初始值 x_0=2 接近 \\sqrt{3}，收敛迅速。",
+  "computation_time_ms": 130358.7474822998,
+  "retry_count": 1,
+  "model_version": null,
+  "from_cache": false,
+  "cache_similarity": null,
+  "cache_matched_question": null,
+  "true_domain": null,
+  "ground_truth": null,
+  "answer_match": null
+}
