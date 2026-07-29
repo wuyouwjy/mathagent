@@ -84,6 +84,7 @@ class WorkflowState(TypedDict):
 
     # --- 缓存相关 ---
     skip_cache: bool                              # 是否跳过缓存（benchmark模式）
+    skip_cache_save: bool                         # 是否跳过缓存保存（benchmark模式由外部统一保存）
     cache_hit: bool                               # 是否命中缓存
     cache_similarity: float                       # 缓存命中相似度
     cache_matched_question: str                   # 缓存匹配到的问题
@@ -98,6 +99,7 @@ def create_initial_state(
     question_text: str,
     max_reflection_count: int = 3,
     skip_cache: bool = False,
+    skip_cache_save: bool = False,
 ) -> WorkflowState:
     """
     创建初始工作流状态
@@ -106,6 +108,8 @@ def create_initial_state(
         question_id: 题目唯一ID
         question_text: 原始问题文本
         max_reflection_count: 最大反思重试次数，默认3次
+        skip_cache: 是否跳过缓存检查（benchmark不使用答案库时设为True）
+        skip_cache_save: 是否跳过缓存保存（benchmark使用答案库时设为True，由外部ground truth验证后保存）
 
     返回:
         WorkflowState: 初始化的状态字典
@@ -156,6 +160,7 @@ def create_initial_state(
 
         # 缓存
         skip_cache=skip_cache,
+        skip_cache_save=skip_cache_save,
         cache_hit=False,
         cache_similarity=0.0,
         cache_matched_question="",

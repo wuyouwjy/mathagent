@@ -34,15 +34,18 @@ def cache_check_node(state: Dict[str, Any]) -> Dict[str, Any]:
         if hit.is_hit and hit.cached_solution:
             cached = hit.cached_solution
 
-            # 只有经过 ground_truth 验证正确的答案才能从数据库读取
+            # 只有验证通过的正确答案才能从数据库读取
+            # 接受 ground_truth_match 和 llm_verify_match 两种验证方式
             cached_verification = cached.get("verification", {})
             is_verified_correct = (
-                cached_verification.get("check_method") == "ground_truth_match"
-                and cached_verification.get("is_correct") is True
+                cached_verification.get("is_correct") is True
+                and cached_verification.get("check_method") in (
+                    "ground_truth_match", "llm_verify_match"
+                )
             )
             if not is_verified_correct:
                 logger.info(
-                    f"[Cache] 缓存条目未经过 ground_truth 验证，跳过 "
+                    f"[Cache] 缓存条目验证未通过或方法不可信，跳过 "
                     f"(check_method={cached_verification.get('check_method')}, "
                     f"is_correct={cached_verification.get('is_correct')})"
                 )
@@ -88,6 +91,12 @@ def cache_save_node(state: Dict[str, Any]) -> Dict[str, Any]:
     # benchmark 模式：不保存到缓存
     if state.get("skip_cache", False):
         logger.debug("[Cache] skip_cache=True，跳过缓存保存")
+        return {}
+
+    # benchmark + 答案库模式：由 benchmark.py 在 ground truth 验证后统一保存，
+    # 避免 workflow 内部基于 LLM 自验（可能假阳性）的缓存污染
+    if state.get("skip_cache_save", False):
+        logger.debug("[Cache] skip_cache_save=True，跳过自动保存（由外部统一保存）")
         return {}
 
     question_text = state.get("question_text", "")

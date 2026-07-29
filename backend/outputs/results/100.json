@@ -1,64 +1,48 @@
 {
-  "question_id": "100",
-  "timestamp": "2026-07-08T00:25:59.729206",
-  "domain": "functional_analysis",
-  "final_answer": "存在 X 上的线性泛函 F 使得 F|_M = f 且对任意 x∈X 有 F(x)≤p(x)",
+  "final_answer": "B",
+  "domain": "线性回归",
   "reasoning_steps": [
     {
       "step_id": 1,
-      "description": "构造所有受次线性泛函控制的线性延拓对构成的集合",
-      "formula": "\\mathcal{A} = \\{(N, g) \\mid M \\subseteq N \\subseteq X, g \\text{ 线性}, g|_M=f, \\forall x \\in N, g(x) \\le p(x)\\}",
+      "description": "确定简单线性回归的最小二乘估计目标函数",
+      "formula": "Q(β0, β1) = Σ(yi - β0 - β1xi)^2",
       "result": null,
-      "method": null
+      "method": "最小二乘法"
     },
     {
       "step_id": 2,
-      "description": "在集合上定义偏序关系，包含关系与函数值一致",
-      "formula": "(N_1, g_1) \\preceq (N_2, g_2) \\iff N_1 \\subseteq N_2 \\land g_2|_{N_1} = g_1",
+      "description": "求解正规方程组得到 β1 的估计量公式",
+      "formula": "β̂1 = Σ(xi - x̄)(yi - ȳ) / Σ(xi - x̄)^2",
       "result": null,
-      "method": null
+      "method": "代数推导"
     },
     {
       "step_id": 3,
-      "description": "证明任意链存在上界，取子空间与泛函的并集",
-      "formula": "N = \\bigcup N_\\alpha, g = \\bigcup g_\\alpha",
+      "description": "分析各选项公式的正确性",
+      "formula": "A 分母为 0，C 无截距项，D 含未知参数 β0",
       "result": null,
-      "method": null
+      "method": "选项分析"
     },
     {
       "step_id": 4,
-      "description": "应用 Zorn 引理得到极大元 (N^*, F^*)",
-      "formula": "Zorn's Lemma \\implies \\exists (N^*, F^*) \\in \\mathcal{A} \\text{ 极大}",
+      "description": "确认选项 B 与标准 OLS 估计量公式一致",
+      "formula": "选项 B 符合 β̂1 定义",
       "result": null,
-      "method": null
-    },
-    {
-      "step_id": 5,
-      "description": "证明极大元定义域必为全空间 X，否则可进一步延拓",
-      "formula": "\\sup_{x \\in N^*}(F^*(x)-p(-x)) \\le c \\le \\inf_{x \\in N^*}(p(x)-F^*(x))",
-      "result": null,
-      "method": null
+      "method": "结论判定"
     }
   ],
   "methods_used": [
-    "Zorn 引理",
-    "次线性泛函性质",
-    "线性延拓引理"
+    "最小二乘法"
   ],
   "verification": {
-    "is_correct": false,
-    "confidence": 0.3,
-    "check_method": "parse_error",
-    "error_details": "LLM 返回无法解析"
+    "is_correct": true,
+    "confidence": 1.0,
+    "check_method": "ground_truth_match",
+    "error_details": ""
   },
-  "educational_hint": "证明核心在于利用 Zorn 引理处理无限维空间的延拓问题，关键在于通过次线性泛函确定延拓点的取值范围非空。",
-  "computation_time_ms": 151404.09302711487,
-  "retry_count": 1,
-  "model_version": null,
-  "from_cache": false,
-  "cache_similarity": null,
-  "cache_matched_question": null,
-  "true_domain": null,
-  "ground_truth": null,
-  "answer_match": null
+  "educational_hint": "简单线性回归斜率 β1 的 OLS 估计量等于自变量与因变量离差乘积之和除以自变量离差平方和。",
+  "from_cache": true,
+  "question_id": "100",
+  "cache_similarity": 0.9999998807907104,
+  "cache_matched_question": "【选择题·答题要求】你正在解答一道选择题。请在 reasoning_steps 中逐步分析每个选项，在 final_answer 字段中只填入正确选项的字母（A/B/C/D），不要填入任何其他文字。\n\n选择题：简单线性回归y=β0+β1x+ε中，β1的OLS估计量为？\nA. Σ(xi-x̄)(yi-ȳ)/Σ(xi-x̄)\nB. Σ(xi-x̄)(yi-ȳ)/Σ(xi-x̄)^2\nC. Σxiyi/Σxi^2\nD. (ȳ-β0)/x̄"
 }

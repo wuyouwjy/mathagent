@@ -1,56 +1,42 @@
 {
-  "question_id": "101",
-  "timestamp": "2026-07-08T00:26:28.469723",
-  "domain": "statistics",
-  "final_answer": "y = 0.5 + 1.6x",
+  "final_answer": "C",
+  "domain": "线性回归",
   "reasoning_steps": [
     {
       "step_id": 1,
-      "description": "计算样本均值",
-      "formula": "\\bar{x} = \\frac{1}{n}\\sum x_i = 2.5, \\bar{y} = \\frac{1}{n}\\sum y_i = 4.5",
+      "description": "定义方差膨胀因子 VIF，用于衡量自变量之间的多重共线性程度，计算公式为 1 除以 1 减去该自变量对其他自变量回归的决定系数。",
+      "formula": "VIF_i = \\frac{1}{1 - R_i^2}",
       "result": null,
-      "method": null
+      "method": "方差膨胀因子定义"
     },
     {
       "step_id": 2,
-      "description": "计算离差平方和与交叉积和",
-      "formula": "S_{xx} = \\sum (x_i - \\bar{x})^2 = 5, S_{xy} = \\sum (x_i - \\bar{x})(y_i - \\bar{y}) = 8",
+      "description": "分析 VIF 值的统计意义，VIF=1 表示无共线性，数值增大表示共线性增强。",
+      "formula": "",
       "result": null,
-      "method": null
+      "method": "统计解释"
     },
     {
       "step_id": 3,
-      "description": "计算斜率参数",
-      "formula": "\\beta_1 = \\frac{S_{xy}}{S_{xx}} = \\frac{8}{5} = 1.6",
+      "description": "应用经验阈值判断，统计学中通常将 VIF>10 作为存在严重多重共线性的判定标准。",
+      "formula": "VIF > 10",
       "result": null,
-      "method": null
-    },
-    {
-      "step_id": 4,
-      "description": "计算截距参数",
-      "formula": "\\beta_0 = \\bar{y} - \\beta_1 \\bar{x} = 4.5 - 1.6 \\times 2.5 = 0.5",
-      "result": null,
-      "method": null
+      "method": "多重共线性诊断标准"
     }
   ],
   "methods_used": [
-    "最小二乘法",
-    "线性回归模型"
+    "方差膨胀因子 (VIF)",
+    "多重共线性诊断"
   ],
   "verification": {
     "is_correct": true,
     "confidence": 1.0,
-    "check_method": "独立验证了最小二乘法计算过程。计算样本均值 x̄=2.5, ȳ=4.5；计算离差平方和 Lxx=5 与交叉积和 Lxy=8；推导斜率 β1=Lxy/Lxx=1.6；计算截距 β0=ȳ-β1x̄=0.5。最终方程 y=0.5+1.6x 与计算结果完全一致。",
-    "error_details": "无。推理步骤符合最小二乘法标准流程，数值计算精确无误，最终答案满足原问题所有条件。"
+    "check_method": "ground_truth_match",
+    "error_details": ""
   },
-  "educational_hint": "最小二乘法通过最小化残差平方和来估计回归系数，核心公式为斜率等于协方差除以方差。",
-  "computation_time_ms": 145342.89622306824,
-  "retry_count": 0,
-  "model_version": null,
-  "from_cache": false,
-  "cache_similarity": null,
-  "cache_matched_question": null,
-  "true_domain": null,
-  "ground_truth": null,
-  "answer_match": null
+  "educational_hint": "VIF 用于衡量自变量之间的多重共线性程度，通常认为 VIF>10 表示存在严重的多重共线性问题。",
+  "from_cache": true,
+  "question_id": "101",
+  "cache_similarity": 0.9999998807907104,
+  "cache_matched_question": "【选择题·答题要求】你正在解答一道选择题。请在 reasoning_steps 中逐步分析每个选项，在 final_answer 字段中只填入正确选项的字母（A/B/C/D），不要填入任何其他文字。\n\n选择题：多重共线性的VIF检测中，VIF>10意味着？\nA. 模型拟合良好\nB. 不存在共线性\nC. 存在严重共线性\nD. 残差非正态"
 }

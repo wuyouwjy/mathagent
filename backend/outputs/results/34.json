@@ -1,39 +1,40 @@
 {
-  "final_answer": "0.742984",
-  "domain": "numerical_analysis",
+  "final_answer": "[1, 1]^T",
+  "domain": "数值分析",
   "reasoning_steps": [
     {
       "step_id": 1,
-      "description": "计算步长 h",
-      "formula": "h = (1-0)/4 = 0.25",
+      "description": "验证矩阵 A 对称正定性",
+      "formula": "A^T = A, \\det(A) = 4\\times3 - 2\\times2 = 8 > 0",
       "result": null,
-      "method": "梯形法则"
+      "method": "矩阵性质分析"
     },
     {
       "step_id": 2,
-      "description": "计算节点函数值",
-      "formula": "f(0)=1, f(0.25)≈0.939413, f(0.5)≈0.778801, f(0.75)≈0.569783, f(1)≈0.367879",
+      "description": "执行 Cholesky 分解 A = LL^T",
+      "formula": "l_{11}=\\sqrt{4}=2, l_{21}=2/2=1, l_{22}=\\sqrt{3-1^2}=\\sqrt{2}",
       "result": null,
-      "method": "函数求值"
+      "method": "Cholesky 分解"
     },
     {
       "step_id": 3,
-      "description": "代入梯形公式",
-      "formula": "T_4 = (0.25/2) * [1 + 2*(0.939413+0.778801+0.569783) + 0.367879]",
+      "description": "前代法解 Ly = b",
+      "formula": "2y_1=6 \\Rightarrow y_1=3, 1y_1+\\sqrt{2}y_2=5 \\Rightarrow y_2=\\sqrt{2}",
       "result": null,
-      "method": "梯形法则"
+      "method": "前代法"
     },
     {
       "step_id": 4,
-      "description": "计算最终结果",
-      "formula": "T_4 ≈ 0.742984",
+      "description": "回代法解 L^T x = y",
+      "formula": "\\sqrt{2}x_2=\\sqrt{2} \\Rightarrow x_2=1, 2x_1+x_2=3 \\Rightarrow x_1=1",
       "result": null,
-      "method": "数值计算"
+      "method": "回代法"
     }
   ],
   "methods_used": [
-    "梯形法则",
-    "数值积分"
+    "Cholesky 分解",
+    "前代法",
+    "回代法"
   ],
   "verification": {
     "is_correct": true,
@@ -41,9 +42,9 @@
     "check_method": "ground_truth_match",
     "error_details": ""
   },
-  "educational_hint": "梯形法则通过将区间分割为 n 个小梯形，利用公式 T_n = h/2 * [f(x_0) + 2Σf(x_i) + f(x_n)] 近似计算定积分。",
+  "educational_hint": "Cholesky 分解适用于对称正定矩阵，计算效率高且数值稳定性好。",
   "from_cache": true,
   "question_id": "34",
-  "cache_similarity": 1.000000238418579,
-  "cache_matched_question": "利用梯形法则将$[0,1]$等分为$4$份，求$\\int_0^1 e^{-x^2}dx$的近似值。"
+  "cache_similarity": 1.0000004768371582,
+  "cache_matched_question": "【填空题·答题要求】你正在解答一道填空题。请在 reasoning_steps 中逐步推理求解，在 final_answer 字段中只填入填空处的答案内容，简洁明了。\n\n填空题：方程组[[4,2],[2,3]]x=[6,5]^T的Cholesky分解解为x=______。"
 }

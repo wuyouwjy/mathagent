@@ -144,6 +144,7 @@ class BenchmarkStartRequest(BaseModel):
     max_retries: int = Field(default=3)
     enable_rag: bool = Field(default=True)
     use_answer_db: bool = Field(default=True, description="是否使用正确答案库（命中则跳过LLM）")
+    use_llm_verify: bool = Field(default=True, description="是否启用LLM辅助验证（fuzzy_match失败后调用LLM二次判断）")
     max_reflection_count: int = Field(default=1, ge=0, le=5, description="最大反思重试次数（0=快速模式，1-5=反思次数）")
 
 
@@ -159,6 +160,9 @@ class BenchmarkStatus(BaseModel):
     domain_accuracy: Dict[str, float] = Field(default_factory=dict)
     current_question: Optional[str] = None
     current_trace: List[str] = Field(default_factory=list)
+    active_solves: Dict[str, Any] = Field(default_factory=dict)
+    correct_list: List[Dict[str, Any]] = Field(default_factory=list)
+    wrong_list: List[Dict[str, Any]] = Field(default_factory=list)
 
 
 class BenchmarkResult(BaseModel):
@@ -185,6 +189,7 @@ class WrongQuestion(BaseModel):
     predicted: str = ""
     ground_truth: str = ""
     time_ms: float = 0.0
+    error_type: str = ""  # "真正错误" | "匹配失败"
 
 
 class DomainStat(BaseModel):
@@ -192,6 +197,13 @@ class DomainStat(BaseModel):
     total: int = 0
     solved: int = 0
     accuracy: float = 0.0
+
+
+class BenchmarkRunConfig(BaseModel):
+    """评测运行配置"""
+    max_reflection_count: int = 1
+    use_answer_db: bool = True
+    use_llm_verify: bool = True
 
 
 class BenchmarkRunRecord(BaseModel):
@@ -207,6 +219,7 @@ class BenchmarkRunRecord(BaseModel):
     accuracy: float = 0.0
     avg_time_per_question_ms: float = 0.0
     total_time_ms: float = 0.0
+    config: Optional[BenchmarkRunConfig] = None
     domain_stats: Dict[str, DomainStat] = Field(default_factory=dict)
     wrong_questions: List[WrongQuestion] = Field(default_factory=list)
     results: Optional[List[Dict[str, Any]]] = None
@@ -222,6 +235,7 @@ class BenchmarkRunSummary(BaseModel):
     solved: int = 0
     accuracy: float = 0.0
     total_time_ms: float = 0.0
+    config: Optional[BenchmarkRunConfig] = None
 
 
 # ============================================================

@@ -1,56 +1,56 @@
 {
-  "question_id": "58",
-  "timestamp": "2026-07-08T00:17:12.685827",
-  "domain": "differential_geometry",
-  "final_answer": "曲率 κ = 1/2，挠率 τ = 1/2",
+  "final_answer": "C",
+  "domain": "概率论",
   "reasoning_steps": [
     {
       "step_id": 1,
-      "description": "计算曲线的一阶、二阶和三阶导数",
-      "formula": "γ'(t)=(-sin t, cos t, 1), γ''(t)=(-cos t, -sin t, 0), γ'''(t)=(sin t, -cos t, 0)",
+      "description": "计算标准正态分布下 |X|<=1.96 的概率",
+      "formula": "P(|X|\\le 1.96) = 2\\Phi(1.96) - 1 \\approx 0.95",
       "result": null,
-      "method": null
+      "method": "正态分布性质"
     },
     {
       "step_id": 2,
-      "description": "代入 t=0 计算各导数值",
-      "formula": "γ'(0)=(0, 1, 1), γ''(0)=(-1, 0, 0), γ'''(0)=(0, -1, 0)",
+      "description": "分析选项 A：0.68 对应 |X|<=1 的概率",
+      "formula": "P(|X|\\le 1) \\approx 0.6826 \\neq 0.95",
       "result": null,
-      "method": null
+      "method": "选项验证"
     },
     {
       "step_id": 3,
-      "description": "利用 Frenet 标架相关公式计算曲率",
-      "formula": "κ = ||γ' × γ''|| / ||γ'||³ = √2 / (√2)³ = 1/2",
+      "description": "分析选项 B：0.90 对应 |X|<=1.645 的概率",
+      "formula": "P(|X|\\le 1.645) \\approx 0.90 \\neq 0.95",
       "result": null,
-      "method": null
+      "method": "选项验证"
     },
     {
       "step_id": 4,
-      "description": "利用 Frenet 标架相关公式计算挠率",
-      "formula": "τ = (γ' × γ'') · γ''' / ||γ' × γ''||² = 1 / 2 = 1/2",
+      "description": "分析选项 C：0.95 与计算结果一致",
+      "formula": "0.95 = 0.95",
       "result": null,
-      "method": null
+      "method": "选项验证"
+    },
+    {
+      "step_id": 5,
+      "description": "分析选项 D：0.99 对应 |X|<=2.58 的概率",
+      "formula": "P(|X|\\le 2.58) \\approx 0.99 \\neq 0.95",
+      "result": null,
+      "method": "选项验证"
     }
   ],
   "methods_used": [
-    "Frenet 标架公式",
-    "向量叉积与点积"
+    "正态分布性质",
+    "选项验证"
   ],
   "verification": {
     "is_correct": true,
     "confidence": 1.0,
-    "check_method": "重新计算了曲线 γ(t) 在 t=0 处的一阶、二阶及三阶导数：γ'(0)=(0,1,1), γ''(0)=(-1,0,0), γ'''(0)=(0,-1,0)。代入曲率公式 κ = ||γ' × γ''|| / ||γ'||³ 计算得 √2 / (√2)³ = 1/2。代入挠率公式 τ = ((γ' × γ'') · γ''') / ||γ' × γ''||² 计算得 1 / 2 = 1/2。计算过程严谨，结果与给定答案完全一致。",
-    "error_details": "无"
+    "check_method": "ground_truth_match",
+    "error_details": ""
   },
-  "educational_hint": "该曲线为圆柱螺旋线，其曲率和挠率均为常数，不随参数 t 变化。",
-  "computation_time_ms": 99570.99723815918,
-  "retry_count": 0,
-  "model_version": null,
-  "from_cache": false,
-  "cache_similarity": null,
-  "cache_matched_question": null,
-  "true_domain": null,
-  "ground_truth": null,
-  "answer_match": null
+  "educational_hint": "标准正态分布中，1.96 是双侧 5% 显著性水平的临界值，对应中间面积为 0.95。",
+  "from_cache": true,
+  "question_id": "58",
+  "cache_similarity": 0.9999998807907104,
+  "cache_matched_question": "【选择题·答题要求】你正在解答一道选择题。请在 reasoning_steps 中逐步分析每个选项，在 final_answer 字段中只填入正确选项的字母（A/B/C/D），不要填入任何其他文字。\n\n选择题：设X~N(0,1)，P(|X|≤1.96)约为？\nA. 0.68\nB. 0.90\nC. 0.95\nD. 0.99"
 }

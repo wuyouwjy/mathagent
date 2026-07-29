@@ -1,39 +1,39 @@
 {
   "final_answer": "\\frac{n(n-1)}{2}",
-  "domain": "combinatorics",
+  "domain": "离散数学",
   "reasoning_steps": [
     {
       "step_id": 1,
-      "description": "完全图 K_n 定义为具有 n 个顶点的简单图",
-      "formula": "|V| = n",
+      "description": "完全图 K_n 定义为拥有 n 个顶点，且任意两个不同顶点之间都有一条边相连的简单图。",
+      "formula": "",
       "result": null,
       "method": "图论定义"
     },
     {
       "step_id": 2,
-      "description": "任意两个不同顶点之间恰好有一条边相连",
-      "formula": "边对应顶点对",
-      "result": null,
-      "method": "图论定义"
-    },
-    {
-      "step_id": 3,
-      "description": "边数等于从 n 个顶点中选取 2 个的组合数",
-      "formula": "\\binom{n}{2}",
+      "description": "每一条边对应于从 n 个顶点中选取 2 个不同顶点的无序组合。",
+      "formula": "",
       "result": null,
       "method": "组合计数"
     },
     {
-      "step_id": 4,
-      "description": "展开组合数公式计算边数",
-      "formula": "\\binom{n}{2} = \\frac{n(n-1)}{2}",
+      "step_id": 3,
+      "description": "根据组合数公式，从 n 个元素中选取 2 个元素的组合数为 \\binom{n}{2}。",
+      "formula": "\\binom{n}{2}",
       "result": null,
-      "method": "代数计算"
+      "method": "组合公式"
+    },
+    {
+      "step_id": 4,
+      "description": "计算组合数得到边数为 \\frac{n(n-1)}{2}。",
+      "formula": "\\frac{n(n-1)}{2}",
+      "result": null,
+      "method": "代数化简"
     }
   ],
   "methods_used": [
-    "图论定义",
-    "组合计数"
+    "组合计数",
+    "图论定义"
   ],
   "verification": {
     "is_correct": true,
@@ -41,9 +41,9 @@
     "check_method": "ground_truth_match",
     "error_details": ""
   },
-  "educational_hint": "完全图的边数问题转化为从 n 个顶点中无序选取 2 个顶点的组合问题，即二项式系数 C(n, 2)。",
+  "educational_hint": "完全图的边数等于从 n 个顶点中任选 2 个顶点的组合数，即 C(n, 2)。",
   "from_cache": true,
   "question_id": "20",
-  "cache_similarity": 0.9999997615814209,
-  "cache_matched_question": "设$G$为$n$阶完全图$K_n$，求$G$的边数。"
+  "cache_similarity": 0.9999999403953552,
+  "cache_matched_question": "【填空题·答题要求】你正在解答一道填空题。请在 reasoning_steps 中逐步推理求解，在 final_answer 字段中只填入填空处的答案内容，简洁明了。\n\n填空题：完全图K_n的边数为______。"
 }

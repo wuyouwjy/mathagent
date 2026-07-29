@@ -1,19 +1,32 @@
 {
-  "final_answer": "存在满足条件的 $F_\\sigma$ 集 $F$ 和零测集 $N$，使得 $E = F \\cup N$。",
-  "domain": "algebra",
+  "final_answer": "A",
+  "domain": "微分几何",
   "reasoning_steps": [
     {
       "step_id": 1,
-      "description": "1. 根据勒贝格测度的内正则性定理，对于任意勒贝格可测集 $E$ 和任意 \\epsilon > 0，存在闭集 $K \\subseteq E$ 使得 $m(E \\setminus K) < \\epsilon$。\n2. 取 \\epsilon_n = 1/n (n \\in \\mathbb{N}^+)，则存在闭集 $K_n \\subseteq E$ 使得 $m(E \\setminus K_n) < 1/n$。\n3. 令 $F = \\bigcup_{n=1}^{\\infty} K_n$。因为每个 $K_n$ 都是闭集，所以 $F$ 是 $F_\\sigma$ 集（可数个闭集的并）。\n4. 显然 $F \\subseteq E$。\n5. 考虑差集 $E \\setminus F = E \\setminus \\bigcup_{n=1}^{\\infty} K_n = \\bigcap_{n=1}^{\\infty} (E \\setminus K_n)$。\n6. 由于 $K_n \\subseteq E$，有 $E \\setminus F \\subseteq E \\setminus K_n$。因此 $0 \\le m",
-      "formula": null,
+      "description": "测地线定义为测地曲率 k_g=0 的曲线，满足微分方程。",
+      "formula": "\\nabla_{\\dot{\\gamma}}\\dot{\\gamma} = 0",
       "result": null,
-      "method": null
+      "method": "测地线定义"
+    },
+    {
+      "step_id": 2,
+      "description": "球面大圆的主法向量与球面法向量重合，切向加速度为零，故满足测地线条件。",
+      "formula": "k_g = 0",
+      "result": null,
+      "method": "球面几何"
+    },
+    {
+      "step_id": 3,
+      "description": "大圆性质与半径无关且遍布全球，故排除 B、C、D 选项，确认 A 正确。",
+      "formula": "",
+      "result": null,
+      "method": "逻辑排除"
     }
   ],
   "methods_used": [
-    "勒贝格测度正则性定理",
-    "$F_\\sigma$ 集构造",
-    "测度的单调性与极限性质"
+    "测地线定义",
+    "球面几何性质"
   ],
   "verification": {
     "is_correct": true,
@@ -21,9 +34,9 @@
     "check_method": "ground_truth_match",
     "error_details": ""
   },
-  "educational_hint": "",
+  "educational_hint": "球面上测地线即为大圆，这是微分几何中的基本结论，与球半径无关。",
   "from_cache": true,
   "question_id": "51",
-  "cache_similarity": 1.0000005960464478,
-  "cache_matched_question": "设$E$为$\\mathbb{R}$的Lebesgue可测子集。证明存在$F_\\sigma$集$F$和零测集$N$使$E = F \\cup N$。"
+  "cache_similarity": 1.000000238418579,
+  "cache_matched_question": "【选择题·答题要求】你正在解答一道选择题。请在 reasoning_steps 中逐步分析每个选项，在 final_answer 字段中只填入正确选项的字母（A/B/C/D），不要填入任何其他文字。\n\n选择题：球面上的大圆是否为测地线？\nA. 是\nB. 不是\nC. 仅在赤道处是\nD. 仅当半径为1时是"
 }

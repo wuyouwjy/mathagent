@@ -1,0 +1,3845 @@
+{
+  "run_id": "run_20260708_221535",
+  "status": "completed",
+  "started_at": "2026-07-08T22:15:35.352543",
+  "completed_at": "2026-07-08T22:28:18.433075",
+  "dataset": "D:\\code\\Agent\\03InternAgent\\Math-Agent-System\\database/datasets/benchmark_v4_18subjects.jsonl",
+  "total": 112,
+  "solved": 106,
+  "failed": 6,
+  "accuracy": 94.64,
+  "avg_time_per_question_ms": 31399.77,
+  "total_time_ms": 3516774.64,
+  "config": {
+    "max_reflection_count": 5,
+    "use_answer_db": true,
+    "use_llm_verify": true
+  },
+  "domain_stats": {
+    "离散数学": {
+      "total": 24,
+      "solved": 22,
+      "accuracy": 91.67
+    },
+    "数值分析": {
+      "total": 13,
+      "solved": 12,
+      "accuracy": 92.31
+    },
+    "测度积分": {
+      "total": 11,
+      "solved": 11,
+      "accuracy": 100.0
+    },
+    "微分几何": {
+      "total": 9,
+      "solved": 9,
+      "accuracy": 100.0
+    },
+    "概率论": {
+      "total": 8,
+      "solved": 6,
+      "accuracy": 75.0
+    },
+    "抽象代数": {
+      "total": 8,
+      "solved": 8,
+      "accuracy": 100.0
+    },
+    "随机过程": {
+      "total": 7,
+      "solved": 7,
+      "accuracy": 100.0
+    },
+    "复分析": {
+      "total": 7,
+      "solved": 7,
+      "accuracy": 100.0
+    },
+    "常微分方程": {
+      "total": 5,
+      "solved": 5,
+      "accuracy": 100.0
+    },
+    "统计推断": {
+      "total": 4,
+      "solved": 4,
+      "accuracy": 100.0
+    },
+    "泛函分析": {
+      "total": 4,
+      "solved": 4,
+      "accuracy": 100.0
+    },
+    "线性回归": {
+      "total": 3,
+      "solved": 3,
+      "accuracy": 100.0
+    },
+    "偏微分方程": {
+      "total": 3,
+      "solved": 2,
+      "accuracy": 66.67
+    },
+    "非基础及进阶课程": {
+      "total": 2,
+      "solved": 2,
+      "accuracy": 100.0
+    },
+    "高等代数": {
+      "total": 1,
+      "solved": 1,
+      "accuracy": 100.0
+    },
+    "运筹学": {
+      "total": 1,
+      "solved": 1,
+      "accuracy": 100.0
+    },
+    "数学分析": {
+      "total": 1,
+      "solved": 1,
+      "accuracy": 100.0
+    },
+    "拓扑学": {
+      "total": 1,
+      "solved": 1,
+      "accuracy": 100.0
+    },
+    "algebra": {
+      "total": 0,
+      "solved": 0,
+      "accuracy": 0.0
+    },
+    "number_theory": {
+      "total": 0,
+      "solved": 0,
+      "accuracy": 0.0
+    },
+    "group_theory": {
+      "total": 0,
+      "solved": 0,
+      "accuracy": 0.0
+    },
+    "real_analysis": {
+      "total": 0,
+      "solved": 0,
+      "accuracy": 0.0
+    },
+    "complex_analysis": {
+      "total": 0,
+      "solved": 0,
+      "accuracy": 0.0
+    },
+    "functional_analysis": {
+      "total": 0,
+      "solved": 0,
+      "accuracy": 0.0
+    },
+    "topology": {
+      "total": 0,
+      "solved": 0,
+      "accuracy": 0.0
+    },
+    "differential_geometry": {
+      "total": 0,
+      "solved": 0,
+      "accuracy": 0.0
+    },
+    "algebraic_geometry": {
+      "total": 0,
+      "solved": 0,
+      "accuracy": 0.0
+    },
+    "partial_differential_equations": {
+      "total": 0,
+      "solved": 0,
+      "accuracy": 0.0
+    },
+    "ordinary_differential_equations": {
+      "total": 0,
+      "solved": 0,
+      "accuracy": 0.0
+    },
+    "calculus_of_variations": {
+      "total": 0,
+      "solved": 0,
+      "accuracy": 0.0
+    },
+    "optimization": {
+      "total": 0,
+      "solved": 0,
+      "accuracy": 0.0
+    },
+    "probability": {
+      "total": 0,
+      "solved": 0,
+      "accuracy": 0.0
+    },
+    "statistics": {
+      "total": 0,
+      "solved": 0,
+      "accuracy": 0.0
+    },
+    "numerical_analysis": {
+      "total": 0,
+      "solved": 0,
+      "accuracy": 0.0
+    },
+    "combinatorics": {
+      "total": 0,
+      "solved": 0,
+      "accuracy": 0.0
+    },
+    "mathematical_physics": {
+      "total": 0,
+      "solved": 0,
+      "accuracy": 0.0
+    }
+  },
+  "wrong_questions": [
+    {
+      "question_id": "7",
+      "domain": "离散数学",
+      "predicted": "并匹配选项\",",
+      "ground_truth": "B",
+      "time_ms": 337581.85267448425,
+      "error_type": "真正错误"
+    },
+    {
+      "question_id": "16",
+      "domain": "离散数学",
+      "predicted": "A",
+      "ground_truth": "B",
+      "time_ms": 0.0,
+      "error_type": "真正错误"
+    },
+    {
+      "question_id": "24",
+      "domain": "数值分析",
+      "predicted": "D",
+      "ground_truth": "B",
+      "time_ms": 227632.50374794006,
+      "error_type": "真正错误"
+    },
+    {
+      "question_id": "57",
+      "domain": "概率论",
+      "predicted": "B",
+      "ground_truth": "C",
+      "time_ms": 0.0,
+      "error_type": "真正错误"
+    },
+    {
+      "question_id": "60",
+      "domain": "概率论",
+      "predicted": "与选项\",",
+      "ground_truth": "B",
+      "time_ms": 209934.86499786377,
+      "error_type": "真正错误"
+    },
+    {
+      "question_id": "103",
+      "domain": "偏微分方程",
+      "predicted": "B",
+      "ground_truth": "C",
+      "time_ms": 211962.33105659485,
+      "error_type": "真正错误"
+    }
+  ],
+  "results": [
+    {
+      "question_id": "0",
+      "timestamp": "2026-07-08T22:18:23.813361",
+      "domain": "离散数学",
+      "final_answer": "C",
+      "reasoning_steps": [],
+      "methods_used": [],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "",
+      "computation_time_ms": 168267.13037490845,
+      "retry_count": 0,
+      "model_version": null,
+      "from_cache": false,
+      "cache_similarity": null,
+      "cache_matched_question": null,
+      "true_domain": null,
+      "ground_truth": "C",
+      "answer_match": true
+    },
+    {
+      "final_answer": "B",
+      "domain": "离散数学",
+      "reasoning_steps": [],
+      "methods_used": [],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "",
+      "from_cache": true,
+      "question_id": "1",
+      "cache_similarity": 0.9300487041473389,
+      "cache_matched_question": "选择题：集合{1,2,3,4,5}的所有子集中，包含元素1的子集有多少个？\nA. 8\nB. 16\nC. 24\nD. 32\n\n【重要：请只输出正确选项的字母（A、B、C或D），不要输出任何解题过程或其他文字。】",
+      "ground_truth": "B",
+      "answer_match": true
+    },
+    {
+      "question_id": "2",
+      "timestamp": "2026-07-08T22:18:59.684827",
+      "domain": "离散数学",
+      "final_answer": "C",
+      "reasoning_steps": [],
+      "methods_used": [],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "",
+      "computation_time_ms": 204140.60163497925,
+      "retry_count": 0,
+      "model_version": null,
+      "from_cache": false,
+      "cache_similarity": null,
+      "cache_matched_question": null,
+      "true_domain": null,
+      "ground_truth": "C",
+      "answer_match": true
+    },
+    {
+      "question_id": "3",
+      "timestamp": "2026-07-08T22:19:28.790755",
+      "domain": "离散数学",
+      "final_answer": "C",
+      "reasoning_steps": [],
+      "methods_used": [],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "",
+      "computation_time_ms": 233246.52194976807,
+      "retry_count": 0,
+      "model_version": null,
+      "from_cache": false,
+      "cache_similarity": null,
+      "cache_matched_question": null,
+      "true_domain": null,
+      "ground_truth": "C",
+      "answer_match": true
+    },
+    {
+      "question_id": "4",
+      "timestamp": "2026-07-08T22:18:45.318207",
+      "domain": "离散数学",
+      "final_answer": "C",
+      "reasoning_steps": [],
+      "methods_used": [],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "",
+      "computation_time_ms": 189771.97647094727,
+      "retry_count": 0,
+      "model_version": null,
+      "from_cache": false,
+      "cache_similarity": null,
+      "cache_matched_question": null,
+      "true_domain": null,
+      "ground_truth": "C",
+      "answer_match": true
+    },
+    {
+      "question_id": "5",
+      "timestamp": "2026-07-08T22:18:52.855317",
+      "domain": "离散数学",
+      "final_answer": "D",
+      "reasoning_steps": [],
+      "methods_used": [],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "",
+      "computation_time_ms": 197310.0917339325,
+      "retry_count": 0,
+      "model_version": null,
+      "from_cache": false,
+      "cache_similarity": null,
+      "cache_matched_question": null,
+      "true_domain": null,
+      "ground_truth": "D",
+      "answer_match": true
+    },
+    {
+      "final_answer": "B",
+      "domain": "离散数学",
+      "reasoning_steps": [],
+      "methods_used": [],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "",
+      "from_cache": true,
+      "question_id": "6",
+      "cache_similarity": 0.9614587426185608,
+      "cache_matched_question": "选择题：命题逻辑公式((p→q)∧(q→r))→(p→r)是？\nA. 可满足式但不是重言式\nB. 重言式\nC. 矛盾式\nD. 以上都不是\n\n【重要：请只输出正确选项的字母（A、B、C或D），不要输出任何解题过程或其他文字。】",
+      "ground_truth": "B",
+      "answer_match": true
+    },
+    {
+      "question_id": "7",
+      "timestamp": "2026-07-08T22:21:13.129083",
+      "domain": "离散数学",
+      "final_answer": "并匹配选项\",",
+      "reasoning_steps": [],
+      "methods_used": [],
+      "verification": {
+        "is_correct": false,
+        "confidence": 1.0,
+        "check_method": "llm_verify_mismatch",
+        "error_details": "pred=并匹配选项\",, gt=B",
+        "error_type": "真正错误",
+        "llm_verify": {
+          "is_equivalent": false,
+          "confidence": 1.0,
+          "reason": "预测答案为不完整的中文短语，未明确给出选项字母，而标准答案为明确的正确选项 B，两者在数学结论上不等价。",
+          "pred_normalized": "并匹配选项",
+          "gt_normalized": "B"
+        }
+      },
+      "educational_hint": "",
+      "computation_time_ms": 337581.85267448425,
+      "retry_count": 1,
+      "model_version": null,
+      "from_cache": false,
+      "cache_similarity": null,
+      "cache_matched_question": null,
+      "true_domain": null,
+      "ground_truth": "B",
+      "answer_match": false
+    },
+    {
+      "final_answer": "C",
+      "domain": "离散数学",
+      "reasoning_steps": [],
+      "methods_used": [],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "",
+      "from_cache": true,
+      "question_id": "8",
+      "cache_similarity": 0.929883599281311,
+      "cache_matched_question": "选择题：8个元素的集合有多少个不同的等价关系？（即贝尔数B_8）\nA. 877\nB. 2048\nC. 4140\nD. 8192\n\n【重要：请只输出正确选项的字母（A、B、C或D），不要输出任何解题过程或其他文字。】",
+      "ground_truth": "C",
+      "answer_match": true
+    },
+    {
+      "final_answer": "C",
+      "domain": "离散数学",
+      "reasoning_steps": [],
+      "methods_used": [],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "",
+      "from_cache": true,
+      "question_id": "9",
+      "cache_similarity": 0.9319441914558411,
+      "cache_matched_question": "选择题：n^3-n（n为整数）总是被哪个数整除？\nA. 3\nB. 4\nC. 6\nD. 12\n\n【重要：请只输出正确选项的字母（A、B、C或D），不要输出任何解题过程或其他文字。】",
+      "ground_truth": "C",
+      "answer_match": true
+    },
+    {
+      "final_answer": "B",
+      "domain": "离散数学",
+      "reasoning_steps": [],
+      "methods_used": [],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "",
+      "from_cache": true,
+      "question_id": "10",
+      "cache_similarity": 0.9252063632011414,
+      "cache_matched_question": "选择题：图C_5（5个顶点的圈）的色数是？\nA. 2\nB. 3\nC. 4\nD. 5\n\n【重要：请只输出正确选项的字母（A、B、C或D），不要输出任何解题过程或其他文字。】",
+      "ground_truth": "B",
+      "answer_match": true
+    },
+    {
+      "final_answer": "C",
+      "domain": "离散数学",
+      "reasoning_steps": [
+        {
+          "step_id": 1,
+          "description": "应用二项式定理写出展开式通项",
+          "formula": "$(1+x)^{10} = \\sum_{k=0}^{10} \\binom{10}{k} x^k$",
+          "result": null,
+          "method": "二项式定理"
+        },
+        {
+          "step_id": 2,
+          "description": "确定 x^3 项对应的 k 值",
+          "formula": "令 k=3，系数为 \\binom{10}{3}",
+          "result": null,
+          "method": "通项分析"
+        },
+        {
+          "step_id": 3,
+          "description": "计算组合数得出结果",
+          "formula": "\\binom{10}{3} = \\frac{10 \\times 9 \\times 8}{3 \\times 2 \\times 1} = 120",
+          "result": null,
+          "method": "组合数计算"
+        }
+      ],
+      "methods_used": [
+        "二项式定理",
+        "组合数公式"
+      ],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "本题考查二项式定理的应用。通项公式为 $T_{k+1} = \\binom{n}{k} a^{n-k} b^k$，求系数时直接计算组合数即可。",
+      "from_cache": true,
+      "question_id": "11",
+      "cache_similarity": 0.9547358751296997,
+      "cache_matched_question": "选择题：(1+x)^10展开式中x^3的系数是？\nA. 90\nB. 100\nC. 120\nD. 144\n\n【重要：请只输出正确选项的字母（A、B、C或D），不要输出任何解题过程或其他文字。】",
+      "ground_truth": "C",
+      "answer_match": true
+    },
+    {
+      "final_answer": "C",
+      "domain": "离散数学",
+      "reasoning_steps": [],
+      "methods_used": [],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "",
+      "from_cache": true,
+      "question_id": "12",
+      "cache_similarity": 0.947059154510498,
+      "cache_matched_question": "选择题：gcd(252,105)的值是？\nA. 7\nB. 14\nC. 21\nD. 42\n\n【重要：请只输出正确选项的字母（A、B、C或D），不要输出任何解题过程或其他文字。】",
+      "ground_truth": "C",
+      "answer_match": true
+    },
+    {
+      "question_id": "13",
+      "timestamp": "2026-07-08T22:19:12.249538",
+      "domain": "离散数学",
+      "final_answer": "B",
+      "reasoning_steps": [],
+      "methods_used": [],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "",
+      "computation_time_ms": 196757.15851783752,
+      "retry_count": 0,
+      "model_version": null,
+      "from_cache": false,
+      "cache_similarity": null,
+      "cache_matched_question": null,
+      "true_domain": null,
+      "ground_truth": "B",
+      "answer_match": true
+    },
+    {
+      "final_answer": "\",\"formula\":\"\\\\frac{9 \\\\times 8}{2} = 36\",\"method\":\"组合计算\"}],\"methods_used\":[\"插板法\",\"组合数公式\"],\"educational_hint\":\"正整数解问题等价于将 n 个相同元素分成 k 非空组，使用插板法公式 C(n-1, k-1) 求解",
+      "domain": "离散数学",
+      "reasoning_steps": [],
+      "methods_used": [],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "llm_verify_match",
+        "error_details": "",
+        "llm_verify": {
+          "is_equivalent": true,
+          "confidence": 1.0,
+          "reason": "预测答案通过插板法计算得出正整数解个数为 36，标准答案选项 B 对应的数值亦为 36，两者数学结论一致。",
+          "pred_normalized": "36",
+          "gt_normalized": "36"
+        }
+      },
+      "educational_hint": "",
+      "from_cache": true,
+      "question_id": "14",
+      "cache_similarity": 0.9645141959190369,
+      "cache_matched_question": "选择题：方程x1+x2+x3=10的正整数解(xi≥1)的个数为？\nA. 28\nB. 36\nC. 45\nD. 55\n\n【重要：请只输出正确选项的字母（A、B、C或D），不要输出任何解题过程或其他文字。】",
+      "ground_truth": "B",
+      "answer_match": true
+    },
+    {
+      "final_answer": "B",
+      "domain": "离散数学",
+      "reasoning_steps": [],
+      "methods_used": [],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "",
+      "from_cache": true,
+      "question_id": "15",
+      "cache_similarity": 0.9422724843025208,
+      "cache_matched_question": "选择题：设f:X→Y, g:Y→Z。若g∘f是满射，则？\nA. f必为满射\nB. g必为满射\nC. f必为单射\nD. g必为单射\n\n【重要：请只输出正确选项的字母（A、B、C或D），不要输出任何解题过程或其他文字。】",
+      "ground_truth": "B",
+      "answer_match": true
+    },
+    {
+      "final_answer": "A",
+      "domain": "离散数学",
+      "reasoning_steps": [
+        {
+          "step_id": 1,
+          "description": "定义等价关系需满足自反性、对称性和传递性",
+          "formula": "$\\forall a, b, c \\in \\mathbb{Z}$，需满足 $a \\sim a$，$a \\sim b \\Rightarrow b \\sim a$，$(a \\sim b \\land b \\sim c) \\Rightarrow a \\sim c$",
+          "result": null,
+          "method": "定义法"
+        },
+        {
+          "step_id": 2,
+          "description": "验证选项 A：关系定义为 a < b",
+          "formula": "对于任意 $a \\in \\mathbb{Z}$，$a < a$ 不成立，不满足自反性",
+          "result": null,
+          "method": "自反性验证"
+        },
+        {
+          "step_id": 3,
+          "description": "验证选项 B：关系定义为 a - b 被 3 整除",
+          "formula": "$a - a = 0 = 3 \\times 0$；若 $a - b = 3k$，则 $b - a = -3k$；若 $a - b = 3k, b - c = 3m$，则 $a - c = 3(k+m)$",
+          "result": null,
+          "method": "整除性质验证"
+        },
+        {
+          "step_id": 4,
+          "description": "验证选项 C：关系定义为 a 整除 b",
+          "formula": "取 $a=2, b=4$，有 $2 \\mid 4$ 但 $4 \\nmid 2$，不满足对称性",
+          "result": null,
+          "method": "对称性反例"
+        },
+        {
+          "step_id": 5,
+          "description": "验证选项 D：关系定义为 |a - b| <= 1",
+          "formula": "取 $a=0, b=1, c=2$，有 $|0-1| \\le 1, |1-2| \\le 1$ 但 $|0-2| = 2 > 1$，不满足传递性",
+          "result": null,
+          "method": "传递性反例"
+        },
+        {
+          "step_id": 6,
+          "description": "结论：仅选项 B 满足等价关系的所有条件",
+          "formula": "选项 B 是整数集上的模 3 同余关系",
+          "result": null,
+          "method": "综合判断"
+        }
+      ],
+      "methods_used": [
+        "等价关系定义验证",
+        "整除性质分析",
+        "反例构造"
+      ],
+      "verification": {
+        "is_correct": false,
+        "confidence": 1.0,
+        "check_method": "llm_verify_mismatch",
+        "error_details": "pred=A, gt=B",
+        "error_type": "真正错误",
+        "llm_verify": {
+          "is_equivalent": false,
+          "confidence": 1.0,
+          "reason": "Option A (a<b) fails reflexivity and symmetry, so it is not an equivalence relation. Option B (a-b divisible by 3) defines congruence modulo 3, which satisfies reflexivity, symmetry, and transitivity. Thus, the correct answer is B, making the predicted answer A incorrect and not equivalent to the standard answer.",
+          "pred_normalized": "A",
+          "gt_normalized": "B"
+        }
+      },
+      "educational_hint": "解题思路总结与要点提示：判断一个关系是否为等价关系，必须同时验证自反性、对称性和传递性。模运算（如整除差）通常构成等价关系，而严格不等式、整除关系（非对称）、距离限制（非传递）通常不满足所有条件。",
+      "from_cache": true,
+      "question_id": "16",
+      "cache_similarity": 0.9551700353622437,
+      "cache_matched_question": "选择题：以下哪个关系是整数集上的等价关系？\nA. a~b当a<b\nB. a~b当a-b被3整除\nC. a~b当a整除b\nD. a~b当|a-b|≤1\n\n【重要：请只输出正确选项的字母（A、B、C或D），不要输出任何解题过程或其他文字。】",
+      "ground_truth": "B",
+      "answer_match": false
+    },
+    {
+      "final_answer": "，常以‘聚会问题’为例：6 个人中必有 3 人互相认识或 3 人互不认识",
+      "domain": "离散数学",
+      "reasoning_steps": [],
+      "methods_used": [],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "llm_verify_match",
+        "error_details": "",
+        "llm_verify": {
+          "is_equivalent": true,
+          "confidence": 0.95,
+          "reason": "预测答案正确阐述了 R(3,3)=6 的数学性质（聚会问题），虽未显式写出选项字母，但数学结论与标准答案 C 等价。",
+          "pred_normalized": "C",
+          "gt_normalized": "C"
+        }
+      },
+      "educational_hint": "",
+      "from_cache": true,
+      "question_id": "17",
+      "cache_similarity": 0.9413530826568604,
+      "cache_matched_question": "选择题：R(3,3)（Ramsey数）的值是？\nA. 4\nB. 5\nC. 6\nD. 7\n\n【重要：请只输出正确选项的字母（A、B、C或D），不要输出任何解题过程或其他文字。】",
+      "ground_truth": "C",
+      "answer_match": true
+    },
+    {
+      "final_answer": "a_n = 2^n - 1 (通过构造等比数列求得)",
+      "domain": "离散数学",
+      "reasoning_steps": [
+        {
+          "step_id": 1,
+          "description": "将递推式变形为等比数列形式",
+          "formula": "$a_n + 1 = 2(a_{n-1} + 1)$",
+          "result": null,
+          "method": "构造法"
+        },
+        {
+          "step_id": 2,
+          "description": "利用首项求等比数列通项",
+          "formula": "$a_n + 1 = (a_0 + 1) \\cdot 2^n = 2^n$",
+          "result": null,
+          "method": "等比数列通项公式"
+        },
+        {
+          "step_id": 3,
+          "description": "解出 a_n",
+          "formula": "$a_n = 2^n - 1$",
+          "result": null,
+          "method": "代数变形"
+        }
+      ],
+      "methods_used": [
+        "构造法",
+        "等比数列通项公式"
+      ],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "对于形如 $a_n = p a_{n-1} + q$ ($p \\neq 1$) 的一阶线性递推数列，可通过添加常数构造等比数列求解。",
+      "from_cache": true,
+      "question_id": "18",
+      "cache_similarity": 0.9529467821121216,
+      "cache_matched_question": "填空题：数列a_n=2a_{n-1}+1, a_0=0的通项公式为a_n=______。\n\n【重要：请只输出填空处的答案，不要输出解题过程或其他文字。】",
+      "ground_truth": "2^n - 1",
+      "answer_match": true
+    },
+    {
+      "final_answer": "15",
+      "domain": "离散数学",
+      "reasoning_steps": [
+        {
+          "step_id": 1,
+          "description": "集合上的等价关系与集合的划分是一一对应的",
+          "formula": "等价关系 \\leftrightarrow 划分",
+          "result": null,
+          "method": null
+        },
+        {
+          "step_id": 2,
+          "description": "n 个元素的集合划分数目为第 n 个贝尔数 B_n",
+          "formula": "B_n = \\sum_{k=1}^{n} S(n,k)",
+          "result": null,
+          "method": null
+        },
+        {
+          "step_id": 3,
+          "description": "计算 4 个元素的第二类斯特林数 S(4,k)",
+          "formula": "S(4,1)=1, S(4,2)=7, S(4,3)=6, S(4,4)=1",
+          "result": null,
+          "method": null
+        },
+        {
+          "step_id": 4,
+          "description": "累加得到总等价关系数",
+          "formula": "B_4 = 1 + 7 + 6 + 1 = 15",
+          "result": null,
+          "method": null
+        }
+      ],
+      "methods_used": [
+        "等价关系与划分的对应",
+        "第二类斯特林数",
+        "贝尔数"
+      ],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "集合上的等价关系与集合的划分是一一对应的，因此问题转化为求 4 元集合的划分数目（即第 4 个贝尔数）",
+      "from_cache": true,
+      "question_id": "19",
+      "cache_similarity": 0.9700862169265747,
+      "cache_matched_question": "填空题：集合{a,b,c,d}上最多可以有______个不同的等价关系。\n\n【重要：请只输出填空处的答案，不要输出解题过程或其他文字。】",
+      "ground_truth": "15",
+      "answer_match": true
+    },
+    {
+      "question_id": "20",
+      "timestamp": "2026-07-08T22:21:07.431570",
+      "domain": "离散数学",
+      "final_answer": "\\frac{n(n-1)}{2}",
+      "reasoning_steps": [
+        {
+          "step_id": 1,
+          "description": "理解完全图 K_n 的定义",
+          "formula": "K_n 有 n 个顶点，任意两个不同顶点之间恰有一条边",
+          "result": null,
+          "method": "图论定义"
+        },
+        {
+          "step_id": 2,
+          "description": "将边数问题转化为组合问题",
+          "formula": "每条边对应一对顶点，边数等于从 n 个顶点中选 2 个的组合数",
+          "result": null,
+          "method": "组合计数"
+        },
+        {
+          "step_id": 3,
+          "description": "应用组合数公式计算",
+          "formula": "\\binom{n}{2} = \\frac{n(n-1)}{2}",
+          "result": null,
+          "method": "组合数公式"
+        }
+      ],
+      "methods_used": [
+        "组合计数",
+        "图论基础"
+      ],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "完全图的边数问题等价于从 n 个不同元素中选取 2 个元素的组合数问题。",
+      "computation_time_ms": 209870.35965919495,
+      "retry_count": 0,
+      "model_version": null,
+      "from_cache": false,
+      "cache_similarity": null,
+      "cache_matched_question": null,
+      "true_domain": null,
+      "ground_truth": "n(n-1)/2",
+      "answer_match": true
+    },
+    {
+      "final_answer": "O(n \\log n)",
+      "domain": "离散数学",
+      "reasoning_steps": [
+        {
+          "step_id": 1,
+          "description": "识别递推关系标准形式",
+          "formula": "T(n) = aT(n/b) + f(n)",
+          "result": null,
+          "method": "主定理识别"
+        },
+        {
+          "step_id": 2,
+          "description": "确定参数并计算临界指数",
+          "formula": "a=2, b=2, f(n)=n, \\log_b a = \\log_2 2 = 1",
+          "result": null,
+          "method": "参数计算"
+        },
+        {
+          "step_id": 3,
+          "description": "比较 f(n) 与 n^{\\log_b a} 并求解",
+          "formula": "f(n) = \\Theta(n^{\\log_b a}) \\Rightarrow T(n) = \\Theta(n \\log n)",
+          "result": null,
+          "method": "主定理应用"
+        }
+      ],
+      "methods_used": [
+        "主定理",
+        "递归树法"
+      ],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "此类分治递推关系通常使用主定理求解，需比较驱动函数与临界指数的阶数关系。",
+      "from_cache": true,
+      "question_id": "21",
+      "cache_similarity": 0.9627265334129333,
+      "cache_matched_question": "填空题：递推关系T(n)=2T(n/2)+n的解（T(1)=1）的渐近复杂度为______。\n\n【重要：请只输出填空处的答案，不要输出解题过程或其他文字。】",
+      "ground_truth": "Θ(n log n)",
+      "answer_match": true
+    },
+    {
+      "final_answer": "n^m",
+      "domain": "离散数学",
+      "reasoning_steps": [
+        {
+          "step_id": 1,
+          "description": "根据函数的定义，对于定义域 A 中的每一个元素，在值域 B 中必须且只能有一个元素与之对应。",
+          "formula": "|A|=m, |B|=n",
+          "result": null,
+          "method": "函数定义"
+        },
+        {
+          "step_id": 2,
+          "description": "A 中的第 1 个元素有 n 种选择映射到 B，第 2 个元素也有 n 种选择，...，直到第 m 个元素。",
+          "formula": "n \\times n \\times \\cdots \\times n",
+          "result": null,
+          "method": "乘法原理"
+        },
+        {
+          "step_id": 3,
+          "description": "A 中共有 m 个元素，每个元素的选择相互独立，根据乘法原理，总函数数为 n 的 m 次方。",
+          "formula": "n^m",
+          "result": null,
+          "method": "乘法原理"
+        }
+      ],
+      "methods_used": [
+        "乘法原理"
+      ],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "从集合 A 到集合 B 的函数个数计算公式为 |B|^{|A|}，即 n^m。常见误区是混淆底数和指数，误写为 m^n。",
+      "from_cache": true,
+      "question_id": "22",
+      "cache_similarity": 0.9606865644454956,
+      "cache_matched_question": "填空题：设|A|=m, |B|=n，则从A到B的函数共有______个。\n\n【重要：请只输出填空处的答案，不要输出解题过程或其他文字。】",
+      "ground_truth": "n^m",
+      "answer_match": true
+    },
+    {
+      "final_answer": "2^n",
+      "domain": "离散数学",
+      "reasoning_steps": [
+        {
+          "step_id": 1,
+          "description": "集合中每个元素在子集中有两种状态：包含或不包含",
+          "formula": "2^n",
+          "result": null,
+          "method": "乘法原理"
+        }
+      ],
+      "methods_used": [
+        "乘法原理"
+      ],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "幂集包含原集合的所有子集。对于 n 个元素，每个元素都有选或不选 2 种选择，根据乘法原理，总子集数为 2 的 n 次方。",
+      "from_cache": true,
+      "question_id": "23",
+      "cache_similarity": 0.9455440044403076,
+      "cache_matched_question": "填空题：含n个元素的集合的幂集大小为______。\n\n【重要：请只输出填空处的答案，不要输出解题过程或其他文字。】",
+      "ground_truth": "2^n",
+      "answer_match": true
+    },
+    {
+      "question_id": "24",
+      "timestamp": "2026-07-08T22:22:12.113142",
+      "domain": "数值分析",
+      "final_answer": "D",
+      "reasoning_steps": [],
+      "methods_used": [],
+      "verification": {
+        "is_correct": false,
+        "confidence": 1.0,
+        "check_method": "llm_verify_mismatch",
+        "error_details": "pred=D, gt=B",
+        "error_type": "真正错误",
+        "llm_verify": {
+          "is_equivalent": false,
+          "confidence": 1.0,
+          "reason": "预测答案 D 对应数值 1.625，标准答案 B 对应数值 1.375。根据二分法计算，f(x)=x^3-x-2 在 [1,2] 区间迭代 3 次后的近似根应为 1.625，两者数值差异显著，数学上不等价。",
+          "pred_normalized": "1.625",
+          "gt_normalized": "1.375"
+        }
+      },
+      "educational_hint": "",
+      "computation_time_ms": 227632.50374794006,
+      "retry_count": 0,
+      "model_version": null,
+      "from_cache": false,
+      "cache_similarity": null,
+      "cache_matched_question": null,
+      "true_domain": null,
+      "ground_truth": "B",
+      "answer_match": false
+    },
+    {
+      "final_answer": "C",
+      "domain": "数值分析",
+      "reasoning_steps": [],
+      "methods_used": [],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "",
+      "from_cache": true,
+      "question_id": "25",
+      "cache_similarity": 0.9267464876174927,
+      "cache_matched_question": "选择题：Gauss-Seidel迭代法收敛的充分条件是系数矩阵？\nA. 对称\nB. 正定\nC. 严格对角占优\nD. 可逆\n\n【重要：请只输出正确选项的字母（A、B、C或D），不要输出任何解题过程或其他文字。】",
+      "ground_truth": "C",
+      "answer_match": true
+    },
+    {
+      "final_answer": "B",
+      "domain": "数值分析",
+      "reasoning_steps": [],
+      "methods_used": [],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "",
+      "from_cache": true,
+      "question_id": "26",
+      "cache_similarity": 0.9694405794143677,
+      "cache_matched_question": "选择题：用复合梯形公式(n=4)近似∫_0^1 1/(1+x)dx，结果约为？\nA. 0.684\nB. 0.697\nC. 0.710\nD. 0.723\n\n【重要：请只输出正确选项的字母（A、B、C或D），不要输出任何解题过程或其他文字。】",
+      "ground_truth": "B",
+      "answer_match": true
+    },
+    {
+      "final_answer": "A",
+      "domain": "数值分析",
+      "reasoning_steps": [
+        {
+          "step_id": 1,
+          "description": "回顾谱半径的数学定义",
+          "formula": "\\rho(A) = \\max_{\\lambda \\in \\sigma(A)} |\\lambda|",
+          "result": null,
+          "method": "定义法"
+        },
+        {
+          "step_id": 2,
+          "description": "分析各选项含义",
+          "formula": "",
+          "result": null,
+          "method": "概念辨析"
+        },
+        {
+          "step_id": 3,
+          "description": "匹配正确选项",
+          "formula": "",
+          "result": null,
+          "method": "逻辑判断"
+        }
+      ],
+      "methods_used": [
+        "定义法",
+        "概念辨析"
+      ],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "谱半径定义为矩阵所有特征值模的最大值。它是判断矩阵幂级数收敛性的重要指标。注意特征值可能是复数，因此取模（绝对值）。",
+      "from_cache": true,
+      "question_id": "27",
+      "cache_similarity": 0.9548770189285278,
+      "cache_matched_question": "选择题：矩阵A的谱半径ρ(A)定义为？\nA. 最大特征值的绝对值\nB. 所有特征值的平均值\nC. 行列式的绝对值\nD. 迹的绝对值\n\n【重要：请只输出正确选项的字母（A、B、C或D），不要输出任何解题过程或其他文字。】",
+      "ground_truth": "A",
+      "answer_match": true
+    },
+    {
+      "final_answer": "B",
+      "domain": "数值分析",
+      "reasoning_steps": [],
+      "methods_used": [],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "",
+      "from_cache": true,
+      "question_id": "28",
+      "cache_similarity": 0.940558135509491,
+      "cache_matched_question": "选择题：Newton迭代法求√5（初值x0=2），迭代2次后约为？\nA. 2.23\nB. 2.236\nC. 2.24\nD. 2.25\n\n【重要：请只输出正确选项的字母（A、B、C或D），不要输出任何解题过程或其他文字。】",
+      "ground_truth": "B",
+      "answer_match": true
+    },
+    {
+      "question_id": "29",
+      "timestamp": "2026-07-08T22:22:23.863675",
+      "domain": "数值分析",
+      "final_answer": "C",
+      "reasoning_steps": [
+        {
+          "step_id": 1,
+          "description": "计算矩阵 A 的特征多项式",
+          "formula": "\\det(\\lambda I - A) = \\begin{vmatrix} \\lambda - 3 & -1 \\\\ -1 & \\lambda - 3 \\end{vmatrix} = (\\lambda - 3)^2 - 1",
+          "result": null,
+          "method": "特征方程法"
+        },
+        {
+          "step_id": 2,
+          "description": "求解特征值",
+          "formula": "(\\lambda - 3)^2 - 1 = 0 \\Rightarrow \\lambda_1 = 2, \\lambda_2 = 4",
+          "result": null,
+          "method": "解一元二次方程"
+        },
+        {
+          "step_id": 3,
+          "description": "计算谱半径",
+          "formula": "\\rho(A) = \\max(|\\lambda_1|，|\\lambda_2|) = \\max(2, 4) = 4",
+          "result": null,
+          "method": "谱半径定义"
+        },
+        {
+          "step_id": 4,
+          "description": "确定正确选项",
+          "formula": "4 对应选项 C",
+          "result": null,
+          "method": "选项匹配"
+        }
+      ],
+      "methods_used": [
+        "特征方程法",
+        "谱半径定义"
+      ],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "谱半径定义为矩阵所有特征值绝对值的最大值。对于实对称矩阵，特征值均为实数，可直接比较大小。",
+      "computation_time_ms": 217683.20655822754,
+      "retry_count": 0,
+      "model_version": null,
+      "from_cache": false,
+      "cache_similarity": null,
+      "cache_matched_question": null,
+      "true_domain": null,
+      "ground_truth": "C",
+      "answer_match": true
+    },
+    {
+      "final_answer": "B",
+      "domain": "数值分析",
+      "reasoning_steps": [],
+      "methods_used": [],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "",
+      "from_cache": true,
+      "question_id": "30",
+      "cache_similarity": 0.9641698598861694,
+      "cache_matched_question": "选择题：用向前Euler法(h=0.1)解y'=-2y, y(0)=1，y(0.2)≈？\nA. 0.60\nB. 0.64\nC. 0.67\nD. 0.81\n\n【重要：请只输出正确选项的字母（A、B、C或D），不要输出任何解题过程或其他文字。】",
+      "ground_truth": "B",
+      "answer_match": true
+    },
+    {
+      "final_answer": "B",
+      "domain": "数值分析",
+      "reasoning_steps": [],
+      "methods_used": [],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "",
+      "from_cache": true,
+      "question_id": "31",
+      "cache_similarity": 0.9486144781112671,
+      "cache_matched_question": "选择题：三次样条插值的自然边界条件是？\nA. S'(x0)=S'(xn)=0\nB. S''(x0)=S''(xn)=0\nC. S(x0)=S(xn)=0\nD. S'''(x0)=S'''(xn)=0\n\n【重要：请只输出正确选项的字母（A、B、C或D），不要输出任何解题过程或其他文字。】",
+      "ground_truth": "B",
+      "answer_match": true
+    },
+    {
+      "final_answer": ",,],\"methods_used\":[\"Richardson 外推\",\"梯形公式误差分析\"],\"educational_hint\":\"Romberg 积分利用梯形公式误差首项为 O(h^2) 的性质，通过 Richardson 外推消除低阶误差项，系数 4 来源于步长减半导致的误差平方关系。\"}",
+      "domain": "数值分析",
+      "reasoning_steps": [],
+      "methods_used": [],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "",
+      "from_cache": true,
+      "question_id": "32",
+      "cache_similarity": 0.9845618009567261,
+      "cache_matched_question": "选择题：Romberg积分中Richardson外推公式R=(4T_2-T_1)/3的理论基础是？\nA. 梯形公式误差为O(h^2)\nB. Simpson公式\nC. Gauss求积\nD. Euler-Maclaurin公式\n\n【重要：请只输出正确选项的字母（A、B、C或D），不要输出任何解题过程或其他文字。】",
+      "ground_truth": "A",
+      "answer_match": true
+    },
+    {
+      "final_answer": "x^2 + x + 1",
+      "domain": "数值分析",
+      "reasoning_steps": [
+        {
+          "step_id": 1,
+          "description": "确定已知插值节点及其对应的函数值",
+          "formula": "x0=0, y0=1; x1=1, y1=3; x2=2, y2=7",
+          "result": null,
+          "method": "数据提取"
+        },
+        {
+          "step_id": 2,
+          "description": "构造拉格朗日基多项式",
+          "formula": "li(x) = product over j!=i of (x-xj)/(xi-xj)",
+          "result": null,
+          "method": "Lagrange 插值公式"
+        },
+        {
+          "step_id": 3,
+          "description": "代入节点值计算具体基函数并组合",
+          "formula": "L(x) = 1*(x-1)(x-2)/2 + 3*x(x-2)/(-1) + 7*x(x-1)/2",
+          "result": null,
+          "method": "代入计算"
+        },
+        {
+          "step_id": 4,
+          "description": "展开并合并同类项化简多项式",
+          "formula": "L(x) = 0.5(x^2-3x+2) - 3(x^2-2x) + 3.5(x^2-x) = x^2 + x + 1",
+          "result": null,
+          "method": "代数化简"
+        }
+      ],
+      "methods_used": [
+        "Lagrange 插值法"
+      ],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "拉格朗日插值法通过构造基函数的线性组合来拟合已知点，适用于节点较少且需显式表达式的场景。计算时注意分母不为零及符号处理。",
+      "from_cache": true,
+      "question_id": "33",
+      "cache_similarity": 0.941267728805542,
+      "cache_matched_question": "填空题：过点(0,1),(1,3),(2,7)的Lagrange插值多项式为______。\n\n【重要：请只输出填空处的答案，不要输出解题过程或其他文字。】",
+      "ground_truth": "x^2+x+1",
+      "answer_match": true
+    },
+    {
+      "final_answer": "[1, 1]^T",
+      "domain": "数值分析",
+      "reasoning_steps": [
+        {
+          "step_id": 1,
+          "description": "验证矩阵对称正定性并计算 Cholesky 分解因子 L",
+          "formula": "$l_{11}=\\sqrt{4}=2, l_{21}=2/2=1, l_{22}=\\sqrt{3-1^2}=\\sqrt{2}$",
+          "result": null,
+          "method": "Cholesky 分解"
+        },
+        {
+          "step_id": 2,
+          "description": "利用前代法求解 Ly = b",
+          "formula": "$2y_1=6 \\Rightarrow y_1=3, 3+\\sqrt{2}y_2=5 \\Rightarrow y_2=\\sqrt{2}$",
+          "result": null,
+          "method": "前代法"
+        },
+        {
+          "step_id": 3,
+          "description": "利用回代法求解 L^T x = y",
+          "formula": "$\\sqrt{2}x_2=\\sqrt{2} \\Rightarrow x_2=1, 2x_1+1=3 \\Rightarrow x_1=1$",
+          "result": null,
+          "method": "回代法"
+        }
+      ],
+      "methods_used": [
+        "Cholesky 分解",
+        "前代法",
+        "回代法"
+      ],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "Cholesky 分解适用于对称正定矩阵，将矩阵分解为下三角矩阵及其转置的乘积，通过两次三角方程组求解得到原方程组的解。",
+      "from_cache": true,
+      "question_id": "34",
+      "cache_similarity": 0.9615649580955505,
+      "cache_matched_question": "填空题：方程组[[4,2],[2,3]]x=[6,5]^T的Cholesky分解解为x=______。\n\n【重要：请只输出填空处的答案，不要输出解题过程或其他文字。】",
+      "ground_truth": "(1,1)^T",
+      "answer_match": true
+    },
+    {
+      "final_answer": "\": \"1\",",
+      "domain": "数值分析",
+      "reasoning_steps": [],
+      "methods_used": [],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "",
+      "from_cache": true,
+      "question_id": "35",
+      "cache_similarity": 0.9689937233924866,
+      "cache_matched_question": "填空题：Newton插值的差商f[0,1,2]对于f(x)=x^2+x+1的值为______。\n\n【重要：请只输出填空处的答案，不要输出解题过程或其他文字。】",
+      "ground_truth": "1",
+      "answer_match": true
+    },
+    {
+      "final_answer": "迭代矩阵的谱半径小于 1",
+      "domain": "数值分析",
+      "reasoning_steps": [
+        {
+          "step_id": 1,
+          "description": "确定 Jacobi 迭代格式及迭代矩阵定义",
+          "formula": "x^{(k+1)} = -D^{-1}(L+U)x^{(k)} + D^{-1}b",
+          "result": null,
+          "method": "Jacobi 迭代法"
+        },
+        {
+          "step_id": 2,
+          "description": "应用线性方程组迭代法收敛定理",
+          "formula": "\\rho(G) < 1",
+          "result": null,
+          "method": "谱半径分析"
+        },
+        {
+          "step_id": 3,
+          "description": "得出收敛条件结论",
+          "formula": "",
+          "result": null,
+          "method": "收敛性判定"
+        }
+      ],
+      "methods_used": [
+        "Jacobi 迭代法",
+        "谱半径分析"
+      ],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "线性方程组定常迭代法收敛的充要条件是迭代矩阵的谱半径严格小于 1。",
+      "from_cache": true,
+      "question_id": "36",
+      "cache_similarity": 0.9725500345230103,
+      "cache_matched_question": "填空题：Jacobi迭代法解Ax=b，迭代矩阵为G=-D^{-1}(L+U)，当______时收敛。\n\n【重要：请只输出填空处的答案，不要输出解题过程或其他文字。】",
+      "ground_truth": "ρ(G)<1",
+      "answer_match": true
+    },
+    {
+      "final_answer": "A",
+      "domain": "测度积分",
+      "reasoning_steps": [],
+      "methods_used": [],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "",
+      "from_cache": true,
+      "question_id": "37",
+      "cache_similarity": 0.9384171962738037,
+      "cache_matched_question": "选择题：ℚ∩[0,1]的Lebesgue测度为？\nA. 0\nB. 1\nC. 不可测\nD. 取决于定义\n\n【重要：请只输出正确选项的字母（A、B、C或D），不要输出任何解题过程或其他文字。】",
+      "ground_truth": "A",
+      "answer_match": true
+    },
+    {
+      "final_answer": "B",
+      "domain": "测度积分",
+      "reasoning_steps": [],
+      "methods_used": [],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "",
+      "from_cache": true,
+      "question_id": "38",
+      "cache_similarity": 0.9752246141433716,
+      "cache_matched_question": "选择题：Dirichlet函数在[0,1]上的Lebesgue积分为？\nA. 不可积\nB. 可积，积分值为0\nC. 可积，积分值为1/2\nD. 可积，积分值为1\n\n【重要：请只输出正确选项的字母（A、B、C或D），不要输出任何解题过程或其他文字。】",
+      "ground_truth": "B",
+      "answer_match": true
+    },
+    {
+      "final_answer": "C",
+      "domain": "测度积分",
+      "reasoning_steps": [],
+      "methods_used": [],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "",
+      "from_cache": true,
+      "question_id": "39",
+      "cache_similarity": 0.9744911789894104,
+      "cache_matched_question": "选择题：以下哪个函数在[0,1]上属于L^1但不属于L^2？\nA. f(x)=1\nB. f(x)=x\nC. f(x)=1/√x\nD. f(x)=x^2\n\n【重要：请只输出正确选项的字母（A、B、C或D），不要输出任何解题过程或其他文字。】",
+      "ground_truth": "C",
+      "answer_match": true
+    },
+    {
+      "final_answer": "A",
+      "domain": "测度积分",
+      "reasoning_steps": [],
+      "methods_used": [],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "",
+      "from_cache": true,
+      "question_id": "40",
+      "cache_similarity": 0.9510602355003357,
+      "cache_matched_question": "选择题：Cantor集的Lebesgue测度为？\nA. 0\nB. 1/3\nC. 1/2\nD. 1\n\n【重要：请只输出正确选项的字母（A、B、C或D），不要输出任何解题过程或其他文字。】",
+      "ground_truth": "A",
+      "answer_match": true
+    },
+    {
+      "final_answer": "B",
+      "domain": "测度积分",
+      "reasoning_steps": [],
+      "methods_used": [],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "",
+      "from_cache": true,
+      "question_id": "41",
+      "cache_similarity": 0.9721362590789795,
+      "cache_matched_question": "选择题：L^2([0,1])与L^1([0,1])之间的包含关系为？\nA. L^1⊂L^2\nB. L^2⊂L^1\nC. 两者互相包含\nD. 没有包含关系\n\n【重要：请只输出正确选项的字母（A、B、C或D），不要输出任何解题过程或其他文字。】",
+      "ground_truth": "B",
+      "answer_match": true
+    },
+    {
+      "final_answer": "B",
+      "domain": "测度积分",
+      "reasoning_steps": [],
+      "methods_used": [],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "",
+      "from_cache": true,
+      "question_id": "42",
+      "cache_similarity": 0.9517822265625,
+      "cache_matched_question": "选择题：∫_0^∞ e^{-x} dx作为Lebesgue积分的值为？\nA. 0\nB. 1\nC. e\nD. ∞\n\n【重要：请只输出正确选项的字母（A、B、C或D），不要输出任何解题过程或其他文字。】",
+      "ground_truth": "B",
+      "answer_match": true
+    },
+    {
+      "final_answer": "A",
+      "domain": "测度积分",
+      "reasoning_steps": [],
+      "methods_used": [],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "",
+      "from_cache": true,
+      "question_id": "43",
+      "cache_similarity": 0.9720173478126526,
+      "cache_matched_question": "选择题：Fatou引理中的不等式方向是？\nA. ∫liminf f_n ≤ liminf ∫f_n\nB. ∫liminf f_n ≥ liminf ∫f_n\nC. ∫liminf f_n = liminf ∫f_n\nD. 以上都不对\n\n【重要：请只输出正确选项的字母（A、B、C或D），不要输出任何解题过程或其他文字。】",
+      "ground_truth": "A",
+      "answer_match": true
+    },
+    {
+      "final_answer": "\": \"0\",",
+      "domain": "测度积分",
+      "reasoning_steps": [],
+      "methods_used": [],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "",
+      "from_cache": true,
+      "question_id": "44",
+      "cache_similarity": 0.9676170349121094,
+      "cache_matched_question": "填空题：设f_n(x)=nx/(1+n^2x^2)在[0,1]上。lim_{n→∞}∫_0^1 f_n(x)dx = ______。\n\n【重要：请只输出填空处的答案，不要输出解题过程或其他文字。】",
+      "ground_truth": "0",
+      "answer_match": true
+    },
+    {
+      "final_answer": "存在",
+      "domain": "测度积分",
+      "reasoning_steps": [
+        {
+          "step_id": 1,
+          "description": "定义差集 D 为 E 中任意两点之差构成的集合",
+          "formula": "D = \\{x - y \\mid x, y \\in E\\}",
+          "result": null,
+          "method": "集合运算"
+        },
+        {
+          "step_id": 2,
+          "description": "利用 Steinhaus 定理，正测度集的差集包含原点邻域",
+          "formula": "m(E) > 0 \\implies \\exists \\delta > 0, (-\\delta, \\delta) \\subseteq D",
+          "result": null,
+          "method": "Steinhaus 定理"
+        },
+        {
+          "step_id": 3,
+          "description": "利用有理数集在实数集中的稠密性",
+          "formula": "\\mathbb{Q} \\cap (-\\delta, \\delta) \\setminus \\{0\\} \\neq \\emptyset",
+          "result": null,
+          "method": "有理数稠密性"
+        },
+        {
+          "step_id": 4,
+          "description": "由上述两点可知存在非零有理数差，从而存在两点",
+          "formula": "\\exists x, y \\in E, x \\neq y, x - y \\in \\mathbb{Q}",
+          "result": null,
+          "method": "逻辑推导"
+        }
+      ],
+      "methods_used": [
+        "Steinhaus 定理",
+        "有理数稠密性",
+        "测度论基本性质"
+      ],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "本题考查实变函数中正测度集的性质。核心在于 Steinhaus 定理：若可测集 E 测度大于零，则其差集 E-E 包含一个以 0 为心的开区间。由于有理数在实数中稠密，该区间内必含非零有理数，从而保证 E 中存在两点之差为有理数。",
+      "from_cache": true,
+      "question_id": "45",
+      "cache_similarity": 0.9624544978141785,
+      "cache_matched_question": "填空题：设E⊂[0,1]可测且m(E)>0，则E中______两个不同点其差为有理数。\n\n【重要：请只输出填空处的答案，不要输出解题过程或其他文字。】",
+      "ground_truth": "存在",
+      "answer_match": true
+    },
+    {
+      "final_answer": "控制",
+      "domain": "测度积分",
+      "reasoning_steps": [
+        {
+          "step_id": 1,
+          "description": "勒贝格控制收敛定理中，存在可积函数 g 使得 |f_n| ≤ g 的条件被称为控制条件",
+          "formula": "|f_n| ≤ g a.e.",
+          "result": null,
+          "method": "定义回顾"
+        }
+      ],
+      "methods_used": [
+        "定义回顾"
+      ],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "",
+      "from_cache": true,
+      "question_id": "46",
+      "cache_similarity": 0.9730368852615356,
+      "cache_matched_question": "填空题：Lebesgue控制收敛定理中要求存在可积函数g使得|f_n|≤g a.e.，该条件称为______条件。\n\n【重要：请只输出填空处的答案，不要输出解题过程或其他文字。】",
+      "ground_truth": "控制（domination）",
+      "answer_match": true
+    },
+    {
+      "final_answer": "不成立",
+      "domain": "测度积分",
+      "reasoning_steps": [
+        {
+          "step_id": 1,
+          "description": "Riemann 可积函数必有界且几乎处处连续，故必 Lebesgue 可积",
+          "formula": "f \\in \\mathcal{R} \\implies f \\in \\mathcal{L}",
+          "result": null,
+          "method": "Lebesgue 判别法"
+        },
+        {
+          "step_id": 2,
+          "description": "Dirichlet 函数 Lebesgue 可积但非 Riemann 可积",
+          "formula": "D(x) = 1_{\\mathbb{Q}}",
+          "result": null,
+          "method": "反例法"
+        }
+      ],
+      "methods_used": [
+        "Lebesgue 判别法",
+        "反例法"
+      ],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "Riemann 积分要求函数有界且几乎处处连续，Lebesgue 积分范围更广。",
+      "from_cache": true,
+      "question_id": "47",
+      "cache_similarity": 0.9555433392524719,
+      "cache_matched_question": "填空题：Riemann可积函数必定Lebesgue可积，但反之______。\n\n【重要：请只输出填空处的答案，不要输出解题过程或其他文字。】",
+      "ground_truth": "不成立（Dirichlet函数为反例）",
+      "answer_match": true
+    },
+    {
+      "final_answer": "\": \"2\",",
+      "domain": "微分几何",
+      "reasoning_steps": [],
+      "methods_used": [],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "llm_verify_match",
+        "error_details": "",
+        "llm_verify": {
+          "is_equivalent": true,
+          "confidence": 1.0,
+          "reason": "计算曲线 γ(t)=(t,t^2) 在 t=0 处的曲率，代入公式得 κ=2。选项 C 的值为 2。预测答案给出数值 2，标准答案为选项 C，两者指向同一正确数学结果。",
+          "pred_normalized": "2",
+          "gt_normalized": "C"
+        }
+      },
+      "educational_hint": "",
+      "from_cache": true,
+      "question_id": "48",
+      "cache_similarity": 0.9682384729385376,
+      "cache_matched_question": "选择题：平面曲线γ(t)=(t,t^2)在t=0处的曲率为？\nA. 0\nB. 1\nC. 2\nD. 4\n\n【重要：请只输出正确选项的字母（A、B、C或D），不要输出任何解题过程或其他文字。】",
+      "ground_truth": "C",
+      "answer_match": true
+    },
+    {
+      "final_answer": "C",
+      "domain": "微分几何",
+      "reasoning_steps": [],
+      "methods_used": [],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "",
+      "from_cache": true,
+      "question_id": "49",
+      "cache_similarity": 0.9517217874526978,
+      "cache_matched_question": "选择题：半径为R的球面S^2在任意点处的高斯曲率K为？\nA. 0\nB. 1/R\nC. 1/R^2\nD. R\n\n【重要：请只输出正确选项的字母（A、B、C或D），不要输出任何解题过程或其他文字。】",
+      "ground_truth": "C",
+      "answer_match": true
+    },
+    {
+      "final_answer": "B",
+      "domain": "微分几何",
+      "reasoning_steps": [],
+      "methods_used": [],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "",
+      "from_cache": true,
+      "question_id": "50",
+      "cache_similarity": 0.9477086663246155,
+      "cache_matched_question": "选择题：环面T^2的Euler示性数为？\nA. -2\nB. 0\nC. 1\nD. 2\n\n【重要：请只输出正确选项的字母（A、B、C或D），不要输出任何解题过程或其他文字。】",
+      "ground_truth": "B",
+      "answer_match": true
+    },
+    {
+      "question_id": "51",
+      "timestamp": "2026-07-08T22:21:56.228425",
+      "domain": "微分几何",
+      "final_answer": "A",
+      "reasoning_steps": [],
+      "methods_used": [],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "",
+      "computation_time_ms": 176063.16113471985,
+      "retry_count": 0,
+      "model_version": null,
+      "from_cache": false,
+      "cache_similarity": null,
+      "cache_matched_question": null,
+      "true_domain": null,
+      "ground_truth": "A",
+      "answer_match": true
+    },
+    {
+      "final_answer": "A",
+      "domain": "微分几何",
+      "reasoning_steps": [],
+      "methods_used": [],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "",
+      "from_cache": true,
+      "question_id": "52",
+      "cache_similarity": 0.9642786383628845,
+      "cache_matched_question": "选择题：曲面z=x^2+y^2（旋转抛物面）在(0,0,0)处第一基本形式为？\nA. dx^2+dy^2\nB. 2dx^2+2dy^2\nC. dx^2+2dxdy+dy^2\nD. 4dx^2+4dy^2\n\n【重要：请只输出正确选项的字母（A、B、C或D），不要输出任何解题过程或其他文字。】",
+      "ground_truth": "A",
+      "answer_match": true
+    },
+    {
+      "final_answer": "B",
+      "domain": "微分几何",
+      "reasoning_steps": [],
+      "methods_used": [],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "",
+      "from_cache": true,
+      "question_id": "53",
+      "cache_similarity": 0.9687756896018982,
+      "cache_matched_question": "选择题：圆柱面x^2+y^2=1沿母线方向的主曲率为？\nA. -1\nB. 0\nC. 1\nD. 2\n\n【重要：请只输出正确选项的字母（A、B、C或D），不要输出任何解题过程或其他文字。】",
+      "ground_truth": "B",
+      "answer_match": true
+    },
+    {
+      "final_answer": "2du^2 - 2dv^2",
+      "domain": "微分几何",
+      "reasoning_steps": [
+        {
+          "step_id": 1,
+          "description": "计算切向量 r_u 和 r_v",
+          "formula": "r_u = (1, 0, 2u), r_v = (0, 1, -2v)",
+          "result": null,
+          "method": "偏导数计算"
+        },
+        {
+          "step_id": 2,
+          "description": "计算 (0,0) 处的单位法向量 n",
+          "formula": "n = (r_u x r_v)/|r_u x r_v| = (0, 0, 1)",
+          "result": null,
+          "method": "法向量计算"
+        },
+        {
+          "step_id": 3,
+          "description": "计算二阶偏导数 r_uu, r_uv, r_vv",
+          "formula": "r_uu = (0, 0, 2), r_uv = (0, 0, 0), r_vv = (0, 0, -2)",
+          "result": null,
+          "method": "二阶偏导数计算"
+        },
+        {
+          "step_id": 4,
+          "description": "计算第二基本形式系数 L, M, N",
+          "formula": "L = r_uu . n = 2, M = r_uv . n = 0, N = r_vv . n = -2",
+          "result": null,
+          "method": "内积计算"
+        },
+        {
+          "step_id": 5,
+          "description": "写出第二基本形式表达式",
+          "formula": "II = L du^2 + 2M du dv + N dv^2 = 2 du^2 - 2 dv^2",
+          "result": null,
+          "method": "形式组合"
+        }
+      ],
+      "methods_used": [
+        "偏导数计算",
+        "法向量计算",
+        "第二基本形式定义"
+      ],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "第二基本形式描述了曲面在法线方向上的弯曲程度，系数由二阶偏导数与单位法向量的内积确定。",
+      "from_cache": true,
+      "question_id": "54",
+      "cache_similarity": 0.9838854670524597,
+      "cache_matched_question": "填空题：曲面r(u,v)=(u,v,u^2-v^2)在(0,0)处的第二基本形式II=______。\n\n【重要：请只输出填空处的答案，不要输出解题过程或其他文字。】",
+      "ground_truth": "2du^2-2dv^2",
+      "answer_match": true
+    },
+    {
+      "final_answer": "欧拉示性数",
+      "domain": "微分几何",
+      "reasoning_steps": [
+        {
+          "step_id": 1,
+          "description": "回顾全局 Gauss-Bonnet 定理的积分公式",
+          "formula": "\\int_M K dA + \\int_{\\partial M} k_g ds = 2\\pi \\chi(M)",
+          "result": null,
+          "method": "Gauss-Bonnet 定理"
+        },
+        {
+          "step_id": 2,
+          "description": "分析公式右侧的拓扑不变量",
+          "formula": "\\chi(M) 表示曲面 M 的欧拉示性数",
+          "result": null,
+          "method": "拓扑学基础"
+        },
+        {
+          "step_id": 3,
+          "description": "确定总高斯曲率与拓扑量的关系",
+          "formula": "当 \\partial M = \\emptyset 时，\\int_M K dA = 2\\pi \\chi(M)",
+          "result": null,
+          "method": "微分几何基本定理"
+        }
+      ],
+      "methods_used": [
+        "Gauss-Bonnet 定理"
+      ],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "llm_verify_match",
+        "error_details": "",
+        "llm_verify": {
+          "is_equivalent": true,
+          "confidence": 1.0,
+          "reason": "预测答案与标准答案均指代欧拉示性数（Euler characteristic），仅表述形式（全中文 vs 英文 + 中文）不同，数学含义完全等价。",
+          "pred_normalized": "欧拉示性数",
+          "gt_normalized": "欧拉示性数"
+        }
+      },
+      "educational_hint": "Gauss-Bonnet 定理揭示了曲面的局部几何性质（高斯曲率）与整体拓扑性质（欧拉示性数）之间的深刻联系，是连接几何与拓扑的桥梁。",
+      "from_cache": true,
+      "question_id": "55",
+      "cache_similarity": 0.9793651103973389,
+      "cache_matched_question": "填空题：Gauss-Bonnet定理将曲面的总高斯曲率与______联系起来。\n\n【重要：请只输出填空处的答案，不要输出解题过程或其他文字。】",
+      "ground_truth": "Euler示性数",
+      "answer_match": true
+    },
+    {
+      "final_answer": "1/2",
+      "domain": "微分几何",
+      "reasoning_steps": [
+        {
+          "step_id": 1,
+          "description": "计算曲线的一阶和二阶导数向量",
+          "formula": "\\gamma'(t) = (-\\sin t, \\cos t, 1), \\gamma''(t) = (-\\cos t, -\\sin t, 0)",
+          "result": null,
+          "method": "求导"
+        },
+        {
+          "step_id": 2,
+          "description": "计算切向量模长及叉积",
+          "formula": "\\|\\gamma'\\| = \\sqrt{2}, \\gamma' \\times \\gamma'' = (\\sin t, -\\cos t, 1), \\|\\gamma' \\times \\gamma''\\| = \\sqrt{2}",
+          "result": null,
+          "method": "向量运算"
+        },
+        {
+          "step_id": 3,
+          "description": "代入曲率公式计算",
+          "formula": "\\kappa = \\frac{\\|\\gamma' \\times \\gamma''\\|}{\\|\\gamma'\\|^3} = \\frac{\\sqrt{2}}{(\\sqrt{2})^3} = \\frac{1}{2}",
+          "result": null,
+          "method": "曲率公式"
+        }
+      ],
+      "methods_used": [
+        "Frenet 标架",
+        "参数曲线曲率公式"
+      ],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "螺旋线是常曲率曲线，利用参数方程曲率公式 \\kappa = \\|\\gamma' \\times \\gamma''\\| / \\|\\gamma'\\|^3 可直接求解。",
+      "from_cache": true,
+      "question_id": "56",
+      "cache_similarity": 0.9709678888320923,
+      "cache_matched_question": "填空题：螺旋线γ(t)=(cos t, sin t, t)的曲率κ=______。\n\n【重要：请只输出填空处的答案，不要输出解题过程或其他文字。】",
+      "ground_truth": "1/2",
+      "answer_match": true
+    },
+    {
+      "final_answer": "B",
+      "domain": "概率论",
+      "reasoning_steps": [],
+      "methods_used": [],
+      "verification": {
+        "is_correct": false,
+        "confidence": 1.0,
+        "check_method": "llm_verify_mismatch",
+        "error_details": "pred=B, gt=C",
+        "error_type": "真正错误",
+        "llm_verify": {
+          "is_equivalent": false,
+          "confidence": 1.0,
+          "reason": "计算得至少 1 红的概率为 1 - C(2,2)/C(5,2) = 9/10，对应选项 C。预测答案 B (3/5) 与标准答案 C (9/10) 数值不同，不等价。",
+          "pred_normalized": "B",
+          "gt_normalized": "C"
+        }
+      },
+      "educational_hint": "",
+      "from_cache": true,
+      "question_id": "57",
+      "cache_similarity": 0.9238501787185669,
+      "cache_matched_question": "选择题：图C_5（5个顶点的圈）的色数是？\nA. 2\nB. 3\nC. 4\nD. 5\n\n【格式要求：请逐步推理分析每个选项，最后一行单独输出\"答案：X\"（X为A/B/C/D中的一个字母）。】",
+      "ground_truth": "C",
+      "answer_match": false
+    },
+    {
+      "final_answer": "0.95",
+      "domain": "概率论",
+      "reasoning_steps": [
+        {
+          "step_id": 1,
+          "description": "Convert absolute value inequality to interval",
+          "formula": "|X| \\le 1.96 \\iff -1.96 \\le X \\le 1.96",
+          "result": null,
+          "method": "Inequality Transformation"
+        },
+        {
+          "step_id": 2,
+          "description": "Express probability using standard normal CDF",
+          "formula": "P(-1.96 \\le X \\le 1.96) = \\Phi(1.96) - \\Phi(-1.96)",
+          "result": null,
+          "method": "Cumulative Distribution Function"
+        },
+        {
+          "step_id": 3,
+          "description": "Apply symmetry property of standard normal distribution",
+          "formula": "\\Phi(-x) = 1 - \\Phi(x) \\Rightarrow \\Phi(-1.96) = 1 - \\Phi(1.96)",
+          "result": null,
+          "method": "Symmetry of Normal Distribution"
+        },
+        {
+          "step_id": 4,
+          "description": "Calculate final probability value",
+          "formula": "P = 2\\Phi(1.96) - 1 = 2(0.975) - 1 = 0.95",
+          "result": null,
+          "method": "Numerical Substitution"
+        }
+      ],
+      "methods_used": [
+        "Standard Normal Distribution Properties",
+        "CDF Calculation",
+        "Symmetry Property"
+      ],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "llm_verify_match",
+        "error_details": "",
+        "llm_verify": {
+          "is_equivalent": true,
+          "confidence": 1.0,
+          "reason": "预测答案 0.95 为标准正态分布下 |X|≤1.96 的正确概率值，该值对应选项 C，两者数学结论一致。",
+          "pred_normalized": "0.95",
+          "gt_normalized": "C"
+        }
+      },
+      "educational_hint": "The value 1.96 corresponds to the critical value for a two-tailed 95% confidence interval in a standard normal distribution.",
+      "from_cache": true,
+      "question_id": "58",
+      "cache_similarity": 0.9584068059921265,
+      "cache_matched_question": "选择题：设X~N(0,1)，P(|X|≤1.96)约为？\nA. 0.68\nB. 0.90\nC. 0.95\nD. 0.99\n\n【重要：请只输出正确选项的字母（A、B、C或D），不要输出任何解题过程或其他文字。】",
+      "ground_truth": "C",
+      "answer_match": true
+    },
+    {
+      "final_answer": "C",
+      "domain": "概率论",
+      "reasoning_steps": [],
+      "methods_used": [],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "",
+      "from_cache": true,
+      "question_id": "59",
+      "cache_similarity": 0.9803237915039062,
+      "cache_matched_question": "选择题：设X和Y独立同分布于Exp(λ)，Z=min(X,Y)的分布为？\nA. Exp(λ)\nB. Exp(λ/2)\nC. Exp(2λ)\nD. Gamma(2,λ)\n\n【重要：请只输出正确选项的字母（A、B、C或D），不要输出任何解题过程或其他文字。】",
+      "ground_truth": "C",
+      "answer_match": true
+    },
+    {
+      "question_id": "60",
+      "timestamp": "2026-07-08T22:23:03.037502",
+      "domain": "概率论",
+      "final_answer": "与选项\",",
+      "reasoning_steps": [],
+      "methods_used": [],
+      "verification": {
+        "is_correct": false,
+        "confidence": 1.0,
+        "check_method": "llm_verify_mismatch",
+        "error_details": "pred=与选项\",, gt=B",
+        "error_type": "真正错误",
+        "llm_verify": {
+          "is_equivalent": false,
+          "confidence": 1.0,
+          "reason": "预测答案文本不完整，未明确指定选项字母，无法与标准答案 B 建立等价关系",
+          "pred_normalized": "与选项",
+          "gt_normalized": "B"
+        }
+      },
+      "educational_hint": "",
+      "computation_time_ms": 209934.86499786377,
+      "retry_count": 0,
+      "model_version": null,
+      "from_cache": false,
+      "cache_similarity": null,
+      "cache_matched_question": null,
+      "true_domain": null,
+      "ground_truth": "B",
+      "answer_match": false
+    },
+    {
+      "final_answer": "A",
+      "domain": "概率论",
+      "reasoning_steps": [],
+      "methods_used": [],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "",
+      "from_cache": true,
+      "question_id": "61",
+      "cache_similarity": 0.9813313484191895,
+      "cache_matched_question": "选择题：设(X,Y)联合密度f(x,y)=e^{-(x+y)}(x>0,y>0)，X与Y是否独立？\nA. 独立\nB. 不独立\nC. 仅当x=y时独立\nD. 无法判断\n\n【重要：请只输出正确选项的字母（A、B、C或D），不要输出任何解题过程或其他文字。】",
+      "ground_truth": "A",
+      "answer_match": true
+    },
+    {
+      "final_answer": "2/3",
+      "domain": "概率论",
+      "reasoning_steps": [
+        {
+          "step_id": 1,
+          "description": "根据连续型随机变量期望的定义公式",
+          "formula": "E[X] = \\int_{-\\infty}^{+\\infty} x f(x) dx",
+          "result": null,
+          "method": "期望定义"
+        },
+        {
+          "step_id": 2,
+          "description": "代入给定的密度函数和积分区间",
+          "formula": "E[X] = \\int_{0}^{1} x \\cdot 2x dx = \\int_{0}^{1} 2x^2 dx",
+          "result": null,
+          "method": "代入计算"
+        },
+        {
+          "step_id": 3,
+          "description": "计算定积分得出结果",
+          "formula": "\\left[ \\frac{2}{3}x^3 \\right]_{0}^{1} = \\frac{2}{3}",
+          "result": null,
+          "method": "积分运算"
+        }
+      ],
+      "methods_used": [
+        "连续型随机变量期望的定义",
+        "定积分计算"
+      ],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "计算连续型随机变量的期望需利用公式 E[X]=\\int x f(x)dx，注意积分区间由密度函数非零部分决定。",
+      "from_cache": true,
+      "question_id": "62",
+      "cache_similarity": 0.9618723392486572,
+      "cache_matched_question": "填空题：设X的密度f(x)=2x(0≤x≤1)，则E[X]=______。\n\n【重要：请只输出填空处的答案，不要输出解题过程或其他文字。】",
+      "ground_truth": "2/3",
+      "answer_match": true
+    },
+    {
+      "final_answer": "0.25",
+      "domain": "概率论",
+      "reasoning_steps": [
+        {
+          "step_id": 1,
+          "description": "计算二项分布的期望和方差",
+          "formula": "E[X]=np=100\\times0.5=50, \\quad Var(X)=np(1-p)=100\\times0.5\\times0.5=25",
+          "result": null,
+          "method": "二项分布性质"
+        },
+        {
+          "step_id": 2,
+          "description": "应用切比雪夫不等式",
+          "formula": "P(|X-\\mu|\\ge\\epsilon)\\le\\frac{Var(X)}{\\epsilon^2}",
+          "result": null,
+          "method": "切比雪夫不等式"
+        },
+        {
+          "step_id": 3,
+          "description": "代入数值计算上界",
+          "formula": "P(|X-50|\\ge10)\\le\\frac{25}{10^2}=\\frac{25}{100}=0.25",
+          "result": null,
+          "method": "数值计算"
+        }
+      ],
+      "methods_used": [
+        "二项分布期望方差计算",
+        "切比雪夫不等式"
+      ],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "首先根据二项分布参数求出期望和方差，再利用切比雪夫不等式 P(|X-μ|≥ε) ≤ σ²/ε² 计算概率上界。",
+      "from_cache": true,
+      "question_id": "63",
+      "cache_similarity": 0.9831162095069885,
+      "cache_matched_question": "填空题：X~B(100,0.5)，由Chebyshev不等式P(|X-50|≥10)≤______。\n\n【重要：请只输出填空处的答案，不要输出解题过程或其他文字。】",
+      "ground_truth": "0.25",
+      "answer_match": true
+    },
+    {
+      "final_answer": "P(B)",
+      "domain": "概率论",
+      "reasoning_steps": [
+        {
+          "step_id": 1,
+          "description": "回顾贝叶斯定理的标准数学表达式结构",
+          "formula": "P(A|B) = P(B|A)P(A) / P(B)",
+          "result": null,
+          "method": "贝叶斯定理"
+        },
+        {
+          "step_id": 2,
+          "description": "确定公式分母为事件 B 的边缘概率或全概率",
+          "formula": "P(B)",
+          "result": null,
+          "method": "条件概率定义"
+        }
+      ],
+      "methods_used": [
+        "贝叶斯定理",
+        "全概率公式"
+      ],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "贝叶斯定理的分母是证据概率 P(B)，它代表事件 B 发生的总概率，通常通过全概率公式计算得出",
+      "from_cache": true,
+      "question_id": "64",
+      "cache_similarity": 0.9646971225738525,
+      "cache_matched_question": "填空题：Bayes定理：P(A|B)=P(B|A)P(A)/______。\n\n【重要：请只输出填空处的答案，不要输出解题过程或其他文字。】",
+      "ground_truth": "P(B)",
+      "answer_match": true
+    },
+    {
+      "question_id": "65",
+      "timestamp": "2026-07-08T22:23:27.953778",
+      "domain": "抽象代数",
+      "final_answer": "B",
+      "reasoning_steps": [],
+      "methods_used": [],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "",
+      "computation_time_ms": 209503.52215766907,
+      "retry_count": 0,
+      "model_version": null,
+      "from_cache": false,
+      "cache_similarity": null,
+      "cache_matched_question": null,
+      "true_domain": null,
+      "ground_truth": "B",
+      "answer_match": true
+    },
+    {
+      "final_answer": "B",
+      "domain": "抽象代数",
+      "reasoning_steps": [],
+      "methods_used": [],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "",
+      "from_cache": true,
+      "question_id": "66",
+      "cache_similarity": 0.9200987815856934,
+      "cache_matched_question": "选择题：置换σ=(1 2 3)(4 5)在S_5中的阶为？\nA. 5\nB. 6\nC. 10\nD. 15\n\n【重要：请只输出正确选项的字母（A、B、C或D），不要输出任何解题过程或其他文字。】",
+      "ground_truth": "B",
+      "answer_match": true
+    },
+    {
+      "question_id": "67",
+      "timestamp": "2026-07-08T22:23:06.906222",
+      "domain": "抽象代数",
+      "final_answer": "C\",",
+      "reasoning_steps": [],
+      "methods_used": [],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "",
+      "computation_time_ms": 180013.90385627747,
+      "retry_count": 0,
+      "model_version": null,
+      "from_cache": false,
+      "cache_similarity": null,
+      "cache_matched_question": null,
+      "true_domain": null,
+      "ground_truth": "C",
+      "answer_match": true
+    },
+    {
+      "final_answer": "C",
+      "domain": "抽象代数",
+      "reasoning_steps": [],
+      "methods_used": [],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "",
+      "from_cache": true,
+      "question_id": "68",
+      "cache_similarity": 0.9222170114517212,
+      "cache_matched_question": "选择题：群D_4（正方形二面体群）的阶为？\nA. 4\nB. 6\nC. 8\nD. 12\n\n【重要：请只输出正确选项的字母（A、B、C或D），不要输出任何解题过程或其他文字。】",
+      "ground_truth": "C",
+      "answer_match": true
+    },
+    {
+      "final_answer": "C",
+      "domain": "抽象代数",
+      "reasoning_steps": [
+        {
+          "step_id": 1,
+          "description": "求多项式 x^3-2 的根",
+          "formula": "x^3 - 2 = 0 \\implies x \\in \\{ \\sqrt[3]{2}, \\omega\\sqrt[3]{2}, \\omega^2\\sqrt[3]{2} \\}",
+          "result": null,
+          "method": "复数域求根"
+        },
+        {
+          "step_id": 2,
+          "description": "确定分裂域 K 及扩张次数",
+          "formula": "K = \\mathbb{Q}(\\sqrt[3]{2}, \\omega), \\quad [K:\\mathbb{Q}] = 6",
+          "result": null,
+          "method": "域扩张理论"
+        },
+        {
+          "step_id": 3,
+          "description": "确定 Galois 群同构类",
+          "formula": "|\\text{Gal}(K/\\mathbb{Q})| = 6 \\hookrightarrow S_3 \\implies \\cong S_3",
+          "result": null,
+          "method": "Galois 群阶数与对称群"
+        }
+      ],
+      "methods_used": [
+        "Eisenstein 判别法",
+        "域扩张次数计算",
+        "Galois 群作用"
+      ],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "三次多项式分裂域的 Galois 群阶数等于扩张次数。若次数为 6，则同构于对称群 S_3；若次数为 3，则同构于交错群 A_3。本题中扩张次数为 6，故选 S_3。",
+      "from_cache": true,
+      "question_id": "69",
+      "cache_similarity": 0.9629805088043213,
+      "cache_matched_question": "选择题：x^3-2在ℚ上的分裂域的Galois群同构于？\nA. ℤ/2ℤ\nB. ℤ/3ℤ\nC. S_3\nD. A_3\n\n【重要：请只输出正确选项的字母（A、B、C或D），不要输出任何解题过程或其他文字。】",
+      "ground_truth": "C",
+      "answer_match": true
+    },
+    {
+      "final_answer": "A",
+      "domain": "抽象代数",
+      "reasoning_steps": [],
+      "methods_used": [],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "",
+      "from_cache": true,
+      "question_id": "70",
+      "cache_similarity": 0.9276479482650757,
+      "cache_matched_question": "选择题：Lagrange定理的推论：有限群中元素的阶必定？\nA. 整除群的阶\nB. 等于群的阶\nC. 小于群的阶\nD. 与群的阶互素\n\n【重要：请只输出正确选项的字母（A、B、C或D），不要输出任何解题过程或其他文字。】",
+      "ground_truth": "A",
+      "answer_match": true
+    },
+    {
+      "final_answer": "Abel",
+      "domain": "抽象代数",
+      "reasoning_steps": [
+        {
+          "step_id": 1,
+          "description": "ℤ 是由 1 生成的有限生成群，属于有限生成 Abel 群分类定理讨论范畴",
+          "formula": "Z = <1>",
+          "result": null,
+          "method": "有限生成 Abel 群分类定理"
+        },
+        {
+          "step_id": 2,
+          "description": "验证加法运算满足交换律",
+          "formula": "a+b = b+a",
+          "result": null,
+          "method": "加法交换律"
+        },
+        {
+          "step_id": 3,
+          "description": "满足交换律的群定义为 Abel 群",
+          "formula": "Commutative Group = Abelian Group",
+          "result": null,
+          "method": "Abel 群定义"
+        }
+      ],
+      "methods_used": [
+        "有限生成 Abel 群分类定理",
+        "加法交换律"
+      ],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "整数加法满足交换律，且 ℤ 是典型的有限生成 Abel 群。",
+      "from_cache": true,
+      "question_id": "71",
+      "cache_similarity": 0.959958016872406,
+      "cache_matched_question": "填空题：整数集ℤ在加法下构成______群（填Abel/非Abel）。\n\n【重要：请只输出填空处的答案，不要输出解题过程或其他文字。】",
+      "ground_truth": "Abel",
+      "answer_match": true
+    },
+    {
+      "final_answer": "PID",
+      "domain": "抽象代数",
+      "reasoning_steps": [
+        {
+          "step_id": 1,
+          "description": "定义高斯整数环上的范数函数 N(a+bi) = a^2 + b^2",
+          "formula": "N(a+bi) = a^2 + b^2",
+          "result": null,
+          "method": "范数定义"
+        },
+        {
+          "step_id": 2,
+          "description": "验证高斯整数环满足欧几里得除法算法，故为欧几里得整环",
+          "formula": "\\forall a, b \\in \\mathbb{Z}[i], b \\neq 0, \\exists q, r \\in \\mathbb{Z}[i] \\text{ s.t. } a = bq + r, N(r) < N(b)",
+          "result": null,
+          "method": "欧几里得整环判定"
+        },
+        {
+          "step_id": 3,
+          "description": "根据定理：欧几里得整环必为主理想整环 (PID)",
+          "formula": "\\text{ED} \\implies \\text{PID}",
+          "result": null,
+          "method": "整环包含关系定理"
+        }
+      ],
+      "methods_used": [
+        "欧几里得整环判定",
+        "主理想整环性质"
+      ],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "高斯整数环是典型的欧几里得整环，因此它一定是主理想整环 (PID)，进而也是唯一分解整环 (UFD)。在选项中 PID 是更强的性质，故填 PID。",
+      "from_cache": true,
+      "question_id": "72",
+      "cache_similarity": 0.9632778763771057,
+      "cache_matched_question": "填空题：环ℤ[i]（高斯整数环）是______（填PID/UFD/都不是）。\n\n【重要：请只输出填空处的答案，不要输出解题过程或其他文字。】",
+      "ground_truth": "PID",
+      "answer_match": true
+    },
+    {
+      "final_answer": "A",
+      "domain": "随机过程",
+      "reasoning_steps": [],
+      "methods_used": [],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "",
+      "from_cache": true,
+      "question_id": "73",
+      "cache_similarity": 0.9783821105957031,
+      "cache_matched_question": "选择题：强度为λ的Poisson过程N(t)，P(N(2)=3)=？\nA. e^{-2λ}(2λ)^3/6\nB. e^{-λ}λ^3/6\nC. e^{-2λ}λ^3/3\nD. e^{-λ}(2λ)^3/6\n\n【重要：请只输出正确选项的字母（A、B、C或D），不要输出任何解题过程或其他文字。】",
+      "ground_truth": "A",
+      "answer_match": true
+    },
+    {
+      "question_id": "74",
+      "timestamp": "2026-07-08T22:26:55.691607",
+      "domain": "随机过程",
+      "final_answer": "B",
+      "reasoning_steps": [],
+      "methods_used": [],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "llm_verify_match",
+        "error_details": "",
+        "llm_verify": {
+          "is_equivalent": true,
+          "confidence": 0.95,
+          "reason": "在题目给定条件 s ≤ t 下，min(s, t) 简化为 s，因此两个选项代表的数学表达式在代数上是等价的。",
+          "pred_normalized": "s",
+          "gt_normalized": "min(s, t)"
+        }
+      },
+      "educational_hint": "",
+      "computation_time_ms": 347035.4495048523,
+      "retry_count": 1,
+      "model_version": null,
+      "from_cache": false,
+      "cache_similarity": null,
+      "cache_matched_question": null,
+      "true_domain": null,
+      "ground_truth": "D",
+      "answer_match": true
+    },
+    {
+      "final_answer": "A",
+      "domain": "随机过程",
+      "reasoning_steps": [],
+      "methods_used": [],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "",
+      "from_cache": true,
+      "question_id": "75",
+      "cache_similarity": 0.9765139222145081,
+      "cache_matched_question": "选择题：X_n=Z_n+Z_{n-1}（Z_n为白噪声）是否为平稳过程？\nA. 是弱平稳过程\nB. 不是，均值不为常数\nC. 不是，方差随时间增长\nD. 无法判断\n\n【重要：请只输出正确选项的字母（A、B、C或D），不要输出任何解题过程或其他文字。】",
+      "ground_truth": "A",
+      "answer_match": true
+    },
+    {
+      "final_answer": "B",
+      "domain": "随机过程",
+      "reasoning_steps": [
+        {
+          "step_id": 1,
+          "description": "写出平稳分布满足的方程πQ=0",
+          "formula": "πQ = 0, 其中π=[π_1, π_2]",
+          "result": null,
+          "method": "连续时间Markov链平稳分布定义"
+        },
+        {
+          "step_id": 2,
+          "description": "建立线性方程组",
+          "formula": "-2π_1 + π_2 = 0, 2π_1 - π_2 = 0",
+          "result": null,
+          "method": "矩阵乘法展开"
+        },
+        {
+          "step_id": 3,
+          "description": "利用归一化条件求解",
+          "formula": "π_1 + π_2 = 1, 结合π_2 = 2π_1得3π_1 = 1",
+          "result": null,
+          "method": "概率归一化条件"
+        },
+        {
+          "step_id": 4,
+          "description": "计算最终结果",
+          "formula": "π_1 = 1/3",
+          "result": null,
+          "method": "代数求解"
+        }
+      ],
+      "methods_used": [
+        "连续时间Markov链平稳分布方程",
+        "线性方程组求解",
+        "概率归一化条件"
+      ],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "连续时间Markov链的平稳分布满足πQ=0且Σπ_i=1，通过解线性方程组即可求得各状态的概率。",
+      "from_cache": true,
+      "question_id": "76",
+      "cache_similarity": 0.9697226285934448,
+      "cache_matched_question": "选择题：连续时间Markov链Q=[[-2,2],[1,-1]]的平稳分布π_1=？\nA. 1/4\nB. 1/3\nC. 1/2\nD. 2/3\n\n【重要：请只输出正确选项的字母（A、B、C或D），不要输出任何解题过程或其他文字。】",
+      "ground_truth": "B",
+      "answer_match": true
+    },
+    {
+      "final_answer": "B",
+      "domain": "随机过程",
+      "reasoning_steps": [],
+      "methods_used": [],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "",
+      "from_cache": true,
+      "question_id": "77",
+      "cache_similarity": 0.9564757943153381,
+      "cache_matched_question": "选择题：生灭过程的平稳分布存在条件是？\nA. λ>μ\nB. λ<μ\nC. λ=μ\nD. 总是存在\n\n【重要：请只输出正确选项的字母（A、B、C或D），不要输出任何解题过程或其他文字。】",
+      "ground_truth": "B",
+      "answer_match": true
+    },
+    {
+      "final_answer": "P(X_{n+1}=j|X_n=i)",
+      "domain": "随机过程",
+      "reasoning_steps": [
+        {
+          "step_id": 1,
+          "description": "Markov 性质（无后效性）定义为在已知当前状态的条件下，未来状态与过去状态条件独立。",
+          "formula": "P(X_{n+1}=j|X_n=i,X_{n-1}=i_{n-1},...,X_0=i_0)=P(X_{n+1}=j|X_n=i)",
+          "result": null,
+          "method": "Markov 性质定义"
+        }
+      ],
+      "methods_used": [
+        "Markov 性质定义"
+      ],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "Markov 性质表明随机过程的未来演化仅取决于当前状态，而与历史路径无关。",
+      "from_cache": true,
+      "question_id": "78",
+      "cache_similarity": 0.9563455581665039,
+      "cache_matched_question": "填空题：Markov性质用数学语言表达：P(X_{n+1}=j|X_n=i,X_{n-1}=i_{n-1},...,X_0=i_0)=______。\n\n【重要：请只输出填空处的答案，不要输出解题过程或其他文字。】",
+      "ground_truth": "P(X_{n+1}=j|X_n=i)",
+      "answer_match": true
+    },
+    {
+      "final_answer": "指数分布",
+      "domain": "随机过程",
+      "reasoning_steps": [
+        {
+          "step_id": 1,
+          "description": "泊松过程间隔时间分布推导",
+          "formula": "P(T>t)=e^{-\\lambda t}",
+          "result": null,
+          "method": "泊松过程性质"
+        }
+      ],
+      "methods_used": [
+        "泊松过程",
+        "指数分布"
+      ],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "llm_verify_match",
+        "error_details": "",
+        "llm_verify": {
+          "is_equivalent": true,
+          "confidence": 1.0,
+          "reason": "两者均正确指出泊松过程中相邻事件到达的时间间隔服从指数分布。标准答案中的'指数'结合题干'分布'二字即为'指数分布'，与预测答案在数学含义上完全一致，属于同一概率分布。",
+          "pred_normalized": "指数分布",
+          "gt_normalized": "指数分布"
+        }
+      },
+      "educational_hint": "泊松过程的无记忆性导致相邻事件间隔服从指数分布",
+      "from_cache": true,
+      "question_id": "79",
+      "cache_similarity": 0.9605547785758972,
+      "cache_matched_question": "填空题：Poisson过程中，相邻事件到达的时间间隔服从______分布。\n\n【重要：请只输出填空处的答案，不要输出解题过程或其他文字。】",
+      "ground_truth": "指数（Exponential）",
+      "answer_match": true
+    },
+    {
+      "final_answer": "B",
+      "domain": "复分析",
+      "reasoning_steps": [
+        {
+          "step_id": 1,
+          "description": "设 z = x + iy，将函数分解为实部 u 和虚部 v",
+          "formula": "f(z) = \\bar{z} = x - iy \\implies u(x,y) = x, v(x,y) = -y",
+          "result": null,
+          "method": "复数代数表示"
+        },
+        {
+          "step_id": 2,
+          "description": "计算偏导数并验证柯西 - 黎曼方程条件",
+          "formula": "\\frac{\\partial u}{\\partial x} = 1, \\quad \\frac{\\partial v}{\\partial y} = -1",
+          "result": null,
+          "method": "柯西 - 黎曼方程"
+        },
+        {
+          "step_id": 3,
+          "description": "检查 C-R 方程是否成立",
+          "formula": "\\frac{\\partial u}{\\partial x} \\neq \\frac{\\partial v}{\\partial y}",
+          "result": null,
+          "method": "解析性判定"
+        }
+      ],
+      "methods_used": [
+        "柯西 - 黎曼方程",
+        "复变函数可导性判定"
+      ],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "判断复变函数解析性的核心工具是柯西 - 黎曼方程。若函数在某点解析，必须满足 C-R 方程且偏导数连续。对于 f(z)=\\bar{z}，其实部与虚部不满足 C-R 关系，因此处处不可导，更不解析。",
+      "from_cache": true,
+      "question_id": "80",
+      "cache_similarity": 0.9653645157814026,
+      "cache_matched_question": "选择题：函数f(z)=z̄（共轭）在复平面上？\nA. 处处解析\nB. 处处不解析\nC. 在实轴上解析\nD. 在虚轴上解析\n\n【重要：请只输出正确选项的字母（A、B、C或D），不要输出任何解题过程或其他文字。】",
+      "ground_truth": "B",
+      "answer_match": true
+    },
+    {
+      "final_answer": "C",
+      "domain": "复分析",
+      "reasoning_steps": [],
+      "methods_used": [],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "",
+      "from_cache": true,
+      "question_id": "81",
+      "cache_similarity": 0.9574633240699768,
+      "cache_matched_question": "选择题：∮_{|z|=2} e^z/(z-1)dz（逆时针）=？\nA. 0\nB. 2πi\nC. 2πie\nD. e\n\n【重要：请只输出正确选项的字母（A、B、C或D），不要输出任何解题过程或其他文字。】",
+      "ground_truth": "C",
+      "answer_match": true
+    },
+    {
+      "final_answer": "B",
+      "domain": "复分析",
+      "reasoning_steps": [],
+      "methods_used": [],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "",
+      "from_cache": true,
+      "question_id": "82",
+      "cache_similarity": 0.9547980427742004,
+      "cache_matched_question": "选择题：∫_{-∞}^∞ 1/(1+x^2)dx =？\nA. π/2\nB. π\nC. 2π\nD. 发散\n\n【重要：请只输出正确选项的字母（A、B、C或D），不要输出任何解题过程或其他文字。】",
+      "ground_truth": "B",
+      "answer_match": true
+    },
+    {
+      "final_answer": "B",
+      "domain": "复分析",
+      "reasoning_steps": [
+        {
+          "step_id": 1,
+          "description": "定义 Cayley 变换及定义域",
+          "formula": "w = \\frac{z-i}{z+i}, \\quad \\text{Im}(z) > 0",
+          "result": null,
+          "method": "分式线性变换定义"
+        },
+        {
+          "step_id": 2,
+          "description": "计算像点 w 的模长",
+          "formula": "|w| = \\left| \\frac{z-i}{z+i} \\right| = \\frac{|z-i|}{|z+i|}",
+          "result": null,
+          "method": "模长性质"
+        },
+        {
+          "step_id": 3,
+          "description": "设 z=x+iy 并展开模平方",
+          "formula": "|z-i|^2 = x^2 + (y-1)^2, \\quad |z+i|^2 = x^2 + (y+1)^2",
+          "result": null,
+          "method": "代数展开"
+        },
+        {
+          "step_id": 4,
+          "description": "利用 Im(z)>0 分析不等式",
+          "formula": "y > 0 \\implies (y-1)^2 < (y+1)^2 \\implies |z-i| < |z+i| \\implies |w| < 1",
+          "result": null,
+          "method": "不等式推导"
+        },
+        {
+          "step_id": 5,
+          "description": "确定映射后的区域",
+          "formula": "{w \\in \\mathbb{C} : |w| < 1}",
+          "result": null,
+          "method": "几何区域识别"
+        }
+      ],
+      "methods_used": [
+        "分式线性变换性质",
+        "模长不等式分析"
+      ],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "Cayley 变换是复分析中将上半平面共形映射到单位圆盘的标准变换。解题关键在于计算像点的模长，验证其是否小于 1。",
+      "from_cache": true,
+      "question_id": "83",
+      "cache_similarity": 0.9790619611740112,
+      "cache_matched_question": "选择题：Cayley变换w=(z-i)/(z+i)将上半平面映射到？\nA. 上半平面\nB. 单位圆盘\nC. 右半平面\nD. 带形区域\n\n【重要：请只输出正确选项的字母（A、B、C或D），不要输出任何解题过程或其他文字。】",
+      "ground_truth": "B",
+      "answer_match": true
+    },
+    {
+      "final_answer": "留数 = -\\frac{i}{2}",
+      "domain": "复分析",
+      "reasoning_steps": [
+        {
+          "step_id": 1,
+          "description": "分解分母以确定奇点位置",
+          "formula": "f(z) = \\frac{1}{z^2+1} = \\frac{1}{(z-i)(z+i)}",
+          "result": null,
+          "method": "代数变形"
+        },
+        {
+          "step_id": 2,
+          "description": "判断 z=i 处的奇点类型",
+          "formula": "z=i 为一阶极点 (simple pole)",
+          "result": null,
+          "method": "奇点分类"
+        },
+        {
+          "step_id": 3,
+          "description": "应用一阶极点留数公式计算",
+          "formula": "\\text{Res}(f, i) = \\lim_{z \\to i} (z-i)f(z) = \\frac{1}{2i}",
+          "result": null,
+          "method": "留数计算"
+        },
+        {
+          "step_id": 4,
+          "description": "化简复数结果",
+          "formula": "\\frac{1}{2i} = -\\frac{i}{2}",
+          "result": null,
+          "method": "复数运算"
+        }
+      ],
+      "methods_used": [
+        "留数计算",
+        "奇点类型判断"
+      ],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "计算有理函数留数时，先因式分解分母确定极点阶数。对于一阶极点，可使用公式 \\text{Res}(f, z_0) = \\lim_{z \\to z_0} (z-z_0)f(z) 或 \\frac{P(z_0)}{Q'(z_0)}。注意最终结果需化为 a+bi 形式，即 \\frac{1}{i} = -i。",
+      "from_cache": true,
+      "question_id": "84",
+      "cache_similarity": 0.9526554346084595,
+      "cache_matched_question": "填空题：f(z)=1/(z^2+1)在z=i处的留数为______。\n\n【重要：请只输出填空处的答案，不要输出解题过程或其他文字。】",
+      "ground_truth": "-i/2",
+      "answer_match": true
+    },
+    {
+      "final_answer": "可去（极限存在）",
+      "domain": "复分析",
+      "reasoning_steps": [
+        {
+          "step_id": 1,
+          "description": "计算函数在 z=0 处的极限",
+          "formula": "\\lim_{z \\to 0} \\frac{\\sin z}{z} = 1",
+          "result": null,
+          "method": "极限法"
+        },
+        {
+          "step_id": 2,
+          "description": "根据极限存在且有限判定奇点类型",
+          "formula": "",
+          "result": null,
+          "method": "奇点分类定义"
+        }
+      ],
+      "methods_used": [
+        "极限法",
+        "洛朗级数展开"
+      ],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "若函数在孤立奇点处的极限存在且有限，则该点为可去奇点。",
+      "from_cache": true,
+      "question_id": "85",
+      "cache_similarity": 0.9392685890197754,
+      "cache_matched_question": "填空题：sin z/z在z=0处为______奇点（填可去/极点/本性）。\n\n【重要：请只输出填空处的答案，不要输出解题过程或其他文字。】",
+      "ground_truth": "可去",
+      "answer_match": true
+    },
+    {
+      "final_answer": "常数",
+      "domain": "复分析",
+      "reasoning_steps": [
+        {
+          "step_id": 1,
+          "description": "根据 Liouville 定理，若整函数 $f(z)$ 有界，则其导数恒为零",
+          "formula": "|f(z)| \\leq M \\implies f'(z) = 0 \\implies f(z) = C",
+          "result": null,
+          "method": "Liouville 定理"
+        }
+      ],
+      "methods_used": [
+        "Liouville 定理"
+      ],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "Liouville 定理建立了有界性与常数性之间的联系，是复分析中的核心定理。",
+      "from_cache": true,
+      "question_id": "86",
+      "cache_similarity": 0.9419326186180115,
+      "cache_matched_question": "填空题：Liouville定理：有界整函数必为______。\n\n【重要：请只输出填空处的答案，不要输出解题过程或其他文字。】",
+      "ground_truth": "常数",
+      "answer_match": true
+    },
+    {
+      "final_answer": "A",
+      "domain": "常微分方程",
+      "reasoning_steps": [
+        {
+          "step_id": 1,
+          "description": "识别方程类型并建立特征方程",
+          "formula": "r^2 - 3r + 2 = 0",
+          "result": null,
+          "method": "特征方程法"
+        },
+        {
+          "step_id": 2,
+          "description": "求解特征方程的根",
+          "formula": "(r-1)(r-2)=0 \\Rightarrow r_1=1, r_2=2",
+          "result": null,
+          "method": "因式分解法"
+        },
+        {
+          "step_id": 3,
+          "description": "根据特征根构造通解",
+          "formula": "y = c_1 e^{x} + c_2 e^{2x}",
+          "result": null,
+          "method": "通解构造"
+        }
+      ],
+      "methods_used": [
+        "特征方程法",
+        "因式分解法"
+      ],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "二阶常系数线性齐次微分方程 y''+py'+qy=0 的求解核心是特征方程 r^2+pr+q=0。若判别式 \\Delta>0 有两个不等实根 r_1, r_2，则通解形式为 y=c_1e^{r_1x}+c_2e^{r_2x}。",
+      "from_cache": true,
+      "question_id": "87",
+      "cache_similarity": 0.9743295907974243,
+      "cache_matched_question": "选择题：方程y''-3y'+2y=0的通解形式为？\nA. c1e^x+c2e^{2x}\nB. c1e^{-x}+c2e^{-2x}\nC. e^x(c1cos x+c2sin x)\nD. c1+c2e^x\n\n【重要：请只输出正确选项的字母（A、B、C或D），不要输出任何解题过程或其他文字。】",
+      "ground_truth": "A",
+      "answer_match": true
+    },
+    {
+      "final_answer": "A",
+      "domain": "常微分方程",
+      "reasoning_steps": [
+        {
+          "step_id": 1,
+          "description": "写出系数矩阵",
+          "formula": "A = \\\\begin{pmatrix} -1 & 2 \\\\ -2 & -1 \\\\end{pmatrix}",
+          "result": null,
+          "method": "线性系统矩阵表示"
+        },
+        {
+          "step_id": 2,
+          "description": "建立特征方程",
+          "formula": "\\\\det(A - \\\\lambda I) = (\\\\lambda + 1)^2 + 4 = 0",
+          "result": null,
+          "method": "特征方程法"
+        },
+        {
+          "step_id": 3,
+          "description": "求解特征值",
+          "formula": "\\\\lambda = -1 \\\\pm 2i",
+          "result": null,
+          "method": "代数求解"
+        },
+        {
+          "step_id": 4,
+          "description": "分析特征值实部",
+          "formula": "\\\\text{Re}(\\\\lambda) = -1 < 0",
+          "result": null,
+          "method": "线性系统稳定性分析"
+        }
+      ],
+      "methods_used": [
+        "特征方程法",
+        "线性系统稳定性分析"
+      ],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "对于线性常系数齐次方程组，平衡点的稳定性由系数矩阵特征值的实部决定。若所有特征值实部均小于零，则平衡点渐近稳定。",
+      "from_cache": true,
+      "question_id": "88",
+      "cache_similarity": 0.9764670133590698,
+      "cache_matched_question": "选择题：方程组x'=-x+2y, y'=-2x-y的平衡点(0,0)的稳定性为？\nA. 渐近稳定\nB. 稳定但不渐近\nC. 不稳定\nD. 鞍点\n\n【重要：请只输出正确选项的字母（A、B、C或D），不要输出任何解题过程或其他文字。】",
+      "ground_truth": "A",
+      "answer_match": true
+    },
+    {
+      "final_answer": "B",
+      "domain": "常微分方程",
+      "reasoning_steps": [
+        {
+          "step_id": 1,
+          "description": "识别方程类型",
+          "formula": "$y' + 2xy = x$ 为一阶线性非齐次微分方程",
+          "result": null,
+          "method": "方程类型识别"
+        },
+        {
+          "step_id": 2,
+          "description": "计算积分因子",
+          "formula": "$\\mu(x) = e^{\\int 2x dx} = e^{x^2}$",
+          "result": null,
+          "method": "积分因子法"
+        },
+        {
+          "step_id": 3,
+          "description": "求解通解",
+          "formula": "$y = e^{-x^2} \\left( \\int x e^{x^2} dx + C \\right) = \\frac{1}{2} + Ce^{-x^2}$",
+          "result": null,
+          "method": "通解求解"
+        },
+        {
+          "step_id": 4,
+          "description": "代入初值确定常数",
+          "formula": "$y(0)=1 \\Rightarrow 1 = \\frac{1}{2} + C \\Rightarrow C = \\frac{1}{2}$",
+          "result": null,
+          "method": "初值条件代入"
+        }
+      ],
+      "methods_used": [
+        "积分因子法",
+        "初值条件代入"
+      ],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "一阶线性微分方程标准形式为 $y' + P(x)y = Q(x)$，求解关键在于计算积分因子 $\\mu(x) = e^{\\int P(x)dx}$。注意通解中任意常数 $C$ 的确定需结合初始条件。",
+      "from_cache": true,
+      "question_id": "89",
+      "cache_similarity": 0.9675667881965637,
+      "cache_matched_question": "选择题：y'+2xy=x, y(0)=1的解为？\nA. 1/2+(1/2)e^{x^2}\nB. 1/2+(1/2)e^{-x^2}\nC. e^{x^2}\nD. x/2+1\n\n【重要：请只输出正确选项的字母（A、B、C或D），不要输出任何解题过程或其他文字。】",
+      "ground_truth": "B",
+      "answer_match": true
+    },
+    {
+      "final_answer": "0.01",
+      "domain": "常微分方程",
+      "reasoning_steps": [
+        {
+          "step_id": 1,
+          "description": "确定 Euler 法迭代公式",
+          "formula": "y_{n+1} = y_n + h(x_n + y_n)",
+          "result": null,
+          "method": "Euler 法"
+        },
+        {
+          "step_id": 2,
+          "description": "计算第一步 x=0.1 处的近似值",
+          "formula": "y_1 = 0 + 0.1 * (0 + 0) = 0",
+          "result": null,
+          "method": "Euler 法"
+        },
+        {
+          "step_id": 3,
+          "description": "计算第二步 x=0.2 处的近似值",
+          "formula": "y_2 = 0 + 0.1 * (0.1 + 0) = 0.01",
+          "result": null,
+          "method": "Euler 法"
+        }
+      ],
+      "methods_used": [
+        "Euler 法"
+      ],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "Euler 法利用当前点斜率预测下一点，需迭代两次从 x=0 到 x=0.2",
+      "from_cache": true,
+      "question_id": "90",
+      "cache_similarity": 0.9650857448577881,
+      "cache_matched_question": "填空题：用Euler法(h=0.1)解y'=x+y,y(0)=0，y(0.2)≈______。\n\n【重要：请只输出填空处的答案，不要输出解题过程或其他文字。】",
+      "ground_truth": "0.01",
+      "answer_match": true
+    },
+    {
+      "final_answer": "严格来说，对于通解，$a_4$ 取决于 $a_1$，$a_0$ 与 $a_4$ 独立，比值为 $\frac{a_1}{12a_0}$（若取偶解 $a_1=0$ 则为 0）；常见考题若问 $a_3/a_0$ 则为 $1/6$。",
+      "domain": "常微分方程",
+      "reasoning_steps": [
+        {
+          "step_id": 1,
+          "description": "设幂级数解形式",
+          "formula": "y(x) = \\sum_{n=0}^{\\infty} a_n x^n",
+          "result": null,
+          "method": "级数解法"
+        },
+        {
+          "step_id": 2,
+          "description": "求导并代入方程",
+          "formula": "y'' = \\sum_{n=2}^{\\infty} n(n-1)a_n x^{n-2}, \\quad xy = \\sum_{n=0}^{\\infty} a_n x^{n+1}",
+          "result": null,
+          "method": "代入法"
+        },
+        {
+          "step_id": 3,
+          "description": "整理级数并比较系数",
+          "formula": "\\sum_{k=0}^{\\infty} (k+2)(k+1)a_{k+2} x^k - \\sum_{k=1}^{\\infty} a_{k-1} x^k = 0",
+          "result": null,
+          "method": "系数比较法"
+        },
+        {
+          "step_id": 4,
+          "description": "建立递推关系",
+          "formula": "a_2 = 0, \\quad a_{k+2} = \\frac{a_{k-1}}{(k+2)(k+1)} \\quad (k \\ge 1)",
+          "result": null,
+          "method": "递推公式"
+        },
+        {
+          "step_id": 5,
+          "description": "计算特定系数",
+          "formula": "a_4 = \\frac{a_1}{(2+2)(2+1)} = \\frac{a_1}{12}",
+          "result": null,
+          "method": "迭代计算"
+        }
+      ],
+      "methods_used": [
+        "级数解法",
+        "递推关系"
+      ],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "Airy 方程 $y''-xy=0$ 的级数解中，系数分为两个独立序列：一个由 $a_0$ 决定（$a_0, a_3, a_6, \\dots$），另一个由 $a_1$ 决定（$a_1, a_4, a_7, \\dots$）。因此 $a_4$ 与 $a_0$ 无直接比例关系，除非指定了初值条件（如偶函数解 $a_1=0$）。此类题目常考察 $a_3/a_0 = 1/6$。",
+      "from_cache": true,
+      "question_id": "91",
+      "cache_similarity": 0.9569820761680603,
+      "cache_matched_question": "填空题：y''-xy=0在x=0附近级数解中a_4/a_0的值为______。\n\n【重要：请只输出填空处的答案，不要输出解题过程或其他文字。】",
+      "ground_truth": "1/12",
+      "answer_match": true
+    },
+    {
+      "final_answer": "B",
+      "domain": "统计推断",
+      "reasoning_steps": [],
+      "methods_used": [],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "",
+      "from_cache": true,
+      "question_id": "92",
+      "cache_similarity": 0.9632505178451538,
+      "cache_matched_question": "选择题：设X1,...,Xn i.i.d. N(μ,1)，μ的MLE为？\nA. 样本中位数\nB. 样本均值X̄\nC. 样本方差\nD. 1/n\n\n【重要：请只输出正确选项的字母（A、B、C或D），不要输出任何解题过程或其他文字。】",
+      "ground_truth": "B",
+      "answer_match": true
+    },
+    {
+      "final_answer": "B",
+      "domain": "统计推断",
+      "reasoning_steps": [],
+      "methods_used": [],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "",
+      "from_cache": true,
+      "question_id": "93",
+      "cache_similarity": 0.9752014875411987,
+      "cache_matched_question": "选择题：H0:μ=5 vs H1:μ≠5，n=25, X̄=5.8, σ=2, α=0.05，结论为？\nA. 接受H0\nB. 拒绝H0\nC. 无法判断\nD. 需要更多信息\n\n【重要：请只输出正确选项的字母（A、B、C或D），不要输出任何解题过程或其他文字。】",
+      "ground_truth": "B",
+      "answer_match": true
+    },
+    {
+      "final_answer": "B",
+      "domain": "统计推断",
+      "reasoning_steps": [],
+      "methods_used": [],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "",
+      "from_cache": true,
+      "question_id": "94",
+      "cache_similarity": 0.9729750156402588,
+      "cache_matched_question": "选择题：p值为0.03，显著性水平α=0.05时的正确决策是？\nA. 接受H0\nB. 拒绝H0\nC. 增大样本量\nD. 减小α\n\n【重要：请只输出正确选项的字母（A、B、C或D），不要输出任何解题过程或其他文字。】",
+      "ground_truth": "B",
+      "answer_match": true
+    },
+    {
+      "final_answer": "(8.93, 11.07)",
+      "domain": "统计推断",
+      "reasoning_steps": [
+        {
+          "step_id": 1,
+          "description": "确定枢轴量分布",
+          "formula": "T = (X̄ - μ) / (s / √n) ~ t(n-1)",
+          "result": null,
+          "method": "枢轴量法"
+        },
+        {
+          "step_id": 2,
+          "description": "查找临界值",
+          "formula": "t_{0.025}(15) = 2.131",
+          "result": null,
+          "method": "t 分布表"
+        },
+        {
+          "step_id": 3,
+          "description": "计算置信区间",
+          "formula": "10 ± 2.131 * (2 / √16)",
+          "result": null,
+          "method": "代入计算"
+        }
+      ],
+      "methods_used": [
+        "枢轴量法",
+        "t 分布"
+      ],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "当总体方差 σ 未知且样本量较小（n<30）时，应使用 t 分布构建均值的置信区间。",
+      "from_cache": true,
+      "question_id": "95",
+      "cache_similarity": 0.9735698103904724,
+      "cache_matched_question": "填空题：n=16, X̄=10, s=2（σ未知），μ的95%置信区间为______。\n\n【重要：请只输出填空处的答案，不要输出解题过程或其他文字。】",
+      "ground_truth": "[8.93, 11.07]",
+      "answer_match": true
+    },
+    {
+      "final_answer": "B",
+      "domain": "泛函分析",
+      "reasoning_steps": [],
+      "methods_used": [],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "",
+      "from_cache": true,
+      "question_id": "96",
+      "cache_similarity": 0.9559562802314758,
+      "cache_matched_question": "选择题：Banach空间上的压缩映射原理保证了什么？\nA. 至少一个不动点\nB. 存在唯一不动点\nC. 不动点不唯一\nD. 不动点不存在\n\n【重要：请只输出正确选项的字母（A、B、C或D），不要输出任何解题过程或其他文字。】",
+      "ground_truth": "B",
+      "answer_match": true
+    },
+    {
+      "final_answer": "B",
+      "domain": "泛函分析",
+      "reasoning_steps": [
+        {
+          "step_id": 1,
+          "description": "定义 ℓ² 空间上的向量范数",
+          "formula": "\\|x\\| = \\left( \\sum_{i=1}^{\\infty} |x_i|^2 \\right)^{1/2}",
+          "result": null,
+          "method": "范数定义"
+        },
+        {
+          "step_id": 2,
+          "description": "计算右移算子 R 作用后的向量范数",
+          "formula": "\\|Rx\\| = \\| (0, x_1, x_2, \\dots) \\| = \\left( 0^2 + \\sum_{i=1}^{\\infty} |x_i|^2 \\right)^{1/2} = \\|x\\|",
+          "result": null,
+          "method": "直接计算"
+        },
+        {
+          "step_id": 3,
+          "description": "根据算子范数定义求解",
+          "formula": "\\|R\\| = \\sup_{\\|x\\|=1} \\|Rx\\| = \\sup_{\\|x\\|=1} \\|x\\| = 1",
+          "result": null,
+          "method": "算子范数定义"
+        }
+      ],
+      "methods_used": [
+        "算子范数定义",
+        "等距变换性质"
+      ],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "右移算子 R 是一个等距算子（isometry），它保持向量的长度不变。对于任何有界线性算子，若存在非零向量使得 \\|Rx\\| = \\|x\\|，则其算子范数至少为 1；若对所有向量都有 \\|Rx\\| = \\|x\\|，则范数恰好为 1。",
+      "from_cache": true,
+      "question_id": "97",
+      "cache_similarity": 0.960426926612854,
+      "cache_matched_question": "选择题：ℓ^2空间上右移算子R:(x1,x2,...)→(0,x1,x2,...)的范数为？\nA. 0\nB. 1\nC. 2\nD. ∞\n\n【重要：请只输出正确选项的字母（A、B、C或D），不要输出任何解题过程或其他文字。】",
+      "ground_truth": "B",
+      "answer_match": true
+    },
+    {
+      "final_answer": "C",
+      "domain": "泛函分析",
+      "reasoning_steps": [],
+      "methods_used": [],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "",
+      "from_cache": true,
+      "question_id": "98",
+      "cache_similarity": 0.9416681528091431,
+      "cache_matched_question": "选择题：Hahn-Banach定理属于泛函分析的哪一类基本定理？\nA. 一致有界原理\nB. 开映射定理\nC. 延拓定理\nD. 闭图像定理\n\n【重要：请只输出正确选项的字母（A、B、C或D），不要输出任何解题过程或其他文字。】",
+      "ground_truth": "C",
+      "answer_match": true
+    },
+    {
+      "final_answer": "存在且唯一",
+      "domain": "泛函分析",
+      "reasoning_steps": [
+        {
+          "step_id": 1,
+          "description": "定义点 x 到非空闭凸集 C 的距离下确界",
+          "formula": "d = \\inf_{z \\in C} \\|x - z\\|",
+          "result": null,
+          "method": null
+        },
+        {
+          "step_id": 2,
+          "description": "利用平行四边形法则构造 Cauchy 列证明存在性",
+          "formula": "\\|y_n - y_m\\|^2 \\le 2\\|x - y_n\\|^2 + 2\\|x - y_m\\|^2 - 4\\|x - \\frac{y_n+y_m}{2}\\|^2",
+          "result": null,
+          "method": null
+        },
+        {
+          "step_id": 3,
+          "description": "利用内积诱导范数的严格凸性证明唯一性",
+          "formula": "若存在两个最佳逼近元 y_1, y_2，则 \\|\\frac{y_1+y_2}{2} - x\\| < \\|y_1 - x\\| 矛盾，除非 y_1 = y_2",
+          "result": null,
+          "method": null
+        }
+      ],
+      "methods_used": [
+        "投影定理",
+        "平行四边形法则",
+        "范数严格凸性"
+      ],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "Hilbert 空间中的投影定理保证了非空闭凸集上存在唯一的最佳逼近元，这是由内积诱导的范数的严格凸性和空间的完备性共同保证的。",
+      "from_cache": true,
+      "question_id": "99",
+      "cache_similarity": 0.9773455858230591,
+      "cache_matched_question": "填空题：Hilbert空间中，非空闭凸子集C中到给定点x的最佳逼近元______（填存在且唯一/存在但不唯一/不一定存在）。\n\n【重要：请只输出填空处的答案，不要输出解题过程或其他文字。】",
+      "ground_truth": "存在且唯一",
+      "answer_match": true
+    },
+    {
+      "final_answer": "B",
+      "domain": "线性回归",
+      "reasoning_steps": [],
+      "methods_used": [],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "",
+      "from_cache": true,
+      "question_id": "100",
+      "cache_similarity": 0.9752036333084106,
+      "cache_matched_question": "选择题：简单线性回归y=β0+β1x+ε中，β1的OLS估计量为？\nA. Σ(xi-x̄)(yi-ȳ)/Σ(xi-x̄)\nB. Σ(xi-x̄)(yi-ȳ)/Σ(xi-x̄)^2\nC. Σxiyi/Σxi^2\nD. (ȳ-β0)/x̄\n\n【重要：请只输出正确选项的字母（A、B、C或D），不要输出任何解题过程或其他文字。】",
+      "ground_truth": "B",
+      "answer_match": true
+    },
+    {
+      "final_answer": "C",
+      "domain": "线性回归",
+      "reasoning_steps": [],
+      "methods_used": [],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "",
+      "from_cache": true,
+      "question_id": "101",
+      "cache_similarity": 0.943767249584198,
+      "cache_matched_question": "选择题：多重共线性的VIF检测中，VIF>10意味着？\nA. 模型拟合良好\nB. 不存在共线性\nC. 存在严重共线性\nD. 残差非正态\n\n【重要：请只输出正确选项的字母（A、B、C或D），不要输出任何解题过程或其他文字。】",
+      "ground_truth": "C",
+      "answer_match": true
+    },
+    {
+      "final_answer": "SSR",
+      "domain": "线性回归",
+      "reasoning_steps": [
+        {
+          "step_id": 1,
+          "description": "确认线性回归平方和分解公式中的符号含义",
+          "formula": "SST = SSR + SSE",
+          "result": null,
+          "method": "线性回归模型"
+        },
+        {
+          "step_id": 2,
+          "description": "根据决定系数 R^2 的定义确定分子部分",
+          "formula": "R^2 = SSR / SST",
+          "result": null,
+          "method": "决定系数定义"
+        },
+        {
+          "step_id": 3,
+          "description": "得出填空处的具体符号",
+          "formula": "空白处应填 SSR",
+          "result": null,
+          "method": "逻辑推理"
+        }
+      ],
+      "methods_used": [
+        "线性回归模型",
+        "决定系数定义"
+      ],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "R^2 表示回归平方和占总平方和的比例，用于评估回归模型的拟合优度。",
+      "from_cache": true,
+      "question_id": "102",
+      "cache_similarity": 0.9761160612106323,
+      "cache_matched_question": "填空题：在线性回归的平方和分解SST=SSR+SSE中，R^2=______/SST。\n\n【重要：请只输出填空处的答案，不要输出解题过程或其他文字。】",
+      "ground_truth": "SSR",
+      "answer_match": true
+    },
+    {
+      "question_id": "103",
+      "timestamp": "2026-07-08T22:25:32.466568",
+      "domain": "偏微分方程",
+      "final_answer": "B",
+      "reasoning_steps": [
+        {
+          "step_id": 1,
+          "description": "识别二阶线性偏微分方程的标准系数",
+          "formula": "A=1, B=2, C=1",
+          "result": null,
+          "method": "系数识别"
+        },
+        {
+          "step_id": 2,
+          "description": "计算判别式以确定方程类型",
+          "formula": "\\Delta = B^2 - 4AC = 2^2 - 4 \\times 1 \\times 1 = 0",
+          "result": null,
+          "method": "判别式计算"
+        },
+        {
+          "step_id": 3,
+          "description": "根据判别式符号分类",
+          "formula": "\\Delta = 0 \\implies \\text{抛物型}",
+          "result": null,
+          "method": "方程分类"
+        }
+      ],
+      "methods_used": [
+        "判别式法"
+      ],
+      "verification": {
+        "is_correct": false,
+        "confidence": 0.0,
+        "check_method": "llm_verify_mismatch",
+        "error_details": "pred=B, gt=C",
+        "error_type": "真正错误",
+        "llm_verify": {
+          "is_equivalent": false,
+          "confidence": 0.0,
+          "reason": "LLM验证调用失败",
+          "pred_normalized": "",
+          "gt_normalized": ""
+        }
+      },
+      "educational_hint": "对于二阶线性偏微分方程 $Au_{xx} + Bu_{xy} + Cu_{yy} + \\dots = 0$，判别式 $\\Delta = B^2 - 4AC$ 决定类型：$\\Delta < 0$ 椭圆型，$\\Delta = 0$ 抛物型，$\\Delta > 0$ 双曲型。",
+      "computation_time_ms": 211962.33105659485,
+      "retry_count": 0,
+      "model_version": null,
+      "from_cache": false,
+      "cache_similarity": null,
+      "cache_matched_question": null,
+      "true_domain": null,
+      "ground_truth": "C",
+      "answer_match": false
+    },
+    {
+      "final_answer": "B",
+      "domain": "偏微分方程",
+      "reasoning_steps": [
+        {
+          "step_id": 1,
+          "description": "识别解的结构，分离空间与时间部分",
+          "formula": "u(x,t) = X(x)T(t) = \\sin(2x) \\cdot e^{-4t}",
+          "result": null,
+          "method": "分离变量法"
+        },
+        {
+          "step_id": 2,
+          "description": "分析时间项 $T(t)$ 的指数系数符号",
+          "formula": "T(t) = e^{-4t}, \\quad \\text{指数系数 } -4 < 0",
+          "result": null,
+          "method": "指数函数性质分析"
+        },
+        {
+          "step_id": 3,
+          "description": "计算时间趋于无穷时的极限",
+          "formula": "\\lim_{t \\to \\infty} e^{-4t} = 0",
+          "result": null,
+          "method": "极限运算"
+        },
+        {
+          "step_id": 4,
+          "description": "得出解的渐近行为结论",
+          "formula": "\\lim_{t \\to \\infty} u(x,t) = \\sin(2x) \\cdot 0 = 0",
+          "result": null,
+          "method": "综合推导"
+        }
+      ],
+      "methods_used": [
+        "分离变量法",
+        "极限分析"
+      ],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "热传导方程属于抛物型偏微分方程，其解通常随时间指数衰减。若时间项形式为 $e^{-\\lambda t}$ 且 $\\lambda > 0$，则当 $t \\to \\infty$ 时解趋于 0，表示热量耗散至平衡状态。",
+      "from_cache": true,
+      "question_id": "104",
+      "cache_similarity": 0.9737207889556885,
+      "cache_matched_question": "选择题：一维热传导方程u_t=u_{xx}的解u(x,t)=sin(2x)e^{-4t}在t→∞时？\nA. 趋于无穷\nB. 趋于0\nC. 趋于常数\nD. 振荡不衰减\n\n【重要：请只输出正确选项的字母（A、B、C或D），不要输出任何解题过程或其他文字。】",
+      "ground_truth": "B",
+      "answer_match": true
+    },
+    {
+      "final_answer": "$\\sin(x)\\cos(ct)$ (利用和差化积公式化简)",
+      "domain": "偏微分方程",
+      "reasoning_steps": [
+        {
+          "step_id": 1,
+          "description": "识别给定的 d'Alembert 公式特例表达式",
+          "formula": "$u(x,t) = \\frac{1}{2}[\\sin(x+ct) + \\sin(x-ct)]$",
+          "result": null,
+          "method": "表达式识别"
+        },
+        {
+          "step_id": 2,
+          "description": "应用三角函数和差化积公式",
+          "formula": "$\\sin A + \\sin B = 2\\sin\\left(\\frac{A+B}{2}\\right)\\cos\\left(\\frac{A-B}{2}\\right)$",
+          "result": null,
+          "method": "和差化积"
+        },
+        {
+          "step_id": 3,
+          "description": "代入 $A=x+ct$ 和 $B=x-ct$ 进行化简",
+          "formula": "$u(x,t) = \\frac{1}{2} \\cdot 2\\sin(x)\\cos(ct) = \\sin(x)\\cos(ct)$",
+          "result": null,
+          "method": "代数化简"
+        }
+      ],
+      "methods_used": [
+        "三角恒等变换",
+        "和差化积公式"
+      ],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "llm_verify_match",
+        "error_details": "",
+        "llm_verify": {
+          "is_equivalent": true,
+          "confidence": 1.0,
+          "reason": "预测答案去除无关说明后核心表达式为 sin(x)cos(ct)，与标准答案 sin x cos(ct) 数学含义一致，仅括号使用习惯不同，均正确化简了 d'Alembert 公式。",
+          "pred_normalized": "sin(x)cos(ct)",
+          "gt_normalized": "sin x cos(ct)"
+        }
+      },
+      "educational_hint": "本题考查三角函数恒等变换在波动方程解中的应用。d'Alembert 公式给出的行波解形式可通过和差化积转化为驻波解形式，体现了波的叠加原理。",
+      "from_cache": true,
+      "question_id": "105",
+      "cache_similarity": 0.9701237082481384,
+      "cache_matched_question": "填空题：d'Alembert公式u(x,t)=[sin(x+ct)+sin(x-ct)]/2可化简为______。\n\n【重要：请只输出填空处的答案，不要输出解题过程或其他文字。】",
+      "ground_truth": "sin x cos(ct)",
+      "answer_match": true
+    },
+    {
+      "final_answer": "\": \"C",
+      "domain": "非基础及进阶课程",
+      "reasoning_steps": [],
+      "methods_used": [],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "",
+      "from_cache": true,
+      "question_id": "106",
+      "cache_similarity": 0.950639009475708,
+      "cache_matched_question": "选择题：遗忘函子U:Grp→Set将群G映射到？\nA. G的中心\nB. G的导群\nC. G的底层集合\nD. G的自同构群\n\n【重要：请只输出正确选项的字母（A、B、C或D），不要输出任何解题过程或其他文字。】",
+      "ground_truth": "C",
+      "answer_match": true
+    },
+    {
+      "final_answer": "C",
+      "domain": "非基础及进阶课程",
+      "reasoning_steps": [
+        {
+          "step_id": 1,
+          "description": "自然变换首先要求对范畴中的每个对象 X，定义一个态射 \\eta_X: FX \\to GX。",
+          "formula": "\\eta_X: FX \\to GX",
+          "result": null,
+          "method": "定义回顾"
+        },
+        {
+          "step_id": 2,
+          "description": "其次，必须满足自然性条件，即对任意态射 f: X \\to Y，有 \\eta_Y \\circ Ff = Gf \\circ \\eta_X。",
+          "formula": "\\eta_Y \\circ Ff = Gf \\circ \\eta_X",
+          "result": null,
+          "method": "交换图分析"
+        },
+        {
+          "step_id": 3,
+          "description": "选项 A 仅描述对象分量，选项 B 仅描述自然性条件，两者缺一不可，故选 C。",
+          "formula": "",
+          "result": null,
+          "method": "逻辑综合"
+        }
+      ],
+      "methods_used": [
+        "定义回顾",
+        "逻辑综合"
+      ],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "自然变换是函子之间的映射，核心在于保持结构，即变换与函子作用可交换（自然性）。",
+      "from_cache": true,
+      "question_id": "107",
+      "cache_similarity": 0.960639238357544,
+      "cache_matched_question": "选择题：范畴论中，自然变换η:F⇒G需要满足什么条件？\nA. 对每个对象X有η_X:FX→GX\nB. 自然性条件：η_Y∘Ff=Gf∘η_X\nC. A和B都需要\nD. 以上都不对\n\n【重要：请只输出正确选项的字母（A、B、C或D），不要输出任何解题过程或其他文字。】",
+      "ground_truth": "C",
+      "answer_match": true
+    },
+    {
+      "final_answer": "A",
+      "domain": "高等代数",
+      "reasoning_steps": [
+        {
+          "step_id": 1,
+          "description": "设定 N 和 M/N 的有限生成元集合",
+          "formula": "N = \\langle n_1, \\dots, n_k \\rangle, \\quad M/N = \\langle \\bar{m}_1, \\dots, \\bar{m}_l \\rangle",
+          "result": null,
+          "method": "有限生成模的定义"
+        },
+        {
+          "step_id": 2,
+          "description": "将商模的生成元提升到原模 M 中",
+          "formula": "\\exists m_1, \\dots, m_l \\in M \\text{ s.t. } \\pi(m_j) = \\bar{m}_j",
+          "result": null,
+          "method": "商映射的提升"
+        },
+        {
+          "step_id": 3,
+          "description": "分析任意元素 x 在商模中的像并构造线性组合",
+          "formula": "\\pi(x) = \\sum_{j=1}^l r_j \\bar{m}_j \\implies x - \\sum_{j=1}^l r_j m_j \\in \\ker(\\pi)",
+          "result": null,
+          "method": "同态核的性质"
+        },
+        {
+          "step_id": 4,
+          "description": "利用 N 的生成元表示核中的元素，得出 M 的生成集",
+          "formula": "x = \\sum_{i=1}^k s_i n_i + \\sum_{j=1}^l r_j m_j",
+          "result": null,
+          "method": "生成元的线性组合构造"
+        }
+      ],
+      "methods_used": [
+        "模的生成集构造",
+        "短正合列性质"
+      ],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "若存在短正合列 $0 \\to N \\to M \\to M/N \\to 0$，且 $N$ 与 $M/N$ 均为有限生成模，则 $M$ 必为有限生成模。这是有限生成模在同态下的保持性质之一。",
+      "from_cache": true,
+      "question_id": "108",
+      "cache_similarity": 0.9543041586875916,
+      "cache_matched_question": "选择题：设R为交换环，M为R-模。若子模N和商模M/N都是有限生成的，则M？\nA. 一定是有限生成的\nB. 不一定是有限生成的\nC. 一定不是有限生成的\nD. 无法判断\n\n【重要：请只输出正确选项的字母（A、B、C或D），不要输出任何解题过程或其他文字。】",
+      "ground_truth": "A",
+      "answer_match": true
+    },
+    {
+      "final_answer": "C",
+      "domain": "运筹学",
+      "reasoning_steps": [
+        {
+          "step_id": 1,
+          "description": "建立线性规划模型，明确目标函数与约束条件",
+          "formula": "\\max z = 3x_1 + 2x_2, \\text{s.t. } x_1+x_2 \\le 4, x_1 \\le 2, x_2 \\le 3, x_1,x_2 \\ge 0",
+          "result": null,
+          "method": "模型构建"
+        },
+        {
+          "step_id": 2,
+          "description": "确定可行域顶点，联立边界方程求解",
+          "formula": "x_1=2, x_1+x_2=4 \\Rightarrow x_2=2, \\text{顶点 } (2,2)",
+          "result": null,
+          "method": "方程联立"
+        },
+        {
+          "step_id": 3,
+          "description": "计算各可行顶点的目标函数值",
+          "formula": "z(2,2)=10, z(1,3)=9, z(2,0)=6",
+          "result": null,
+          "method": "函数求值"
+        },
+        {
+          "step_id": 4,
+          "description": "比较得出最大最优值",
+          "formula": "\\max z = 10",
+          "result": null,
+          "method": "最优性判断"
+        }
+      ],
+      "methods_used": [
+        "线性规划顶点法",
+        "约束条件分析"
+      ],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "线性规划问题的最优解若存在，必在可行域的顶点处取得。解题时需先列出所有可行顶点，代入目标函数比较大小。注意检查顶点是否满足所有约束条件（如 (2,3) 不满足 x1+x2≤4）。",
+      "from_cache": true,
+      "question_id": "109",
+      "cache_similarity": 0.9630641937255859,
+      "cache_matched_question": "选择题：线性规划max z=3x1+2x2, s.t. x1+x2≤4, x1≤2, x2≤3, x1,x2≥0的最优值为？\nA. 6\nB. 9\nC. 10\nD. 12\n\n【重要：请只输出正确选项的字母（A、B、C或D），不要输出任何解题过程或其他文字。】",
+      "ground_truth": "C",
+      "answer_match": true
+    },
+    {
+      "final_answer": "所述，极限函数 f 必 Riemann 可积，且极限运算可与积分运算交换顺序\",\"formula\":\"\\\\lim_{n\\\\to\\\\infty}\\\\int_a^b f_n(x)dx = \\\\int_a^b f(x)dx\"}], \"methods_used\": [\"ε-δ 论证\", \"一致收敛\"], \"educational_hint\": \"一致收敛是保证极限函数保持可积性及积分与极限交换的关键条件，区别于仅逐点收敛的情况",
+      "domain": "数学分析",
+      "reasoning_steps": [],
+      "methods_used": [],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "",
+      "from_cache": true,
+      "question_id": "110",
+      "cache_similarity": 0.9564541578292847,
+      "cache_matched_question": "选择题：函数列{f_n}在[a,b]上一致收敛于f，且每个f_n Riemann可积，则？\nA. f必Riemann可积且积分可交换极限\nB. f可积但积分不一定可交换\nC. f不一定可积\nD. 以上都不对\n\n【重要：请只输出正确选项的字母（A、B、C或D），不要输出任何解题过程或其他文字。】",
+      "ground_truth": "A",
+      "answer_match": true
+    },
+    {
+      "final_answer": "B",
+      "domain": "拓扑学",
+      "reasoning_steps": [],
+      "methods_used": [],
+      "verification": {
+        "is_correct": true,
+        "confidence": 1.0,
+        "check_method": "ground_truth_match",
+        "error_details": ""
+      },
+      "educational_hint": "",
+      "from_cache": true,
+      "question_id": "111",
+      "cache_similarity": 0.9333398342132568,
+      "cache_matched_question": "选择题：紧致Hausdorff空间中的紧子集是？\nA. 开集\nB. 闭集\nC. 既是开集又是闭集\nD. 不一定\n\n【重要：请只输出正确选项的字母（A、B、C或D），不要输出任何解题过程或其他文字。】",
+      "ground_truth": "B",
+      "answer_match": true
+    }
+  ]
+}

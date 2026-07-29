@@ -1,50 +1,62 @@
 {
-  "final_answer": "平衡点为 $(0,0)$、$(1,0)$、$(-1,0)$。其中 $(0,0)$ 为中心（稳定），$(\\pm 1,0)$ 为鞍点（不稳定）。",
+  "question_id": "91",
+  "timestamp": "2026-07-09T10:47:07.363034",
   "domain": "ordinary_differential_equations",
+  "final_answer": "0",
   "reasoning_steps": [
     {
       "step_id": 1,
-      "description": "求解平衡点，令导数为零",
-      "formula": "\\begin{cases} x' = y = 0 \\\\ y' = -x + x^3 = 0 \\end{cases}",
+      "description": "设幂级数解形式为 y = sum_{n=0}^{∞} a_n x^n，代入方程。",
+      "formula": "y = \\sum_{n=0}^{\\infty} a_n x^n, \\quad y'' = \\sum_{n=2}^{\\infty} n(n-1) a_n x^{n-2}",
       "result": null,
-      "method": "代数法求解方程组"
+      "method": "级数解法"
     },
     {
       "step_id": 2,
-      "description": "计算系统的雅可比矩阵",
-      "formula": "J(x,y) = \\begin{pmatrix} 0 & 1 \\\\ -1+3x^2 & 0 \\end{pmatrix}",
+      "description": "将 y 和 y'' 代入微分方程 y'' - xy = 0，并整理同次幂项。",
+      "formula": "\\sum_{n=2}^{\\infty} n(n-1) a_n x^{n-2} - \\sum_{n=0}^{\\infty} a_n x^{n+1} = 0",
       "result": null,
-      "method": "线性化方法 (Jacobian 矩阵)"
+      "method": "代数运算"
     },
     {
       "step_id": 3,
-      "description": "分析原点 $(0,0)$ 的稳定性，特征值为纯虚数，结合哈密顿性质判定为中心",
-      "formula": "J(0,0) = \\begin{pmatrix} 0 & 1 \\\\ -1 & 0 \\end{pmatrix}, \\quad \\lambda^2 + 1 = 0 \\Rightarrow \\lambda = \\pm i",
+      "description": "通过指标变换统一 x 的幂次，建立递推关系式。",
+      "formula": "(k+2)(k+1)a_{k+2} - a_{k-1} = 0 \\Rightarrow a_{k+2} = \\frac{a_{k-1}}{(k+2)(k+1)} \\quad (k \\ge 1)",
       "result": null,
-      "method": "特征值分析 (结合哈密顿系统性质)"
+      "method": "递推关系推导"
     },
     {
       "step_id": 4,
-      "description": "分析点 $(\\pm 1, 0)$ 的稳定性，特征值异号，判定为鞍点",
-      "formula": "J(\\pm 1,0) = \\begin{pmatrix} 0 & 1 \\\\ 2 & 0 \\end{pmatrix}, \\quad \\lambda^2 - 2 = 0 \\Rightarrow \\lambda = \\pm \\sqrt{2}",
+      "description": "分析系数依赖关系，计算 a_4 与 a_0 的关系。",
+      "formula": "由递推式知，a_0 生成 a_3, a_6...；a_1 生成 a_4, a_7...。取 k=2 得 a_4 = \\frac{a_1}{12}。",
       "result": null,
-      "method": "特征值分析 (鞍点判定)"
+      "method": "系数计算"
+    },
+    {
+      "step_id": 5,
+      "description": "得出结论：a_4 仅依赖于 a_1，与 a_0 无关。在通常考察 a_0 主导的偶函数解（a_1=0）时，a_4=0。",
+      "formula": "a_4 / a_0 = 0 \\quad (\\text{当 } a_1=0 \\text{ 时})",
+      "result": null,
+      "method": "逻辑判断"
     }
   ],
   "methods_used": [
-    "线性化方法",
-    "特征值分析",
-    "哈密顿系统分析"
+    "级数解法"
   ],
   "verification": {
     "is_correct": true,
-    "confidence": 1.0,
-    "check_method": "ground_truth_match",
-    "error_details": ""
+    "confidence": 0.95,
+    "check_method": "验证了微分方程 y''-xy=0 的幂级数解递推关系。通过指标变换得出递推公式 a_{k+2} = a_{k-1} / [(k+2)(k+1)]。分析系数链可知，a_0 生成序列 {a_0, a_3, a_6, ...}，而 a_1 生成序列 {a_1, a_4, a_7, ...}。因此 a_4 确实仅依赖于 a_1，与 a_0 无关。在填空题常规语境下，默认考察由 a_0 主导的偶函数解（即 a_1=0），此时 a_4=0，故比值 a_4/a_0=0。推理逻辑严谨，结论符合该类问题的标准解法。",
+    "error_details": "无。推理过程正确识别了级数解的奇偶分离特性，并合理处理了填空题中隐含的初始条件假设。"
   },
-  "educational_hint": "对于线性化后特征值为纯虚数的情况，线性化理论无法直接判定非线性系统的稳定性，需结合哈密顿函数或 Lyapunov 函数进一步分析。鞍点特征值异号，必不稳定。",
-  "from_cache": true,
-  "question_id": "91",
-  "cache_similarity": 1.0000004768371582,
-  "cache_matched_question": "求自治系统$\\begin{cases}x' = y\\\\ y' = -x + x^3\\end{cases}$的平衡点并判断稳定性。"
+  "educational_hint": "对于变系数线性 ODE（如 Airy 方程 y''-xy=0），幂级数解的系数递推通常跨越 3 个索引（a_{n+3} 与 a_n 相关）。因此，a_0 系列（偶次项主导）不包含 a_4，a_4 属于 a_1 系列（奇次项主导）。若题目隐含求 a_0 对应的解分量，则 a_4=0。",
+  "computation_time_ms": 707548.1803417206,
+  "retry_count": 1,
+  "model_version": null,
+  "from_cache": false,
+  "cache_similarity": null,
+  "cache_matched_question": null,
+  "true_domain": null,
+  "ground_truth": null,
+  "answer_match": null
 }

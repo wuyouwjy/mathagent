@@ -106,6 +106,17 @@ export interface BenchmarkStatus {
   domain_accuracy: Record<string, number>;
   current_question?: string;
   current_trace: string[];
+  active_solves: Record<string, { question: string; domain: string; steps: string[] }>;
+  correct_list: Array<{
+    question_id: string; domain: string; question: string;
+    final_answer: string; ground_truth: string;
+    reasoning_steps: any[]; methods_used: string[]; time_ms: number;
+  }>;
+  wrong_list: Array<{
+    question_id: string; domain: string; question: string;
+    final_answer: string; ground_truth: string;
+    reasoning_steps: any[]; methods_used: string[]; time_ms: number; error_type: string;
+  }>;
 }
 
 export interface BenchmarkResult {
@@ -149,6 +160,11 @@ export interface BenchmarkRunRecord extends BenchmarkRunSummary {
   dataset: string;
   failed: number;
   avg_time_per_question_ms: number;
+  config?: {
+    max_reflection_count: number;
+    use_answer_db: boolean;
+    use_llm_verify: boolean;
+  };
   domain_stats: Record<string, DomainStat>;
   wrong_questions: WrongQuestion[];
   results?: SolveResult[];

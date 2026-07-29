@@ -1,40 +1,39 @@
 {
-  "final_answer": "根据代数拓扑中的同调论，闭连通 $n$ 维流形 $M$ 可定向当且仅当其第 $n$ 个整系数同调群 $H_n(M; \\mathbb{Z})$ 同构于 $\\mathbb{Z}$。对于 $\\mathbb{R}P^2$，计算可得 $H_2(\\mathbb{R}P^2; \\mathbb{Z}) = 0$，因此它是不可定向的。",
-  "domain": "algebra",
+  "final_answer": "C",
+  "domain": "运筹学",
   "reasoning_steps": [
     {
       "step_id": 1,
-      "description": "陈述闭连通流形可定向的代数判据",
-      "formula": "$H_n(M; \\mathbb{Z}) \\cong \\mathbb{Z} \\iff M \\text{ 可定向}$",
+      "description": "定义目标函数与约束条件",
+      "formula": "\\max z = 3x_1 + 2x_2, \\text{s.t. } x_1+x_2 \\le 4, x_1 \\le 2, x_2 \\le 3, x_1,x_2 \\ge 0",
       "result": null,
-      "method": "代数拓扑定理"
+      "method": "线性规划建模"
     },
     {
       "step_id": 2,
-      "description": "构建 $\\mathbb{R}P^2$ 的胞腔链复形",
-      "formula": "$0 \\to \\mathbb{Z} \\xrightarrow{\\times 2} \\mathbb{Z} \\xrightarrow{0} \\mathbb{Z} \\to 0$",
+      "description": "求解可行域顶点坐标",
+      "formula": "\\text{可行域顶点：}(0,0), (2,0), (0,3), (1,3), (2,2)",
       "result": null,
-      "method": "胞腔同调"
+      "method": "约束交点计算"
     },
     {
       "step_id": 3,
-      "description": "计算第二同调群",
-      "formula": "$H_2(\\mathbb{R}P^2; \\mathbb{Z}) = \\ker(\\partial_2) = 0$",
+      "description": "计算各顶点目标函数值并比对选项",
+      "formula": "z(2,0)=6 (选项 A), z(0,3)=6 (选项 A), z(1,3)=9 (选项 B), z(2,2)=10 (选项 C), z(0,0)=0",
       "result": null,
-      "method": "同调群计算"
+      "method": "目标函数求值"
     },
     {
       "step_id": 4,
-      "description": "比较结果与可定向条件",
-      "formula": "$0 \\not\\cong \\mathbb{Z}$",
+      "description": "确定最优值并排除不可达选项",
+      "formula": "\\max z = 10, \\text{选项 D (12) 不可达}",
       "result": null,
-      "method": "逻辑推导"
+      "method": "最优性判断"
     }
   ],
   "methods_used": [
-    "代数拓扑",
-    "同调论",
-    "胞腔分解"
+    "顶点枚举法",
+    "代入求值"
   ],
   "verification": {
     "is_correct": true,
@@ -42,9 +41,9 @@
     "check_method": "ground_truth_match",
     "error_details": ""
   },
-  "educational_hint": "证明流形可定向性的代数判据是最高维整系数同调群是否非零。$\\mathbb{R}P^2$ 的胞腔结构导致边界映射为乘以 2，从而使得最高维同调群消失，表明存在反向定向的闭路。",
+  "educational_hint": "线性规划的最优解通常在可行域的顶点处取得。对于二维问题，可以通过画出可行域并计算各顶点处的目标函数值来求解。注意约束条件的交点是否满足所有不等式，并比较所有可行顶点的函数值以确定全局最优。",
   "from_cache": true,
   "question_id": "109",
-  "cache_similarity": 1.0000001192092896,
-  "cache_matched_question": "证明$\\\\mathbb{R}P^2$是不可定向的二维流形。"
+  "cache_similarity": 0.9999996423721313,
+  "cache_matched_question": "【选择题·答题要求】你正在解答一道选择题。请在 reasoning_steps 中逐步分析每个选项，在 final_answer 字段中只填入正确选项的字母（A/B/C/D），不要填入任何其他文字。\n\n选择题：线性规划max z=3x1+2x2, s.t. x1+x2≤4, x1≤2, x2≤3, x1,x2≥0的最优值为？\nA. 6\nB. 9\nC. 10\nD. 12"
 }

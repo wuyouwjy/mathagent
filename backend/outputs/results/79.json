@@ -1,47 +1,33 @@
 {
-  "final_answer": "种群以概率 1 灭绝",
-  "domain": "probability",
+  "final_answer": "指数",
+  "domain": "随机过程",
   "reasoning_steps": [
     {
       "step_id": 1,
-      "description": "定义后代数的概率生成函数",
-      "formula": "G(s) = E[s^X] = \\sum_{k=0}^{\\infty} p_k s^k",
+      "description": "泊松过程定义：单位时间内事件发生次数服从泊松分布",
+      "formula": "P(N(t)=k) = (λt)^k e^{-λt} / k!",
       "result": null,
-      "method": "概率生成函数"
+      "method": "泊松过程定义"
     },
     {
       "step_id": 2,
-      "description": "灭绝概率 q 是方程 s=G(s) 的最小非负根",
-      "formula": "q = G(q)",
+      "description": "时间间隔 T 大于 t 等价于 t 时间内无事件发生",
+      "formula": "P(T>t) = P(N(t)=0) = e^{-λt}",
       "result": null,
-      "method": "不动点定理"
+      "method": "生存函数推导"
     },
     {
       "step_id": 3,
-      "description": "利用 G(s) 的凸性建立不等式",
-      "formula": "G(s) \\ge G(1) + G'(1)(s-1) = 1 + \\mu(s-1)",
+      "description": "由生存函数得到分布函数 F(t)=1-e^{-λt}，识别为指数分布",
+      "formula": "F(t) = 1 - e^{-λt}, t≥0",
       "result": null,
-      "method": "凸函数性质"
-    },
-    {
-      "step_id": 4,
-      "description": "分析 s=G(s) 在 [0,1) 上的解",
-      "formula": "G(s) - s \\ge (1-\\mu)(1-s)",
-      "result": null,
-      "method": "不等式分析"
-    },
-    {
-      "step_id": 5,
-      "description": "得出结论 q=1",
-      "formula": "当 \\mu \\le 1 时，唯一根为 s=1",
-      "result": null,
-      "method": "极限与根的分析"
+      "method": "分布识别"
     }
   ],
   "methods_used": [
-    "概率生成函数",
-    "凸函数性质",
-    "不动点定理"
+    "泊松过程定义",
+    "生存函数推导",
+    "分布识别"
   ],
   "verification": {
     "is_correct": true,
@@ -49,9 +35,9 @@
     "check_method": "ground_truth_match",
     "error_details": ""
   },
-  "educational_hint": "分支过程灭绝概率由后代分布的概率生成函数方程 s=G(s) 的最小非负根决定。利用凸函数性质可证明当均值 \\mu \\le 1 时，唯一根为 1。",
+  "educational_hint": "泊松过程的计数过程服从泊松分布，而事件间的时间间隔服从指数分布，这是泊松过程的基本性质。",
   "from_cache": true,
   "question_id": "79",
-  "cache_similarity": 1.0000001192092896,
-  "cache_matched_question": "设分支过程中后代数的均值为$\\mu$。证明若$\\mu \\le 1$则种群以概率$1$灭绝。"
+  "cache_similarity": 1.000000238418579,
+  "cache_matched_question": "【填空题·答题要求】你正在解答一道填空题。请在 reasoning_steps 中逐步推理求解，在 final_answer 字段中只填入填空处的答案内容，简洁明了。\n\n填空题：Poisson过程中，相邻事件到达的时间间隔服从______分布。"
 }

@@ -1,57 +1,49 @@
 {
-  "final_answer": "\\sigma^2 (X^T X)^{-1}",
-  "domain": "statistics",
+  "question_id": "103",
+  "timestamp": "2026-07-09T10:38:59.605280",
+  "domain": "partial_differential_equations",
+  "final_answer": "B",
   "reasoning_steps": [
     {
       "step_id": 1,
-      "description": "写出普通最小二乘法（OLS）估计量的矩阵表达式",
-      "formula": "\\hat{\\beta} = (X^T X)^{-1} X^T Y",
+      "description": "识别二阶线性偏微分方程的一般形式及系数",
+      "formula": "$A=1, B=2, C=1$",
       "result": null,
-      "method": null
+      "method": "系数识别"
     },
     {
       "step_id": 2,
-      "description": "将模型 Y=X\\beta+\\varepsilon 代入估计量表达式",
-      "formula": "\\hat{\\beta} = \\beta + (X^T X)^{-1} X^T \\varepsilon",
+      "description": "计算判别式以确定方程类型",
+      "formula": "$\\Delta = B^2 - 4AC = 2^2 - 4 \\times 1 \\times 1 = 0$",
       "result": null,
-      "method": null
+      "method": "判别式计算"
     },
     {
       "step_id": 3,
-      "description": "利用协方差矩阵的线性变换性质计算 Var(\\hat{\\beta})",
-      "formula": "Var(\\hat{\\beta}) = (X^T X)^{-1} X^T Var(\\varepsilon) X (X^T X)^{-1}",
+      "description": "根据判别式符号判断方程类型",
+      "formula": "$\\Delta = 0 \\implies$ 抛物型",
       "result": null,
-      "method": null
-    },
-    {
-      "step_id": 4,
-      "description": "代入误差项协方差假设 Var(\\varepsilon)=\\sigma^2 I",
-      "formula": "Var(\\varepsilon) = \\sigma^2 I_n",
-      "result": null,
-      "method": null
-    },
-    {
-      "step_id": 5,
-      "description": "化简矩阵乘积得到最终结果",
-      "formula": "Var(\\hat{\\beta}) = \\sigma^2 (X^T X)^{-1}",
-      "result": null,
-      "method": null
+      "method": "分类准则"
     }
   ],
   "methods_used": [
-    "最小二乘法",
-    "矩阵代数",
-    "方差性质"
+    "二阶偏微分方程分类法",
+    "判别式分析"
   ],
   "verification": {
     "is_correct": true,
     "confidence": 1.0,
-    "check_method": "ground_truth_match",
-    "error_details": ""
+    "check_method": "Verified the coefficients of the second-order PDE (A=1, B=2, C=1) from the equation u_xx + 2u_xy + u_yy = 0. Calculated the discriminant Δ = B² - 4AC = 2² - 4(1)(1) = 0. Since Δ = 0, the equation is classified as parabolic, which matches option B.",
+    "error_details": "No errors found. The reasoning steps correctly identify the method (discriminant analysis), and the final answer is mathematically accurate."
   },
-  "educational_hint": "该结果表明估计精度受设计矩阵 X 的信息量（X^T X 的逆）和误差方差 \\sigma^2 影响。",
-  "from_cache": true,
-  "question_id": "103",
-  "cache_similarity": 1.0,
-  "cache_matched_question": "对多元线性回归$Y=X\\beta+\\varepsilon$，求$\\hat{\\beta}$的协方差矩阵。"
+  "educational_hint": "二阶线性偏微分方程 $A u_{xx} + B u_{xy} + C u_{yy} + \\dots = 0$ 的类型由判别式 $B^2 - 4AC$ 决定：大于 0 为双曲型，等于 0 为抛物型，小于 0 为椭圆型。",
+  "computation_time_ms": 198936.452627182,
+  "retry_count": 0,
+  "model_version": null,
+  "from_cache": false,
+  "cache_similarity": null,
+  "cache_matched_question": null,
+  "true_domain": null,
+  "ground_truth": null,
+  "answer_match": null
 }

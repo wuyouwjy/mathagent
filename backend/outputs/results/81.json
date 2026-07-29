@@ -1,39 +1,39 @@
 {
-  "final_answer": "积分结果为 $2\\pi i (e - 2)$。奇点 $z=0$ (留数 -2) 和 $z=1$ (留数 $e$) 均在围道内，留数之和为 $e-2$。",
-  "domain": "complex_analysis",
+  "final_answer": "C",
+  "domain": "复分析",
   "reasoning_steps": [
     {
       "step_id": 1,
-      "description": "确定奇点位置及阶数",
-      "formula": "$f(z) = \\frac{e^z}{z^2(z-1)}$，奇点 $z=0$ (二阶极点), $z=1$ (一阶极点)，均在 $|z|=3$ 内",
+      "description": "确定积分路径与被积函数的奇点",
+      "formula": "积分路径 $C: |z|=2$，被积函数 $f(z) = \\frac{e^z}{z-1}$ 在 $z=1$ 处有奇点",
       "result": null,
-      "method": "奇点分析"
+      "method": "奇点识别"
     },
     {
       "step_id": 2,
-      "description": "计算 $z=1$ 处的留数",
-      "formula": "$\\text{Res}(f, 1) = \\lim_{z \\to 1} (z-1)f(z) = \\frac{e^1}{1^2} = e$",
+      "description": "判断奇点是否位于积分围道内部",
+      "formula": "$|1| = 1 < 2$，因此奇点 $z=1$ 位于围道 $C$ 内部",
       "result": null,
-      "method": "一阶极点留数公式"
+      "method": "几何位置判定"
     },
     {
       "step_id": 3,
-      "description": "计算 $z=0$ 处的留数",
-      "formula": "$\\text{Res}(f, 0) = \\lim_{z \\to 0} \\frac{d}{dz}\\left(\\frac{e^z}{z-1}\\right) = \\left.\\frac{e^z(z-2)}{(z-1)^2}\\right|_{z=0} = -2$",
+      "description": "应用柯西积分公式计算围道积分",
+      "formula": "$\\oint_{C} \\frac{e^z}{z-1} dz = 2\\pi i \\cdot e^1 = 2\\pi i e$",
       "result": null,
-      "method": "高阶极点留数公式"
+      "method": "柯西积分公式"
     },
     {
       "step_id": 4,
-      "description": "应用留数定理求和",
-      "formula": "$I = 2\\pi i (\\text{Res}(f, 0) + \\text{Res}(f, 1)) = 2\\pi i (e - 2)$",
+      "description": "将计算结果与给定选项进行比对",
+      "formula": "结果 $2\\pi i e$ 与选项 C 一致",
       "result": null,
-      "method": "留数定理"
+      "method": "选项匹配"
     }
   ],
   "methods_used": [
-    "留数定理",
-    "极点留数计算"
+    "柯西积分公式",
+    "奇点位置判断"
   ],
   "verification": {
     "is_correct": true,
@@ -41,9 +41,9 @@
     "check_method": "ground_truth_match",
     "error_details": ""
   },
-  "educational_hint": "注意区分奇点阶数：一阶极点用极限法，二阶极点需先乘 $z^k$ 再求导。确保所有奇点都在积分围道内部。",
+  "educational_hint": "使用柯西积分公式或留数定理时，首要步骤是确认奇点是否在积分围道内。若奇点在围道外，积分为 0；若在围道内，则需计算留数或函数值。",
   "from_cache": true,
   "question_id": "81",
-  "cache_similarity": 1.0,
-  "cache_matched_question": "计算围道积分$\\oint_{|z|=3} \\frac{e^z}{z^2(z-1)} dz$。"
+  "cache_similarity": 0.9999997615814209,
+  "cache_matched_question": "【选择题·答题要求】你正在解答一道选择题。请在 reasoning_steps 中逐步分析每个选项，在 final_answer 字段中只填入正确选项的字母（A/B/C/D），不要填入任何其他文字。\n\n选择题：∮_{|z|=2} e^z/(z-1)dz（逆时针）=？\nA. 0\nB. 2πi\nC. 2πie\nD. e"
 }

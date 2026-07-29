@@ -1,39 +1,31 @@
 {
-  "final_answer": "已证明 E[\\hat{\\sigma}^2] = \\sigma^2，故为无偏估计",
-  "domain": "statistics",
+  "final_answer": "B",
+  "domain": "泛函分析",
   "reasoning_steps": [
     {
       "step_id": 1,
-      "description": "展开样本偏差平方和",
-      "formula": "\\sum(X_i-\\bar{X})^2 = \\sum(X_i-\\mu)^2 - n(\\bar{X}-\\mu)^2",
+      "description": "回顾 Banach 压缩映射原理的前提条件：空间必须是完备的（Banach 空间满足此条件），映射必须是压缩的（存在 k<1 使得距离缩小）。",
+      "formula": "d(Tx, Ty) \\\\le k d(x, y), \\\\quad 0 \\\\le k < 1",
       "result": null,
-      "method": "代数恒等变换"
+      "method": "压缩映射定义"
     },
     {
       "step_id": 2,
-      "description": "对等式两边取期望",
-      "formula": "E[\\sum(X_i-\\bar{X})^2] = \\sum E[(X_i-\\mu)^2] - n E[(\\bar{X}-\\mu)^2]",
+      "description": "根据定理结论，压缩映射在完备空间上不仅保证不动点存在，而且保证该不动点是唯一的。",
+      "formula": "\\\\exists ! x^* \\\\in X, T x^* = x^*",
       "result": null,
-      "method": "期望线性性质"
+      "method": "压缩映射原理结论"
     },
     {
       "step_id": 3,
-      "description": "代入方差定义计算",
-      "formula": "E[(X_i-\\mu)^2]=\\sigma^2, E[(\\bar{X}-\\mu)^2]=\\sigma^2/n",
+      "description": "分析选项：A 项仅提到存在性不够精确，C 和 D 项与定理结论相反，只有 B 项完整描述了存在且唯一的性质。",
+      "formula": "",
       "result": null,
-      "method": "方差定义"
-    },
-    {
-      "step_id": 4,
-      "description": "计算最终期望验证无偏性",
-      "formula": "E[\\hat{\\sigma}^2] = \\frac{1}{n-1}(n-1)\\sigma^2 = \\sigma^2",
-      "result": null,
-      "method": "无偏性定义"
+      "method": "逻辑辨析"
     }
   ],
   "methods_used": [
-    "无偏性证明",
-    "期望运算"
+    "压缩映射原理"
   ],
   "verification": {
     "is_correct": true,
@@ -41,9 +33,9 @@
     "check_method": "ground_truth_match",
     "error_details": ""
   },
-  "educational_hint": "证明关键在于利用代数恒等式将样本方差分解，利用期望的线性性质及总体方差定义，说明分母使用 n-1 而非 n 是为了消除偏差。",
+  "educational_hint": "Banach 压缩映射原理的核心在于完备空间上的压缩映射具有唯一的不动点，这是泛函分析中求解方程的重要工具。",
   "from_cache": true,
   "question_id": "96",
-  "cache_similarity": 1.0000007152557373,
-  "cache_matched_question": "证明$\\hat{\\sigma}^2 = \\frac{1}{n-1}\\sum(X_i-\\bar{X})^2$是$\\sigma^2$的无偏估计。"
+  "cache_similarity": 1.0,
+  "cache_matched_question": "【选择题·答题要求】你正在解答一道选择题。请在 reasoning_steps 中逐步分析每个选项，在 final_answer 字段中只填入正确选项的字母（A/B/C/D），不要填入任何其他文字。\n\n选择题：Banach空间上的压缩映射原理保证了什么？\nA. 至少一个不动点\nB. 存在唯一不动点\nC. 不动点不唯一\nD. 不动点不存在"
 }

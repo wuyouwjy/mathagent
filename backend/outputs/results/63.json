@@ -1,64 +1,42 @@
 {
-  "question_id": "63",
-  "timestamp": "2026-07-08T00:20:25.644308",
-  "domain": "calculus_of_variations",
-  "final_answer": "球面上两点间的最短路径是大圆的一段弧",
+  "final_answer": "0.25",
+  "domain": "概率论",
   "reasoning_steps": [
     {
       "step_id": 1,
-      "description": "建立变分问题模型",
-      "formula": "J = \\int_{t_1}^{t_2} \\sqrt{\\dot{x}^2+\\dot{y}^2+\\dot{z}^2} dt, \\quad x^2+y^2+z^2=R^2",
+      "description": "计算二项分布的期望和方差",
+      "formula": "E[X]=np=100\\times0.5=50, \\quad Var(X)=np(1-p)=100\\times0.5\\times0.5=25",
       "result": null,
-      "method": "泛函建模"
+      "method": "二项分布性质"
     },
     {
       "step_id": 2,
-      "description": "引入 Lagrange 乘子处理约束",
-      "formula": "L = \\dot{x}^2+\\dot{y}^2+\\dot{z}^2 + \\lambda(t)(x^2+y^2+z^2-R^2)",
+      "description": "应用切比雪夫不等式",
+      "formula": "P(|X-\\mu|\\ge\\epsilon)\\le\\frac{Var(X)}{\\epsilon^2}",
       "result": null,
-      "method": "约束变分法"
+      "method": "切比雪夫不等式"
     },
     {
       "step_id": 3,
-      "description": "应用 Euler-Lagrange 方程",
-      "formula": "\\frac{d}{dt}\\left(\\frac{\\partial L}{\\partial \\dot{x}}\\right) - \\frac{\\partial L}{\\partial x} = 0 \\Rightarrow \\ddot{x} = \\lambda x",
+      "description": "代入数值计算上界",
+      "formula": "P(|X-50|\\ge10)\\le\\frac{25}{10^2}=\\frac{25}{100}=0.25",
       "result": null,
-      "method": "Euler-Lagrange 方程"
-    },
-    {
-      "step_id": 4,
-      "description": "分析运动方程的几何意义",
-      "formula": "\\vec{r}'' = \\lambda \\vec{r}, \\quad \\frac{d}{dt}(\\vec{r} \\times \\vec{r}') = 0 \\Rightarrow \\vec{r} \\times \\vec{r}' = \\vec{C}",
-      "result": null,
-      "method": "矢量分析"
-    },
-    {
-      "step_id": 5,
-      "description": "得出结论",
-      "formula": "\\vec{r} \\cdot \\vec{C} = 0 \\Rightarrow \\text{平面过原点}, \\text{交线为大圆}",
-      "result": null,
-      "method": "几何解释"
+      "method": "数值计算"
     }
   ],
   "methods_used": [
-    "约束变分法",
-    "Lagrange 乘子法",
-    "Euler-Lagrange 方程"
+    "二项分布期望方差计算",
+    "切比雪夫不等式"
   ],
   "verification": {
     "is_correct": true,
-    "confidence": 0.95,
-    "check_method": "验证了变分法证明球面测地线的逻辑框架，确认所用方法（约束变分、拉格朗日乘子、欧拉 - 拉格朗日方程）适用于该问题，且最终结论符合微分几何标准定理。",
-    "error_details": "提供的求解过程仅为步骤概述，未包含具体的数学推导（如泛函建立、约束方程、欧拉 - 拉格朗日方程求解等）。虽然方法论和结论正确，但无法验证中间步骤的计算细节是否无误。此外，严格来说两点间最短路径应指大圆的劣弧，若两点为对径点则路径不唯一。"
+    "confidence": 1.0,
+    "check_method": "ground_truth_match",
+    "error_details": ""
   },
-  "educational_hint": "通过引入约束条件构建增广泛函，利用 Euler-Lagrange 方程导出运动方程，发现位置矢量与加速度矢量共线，从而证明轨迹位于过原点的平面内。",
-  "computation_time_ms": 185136.48796081543,
-  "retry_count": 0,
-  "model_version": null,
-  "from_cache": false,
-  "cache_similarity": null,
-  "cache_matched_question": null,
-  "true_domain": null,
-  "ground_truth": null,
-  "answer_match": null
+  "educational_hint": "首先根据二项分布参数求出期望和方差，再利用切比雪夫不等式 P(|X-μ|≥ε) ≤ σ²/ε² 计算概率上界。",
+  "from_cache": true,
+  "question_id": "63",
+  "cache_similarity": 1.000000238418579,
+  "cache_matched_question": "【填空题·答题要求】你正在解答一道填空题。请在 reasoning_steps 中逐步推理求解，在 final_answer 字段中只填入填空处的答案内容，简洁明了。\n\n填空题：X~B(100,0.5)，由Chebyshev不等式P(|X-50|≥10)≤______。"
 }

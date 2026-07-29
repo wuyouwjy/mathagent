@@ -1,64 +1,49 @@
 {
-  "question_id": "21",
-  "timestamp": "2026-07-08T00:11:26.113087",
-  "domain": "number_theory",
-  "final_answer": "53",
+  "final_answer": "O(n log n)",
+  "domain": "离散数学",
   "reasoning_steps": [
     {
       "step_id": 1,
-      "description": "分解模数 91 为互质因子",
-      "formula": "91 = 7 \\times 13",
+      "description": "识别递推关系形式，确定参数 a=2, b=2, f(n)=n",
+      "formula": "T(n) = 2T(n/2) + n",
       "result": null,
-      "method": null
+      "method": "识别递推形式"
     },
     {
       "step_id": 2,
-      "description": "计算底数 1234 对因子的同余值",
-      "formula": "1234 \\equiv 2 \\pmod 7, \\quad 1234 \\equiv -1 \\pmod{13}",
+      "description": "计算主定理中的临界指数 log_b a",
+      "formula": "log_2 2 = 1",
       "result": null,
-      "method": null
+      "method": "计算临界指数"
     },
     {
       "step_id": 3,
-      "description": "利用费马小定理计算模 7 的幂",
-      "formula": "2^{5678} \\equiv 2^{5678 \\bmod 6} \\equiv 2^2 \\equiv 4 \\pmod 7",
+      "description": "比较 f(n) 与 n^(log_b a)，发现两者同阶",
+      "formula": "f(n) = n = n^1",
       "result": null,
-      "method": null
+      "method": "比较阶数"
     },
     {
       "step_id": 4,
-      "description": "计算模 13 的幂",
-      "formula": "(-1)^{5678} \\equiv 1 \\pmod{13}",
+      "description": "应用主定理第二种情况得出复杂度",
+      "formula": "T(n) = Θ(n log n)",
       "result": null,
-      "method": null
-    },
-    {
-      "step_id": 5,
-      "description": "利用中国剩余定理合并结果",
-      "formula": "x \\equiv 4 \\pmod 7, x \\equiv 1 \\pmod{13} \\Rightarrow x = 53",
-      "result": null,
-      "method": null
+      "method": "应用主定理"
     }
   ],
   "methods_used": [
-    "模运算",
-    "费马小定理",
-    "中国剩余定理"
+    "主定理",
+    "递推关系求解"
   ],
   "verification": {
     "is_correct": true,
     "confidence": 1.0,
-    "check_method": "逐步验证中国剩余定理求解过程：分解模数、计算底数同余值、应用费马小定理计算各模幂、使用中国剩余定理合并结果",
-    "error_details": "无错误。所有步骤推理严谨，计算准确：91=7×13；1234≡2(mod 7)，1234≡12≡-1(mod 13)；2^5678≡2^2≡4(mod 7)；(-1)^5678≡1(mod 13)；解方程组得x≡53(mod 91)"
+    "check_method": "ground_truth_match",
+    "error_details": ""
   },
-  "educational_hint": "将大模数分解为互质素数，分别求解同余方程组后合并。",
-  "computation_time_ms": 103759.59277153015,
-  "retry_count": 0,
-  "model_version": null,
-  "from_cache": false,
-  "cache_similarity": null,
-  "cache_matched_question": null,
-  "true_domain": null,
-  "ground_truth": null,
-  "answer_match": null
+  "educational_hint": "对于形如 T(n)=aT(n/b)+f(n) 的分治递推关系，主定理是求解渐近复杂度最简便的方法。",
+  "from_cache": true,
+  "question_id": "21",
+  "cache_similarity": 1.0,
+  "cache_matched_question": "【填空题·答题要求】你正在解答一道填空题。请在 reasoning_steps 中逐步推理求解，在 final_answer 字段中只填入填空处的答案内容，简洁明了。\n\n填空题：递推关系T(n)=2T(n/2)+n的解（T(1)=1）的渐近复杂度为______。"
 }

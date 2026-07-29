@@ -1,38 +1,39 @@
 {
-  "final_answer": "\\hat{\\mu} = \\bar{X}",
-  "domain": "statistics",
+  "final_answer": "B",
+  "domain": "统计推断",
   "reasoning_steps": [
     {
       "step_id": 1,
-      "description": "写出正态分布样本的似然函数",
-      "formula": "L(\\mu) = \\prod_{i=1}^n \\frac{1}{\\sqrt{2\\pi\\sigma^2}} e^{-\\frac{(x_i-\\mu)^2}{2\\sigma^2}}",
+      "description": "确定检验类型：σ 已知，采用 Z 检验",
+      "formula": "Z = \\frac{\\bar{X} - \\mu_0}{\\sigma / \\sqrt{n}}",
       "result": null,
-      "method": null
+      "method": "Z 检验"
     },
     {
       "step_id": 2,
-      "description": "取对数得到对数似然函数",
-      "formula": "l(\\mu) = \\ln L(\\mu) = -\\frac{n}{2}\\ln(2\\pi\\sigma^2) - \\frac{1}{2\\sigma^2}\\sum_{i=1}^n (x_i-\\mu)^2",
+      "description": "计算统计量 Z 值",
+      "formula": "Z = \\frac{5.8 - 5}{2 / \\sqrt{25}} = 2.0",
       "result": null,
-      "method": null
+      "method": "代入数值计算"
     },
     {
       "step_id": 3,
-      "description": "对 \\mu 求导并令导数为零",
-      "formula": "\\frac{d l(\\mu)}{d \\mu} = \\frac{1}{\\sigma^2}\\sum_{i=1}^n (x_i-\\mu) = 0",
+      "description": "确定临界值：α=0.05 双侧检验",
+      "formula": "z_{\\alpha/2} = 1.96",
       "result": null,
-      "method": null
+      "method": "查表"
     },
     {
       "step_id": 4,
-      "description": "解方程得到估计量",
-      "formula": "\\hat{\\mu} = \\frac{1}{n}\\sum_{i=1}^n x_i = \\bar{X}",
+      "description": "比较并决策：|Z|=2.0 > 1.96，拒绝 H0，对应选项 B",
+      "formula": "2.0 > 1.96",
       "result": null,
-      "method": null
+      "method": "假设检验决策"
     }
   ],
   "methods_used": [
-    "最大似然估计"
+    "Z 检验",
+    "假设检验"
   ],
   "verification": {
     "is_correct": true,
@@ -40,9 +41,9 @@
     "check_method": "ground_truth_match",
     "error_details": ""
   },
-  "educational_hint": "对于正态分布均值，当方差已知时，最大似然估计量等于样本均值，该估计量是无偏且有效的。",
+  "educational_hint": "总体方差已知时选用 Z 检验，双侧检验 α=0.05 的临界值为 1.96，统计量落入拒绝域则拒绝原假设。",
   "from_cache": true,
   "question_id": "93",
-  "cache_similarity": 1.000000238418579,
-  "cache_matched_question": "设$X_1,\\ldots,X_n$为来自$N(\\mu,\\sigma^2)$的随机样本。求$\\mu$的最大似然估计（$\\sigma^2$已知）。"
+  "cache_similarity": 1.0000001192092896,
+  "cache_matched_question": "【选择题·答题要求】你正在解答一道选择题。请在 reasoning_steps 中逐步分析每个选项，在 final_answer 字段中只填入正确选项的字母（A/B/C/D），不要填入任何其他文字。\n\n选择题：H0:μ=5 vs H1:μ≠5，n=25, X̄=5.8, σ=2, α=0.05，结论为？\nA. 接受H0\nB. 拒绝H0\nC. 无法判断\nD. 需要更多信息"
 }

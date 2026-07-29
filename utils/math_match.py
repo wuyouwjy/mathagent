@@ -198,3 +198,66 @@ def fuzzy_match(predicted: str, ground_truth: str) -> bool:
         return bool(sp.nsimplify(a) == sp.nsimplify(b))
     except Exception:
         return False
+
+
+# ============================================================
+# LLM 语义验证（fuzzy_match 失败后的兜底）
+# ============================================================
+
+_LLM_VERIFY_PROMPT = """你是一位严谨的数学答案评判专家。你的任务是比较「预测答案」和「标准答案」，判断它们在数学上是否等价。
+
+请按以下步骤进行：
+1. 将两个答案分别转化为统一的规范数学表达：
+   - 去掉无关的修饰词、格式标记
+   - 统一数学符号（如 <= 和 ≤ 等价）
+   - 提取核心数学含义（如完整证明过程和"已证明"等价）
+   - 对于定理证明题，关注结论是否一致
+   - 对于计算题，关注数值是否在合理误差内一致
+2. 判断两个规范化后的答案在数学上是否等价：
+   - 数值答案：允许 1% 以内的舍入误差
+   - 表达式答案：代数等价即可，不要求形式完全一致
+   - 证明题：只要核心结论和逻辑正确即可
+   - 参数估计：如 y=0.5+1.6x 与 β₀=0.5,β₁=1.6 等价
+
+请严格按以下 JSON 格式输出（不要输出其他内容）：
+{"pred_normalized": "预测答案的规范化形式", "gt_normalized": "标准答案的规范化形式", "is_equivalent": true/false, "confidence": 0.0~1.0, "reason": "简要判断理由"}"""
+
+
+def llm_verify_match(predicted: str, ground_truth: str, question: str = "") -> dict:
+    """
+    调用 LLM 判断两个答案是否数学等价。
+
+    返回: {"is_equivalent": bool, "confidence": float, "reason": str,
+           "pred_normalized": str, "gt_normalized": str}
+    失败时返回 is_equivalent=False, confidence=0
+    """
+    try:
+        from tools.intern_client import get_intern_client
+        client = get_intern_client()
+
+        user_msg = (
+            f"【原始问题】\n{question[:500]}\n\n"
+            f"【预测答案】\n{predicted[:600]}\n\n"
+            f"【标准答案】\n{ground_truth[:300]}\n\n"
+            f"请判断以上两个答案在数学上是否等价。"
+        )
+
+        response = client.chat_with_json_output(
+            messages=[{"role": "user", "content": user_msg}],
+            system_prompt=_LLM_VERIFY_PROMPT,
+            temperature=0.0,
+        )
+        parsed = response.get("parsed_json") if isinstance(response, dict) else None
+        if parsed and isinstance(parsed, dict):
+            return {
+                "is_equivalent": parsed.get("is_equivalent", False),
+                "confidence": float(parsed.get("confidence", 0.5)),
+                "reason": parsed.get("reason", ""),
+                "pred_normalized": parsed.get("pred_normalized", ""),
+                "gt_normalized": parsed.get("gt_normalized", ""),
+            }
+    except Exception:
+        pass
+
+    return {"is_equivalent": False, "confidence": 0.0, "reason": "LLM验证调用失败",
+            "pred_normalized": "", "gt_normalized": ""}

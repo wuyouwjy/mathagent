@@ -1,50 +1,50 @@
 {
-  "question_id": "59",
-  "timestamp": "2026-07-08T00:18:48.117721",
-  "domain": "topology",
-  "final_answer": "根据庞加莱 - 霍普夫定理，紧致光滑流形上任意光滑向量场的所有零点指数之和等于该流形的欧拉示性数。对于球面 $S^2$，其欧拉示性数 $\\chi(S^2) = 2$。若向量场无零点，则指数和为 $0$，导致 $0 = 2$ 的矛盾。因此，$S^2$ 上任何光滑向量场至少有一个零点。",
+  "final_answer": "C",
+  "domain": "概率论",
   "reasoning_steps": [
     {
       "step_id": 1,
-      "description": "引用庞加莱 - 霍普夫定理建立向量场零点与欧拉示性数的联系",
-      "formula": "\\sum_{p \\in \\mathrm{Zero}(V)} \\mathrm{ind}_p(V) = \\chi(M)",
+      "description": "确定 X 和 Y 的生存函数",
+      "formula": "P(X>x) = e^{-\\lambda x}",
       "result": null,
-      "method": "庞加莱 - 霍普夫定理"
+      "method": "指数分布定义"
     },
     {
       "step_id": 2,
-      "description": "计算球面 $S^2$ 的欧拉示性数",
-      "formula": "\\chi(S^2) = 2",
+      "description": "表达 Z 的生存函数",
+      "formula": "P(Z>z) = P(min(X,Y)>z) = P(X>z, Y>z)",
       "result": null,
-      "method": "欧拉示性数计算"
+      "method": "最小值定义"
     },
     {
       "step_id": 3,
-      "description": "假设向量场无零点导出矛盾",
-      "formula": "0 = 2 \\quad (\\text{矛盾})",
+      "description": "利用独立性计算概率",
+      "formula": "P(X>z)P(Y>z) = e^{-\\lambda z} \\cdot e^{-\\lambda z}",
       "result": null,
-      "method": "反证法"
+      "method": "独立性假设"
+    },
+    {
+      "step_id": 4,
+      "description": "识别 Z 的分布类型",
+      "formula": "P(Z>z) = e^{-2\\lambda z} \\Rightarrow Z \\sim \\text{Exp}(2\\lambda)",
+      "result": null,
+      "method": "分布识别"
     }
   ],
   "methods_used": [
-    "庞加莱 - 霍普夫定理",
-    "欧拉示性数",
-    "反证法"
+    "指数分布生存函数",
+    "独立性性质",
+    "最小值分布性质"
   ],
   "verification": {
     "is_correct": true,
     "confidence": 1.0,
-    "check_method": "验证庞加莱 - 霍普夫定理的适用条件（紧致无边流形），确认球面欧拉示性数计算正确，审查反证法逻辑链条是否完整。",
-    "error_details": "无。证明过程逻辑严密，定理引用准确，数值计算正确，结论有效。"
+    "check_method": "ground_truth_match",
+    "error_details": ""
   },
-  "educational_hint": "此结论被称为\"毛球定理\"（Hairy Ball Theorem）。直观上意味着无法抚平一个长满毛的球面而不留下至少一个旋涡或秃点。解题的关键在于理解向量场零点的拓扑性质（指数和）与流形整体拓扑结构（欧拉示性数）之间的深刻联系。",
-  "computation_time_ms": 127844.13313865662,
-  "retry_count": 0,
-  "model_version": null,
-  "from_cache": false,
-  "cache_similarity": null,
-  "cache_matched_question": null,
-  "true_domain": null,
-  "ground_truth": null,
-  "answer_match": null
+  "educational_hint": "独立同分布的指数随机变量，其最小值服从指数分布，参数为原参数之和。",
+  "from_cache": true,
+  "question_id": "59",
+  "cache_similarity": 0.9999998807907104,
+  "cache_matched_question": "【选择题·答题要求】你正在解答一道选择题。请在 reasoning_steps 中逐步分析每个选项，在 final_answer 字段中只填入正确选项的字母（A/B/C/D），不要填入任何其他文字。\n\n选择题：设X和Y独立同分布于Exp(λ)，Z=min(X,Y)的分布为？\nA. Exp(λ)\nB. Exp(λ/2)\nC. Exp(2λ)\nD. Gamma(2,λ)"
 }

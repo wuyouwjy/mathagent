@@ -1,24 +1,49 @@
 {
-  "question_id": "47",
-  "timestamp": "2026-07-08T00:16:49.411145",
-  "domain": "real_analysis",
-  "final_answer": "。左边极限为 0，右边积分值为 0",
-  "reasoning_steps": [],
-  "methods_used": [],
+  "final_answer": "不一定成立",
+  "domain": "测度积分",
+  "reasoning_steps": [
+    {
+      "step_id": 1,
+      "description": "Riemann 可积函数在闭区间上必有界且几乎处处连续，因此必定 Lebesgue 可积且积分值相等",
+      "formula": "\\int_a^b f(x)dx = \\int_{[a,b]} f d\\mu",
+      "result": null,
+      "method": "Riemann-Lebesgue 定理"
+    },
+    {
+      "step_id": 2,
+      "description": "考虑 Lebesgue 可积是否蕴含 Riemann 可积，取狄利克雷函数作为反例",
+      "formula": "D(x) = \\mathbf{1}_{\\mathbb{Q}}(x)",
+      "result": null,
+      "method": "反例法"
+    },
+    {
+      "step_id": 3,
+      "description": "狄利克雷函数 Lebesgue 可积但 Riemann 不可积，故反之不一定成立",
+      "formula": "Lebesgue 可积 \\nRightarrow Riemann 可积",
+      "result": null,
+      "method": "逻辑推导"
+    }
+  ],
+  "methods_used": [
+    "Riemann-Lebesgue 定理",
+    "反例法"
+  ],
   "verification": {
-    "is_correct": false,
-    "confidence": 0.95,
-    "check_method": "Verified the pointwise limit and the limit of the integral using calculus rules. Confirmed that both evaluate to 0, which contradicts the inequality claim.",
-    "error_details": "1. The provided solution states both values are 0. For the given function f_n(x)=nx/(1+n^2x^2), this calculation is correct (limit of integral = 0 and integral of limit = 0). However, this implies equality, contradicting the problem's requirement to prove inequality. 2. The solution lacks derivation steps, failing to demonstrate rigor. 3. The problem likely contains a typo; the standard counterexample uses f_n(x)=n/(1+n^2x^2)."
+    "is_correct": true,
+    "confidence": 1.0,
+    "check_method": "llm_verify_match",
+    "error_details": "",
+    "llm_verify": {
+      "is_equivalent": true,
+      "confidence": 0.95,
+      "reason": "两者均表达了逆命题（Lebesgue 可积推不出 Riemann 可积）不成立的数学核心事实。虽然标准答案使用了更精确的‘不成立’并附带反例说明，预测答案‘不一定成立’在语义上同样否定了逆命题的普遍有效性，在填空题语境下视为等价。",
+      "pred_normalized": "不一定成立",
+      "gt_normalized": "不成立"
+    }
   },
-  "educational_hint": "",
-  "computation_time_ms": 227664.94274139404,
-  "retry_count": 1,
-  "model_version": null,
-  "from_cache": false,
-  "cache_similarity": null,
-  "cache_matched_question": null,
-  "true_domain": null,
-  "ground_truth": null,
-  "answer_match": null
+  "educational_hint": "Riemann 可积要求函数有界且间断点集测度为零，而 Lebesgue 可积范围更广，允许间断点集测度非零（只要函数可积），因此反之不一定成立。",
+  "from_cache": true,
+  "question_id": "47",
+  "cache_similarity": 0.9999997615814209,
+  "cache_matched_question": "【填空题·答题要求】你正在解答一道填空题。请在 reasoning_steps 中逐步推理求解，在 final_answer 字段中只填入填空处的答案内容，简洁明了。\n\n填空题：Riemann可积函数必定Lebesgue可积，但反之______。"
 }
