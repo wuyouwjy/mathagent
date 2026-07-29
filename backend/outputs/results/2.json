@@ -1,19 +1,40 @@
 {
-  "final_answer": "$R/I$ 为整环",
-  "domain": "algebra",
+  "final_answer": "C",
+  "domain": "离散数学",
   "reasoning_steps": [
     {
       "step_id": 1,
-      "description": "1. 回顾定义：素理想 $I$ 满足 $I \\\\neq R$ 且若 $ab \\\\in I$ 则 $a \\\\in I$ 或 $b \\\\in I$。整环是含幺交换环且无零因子。\n2. 交换性与单位元：因 $R$ 交换含幺，故 $R/I$ 也交换含幺，单位元为 $1+I$。由于 $I$ 是素理想，$I \\\\neq R$，故 $1+I \\\\neq 0+I$，即单位元不为零元。\n3. 零因子检验：设 $\\\\bar{a}, \\\\bar{b} \\\\in R/I$ 且 $\\\\bar{a}\\\\bar{b} = \\\\bar{0}$。这意味着 $(a+I)(b+I) = 0+I$，即 $ab \\\\in I$。\n4. 应用素理想性质：由 $ab \\\\in I$ 及 $I$ 为素理想，可得 $a \\\\in I$ 或 $b \\\\in I$。\n5. 结论：若 $a \\\\in I$ 则 $\\\\bar{a} = \\\\bar{0}$，若 $b \\\\in I$ 则 $\\\\bar{b} = \\\\bar{0}$。因此 $\\\\bar{a}\\\\bar{b} = \\\\bar{0} \\\\implies \\\\bar{a} = \\\\bar",
-      "formula": null,
+      "description": "选项 A 为 22/7，是两个非零整数的商，符合有理数定义。",
+      "formula": "22/7 \\in \\mathbb{Q}",
       "result": null,
-      "method": null
+      "method": "有理数定义"
+    },
+    {
+      "step_id": 2,
+      "description": "选项 B 为 √4，化简后等于 2，整数属于有理数集。",
+      "formula": "\\sqrt{4} = 2 \\in \\mathbb{Z} \\subset \\mathbb{Q}",
+      "result": null,
+      "method": "算术化简"
+    },
+    {
+      "step_id": 3,
+      "description": "选项 C 为 √2，无法表示为两个整数之比，是典型的无理数。",
+      "formula": "\\sqrt{2} \\notin \\mathbb{Q}",
+      "result": null,
+      "method": "无理数判定"
+    },
+    {
+      "step_id": 4,
+      "description": "选项 D 为 3.14，是有限小数，可化为分数 314/100，属于有理数。",
+      "formula": "3.14 = \\frac{314}{100} \\in \\mathbb{Q}",
+      "result": null,
+      "method": "小数化分数"
     }
   ],
   "methods_used": [
-    "定义法",
-    "商环性质",
-    "素理想定义"
+    "有理数定义",
+    "无理数判定",
+    "算术化简"
   ],
   "verification": {
     "is_correct": true,
@@ -21,9 +42,9 @@
     "check_method": "ground_truth_match",
     "error_details": ""
   },
-  "educational_hint": "",
+  "educational_hint": "注意区分无理数与其近似值。22/7 和 3.14 常作为 π 的近似值，但它们本身是有理数；√4 是完全平方数的根，结果为整数；√2 是不可开尽方的数，为无理数。",
   "from_cache": true,
   "question_id": "2",
-  "cache_similarity": 1.000000238418579,
-  "cache_matched_question": "设$R$为含幺交换环，$I$为$R$的素理想。证明$R/I$为整环。"
+  "cache_similarity": 0.9999998807907104,
+  "cache_matched_question": "【选择题·答题要求】你正在解答一道选择题。请在 reasoning_steps 中逐步分析每个选项，在 final_answer 字段中只填入正确选项的字母（A/B/C/D），不要填入任何其他文字。\n\n选择题：以下哪个数是无理数？\nA. 22/7\nB. √4\nC. √2\nD. 3.14"
 }

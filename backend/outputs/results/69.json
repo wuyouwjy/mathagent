@@ -1,6 +1,6 @@
 {
-  "final_answer": "\": \"0\",",
-  "domain": "probability",
+  "final_answer": "C",
+  "domain": "抽象代数",
   "reasoning_steps": [],
   "methods_used": [],
   "verification": {
@@ -12,6 +12,6 @@
   "educational_hint": "",
   "from_cache": true,
   "question_id": "69",
-  "cache_similarity": 1.000000238418579,
-  "cache_matched_question": "设随机变量序列$\\{X_n\\}$独立同分布于$\\text{Uniform}(0,1)$。求$\\lim_{n\\to\\infty}P\\left(\\left|\\frac{1}{n}\\sum_{i=1}^n X_i - \\frac{1}{2}\\right| > 0.01\\right)$。"
+  "cache_similarity": 1.0,
+  "cache_matched_question": "【选择题·答题要求】你正在解答一道选择题。请在 reasoning_steps 中逐步分析每个选项，在 final_answer 字段中只填入正确选项的字母（A/B/C/D），不要填入任何其他文字。\n\n选择题：x^3-2在ℚ上的分裂域的Galois群同构于？\nA. ℤ/2ℤ\nB. ℤ/3ℤ\nC. S_3\nD. A_3"
 }

@@ -17,7 +17,7 @@ class InternS1Config:
     """
     # --- API 连接 ---
     api_base_url: str = os.environ.get("INTERN_API_BASE", "https://chat.intern-ai.org.cn/api/v1/")
-    api_key: str = os.environ.get("INTERN_API_KEY", "sk-OoOCMIh0NeMMY0h2kZvbHtokvdBEucb4VFgawNRUK0AJZrrv")
+    api_key: str = os.environ.get("INTERN_API_KEY", "")
     model_name: str = os.environ.get("INTERN_MODEL", "intern-s2-preview")
 
     # --- 请求参数 ---

@@ -1,41 +1,41 @@
 {
-  "final_answer": "通过积分因子法求得通解为 $y = 2 + Ce^{-x^2}$，代入初值 $y(0)=1$ 得 $C=-1$，故特解为 $y(x) = 2 - e^{-x^2}$。",
-  "domain": "ordinary_differential_equations",
+  "final_answer": "B",
+  "domain": "常微分方程",
   "reasoning_steps": [
     {
       "step_id": 1,
-      "description": "识别方程为一阶线性非齐次微分方程，确定系数函数 P(x) 和 Q(x)。",
-      "formula": "y' + P(x)y = Q(x), \\quad P(x) = 2x, \\quad Q(x) = 4x",
+      "description": "识别方程类型为一阶线性非齐次微分方程",
+      "formula": "y' + P(x)y = Q(x), \\quad P(x)=2x, Q(x)=x",
       "result": null,
       "method": "方程类型识别"
     },
     {
       "step_id": 2,
-      "description": "计算积分因子 \\mu(x)。",
-      "formula": "\\mu(x) = e^{\\int P(x)dx} = e^{\\int 2x dx} = e^{x^2}",
+      "description": "计算积分因子",
+      "formula": "\\mu(x) = e^{\\int P(x) dx} = e^{\\int 2x dx} = e^{x^2}",
       "result": null,
       "method": "积分因子法"
     },
     {
       "step_id": 3,
-      "description": "方程两边同乘积分因子并积分求通解。",
-      "formula": "(e^{x^2}y)' = 4xe^{x^2} \\implies e^{x^2}y = \\int 4xe^{x^2}dx = 2e^{x^2} + C",
+      "description": "求解通解",
+      "formula": "y = e^{-x^2} \\left( \\int x e^{x^2} dx + C \\right) = \\frac{1}{2} + C e^{-x^2}",
       "result": null,
-      "method": "积分求解"
+      "method": "通解求解"
     },
     {
       "step_id": 4,
-      "description": "利用初值条件 y(0)=1 确定常数 C。",
-      "formula": "1 = 2 + C \\implies C = -1",
+      "description": "代入初值确定常数",
+      "formula": "y(0)=1 \\Rightarrow 1 = \\frac{1}{2} + C \\Rightarrow C = \\frac{1}{2}",
       "result": null,
       "method": "初值条件代入"
     },
     {
       "step_id": 5,
-      "description": "写出最终的特解表达式。",
-      "formula": "y = 2 - e^{-x^2}",
+      "description": "得出特解并比对选项",
+      "formula": "y = \\frac{1}{2} + \\frac{1}{2} e^{-x^2}",
       "result": null,
-      "method": "整理结果"
+      "method": "选项比对"
     }
   ],
   "methods_used": [
@@ -48,9 +48,9 @@
     "check_method": "ground_truth_match",
     "error_details": ""
   },
-  "educational_hint": "一阶线性微分方程 y' + P(x)y = Q(x) 的标准解法是构造积分因子 \\mu(x) = e^{\\int P(x)dx}，将方程左边化为全导数形式 (\\mu y)'，随后通过积分求解。注意代入初始条件时需注意符号计算。",
+  "educational_hint": "这是一道典型的一阶线性微分方程初值问题。关键在于正确计算积分因子 $e^{\\int 2x dx}$，并注意积分后的常数项及指数符号。解出通解后务必代入初始条件确定常数，最后与选项进行精确匹配。",
   "from_cache": true,
   "question_id": "89",
-  "cache_similarity": 0.9999999403953552,
-  "cache_matched_question": "求解ODE：$y' + 2xy = 4x$, $y(0)=1$。"
+  "cache_similarity": 1.000000238418579,
+  "cache_matched_question": "【选择题·答题要求】你正在解答一道选择题。请在 reasoning_steps 中逐步分析每个选项，在 final_answer 字段中只填入正确选项的字母（A/B/C/D），不要填入任何其他文字。\n\n选择题：y'+2xy=x, y(0)=1的解为？\nA. 1/2+(1/2)e^{x^2}\nB. 1/2+(1/2)e^{-x^2}\nC. e^{x^2}\nD. x/2+1"
 }

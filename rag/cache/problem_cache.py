@@ -100,6 +100,10 @@ class ProblemCache:
         if self._embedder_loaded:
             return
         try:
+            import os as _os
+            # 优先使用国内 HuggingFace 镜像
+            if "HF_ENDPOINT" not in _os.environ:
+                _os.environ["HF_ENDPOINT"] = "https://hf-mirror.com"
             from sentence_transformers import SentenceTransformer
             self._embedder = SentenceTransformer(self.config.rag.embedding_model)
             self._embedder_loaded = True

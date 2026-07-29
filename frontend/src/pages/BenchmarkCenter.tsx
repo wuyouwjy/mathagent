@@ -2,7 +2,7 @@
 // pages/BenchmarkCenter.tsx — Benchmark 评测中心
 // ============================================================
 import React, { useEffect, useState, useCallback } from 'react';
-import { Card, Button, Progress, Statistic, Row, Col, Typography, Tag, Space, Table, Switch, Steps, Collapse, Popconfirm, InputNumber } from 'antd';
+import { Card, Button, Progress, Statistic, Row, Col, Typography, Tag, Space, Table, Switch, Steps, Collapse, Popconfirm, InputNumber, Select } from 'antd';
 import { PlayCircleOutlined, StopOutlined, ReloadOutlined, BarChartOutlined, DeleteOutlined, HistoryOutlined, CloseCircleOutlined } from '@ant-design/icons';
 import ReactEChartsCore from 'echarts-for-react/lib/core';
 import * as echarts from 'echarts/core';
@@ -11,7 +11,7 @@ import { TooltipComponent, LegendComponent, GridComponent } from 'echarts/compon
 import { CanvasRenderer } from 'echarts/renderers';
 import {
   fetchBenchmarkStatus, startBenchmark, stopBenchmark, getBenchmarkResults, clearAnswerDb,
-  fetchBenchmarkRuns, fetchBenchmarkRun, deleteBenchmarkRun,
+  fetchBenchmarkRuns, fetchBenchmarkRun, deleteBenchmarkRun, fetchDatasets,
 } from '../api/benchmark';
 import type { BenchmarkStatus, BenchmarkResult, BenchmarkRunSummary, BenchmarkRunRecord } from '../types';
 import { usePolling } from '../hooks/usePolling';
@@ -26,7 +26,10 @@ const BenchmarkCenter: React.FC = () => {
   const [result, setResult] = useState<BenchmarkResult | null>(null);
   const [loading, setLoading] = useState(false);
   const [useAnswerDb, setUseAnswerDb] = useState(true);
+  const [useLlmVerify, setUseLlmVerify] = useState(true);
   const [maxReflection, setMaxReflection] = useState(1);
+  const [datasetPath, setDatasetPath] = useState('./database/datasets/benchmark_v3_18subjects.jsonl');
+  const [datasets, setDatasets] = useState<{ name: string; path: string; count: number }[]>([]);
 
   // 历史记录
   const [runs, setRuns] = useState<BenchmarkRunSummary[]>([]);
@@ -57,14 +60,21 @@ const BenchmarkCenter: React.FC = () => {
 
   usePolling(loadStatus, 1000, status?.running || false);
 
-  useEffect(() => { loadStatus(); loadRuns(); }, []);
+  useEffect(() => { loadStatus(); loadRuns(); loadDatasets(); }, []);
+
+  const loadDatasets = async () => {
+    try {
+      const res = await fetchDatasets();
+      setDatasets(res.datasets || []);
+    } catch {}
+  };
 
   const handleStart = async () => {
     setLoading(true);
     setResult(null);
     setSelectedRun(null);
     try {
-      await startBenchmark({ max_retries: 3, enable_rag: true, use_answer_db: useAnswerDb, max_reflection_count: maxReflection });
+      await startBenchmark({ dataset_path: datasetPath, max_retries: 3, enable_rag: true, use_answer_db: useAnswerDb, max_reflection_count: maxReflection, use_llm_verify: useLlmVerify });
       await loadStatus();
     } finally {
       setLoading(false);
@@ -149,6 +159,18 @@ const BenchmarkCenter: React.FC = () => {
     status: i === (status?.current_trace?.length || 0) - 1 ? 'process' : 'finish',
   }));
 
+  // 构建 question_id → 完整 result 的映射（用于展开推理步骤）
+  const resultsMap: Record<string, any> = {};
+  if (selectedRun?.results) {
+    for (const r of selectedRun.results) {
+      resultsMap[String(r.question_id)] = r;
+    }
+  } else if (result?.results) {
+    for (const r of result.results) {
+      resultsMap[String(r.question_id)] = r;
+    }
+  }
+
   // 错题列表（优先用 selectedRun 的数据）
   const wrongList = selectedRun?.wrong_questions || result?.results
     ?.filter(r => !r.verification?.is_correct)
@@ -158,6 +180,10 @@ const BenchmarkCenter: React.FC = () => {
       predicted: r.final_answer?.substring(0, 100) || '',
       ground_truth: (r as any).ground_truth || '',
       time_ms: r.computation_time_ms,
+      error_type: (r as any).error_type || r.verification?.error_type || '',
+      // 附上完整推理步骤
+      reasoning_steps: resultsMap[String(r.question_id)]?.reasoning_steps || [],
+      methods_used: resultsMap[String(r.question_id)]?.methods_used || [],
     })) || [];
 
   const displayData = selectedRun || result;
@@ -171,6 +197,20 @@ const BenchmarkCenter: React.FC = () => {
         </Title>
         <Space>
           <span style={{ color: '#8899b4', fontSize: 13 }}>
+            测试集
+            <Select
+              value={datasetPath}
+              onChange={setDatasetPath}
+              disabled={status?.running}
+              size="small"
+              style={{ width: 180, marginLeft: 6, marginRight: 12 }}
+              options={datasets.map(d => ({
+                value: './' + d.path,
+                label: `${d.name} (${d.count}题)`,
+              }))}
+            />
+          </span>
+          <span style={{ color: '#8899b4', fontSize: 13 }}>
             <Switch
               checked={useAnswerDb}
               onChange={setUseAnswerDb}
@@ -179,6 +219,16 @@ const BenchmarkCenter: React.FC = () => {
               style={{ marginRight: 6 }}
             />
             正确答案库
+          </span>
+          <span style={{ color: '#8899b4', fontSize: 13 }}>
+            <Switch
+              checked={useLlmVerify}
+              onChange={setUseLlmVerify}
+              disabled={status?.running}
+              size="small"
+              style={{ marginRight: 6 }}
+            />
+            LLM辅助验证
           </span>
           <span style={{ color: '#8899b4', fontSize: 13 }}>
             反思次数
@@ -233,8 +283,33 @@ const BenchmarkCenter: React.FC = () => {
             )}
           </Card>
 
-          {/* 实时求解流程 */}
-          {traceSteps.length > 0 && (
+          {/* 实时求解流程 — 多题并发 */}
+          {status?.active_solves && Object.keys(status.active_solves).length > 0 && (
+            <Card title="📋 并发求解流程" style={{ marginBottom: 16, background: '#111827', borderColor: '#1e2d4a' }}>
+              <Row gutter={16}>
+                {Object.entries(status.active_solves).map(([qid, info]: [string, any]) => (
+                  <Col span={24 / Math.min(Object.keys(status.active_solves).length, 4)} key={qid} style={{ marginBottom: 12 }}>
+                    <Card size="small" style={{ background: '#0a0f1a', borderColor: '#4f8cff' }}
+                      title={<span style={{ color: '#4f8cff', fontSize: 13 }}>🔍 {qid} <Tag color="blue" style={{ marginLeft: 8 }}>{info?.domain || ''}</Tag></span>}
+                    >
+                      <Steps
+                        direction="vertical"
+                        size="small"
+                        current={(info?.steps || []).length - 1}
+                        items={(info?.steps || []).map((s: string, j: number) => ({
+                          title: <span style={{ color: j === (info?.steps || []).length - 1 ? '#4f8cff' : '#8899b4', fontSize: 12 }}>{s}</span>,
+                          status: j === (info?.steps || []).length - 1 ? 'process' : 'finish',
+                        }))}
+                      />
+                    </Card>
+                  </Col>
+                ))}
+              </Row>
+            </Card>
+          )}
+
+          {/* 传统单题追踪 — 兼容旧版 */}
+          {traceSteps.length > 0 && (!status?.active_solves || Object.keys(status.active_solves).length === 0) && (
             <Card title="📋 当前题目求解流程" style={{ marginBottom: 16, background: '#111827', borderColor: '#1e2d4a' }}>
               <Steps
                 direction="vertical"
@@ -246,6 +321,81 @@ const BenchmarkCenter: React.FC = () => {
                 }))}
               />
             </Card>
+          )}
+
+          {/* 对题框 / 错题框 — 实时累计，点击查看详情 */}
+          {(status?.correct_list?.length > 0 || status?.wrong_list?.length > 0) && (
+            <Row gutter={16} style={{ marginBottom: 16 }}>
+              <Col span={12}>
+                <Card
+                  title={<span style={{ color: '#10b981' }}>✅ 对题框 ({status.correct_list?.length || 0})</span>}
+                  style={{ background: '#111827', borderColor: '#10b981' }}
+                  bodyStyle={{ maxHeight: 400, overflow: 'auto', padding: 8 }}
+                >
+                  {status.correct_list?.map((item: any, idx: number) => (
+                    <Collapse key={idx} ghost size="small"
+                      items={[{
+                        key: idx,
+                        label: <span style={{ color: '#10b981', fontSize: 12 }}>✅ {item.question_id} <Tag color="blue" style={{ marginLeft: 8 }}>{item.domain}</Tag></span>,
+                        children: (
+                          <div style={{ fontSize: 12, color: '#c0d0e8' }}>
+                            <p><b>题目：</b>{item.question}</p>
+                            <p><b>答案：</b><span style={{ color: '#10b981' }}>{item.final_answer}</span>（标准：{item.ground_truth}）</p>
+                            {item.methods_used?.length > 0 && <p><b>方法：</b>{item.methods_used.join(', ')}</p>}
+                            {item.reasoning_steps?.length > 0 && (
+                              <Steps direction="vertical" size="small"
+                                items={item.reasoning_steps.map((s: any, i: number) => ({
+                                  title: <span style={{ fontSize: 11, color: '#8899b4' }}>Step {s.step_id || i+1}: {s.description?.substring(0, 100)}</span>,
+                                }))}
+                              />
+                            )}
+                            <p><b>耗时：</b>{formatMs(item.time_ms)}</p>
+                          </div>
+                        ),
+                      }]}
+                    />
+                  ))}
+                </Card>
+              </Col>
+              <Col span={12}>
+                <Card
+                  title={<span style={{ color: '#ef4444' }}>❌ 错题框 ({status.wrong_list?.length || 0})</span>}
+                  style={{ background: '#111827', borderColor: '#ef4444' }}
+                  bodyStyle={{ maxHeight: 400, overflow: 'auto', padding: 8 }}
+                >
+                  {status.wrong_list?.map((item: any, idx: number) => (
+                    <Collapse key={idx} ghost size="small"
+                      items={[{
+                        key: idx,
+                        label: (
+                          <span style={{ color: '#ef4444', fontSize: 12 }}>
+                            ❌ {item.question_id}
+                            <Tag color="blue" style={{ marginLeft: 8 }}>{item.domain}</Tag>
+                            {item.error_type && <Tag color={item.error_type === '真正错误' ? 'error' : 'warning'} style={{ marginLeft: 4 }}>{item.error_type}</Tag>}
+                          </span>
+                        ),
+                        children: (
+                          <div style={{ fontSize: 12, color: '#c0d0e8' }}>
+                            <p><b>题目：</b>{item.question}</p>
+                            <p><b>预测：</b><span style={{ color: '#f87171' }}>{item.final_answer}</span></p>
+                            <p><b>标准：</b><span style={{ color: '#10b981' }}>{item.ground_truth}</span></p>
+                            {item.methods_used?.length > 0 && <p><b>方法：</b>{item.methods_used.join(', ')}</p>}
+                            {item.reasoning_steps?.length > 0 && (
+                              <Steps direction="vertical" size="small"
+                                items={item.reasoning_steps.map((s: any, i: number) => ({
+                                  title: <span style={{ fontSize: 11, color: '#8899b4' }}>Step {s.step_id || i+1}: {s.description?.substring(0, 100)}</span>,
+                                }))}
+                              />
+                            )}
+                            <p><b>耗时：</b>{formatMs(item.time_ms)}</p>
+                          </div>
+                        ),
+                      }]}
+                    />
+                  ))}
+                </Card>
+              </Col>
+            </Row>
           )}
         </>
       )}
@@ -310,11 +460,38 @@ const BenchmarkCenter: React.FC = () => {
                 rowKey="question_id"
                 size="small"
                 pagination={{ pageSize: 15, size: 'small' }}
+                expandable={{
+                  expandedRowRender: (record: any) => (
+                    <div style={{ background: '#0a0f1a', padding: 12, borderRadius: 8 }}>
+                      <Text strong style={{ color: '#8899b4', fontSize: 12 }}>使用的方法：</Text>
+                      <Space wrap size={4} style={{ marginBottom: 8 }}>
+                        {(record.methods_used || []).map((m: string, i: number) => (
+                          <Tag key={i} color="purple" style={{ fontSize: 11 }}>{m}</Tag>
+                        ))}
+                      </Space>
+                      <Text strong style={{ color: '#8899b4', fontSize: 12, display: 'block', marginBottom: 4 }}>推理步骤：</Text>
+                      {record.reasoning_steps?.length > 0 ? (
+                        <Steps
+                          direction="vertical"
+                          size="small"
+                          items={record.reasoning_steps.map((s: any, i: number) => ({
+                            title: <span style={{ color: '#c0d0e8', fontSize: 12 }}>Step {s.step_id || i+1}</span>,
+                            description: <span style={{ color: '#8899b4', fontSize: 11 }}>{s.description?.substring(0, 200) || ''}</span>,
+                          }))}
+                        />
+                      ) : (
+                        <Text style={{ color: '#666', fontSize: 12 }}>无详细推理步骤记录</Text>
+                      )}
+                    </div>
+                  ),
+                  rowExpandable: (record: any) => (record.reasoning_steps?.length || 0) > 0 || (record.methods_used?.length || 0) > 0,
+                }}
                 columns={[
                   { title: '题号', dataIndex: 'question_id', width: 90 },
                   { title: '领域', dataIndex: 'domain', width: 120, render: (d: string) => <Tag color="blue">{getDomainCn(d) || d}</Tag> },
                   { title: '预测答案', dataIndex: 'predicted', ellipsis: true, render: (t: string) => <span style={{ color: '#f87171' }}>{t}</span> },
                   { title: '标准答案', dataIndex: 'ground_truth', ellipsis: true, render: (t: string) => <span style={{ color: '#10b981' }}>{t}</span> },
+                  { title: '错误类型', dataIndex: 'error_type', width: 100, render: (t: string) => t === '真正错误' ? <Tag color="error">{t}</Tag> : t ? <Tag color="warning">{t}</Tag> : null },
                   { title: '耗时', dataIndex: 'time_ms', width: 100, render: (v: number) => formatMs(v) },
                 ]}
               />
@@ -378,9 +555,20 @@ const BenchmarkCenter: React.FC = () => {
                 ) : (
                   <div>
                     <Row gutter={16} style={{ marginBottom: 12 }}>
-                      <Col span={8}><Text style={{ color: '#8899b4' }}>数据集: {selectedRun.dataset}</Text></Col>
-                      <Col span={8}><Text style={{ color: '#8899b4' }}>完成时间: {selectedRun.completed_at?.substring(0, 19).replace('T', ' ') || '-'}</Text></Col>
-                      <Col span={8}><Text style={{ color: '#8899b4' }}>平均每题: {formatMs(selectedRun.avg_time_per_question_ms)}</Text></Col>
+                      <Col span={6}><Text style={{ color: '#8899b4' }}>数据集: {selectedRun.dataset?.split('/').pop()}</Text></Col>
+                      <Col span={6}><Text style={{ color: '#8899b4' }}>完成时间: {selectedRun.completed_at?.substring(0, 19).replace('T', ' ') || '-'}</Text></Col>
+                      <Col span={6}><Text style={{ color: '#8899b4' }}>平均每题: {formatMs(selectedRun.avg_time_per_question_ms)}</Text></Col>
+                      <Col span={6}>
+                        {selectedRun.config ? (
+                          <Space size={4}>
+                            <Tag color={selectedRun.config.use_answer_db ? 'blue' : 'default'} style={{ fontSize: 11 }}>答案库{selectedRun.config.use_answer_db ? '✅' : '❌'}</Tag>
+                            <Tag color={selectedRun.config.use_llm_verify ? 'blue' : 'default'} style={{ fontSize: 11 }}>LLM验证{selectedRun.config.use_llm_verify ? '✅' : '❌'}</Tag>
+                            <Tag color="purple" style={{ fontSize: 11 }}>反思×{selectedRun.config.max_reflection_count}</Tag>
+                          </Space>
+                        ) : (
+                          <Text style={{ color: '#666', fontSize: 12 }}>旧版记录，无配置信息</Text>
+                        )}
+                      </Col>
                     </Row>
                     {selectedRun.wrong_questions?.length > 0 && (
                       <Text style={{ color: '#ef4444', fontSize: 12 }}>

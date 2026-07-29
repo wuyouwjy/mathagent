@@ -1,0 +1,23 @@
+{
+  "idx": 20,
+  "status": "success",
+  "final_response": "\\frac{n(n-1)}{2}",
+  "trace": [
+    {
+      "step": "plan",
+      "content": "\n\n**解题方案：**\n\n1.  **分析图的结构**：\n    $n$阶完全图 $K_n$ 是指拥有 $n$ 个顶点的简单图，其核心性质是图中任意两个不同的顶点之间都恰好有一条边相连。\n\n2.  **制定计算策略**：\n    *   **策略一（组合计数）**：每一条边由两个不同的顶点唯一确定。因此，边的总数等同于从 $n$ 个顶点中选取 2 个不同顶点的组合数。\n    *   **策略二（握手定理）**：在 $K_n$ 中，每个顶点都与其余的 $n-1$ 个顶点相连，因此每个顶点的度数为 $n-1$。所有顶点的度数之和为 $n(n-1)$。根据握手定理，边数等于度数之和的一半。\n\n3.  **执行计算**：\n    采用策略一计算：\n    $$ |E| = \\binom{n}{2} = \\frac{n!}{2!(n-2)!} = \\frac{n(n-1)}{2} $$\n    （采用策略二计算结果一致：$\\frac{n(n-1)}{2}$）\n\n4.  **结论**：\n    $G$ 的边数为 $\\frac{n(n-1)}{2}$。"
+    },
+    {
+      "step": "model_call",
+      "content": "\n\n**解题过程：**\n\n1.  **分析图的结构**：\n    $n$ 阶完全图 $K_n$ 定义为拥有 $n$ 个顶点的简单图，其特性是图中任意两个不同的顶点之间都恰好有一条边相连。\n\n2.  **执行计算**：\n    我们可以采用两种常见的方法来计算边数：\n    *   **方法一（组合计数）**：\n        每一条边由两个不同的顶点唯一确定。因此，边的总数等同于从 $n$ 个顶点中选取 2 个不同顶点的组合数。\n        $$ |E| = \\binom{n}{2} = \\frac{n!}{2!(n-2)!} = \\frac{n(n-1)}{2} $$\n    *   **方法二（握手定理）**：\n        在 $K_n$ 中，每个顶点都与其余的 $n-1$ 个顶点相连，因此每个顶点的度数为 $n-1$。图中 $n$ 个顶点的度数之和为 $n(n-1)$。根据握手定理，边数等于度数之和的一半。\n        $$ |E| = \\frac{1}{2} \\sum_{v \\in V} \\deg(v) = \\frac{1}{2} \\cdot n(n-1) = \\frac{n(n-1)}{2} $$\n\n3.  **结论**：\n    两种方法得出的结果一致。\n\n**最终答案：**\n$$ \\frac{n(n-1)}{2} $$"
+    },
+    {
+      "step": "verify",
+      "content": "\n\n{\n\"answer\": \"\\\\frac{n(n-1)}{2}\",\n\"explanation\": \"The proposed solution is correct. It accurately defines the complete graph $K_n$ and derives the number of edges using both combinatorial counting ($\\binom{n}{2}$) and the Handshaking Lemma, resulting in the standard formula $\\frac{n(n-1)}{2}$ without any errors.\"\n}"
+    },
+    {
+      "step": "finalize",
+      "content": "\\frac{n(n-1)}{2}"
+    }
+  ]
+}

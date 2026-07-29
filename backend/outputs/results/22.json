@@ -1,32 +1,32 @@
 {
-  "final_answer": "n 个顶点的树恰好有 n-1 条边",
-  "domain": "combinatorics",
+  "final_answer": "$n^m$",
+  "domain": "离散数学",
   "reasoning_steps": [
     {
       "step_id": 1,
-      "description": "基础情况验证：当 n=1 时，树只有 1 个顶点，0 条边，满足 1-1=0",
-      "formula": "E = n - 1 \\Rightarrow 0 = 1 - 1",
+      "description": "确定集合 A 和 B 的基数",
+      "formula": "$|A|=m, |B|=n$",
       "result": null,
-      "method": "数学归纳法"
+      "method": "集合论基础"
     },
     {
       "step_id": 2,
-      "description": "归纳假设：假设对于 k 个顶点的树，边数为 k-1",
-      "formula": "E_k = k - 1",
+      "description": "分析函数映射的独立性",
+      "formula": "$A$ 中每个元素对应 $B$ 中一个元素",
       "result": null,
-      "method": "数学归纳法"
+      "method": "函数定义"
     },
     {
       "step_id": 3,
-      "description": "归纳递推：对于 k+1 个顶点的树，移除一个叶子节点及其关联边，剩余图为 k 个顶点的树，边数为 (k-1)+1 = k",
-      "formula": "E_{k+1} = (k - 1) + 1 = k",
+      "description": "利用乘法原理计算总数",
+      "formula": "$n^m$",
       "result": null,
-      "method": "数学归纳法"
+      "method": "乘法原理"
     }
   ],
   "methods_used": [
-    "数学归纳法",
-    "树的性质"
+    "乘法原理",
+    "函数定义"
   ],
   "verification": {
     "is_correct": true,
@@ -34,9 +34,9 @@
     "check_method": "ground_truth_match",
     "error_details": ""
   },
-  "educational_hint": "证明树的基本性质通常使用数学归纳法，关键在于利用树中存在叶子节点这一特征进行递推。",
+  "educational_hint": "定义域中每个元素都有 |B| 种选择，共有 |A| 个元素，根据乘法原理，总函数数为 |B|^{|A|}。",
   "from_cache": true,
   "question_id": "22",
-  "cache_similarity": 0.9999998211860657,
-  "cache_matched_question": "证明：$n$个顶点的树恰好有$n-1$条边。"
+  "cache_similarity": 1.0000003576278687,
+  "cache_matched_question": "【填空题·答题要求】你正在解答一道填空题。请在 reasoning_steps 中逐步推理求解，在 final_answer 字段中只填入填空处的答案内容，简洁明了。\n\n填空题：设|A|=m, |B|=n，则从A到B的函数共有______个。"
 }

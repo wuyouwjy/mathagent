@@ -1,57 +1,42 @@
 {
-  "question_id": "102",
-  "timestamp": "2026-07-08T00:26:22.829761",
-  "domain": "statistics",
-  "final_answer": "在线性回归中，R^2 等于 y 与 \\hat{y} 相关系数的平方，即 R^2 = (r_{y,\\hat{y}})^2。",
+  "final_answer": "SSR",
+  "domain": "线性回归",
   "reasoning_steps": [
     {
       "step_id": 1,
-      "description": "定义总平方和 SST、回归平方和 SSR 及决定系数 R^2",
-      "formula": "SST = \\sum (y_i - \\bar{y})^2, SSR = \\sum (\\hat{y}_i - \\bar{y})^2, R^2 = SSR / SST",
+      "description": "识别线性回归平方和分解公式中的各项符号含义，SST 代表总平方和，SSR 代表回归平方和，SSE 代表残差平方和",
+      "formula": "SST = SSR + SSE",
       "result": null,
-      "method": "定义法"
+      "method": null
     },
     {
       "step_id": 2,
-      "description": "利用最小二乘法性质：残差均值为零且与拟合值正交",
-      "formula": "\\sum (y_i - \\hat{y}_i) = 0, \\sum (y_i - \\hat{y}_i)\\hat{y}_i = 0 \\Rightarrow \\bar{y} = \\bar{\\hat{y}}",
+      "description": "回顾决定系数 R^2 的定义，它表示回归平方和占总平方和的比例，用于衡量模型的拟合优度",
+      "formula": "R^2 = SSR / SST",
       "result": null,
-      "method": "最小二乘性质"
+      "method": null
     },
     {
       "step_id": 3,
-      "description": "计算 y 与 \\hat{y} 协方差部分的分子",
-      "formula": "\\sum (y_i - \\bar{y})(\\hat{y}_i - \\bar{y}) = \\sum (\\hat{y}_i - \\bar{y})^2 + \\sum (y_i - \\hat{y}_i)(\\hat{y}_i - \\bar{y}) = SSR",
+      "description": "将定义公式与题目给出的形式 R^2 = ____ / SST 进行对比，确定分子部分应为 SSR",
+      "formula": "填空处 = SSR",
       "result": null,
-      "method": "代数分解"
-    },
-    {
-      "step_id": 4,
-      "description": "代入相关系数公式并推导关系",
-      "formula": "r_{y,\\hat{y}} = \\frac{SSR}{\\sqrt{SST \\cdot SSR}} = \\sqrt{\\frac{SSR}{SST}} = \\sqrt{R^2} \\Rightarrow R^2 = r_{y,\\hat{y}}^2",
-      "result": null,
-      "method": "公式推导"
+      "method": null
     }
   ],
   "methods_used": [
-    "最小二乘法性质",
-    "平方和分解",
-    "相关系数定义"
+    "线性回归模型",
+    "平方和分解"
   ],
   "verification": {
     "is_correct": true,
-    "confidence": 0.95,
-    "check_method": "Verified the theoretical basis of the proof steps. Confirmed that under the standard assumption of a linear regression model with an intercept, the orthogonality of residuals and fitted values implies that the covariance between y and ŷ equals the variance of ŷ. This leads to the relationship R^2 = (r_{y,ŷ})^2. The outlined steps follow the standard mathematical derivation path consistent with OLS properties.",
-    "error_details": "The provided solution is a high-level outline rather than a detailed algebraic proof. While the logical flow and final conclusion are mathematically correct, specific algebraic manipulations (such as expanding the covariance term and applying the orthogonality condition explicitly) are omitted. Additionally, the assumption of an intercept term (which ensures mean(ŷ) = mean(y) and residual mean zero) is implicit rather than explicitly stated, though it is referenced in Step 2."
+    "confidence": 1.0,
+    "check_method": "ground_truth_match",
+    "error_details": ""
   },
-  "educational_hint": "核心在于利用 OLS 估计的正交性，使得残差项在相关系数计算中消失，从而建立 R^2 与相关系数的直接联系。",
-  "computation_time_ms": 133152.925491333,
-  "retry_count": 0,
-  "model_version": null,
-  "from_cache": false,
-  "cache_similarity": null,
-  "cache_matched_question": null,
-  "true_domain": null,
-  "ground_truth": null,
-  "answer_match": null
+  "educational_hint": "决定系数 R^2 衡量了回归模型对因变量变异的解释能力，其值等于回归平方和（SSR）除以总平方和（SST）。",
+  "from_cache": true,
+  "question_id": "102",
+  "cache_similarity": 0.9999998211860657,
+  "cache_matched_question": "【填空题·答题要求】你正在解答一道填空题。请在 reasoning_steps 中逐步推理求解，在 final_answer 字段中只填入填空处的答案内容，简洁明了。\n\n填空题：在线性回归的平方和分解SST=SSR+SSE中，R^2=______/SST。"
 }

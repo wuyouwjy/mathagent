@@ -1,0 +1,23 @@
+{
+  "idx": 90,
+  "status": "success",
+  "final_response": "y = C_1 \\cos x + C_2 \\sin x - \\frac{1}{2} x \\cos x",
+  "trace": [
+    {
+      "step": "plan",
+      "content": "\n\n该微分方程为二阶常系数非齐次线性微分方程。求解步骤如下：\n\n**1. 求齐次方程的通解 ($y_h$)**\n对应的齐次方程为 $y'' + y = 0$。\n特征方程为 $r^2 + 1 = 0$，解得特征根 $r = \\pm i$。\n因此，齐次通解为：\n$$y_h = C_1 \\cos x + C_2 \\sin x$$\n（其中 $C_1, C_2$ 为任意常数）\n\n**2. 求非齐次方程的一个特解 ($y_p$)**\n方程右端项为 $f(x) = \\sin x$。由于 $\\sin x$ 是齐次方程的解（发生共振），设特解形式为：\n$$y_p = x(A \\cos x + B \\sin x)$$\n对 $y_p$ 求导：\n$$y_p' = (A \\cos x + B \\sin x) + x(-A \\sin x + B \\cos x)$$\n$$y_p'' = (-A \\sin x + B \\cos x) + (-A \\sin x + B \\cos x) + x(-A \\cos x - B \\sin x)$$\n$$y_p'' = -2A \\sin x + 2B \\cos x - x(A \\cos x + B \\sin x)$$\n将 $y_p$ 和 $y_p''$ 代入原方程 $y'' + y = \\sin x$：\n$$[-2A \\sin x + 2B \\cos x - x(A \\cos x + B \\sin x)] + [x(A \\cos x + B \\sin x)] = \\sin x$$\n化简得：\n$$-2A \\sin x + 2B \\cos x = \\sin x$$\n比较系数可得：\n$$\\begin{cases} -2A = 1 \\\\ 2B = 0 \\end{cases} \\implies \\begin{cases} A = -\\frac{1}{2} \\\\ B = 0 \\end{cases}$$\n故特解为：\n$$y_p = -\\frac{1}{2} x \\cos x$$\n\n**3. 写出通解**\n原方程的通解为 $y = y_h + y_p$：\n$$y = C_1 \\cos x + C_2 \\sin x - \\frac{1}{2} x \\cos x$$\n\n\\boxed{y = C_1 \\cos x + C_2 \\sin x - \\frac{1}{2} x \\cos x}"
+    },
+    {
+      "step": "model_call",
+      "content": "\n\n**求解过程：**\n\n**1. 求齐次方程的通解 ($y_h$)**\n对应的齐次微分方程为：\n$$y'' + y = 0$$\n其特征方程为：\n$$r^2 + 1 = 0$$\n解得特征根为 $r = \\pm i$。因此，齐次方程的通解为：\n$$y_h = C_1 \\cos x + C_2 \\sin x$$\n其中 $C_1, C_2$ 为任意常数。\n\n**2. 求非齐次方程的一个特解 ($y_p$)**\n原方程右端项为 $f(x) = \\sin x$。由于 $\\sin x$ 是齐次方程的解（即 $\\pm i$ 是特征方程的单根），发生共振现象。因此，设特解的形式为：\n$$y_p = x(A \\cos x + B \\sin x)$$\n对 $y_p$ 求一阶导数：\n$$y_p' = (A \\cos x + B \\sin x) + x(-A \\sin x + B \\cos x)$$\n对 $y_p$ 求二阶导数：\n$$y_p'' = (-A \\sin x + B \\cos x) + (-A \\sin x + B \\cos x) + x(-A \\cos x - B \\sin x)$$\n$$y_p'' = -2A \\sin x + 2B \\cos x - x(A \\cos x + B \\sin x)$$\n注意到 $x(A \\cos x + B \\sin x) = y_p$，故 $y_p'' = -2A \\sin x + 2B \\cos x - y_p$。\n将 $y_p$ 和 $y_p''$ 代入原方程 $y'' + y = \\sin x$：\n$$(-2A \\sin x + 2B \\cos x - y_p) + y_p = \\sin x$$\n化简得：\n$$-2A \\sin x + 2B \\cos x = \\sin x$$\n比较等式两边 $\\sin x$ 和 $\\cos x$ 的系数：\n$$\\begin{cases} -2A = 1 \\\\ 2B = 0 \\end{cases} \\implies \\begin{cases} A = -\\frac{1}{2} \\\\ B = 0 \\end{cases}$$\n故特解为：\n$$y_p = -\\frac{1}{2} x \\cos x$$\n\n**3. 写出通解**\n原非齐次线性微分方程的通解等于齐次通解加上一个特解，即 $y = y_h + y_p$：\n$$y = C_1 \\cos x + C_2 \\sin x - \\frac{1}{2} x \\cos x$$\n\n\\boxed{y = C_1 \\cos x + C_2 \\sin x - \\frac{1}{2} x \\cos x}"
+    },
+    {
+      "step": "verify",
+      "content": "\n\n{\n  \"answer\": \"y = C_1 \\\\cos x + C_2 \\\\sin x - \\\\frac{1}{2} x \\\\cos x\",\n  \"explanation\": \"The proposed solution is correct. The homogeneous equation $y''+y=0$ yields $y_h = C_1 \\\\cos x + C_2 \\\\sin x$. Since the forcing term $\\\\sin x$ resonates with the homogeneous solution (corresponding to roots $\\\\pm i$), the particular solution is correctly assumed as $y_p = x(A \\\\cos x + B \\\\sin x)$. Solving for coefficients gives $A = -1/2$ and $B = 0$, resulting in $y_p = -\\\\frac{1}{2} x \\\\cos x$. The general solution is the sum $y = y_h + y_p$.\"\n}"
+    },
+    {
+      "step": "finalize",
+      "content": "y = C_1 \\cos x + C_2 \\sin x - \\frac{1}{2} x \\cos x"
+    }
+  ]
+}

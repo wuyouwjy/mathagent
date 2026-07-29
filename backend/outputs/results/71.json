@@ -1,57 +1,33 @@
 {
-  "final_answer": "X 与 Y 不独立",
-  "domain": "probability",
+  "final_answer": "Abel",
+  "domain": "抽象代数",
   "reasoning_steps": [
     {
       "step_id": 1,
-      "description": "写出联合概率密度函数",
-      "formula": "f(x,y) = 1/π, x²+y²≤1",
+      "description": "确定整数集在加法下构成群",
+      "formula": "(ℤ, +) 满足群公理",
       "result": null,
-      "method": "均匀分布定义"
+      "method": "群的定义"
     },
     {
       "step_id": 2,
-      "description": "计算边缘概率密度函数",
-      "formula": "f_X(x) = 2√(1-x²)/π, |x|≤1",
+      "description": "验证加法运算的交换性",
+      "formula": "∀a, b ∈ ℤ, a + b = b + a",
       "result": null,
-      "method": "边缘分布积分"
+      "method": "整数加法交换律"
     },
     {
       "step_id": 3,
-      "description": "计算 X 的期望",
-      "formula": "E[X] = 0",
+      "description": "根据交换性判定群类型",
+      "formula": "交换群即 Abel 群",
       "result": null,
-      "method": "对称性分析"
-    },
-    {
-      "step_id": 4,
-      "description": "计算 X 的方差",
-      "formula": "Var(X) = 1/4",
-      "result": null,
-      "method": "积分计算"
-    },
-    {
-      "step_id": 5,
-      "description": "计算 X 的特征函数",
-      "formula": "φ_X(t) = J_1(t)/t",
-      "result": null,
-      "method": "特征函数定义"
-    },
-    {
-      "step_id": 6,
-      "description": "验证独立性条件",
-      "formula": "f(x,y) ≠ f_X(x)f_Y(y)",
-      "result": null,
-      "method": "独立性判定"
+      "method": "Abel 群定义"
     }
   ],
   "methods_used": [
-    "联合概率密度函数",
-    "边缘概率密度函数",
-    "期望计算",
-    "方差计算",
-    "特征函数计算",
-    "独立性判定条件"
+    "群的定义",
+    "整数加法交换律",
+    "Abel 群定义"
   ],
   "verification": {
     "is_correct": true,
@@ -59,9 +35,9 @@
     "check_method": "ground_truth_match",
     "error_details": ""
   },
-  "educational_hint": "独立性的充要条件是联合概率密度函数可分解为边缘概率密度函数的乘积。本题中联合支持集为圆形，边缘支持集为区间，形状不匹配，故不独立。",
+  "educational_hint": "判断群是否为 Abel 群的核心依据是运算是否满足交换律，整数加法显然满足，故为 Abel 群。",
   "from_cache": true,
   "question_id": "71",
-  "cache_similarity": 0.9999997019767761,
-  "cache_matched_question": "设$(X,Y)$服从单位圆上的均匀分布，判断$X$与$Y$是否独立。"
+  "cache_similarity": 1.0000003576278687,
+  "cache_matched_question": "【填空题·答题要求】你正在解答一道填空题。请在 reasoning_steps 中逐步推理求解，在 final_answer 字段中只填入填空处的答案内容，简洁明了。\n\n填空题：整数集ℤ在加法下构成______群（填Abel/非Abel）。"
 }

@@ -1,49 +1,48 @@
 {
-  "question_id": "92",
-  "timestamp": "2026-07-08T00:24:02.989706",
-  "domain": "ordinary_differential_equations",
-  "final_answer": "y(t) = \\frac{1}{4} t \\sin 2t；推导摘要：对方程两边施 Laplace 变换，利用初值为零化简，解出像函数 Y(s) 后通过逆变换得到特解。",
+  "final_answer": "B",
+  "domain": "统计推断",
   "reasoning_steps": [
     {
       "step_id": 1,
-      "description": "对方程两边进行 Laplace 变换，代入初始条件 y(0)=0, y'(0)=0",
-      "formula": "\\mathcal{L}\\{y''\\} + 4\\mathcal{L}\\{y\\} = \\mathcal{L}\\{\\cos 2t\\} \\Rightarrow (s^2 + 4)Y(s) = \\frac{s}{s^2 + 4}",
+      "description": "写出正态分布的似然函数",
+      "formula": "L(μ) = ∏(1/√(2π)) exp(-(xi-μ)²/2)",
       "result": null,
-      "method": "Laplace 变换法"
+      "method": "似然函数构建"
     },
     {
       "step_id": 2,
-      "description": "整理代数方程，解出像函数 Y(s)",
-      "formula": "Y(s) = \\frac{s}{(s^2 + 4)^2}",
+      "description": "取对数似然函数",
+      "formula": "l(μ) = -n/2 ln(2π) - 1/2 ∑(xi-μ)²",
       "result": null,
-      "method": "代数运算"
+      "method": "取对数"
     },
     {
       "step_id": 3,
-      "description": "利用 Laplace 逆变换公式求原函数 y(t)",
-      "formula": "y(t) = \\mathcal{L}^{-1}\\left\\{ \\frac{s}{(s^2 + 4)^2} \\right\\} = \\frac{1}{4} t \\sin 2t",
+      "description": "对 μ 求导并令其为 0",
+      "formula": "dl/dμ = ∑(xi-μ) = 0",
       "result": null,
-      "method": "Laplace 逆变换"
+      "method": "求导"
+    },
+    {
+      "step_id": 4,
+      "description": "解方程得到 MLE",
+      "formula": "μ̂ = (1/n)∑xi = X̄",
+      "result": null,
+      "method": "解方程"
     }
   ],
   "methods_used": [
-    "Laplace 变换法",
-    "Laplace 逆变换"
+    "最大似然估计 (MLE)"
   ],
   "verification": {
-    "is_correct": false,
-    "confidence": 0.3,
-    "check_method": "parse_error",
-    "error_details": "LLM 返回无法解析"
+    "is_correct": true,
+    "confidence": 1.0,
+    "check_method": "ground_truth_match",
+    "error_details": ""
   },
-  "educational_hint": "本题属于共振情形（激励频率等于固有频率），解中会出现 t 与三角函数的乘积项。",
-  "computation_time_ms": 117860.24689674377,
-  "retry_count": 1,
-  "model_version": null,
-  "from_cache": false,
-  "cache_similarity": null,
-  "cache_matched_question": null,
-  "true_domain": null,
-  "ground_truth": null,
-  "answer_match": null
+  "educational_hint": "对于正态分布 N(μ, σ²)，当方差已知时，均值 μ 的最大似然估计量即为样本均值 X̄。",
+  "from_cache": true,
+  "question_id": "92",
+  "cache_similarity": 1.000000238418579,
+  "cache_matched_question": "【选择题·答题要求】你正在解答一道选择题。请在 reasoning_steps 中逐步分析每个选项，在 final_answer 字段中只填入正确选项的字母（A/B/C/D），不要填入任何其他文字。\n\n选择题：设X1,...,Xn i.i.d. N(μ,1)，μ的MLE为？\nA. 样本中位数\nB. 样本均值X̄\nC. 样本方差\nD. 1/n"
 }

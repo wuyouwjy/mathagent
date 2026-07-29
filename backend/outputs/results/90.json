@@ -1,56 +1,41 @@
 {
-  "question_id": "90",
-  "timestamp": "2026-07-08T00:24:09.555102",
-  "domain": "ordinary_differential_equations",
-  "final_answer": "通解为 $y = C_1 \\cos x + C_2 \\sin x - \\frac{1}{2} x \\cos x$。摘要：利用特征方程法求齐次解 $y_h$，利用待定系数法求特解 $y_p$（注意共振情形需乘 $x$），最后叠加得通解。",
+  "final_answer": "0.01",
+  "domain": "常微分方程",
   "reasoning_steps": [
     {
       "step_id": 1,
-      "description": "求解齐次方程 $y'' + y = 0$ 的通解",
-      "formula": "特征方程为 $r^2 + 1 = 0$，解得 $r = \\pm i$，故齐次通解为 $y_h = C_1 \\cos x + C_2 \\sin x$",
+      "description": "确定 Euler 法迭代公式及初始参数",
+      "formula": "y_{n+1} = y_n + h(x_n + y_n), x_0=0, y_0=0, h=0.1",
       "result": null,
-      "method": "特征方程法"
+      "method": null
     },
     {
       "step_id": 2,
-      "description": "设非齐次方程的特解形式",
-      "formula": "由于右端项 $\\sin x$ 是齐次解的一部分（共振情形），设特解为 $y_p = x(A \\cos x + B \\sin x)$",
+      "description": "计算第一步 x=0.1 处的近似值",
+      "formula": "y_1 = 0 + 0.1*(0 + 0) = 0",
       "result": null,
-      "method": "待定系数法"
+      "method": null
     },
     {
       "step_id": 3,
-      "description": "代入原方程确定系数",
-      "formula": "计算导数并代入 $y'' + y = \\sin x$，得 $-2A \\sin x + 2B \\cos x = \\sin x$，解得 $A = -\\frac{1}{2}, B = 0$",
+      "description": "计算第二步 x=0.2 处的近似值",
+      "formula": "y_2 = 0 + 0.1*(0.1 + 0) = 0.01",
       "result": null,
-      "method": "待定系数法"
-    },
-    {
-      "step_id": 4,
-      "description": "写出原方程的通解",
-      "formula": "通解 $y = y_h + y_p = C_1 \\cos x + C_2 \\sin x - \\frac{1}{2} x \\cos x$",
-      "result": null,
-      "method": "叠加原理"
+      "method": null
     }
   ],
   "methods_used": [
-    "特征方程法",
-    "待定系数法"
+    "Euler 法"
   ],
   "verification": {
     "is_correct": true,
     "confidence": 1.0,
-    "check_method": "验证了齐次方程特征根计算正确（r=±i），确认了非齐次项 sin x 与齐次解发生共振，特解形式设为 x(A cos x + B sin x) 正确，代入原方程计算系数得 A=-1/2, B=0，最终通解叠加正确。",
-    "error_details": "无。齐次通解、特解形式及系数计算、最终通解均正确，逻辑严谨。"
+    "check_method": "ground_truth_match",
+    "error_details": ""
   },
-  "educational_hint": "当非齐次项频率与系统固有频率重合时，特解形式需乘以自变量 $x$，此为共振现象。",
-  "computation_time_ms": 140708.20879936218,
-  "retry_count": 0,
-  "model_version": null,
-  "from_cache": false,
-  "cache_similarity": null,
-  "cache_matched_question": null,
-  "true_domain": null,
-  "ground_truth": null,
-  "answer_match": null
+  "educational_hint": "Euler 法通过迭代公式 y_{n+1} = y_n + h f(x_n, y_n) 逐步推进，从 x=0 到 x=0.2 需要两步迭代。",
+  "from_cache": true,
+  "question_id": "90",
+  "cache_similarity": 1.000000238418579,
+  "cache_matched_question": "【填空题·答题要求】你正在解答一道填空题。请在 reasoning_steps 中逐步推理求解，在 final_answer 字段中只填入填空处的答案内容，简洁明了。\n\n填空题：用Euler法(h=0.1)解y'=x+y,y(0)=0，y(0.2)≈______。"
 }

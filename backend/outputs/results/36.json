@@ -1,62 +1,42 @@
 {
-  "question_id": "36",
-  "timestamp": "2026-07-08T00:15:07.198335",
-  "domain": "numerical_analysis",
-  "final_answer": "2.09375",
+  "final_answer": "迭代矩阵的谱半径小于 1",
+  "domain": "数值分析",
   "reasoning_steps": [
     {
       "step_id": 1,
-      "description": "初始区间 [2,3]，f(2)=-1, f(3)=16，第 1 次迭代中点 c1=2.5，f(c1)=5.625>0，新区间 [2, 2.5]",
-      "formula": "c1=(2+3)/2",
+      "description": "确定 Jacobi 迭代法的迭代格式及迭代矩阵 G",
+      "formula": "x^{(k+1)} = Gx^{(k)} + c",
       "result": null,
-      "method": "二分法"
+      "method": "数值线性代数"
     },
     {
       "step_id": 2,
-      "description": "第 2 次迭代中点 c2=2.25，f(c2)=1.8906>0，新区间 [2, 2.25]",
-      "formula": "c2=(2+2.5)/2",
+      "description": "应用线性方程组迭代法的收敛定理",
+      "formula": "\\rho(G) < 1",
       "result": null,
-      "method": "二分法"
+      "method": "收敛性分析"
     },
     {
       "step_id": 3,
-      "description": "第 3 次迭代中点 c3=2.125，f(c3)=0.3457>0，新区间 [2, 2.125]",
-      "formula": "c3=(2+2.25)/2",
+      "description": "根据定理得出收敛条件填空",
+      "formula": "",
       "result": null,
-      "method": "二分法"
-    },
-    {
-      "step_id": 4,
-      "description": "第 4 次迭代中点 c4=2.0625，f(c4)=-0.3457<0，新区间 [2.0625, 2.125]",
-      "formula": "c4=(2+2.125)/2",
-      "result": null,
-      "method": "二分法"
-    },
-    {
-      "step_id": 5,
-      "description": "第 5 次迭代中点 c5=2.09375，f(c5)≈-0.004<0，新区间 [2.09375, 2.125]",
-      "formula": "c5=(2.0625+2.125)/2",
-      "result": null,
-      "method": "二分法"
+      "method": "逻辑推理"
     }
   ],
   "methods_used": [
-    "二分法"
+    "Jacobi 迭代法",
+    "谱半径收敛准则"
   ],
   "verification": {
-    "is_correct": false,
-    "confidence": 0.95,
-    "check_method": "验证了初始函数值，逐步执行二分法迭代，重新计算了各次迭代中点的函数值，并与提供的步骤进行对比，检查了区间更新的逻辑一致性。",
-    "error_details": "步骤 4 中提供的 f(c4)=-0.3457 错误，实际值约为 -0.3511（该值疑似直接复制了步骤 3 函数值的相反数）；步骤 5 中提供的 f(c5)≈-0.004 错误，实际值约为 -0.0056。虽然区间更新的逻辑（基于符号判断）是正确的，且最终答案 2.09375 作为第 5 次迭代的中点是合理的，但中间步骤的数学推导存在计算错误。"
+    "is_correct": true,
+    "confidence": 1.0,
+    "check_method": "ground_truth_match",
+    "error_details": ""
   },
-  "educational_hint": "二分法通过不断缩小区间范围来逼近根，每次迭代将区间长度减半，保证收敛。",
-  "computation_time_ms": 220765.296459198,
-  "retry_count": 1,
-  "model_version": null,
-  "from_cache": false,
-  "cache_similarity": null,
-  "cache_matched_question": null,
-  "true_domain": null,
-  "ground_truth": null,
-  "answer_match": null
+  "educational_hint": "Jacobi 迭代法收敛的充要条件是迭代矩阵的谱半径小于 1，这是数值分析中的基本定理。",
+  "from_cache": true,
+  "question_id": "36",
+  "cache_similarity": 1.0000005960464478,
+  "cache_matched_question": "【填空题·答题要求】你正在解答一道填空题。请在 reasoning_steps 中逐步推理求解，在 final_answer 字段中只填入填空处的答案内容，简洁明了。\n\n填空题：Jacobi迭代法解Ax=b，迭代矩阵为G=-D^{-1}(L+U)，当______时收敛。"
 }

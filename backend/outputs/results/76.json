@@ -1,49 +1,50 @@
 {
-  "question_id": "76",
-  "timestamp": "2026-07-08T00:21:17.027755",
-  "domain": "probability",
-  "final_answer": "平稳分布为 \\pi = (1/3, 1/3, 1/3)",
+  "final_answer": "B",
+  "domain": "随机过程",
   "reasoning_steps": [
     {
       "step_id": 1,
-      "description": "设定平稳分布向量并列出基本方程",
-      "formula": "\\pi P = \\pi, \\sum \\pi_i = 1",
+      "description": "根据连续时间 Markov 链平稳分布定义，满足方程 πQ = 0",
+      "formula": "-2π₁ + π₂ = 0",
       "result": null,
-      "method": "马尔可夫链平稳分布定义"
+      "method": "稳态方程求解"
     },
     {
       "step_id": 2,
-      "description": "根据矩阵乘法展开得到线性方程组",
-      "formula": "0.5\\pi_1 + 0.5\\pi_3 = \\pi_1, 0.5\\pi_1 + 0.5\\pi_2 = \\pi_2, 0.5\\pi_2 + 0.5\\pi_3 = \\pi_3",
+      "description": "利用概率分布归一化条件，所有状态概率之和为 1",
+      "formula": "π₁ + π₂ = 1",
       "result": null,
-      "method": "矩阵运算"
+      "method": "归一化条件"
     },
     {
       "step_id": 3,
-      "description": "化简方程组并利用归一化条件求解",
-      "formula": "\\pi_1 = \\pi_2 = \\pi_3, 3\\pi_1 = 1 \\Rightarrow \\pi_1=\\pi_2=\\pi_3=1/3",
+      "description": "联立方程组求解 π₁ 的值",
+      "formula": "π₂ = 2π₁ ⇒ 3π₁ = 1 ⇒ π₁ = 1/3",
       "result": null,
       "method": "线性方程组求解"
+    },
+    {
+      "step_id": 4,
+      "description": "验证选项，计算结果 π₁ = 1/3 对应选项 B",
+      "formula": "π₁ = 1/3",
+      "result": null,
+      "method": "选项匹配"
     }
   ],
   "methods_used": [
-    "马尔可夫链平稳分布定义",
+    "稳态方程求解",
+    "归一化条件",
     "线性方程组求解"
   ],
   "verification": {
     "is_correct": true,
     "confidence": 1.0,
-    "check_method": "验证了平稳分布定义 πP = π 及归一化条件 sum(πi) = 1。通过解线性方程组得出 π1=π2=π3，确认结果正确。",
-    "error_details": "无错误。推导过程逻辑严密，计算无误。"
+    "check_method": "ground_truth_match",
+    "error_details": ""
   },
-  "educational_hint": "平稳分布是满足 \\pi P = \\pi 且概率和为 1 的行向量，本题中转移矩阵具有循环对称性，故分布为均匀分布。",
-  "computation_time_ms": 100841.6268825531,
-  "retry_count": 0,
-  "model_version": null,
-  "from_cache": false,
-  "cache_similarity": null,
-  "cache_matched_question": null,
-  "true_domain": null,
-  "ground_truth": null,
-  "answer_match": null
+  "educational_hint": "连续时间 Markov 链的平稳分布 π 需满足 πQ = 0 且 Σπᵢ = 1，通过解线性方程组可得各状态概率。",
+  "from_cache": true,
+  "question_id": "76",
+  "cache_similarity": 1.0000001192092896,
+  "cache_matched_question": "【选择题·答题要求】你正在解答一道选择题。请在 reasoning_steps 中逐步分析每个选项，在 final_answer 字段中只填入正确选项的字母（A/B/C/D），不要填入任何其他文字。\n\n选择题：连续时间Markov链Q=[[-2,2],[1,-1]]的平稳分布π_1=？\nA. 1/4\nB. 1/3\nC. 1/2\nD. 2/3"
 }

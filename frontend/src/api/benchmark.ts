@@ -4,7 +4,7 @@ import type { BenchmarkStatus, BenchmarkResult, BenchmarkRunSummary, BenchmarkRu
 export async function fetchBenchmarkStatus(): Promise<BenchmarkStatus> {
   return client.get('/benchmark/status') as Promise<BenchmarkStatus>;
 }
-export async function startBenchmark(data: { dataset_path?: string; max_retries?: number; enable_rag?: boolean; use_answer_db?: boolean; max_reflection_count?: number }): Promise<{ message: string; run_id: string }> {
+export async function startBenchmark(data: { dataset_path?: string; max_retries?: number; enable_rag?: boolean; use_answer_db?: boolean; max_reflection_count?: number; use_llm_verify?: boolean }): Promise<{ message: string; run_id: string }> {
   return client.post('/benchmark/start', data) as Promise<{ message: string; run_id: string }>;
 }
 export async function stopBenchmark(): Promise<{ message: string }> {
@@ -15,6 +15,9 @@ export async function clearAnswerDb(): Promise<{ message: string; cleared_exact:
 }
 export async function getBenchmarkResults(): Promise<BenchmarkResult> {
   return client.get('/benchmark/results') as Promise<BenchmarkResult>;
+}
+export async function fetchDatasets(): Promise<{ datasets: { name: string; path: string; count: number }[] }> {
+  return client.get('/benchmark/datasets') as Promise<{ datasets: { name: string; path: string; count: number }[] }>;
 }
 
 // 历史记录

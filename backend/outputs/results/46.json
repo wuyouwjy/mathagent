@@ -1,39 +1,31 @@
 {
-  "final_answer": "\\frac{1}{3}",
-  "domain": "real_analysis",
+  "final_answer": "控制",
+  "domain": "测度积分",
   "reasoning_steps": [
     {
       "step_id": 1,
-      "description": "将积分区间 [0,1] 分成 n 个等份，每份长度 Δx",
-      "formula": "\\Delta x = \\frac{1}{n}",
+      "description": "识别题目涉及勒贝格控制收敛定理",
+      "formula": "勒贝格控制收敛定理",
       "result": null,
       "method": null
     },
     {
       "step_id": 2,
-      "description": "选取右端点 ξ_i = i/n 构造黎曼和 S_n",
-      "formula": "S_n = \\sum_{i=1}^n \\left(\\frac{i}{n}\\right)^2 \\cdot \\frac{1}{n}",
+      "description": "分析条件|f_n|≤g 的作用",
+      "formula": "|f_n(x)| ≤ g(x) a.e.",
       "result": null,
       "method": null
     },
     {
       "step_id": 3,
-      "description": "利用平方和公式化简黎曼和表达式",
-      "formula": "S_n = \\frac{1}{n^3} \\cdot \\frac{n(n+1)(2n+1)}{6}",
-      "result": null,
-      "method": null
-    },
-    {
-      "step_id": 4,
-      "description": "取 n 趋于无穷大的极限得到积分值",
-      "formula": "\\lim_{n \\to \\infty} S_n = \\lim_{n \\to \\infty} \\frac{2n^3 + 3n^2 + n}{6n^3} = \\frac{1}{3}",
+      "description": "确定该条件的名称",
+      "formula": "控制条件",
       "result": null,
       "method": null
     }
   ],
   "methods_used": [
-    "黎曼和定义",
-    "数列极限"
+    "实分析概念识别"
   ],
   "verification": {
     "is_correct": true,
@@ -41,9 +33,9 @@
     "check_method": "ground_truth_match",
     "error_details": ""
   },
-  "educational_hint": "黎曼积分的定义是通过分割区间、取黎曼和、求极限的过程。对于连续函数，等分区间取右端点的黎曼和极限即为定积分值，计算中利用了自然数平方和公式及数列极限运算。",
+  "educational_hint": "勒贝格控制收敛定理中，用可积函数 g 控制函数列 f_n 的条件称为控制条件，这是保证极限与积分交换的关键。",
   "from_cache": true,
   "question_id": "46",
-  "cache_similarity": 1.0,
-  "cache_matched_question": "求Riemann积分$\\int_0^1 x^2 dx$的极限定义计算。"
+  "cache_similarity": 1.0000003576278687,
+  "cache_matched_question": "【填空题·答题要求】你正在解答一道填空题。请在 reasoning_steps 中逐步推理求解，在 final_answer 字段中只填入填空处的答案内容，简洁明了。\n\n填空题：Lebesgue控制收敛定理中要求存在可积函数g使得|f_n|≤g a.e.，该条件称为______条件。"
 }

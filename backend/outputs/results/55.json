@@ -1,66 +1,48 @@
 {
-  "final_answer": "Lusin 定理得证",
-  "domain": "real_analysis",
+  "final_answer": "欧拉示性数",
+  "domain": "微分几何",
   "reasoning_steps": [
     {
       "step_id": 1,
-      "description": "处理无穷大点集",
-      "formula": "令 E_\\infty = {x : |f(x)|=\\infty}，则 m(E_\\infty)=0。取开集 U \\supset E_\\infty 使 m(U) < \\varepsilon/2。",
+      "description": "识别题目考查的微分几何定理为 Gauss-Bonnet 定理",
+      "formula": "",
       "result": null,
-      "method": null
+      "method": "定理识别"
     },
     {
       "step_id": 2,
-      "description": "简单函数逼近",
-      "formula": "存在简单函数 \\phi = \\sum c_i \\chi_{A_i} 使得 m({x : f(x) \\neq \\phi(x)}) < \\varepsilon/2。",
+      "description": "回忆 Gauss-Bonnet 定理公式：闭曲面上高斯曲率的积分等于 2\\pi 乘以欧拉示性数",
+      "formula": "\\int_M K dA = 2\\pi \\chi(M)",
       "result": null,
-      "method": null
+      "method": "公式应用"
     },
     {
       "step_id": 3,
-      "description": "测度正则性",
-      "formula": "对每个 A_i，存在闭集 F_i \\subset A_i 使 m(A_i \\setminus F_i) < \\delta。令 F = \\bigcup F_i，则 m([a,b] \\setminus F) < \\varepsilon/2。",
+      "description": "确定空白处应填入的拓扑不变量名称",
+      "formula": "",
       "result": null,
-      "method": null
-    },
-    {
-      "step_id": 4,
-      "description": "闭集上连续性",
-      "formula": "\\phi 在 F 上连续，且 f 与 \\phi 接近，故 f|_F 连续。",
-      "result": null,
-      "method": null
-    },
-    {
-      "step_id": 5,
-      "description": "蒂茨扩张",
-      "formula": "由蒂茨扩张定理，存在 g \\in C([a,b]) 使得 g|_F = f|_F。",
-      "result": null,
-      "method": null
-    },
-    {
-      "step_id": 6,
-      "description": "误差估计",
-      "formula": "{f \\neq g} \\subset ([a,b] \\setminus F) \\cup {f \\neq \\phi}，故 m({f \\neq g}) < \\varepsilon。",
-      "result": null,
-      "method": null
+      "method": "概念匹配"
     }
   ],
   "methods_used": [
-    "简单函数逼近",
-    "勒贝格测度正则性",
-    "蒂茨扩张定理",
-    "ε-δ 论证",
-    "可测函数性质"
+    "Gauss-Bonnet 定理"
   ],
   "verification": {
     "is_correct": true,
     "confidence": 1.0,
-    "check_method": "ground_truth_match",
-    "error_details": ""
+    "check_method": "llm_verify_match",
+    "error_details": "",
+    "llm_verify": {
+      "is_equivalent": true,
+      "confidence": 1.0,
+      "reason": "两者均指代高斯 - 博内定理中的核心拓扑概念'欧拉示性数'（Euler characteristic），仅表述形式上存在中文翻译与英文字母混用的差异，数学含义完全一致。",
+      "pred_normalized": "欧拉示性数",
+      "gt_normalized": "欧拉示性数"
+    }
   },
-  "educational_hint": "证明核心在于利用可测函数的性质将其在大部分区域上逼近为连续函数，通过测度正则性将可测集逼近为闭集，再利用扩张定理延拓至全区间。",
+  "educational_hint": "Gauss-Bonnet 定理是连接微分几何与拓扑学的桥梁，表明曲面的总弯曲程度（几何量）由其整体形状（拓扑量）决定。",
   "from_cache": true,
   "question_id": "55",
-  "cache_similarity": 0.9999995827674866,
-  "cache_matched_question": "证明Lusin定理：设$f$为$[a,b]$上几乎处处有限的可测函数，则对任意$\\varepsilon>0$，存在连续函数$g$使$m(\\{x: f(x) \\neq g(x)\\}) < \\varepsilon$。"
+  "cache_similarity": 1.0000003576278687,
+  "cache_matched_question": "【填空题·答题要求】你正在解答一道填空题。请在 reasoning_steps 中逐步推理求解，在 final_answer 字段中只填入填空处的答案内容，简洁明了。\n\n填空题：Gauss-Bonnet定理将曲面的总高斯曲率与______联系起来。"
 }

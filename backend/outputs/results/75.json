@@ -1,58 +1,50 @@
 {
-  "question_id": "75",
-  "timestamp": "2026-07-08T00:20:39.954230",
-  "domain": "probability",
-  "final_answer": "\\frac{\\lambda^2 e^{-\\lambda}}{2}",
+  "final_answer": "A",
+  "domain": "随机过程",
   "reasoning_steps": [
     {
       "step_id": 1,
-      "description": "使用条件概率定义展开问题",
-      "formula": "P(N(2)=3 | N(1)=1) = \\frac{P(N(2)=3, N(1)=1)}{P(N(1)=1)}",
+      "description": "计算 X_n 的期望",
+      "formula": "E[X_n] = E[Z_n] + E[Z_{n-1}] = 0",
       "result": null,
-      "method": "条件概率公式"
+      "method": "期望的线性性质"
     },
     {
       "step_id": 2,
-      "description": "利用泊松过程的独立增量性分解联合概率",
-      "formula": "P(N(2)=3, N(1)=1) = P(N(1)=1, N(2)-N(1)=2) = P(N(1)=1)P(N(2)-N(1)=2)",
+      "description": "计算 X_n 的方差",
+      "formula": "Var(X_n) = Var(Z_n) + Var(Z_{n-1}) = 2σ^2",
       "result": null,
-      "method": "独立增量性"
+      "method": "不相关变量方差和公式"
     },
     {
       "step_id": 3,
-      "description": "利用泊松过程的平稳增量性确定增量分布",
-      "formula": "N(2)-N(1) \\sim \\text{Poisson}(\\lambda(2-1)) = \\text{Poisson}(\\lambda)",
+      "description": "验证自协方差函数",
+      "formula": "Cov(X_n, X_{n+k}) 仅依赖于 k",
       "result": null,
-      "method": "平稳增量性"
+      "method": "弱平稳性定义"
     },
     {
       "step_id": 4,
-      "description": "计算泊松分布的概率质量函数值",
-      "formula": "P(N(2)-N(1)=2) = \\frac{e^{-\\lambda} \\lambda^2}{2!}",
+      "description": "判定平稳性",
+      "formula": "均值、方差、自协方差均不随时间变化",
       "result": null,
-      "method": "泊松分布 PMF"
+      "method": "平稳过程判定"
     }
   ],
   "methods_used": [
-    "条件概率公式",
-    "独立增量性",
-    "平稳增量性",
-    "泊松分布 PMF"
+    "期望计算",
+    "方差计算",
+    "弱平稳性定义"
   ],
   "verification": {
-    "is_correct": false,
-    "confidence": 0.3,
-    "check_method": "parse_error",
-    "error_details": "LLM 返回无法解析"
+    "is_correct": true,
+    "confidence": 1.0,
+    "check_method": "ground_truth_match",
+    "error_details": ""
   },
-  "educational_hint": "泊松过程的核心性质是独立增量性和平稳增量性。在已知 N(1)=1 的条件下，N(2)=3 等价于区间 (1, 2] 内发生了 2 次事件，该增量与 N(1) 独立且服从参数为 \\lambda 的泊松分布。",
-  "computation_time_ms": 111733.77418518066,
-  "retry_count": 1,
-  "model_version": null,
-  "from_cache": false,
-  "cache_similarity": null,
-  "cache_matched_question": null,
-  "true_domain": null,
-  "ground_truth": null,
-  "answer_match": null
+  "educational_hint": "白噪声的线性组合（如 MA(1) 过程）通常满足弱平稳条件，需验证均值、方差及自协方差是否仅依赖于滞后阶数而非时间索引。",
+  "from_cache": true,
+  "question_id": "75",
+  "cache_similarity": 0.9999998807907104,
+  "cache_matched_question": "【选择题·答题要求】你正在解答一道选择题。请在 reasoning_steps 中逐步分析每个选项，在 final_answer 字段中只填入正确选项的字母（A/B/C/D），不要填入任何其他文字。\n\n选择题：X_n=Z_n+Z_{n-1}（Z_n为白噪声）是否为平稳过程？\nA. 是弱平稳过程\nB. 不是，均值不为常数\nC. 不是，方差随时间增长\nD. 无法判断"
 }

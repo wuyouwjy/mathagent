@@ -1,39 +1,39 @@
 {
-  "final_answer": "[0.504, 0.696]",
-  "domain": "statistics",
+  "final_answer": "B",
+  "domain": "统计推断",
   "reasoning_steps": [
     {
       "step_id": 1,
-      "description": "确定估计量及渐近分布",
-      "formula": "\\hat{p} = \\frac{1}{n}\\sum X_i, \\sqrt{n}(\\hat{p}-p) \\sim N(0, p(1-p))",
+      "description": "提取已知条件：p 值 = 0.03，显著性水平 α = 0.05",
+      "formula": "p = 0.03, α = 0.05",
       "result": null,
-      "method": "最大似然估计与中心极限定理"
+      "method": "数据提取"
     },
     {
       "step_id": 2,
-      "description": "构造枢轴量",
-      "formula": "Z = \\frac{\\hat{p} - p}{\\sqrt{\\hat{p}(1-\\hat{p})/n}} \\approx N(0,1)",
+      "description": "比较 p 值与显著性水平的大小关系",
+      "formula": "0.03 < 0.05",
       "result": null,
-      "method": "枢轴量法"
+      "method": "数值比较"
     },
     {
       "step_id": 3,
-      "description": "确定临界值",
-      "formula": "z_{0.025} = 1.96",
+      "description": "应用假设检验决策规则：若 p ≤ α，则拒绝原假设 H0",
+      "formula": "p ≤ α ⇒ 拒绝 H0",
       "result": null,
-      "method": "标准正态分布分位数"
+      "method": "假设检验规则"
     },
     {
       "step_id": 4,
-      "description": "计算置信区间",
-      "formula": "\\hat{p} \\pm 1.96 \\sqrt{\\frac{\\hat{p}(1-\\hat{p})}{n}}",
+      "description": "根据决策结果选择对应选项",
+      "formula": "拒绝 H0 对应选项 B",
       "result": null,
-      "method": "代入数值计算"
+      "method": "选项匹配"
     }
   ],
   "methods_used": [
-    "枢轴量法",
-    "正态近似"
+    "假设检验决策规则",
+    "p 值判定准则"
   ],
   "verification": {
     "is_correct": true,
@@ -41,9 +41,9 @@
     "check_method": "ground_truth_match",
     "error_details": ""
   },
-  "educational_hint": "大样本下样本比例近似正态分布，利用枢轴量将参数转化为标准正态分布统计量求解。",
+  "educational_hint": "在假设检验中，决策规则是将 p 值与显著性水平 α 进行比较。当 p 值小于 α 时（如本题 0.03 < 0.05），拒绝原假设 H0；当 p 值大于 α 时，不拒绝原假设。",
   "from_cache": true,
   "question_id": "94",
-  "cache_similarity": 0.9999997615814209,
-  "cache_matched_question": "设$X_1,\\ldots,X_n$为来自$\\text{Bernoulli}(p)$的样本。求$p$的$95\\%$置信区间（$n=100$, $\\hat{p}=0.6$）。"
+  "cache_similarity": 0.9999995827674866,
+  "cache_matched_question": "【选择题·答题要求】你正在解答一道选择题。请在 reasoning_steps 中逐步分析每个选项，在 final_answer 字段中只填入正确选项的字母（A/B/C/D），不要填入任何其他文字。\n\n选择题：p值为0.03，显著性水平α=0.05时的正确决策是？\nA. 接受H0\nB. 拒绝H0\nC. 增大样本量\nD. 减小α"
 }

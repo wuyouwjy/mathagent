@@ -1,57 +1,49 @@
 {
-  "final_answer": "\\sigma^2 (X^T X)^{-1}",
-  "domain": "statistics",
+  "question_id": "103",
+  "timestamp": "2026-07-30T10:52:44.786078",
+  "domain": "partial_differential_equations",
+  "final_answer": "B",
   "reasoning_steps": [
     {
       "step_id": 1,
-      "description": "写出普通最小二乘法（OLS）估计量的矩阵表达式",
-      "formula": "\\hat{\\beta} = (X^T X)^{-1} X^T Y",
+      "description": "提取二阶偏微分方程的主部系数",
+      "formula": "方程 $u_{xx} + 2u_{xy} + u_{yy} = 0$ 对应一般形式 $A u_{xx} + B u_{xy} + C u_{yy} = 0$，其中 $A=1, B=2, C=1$",
       "result": null,
-      "method": null
+      "method": "系数识别"
     },
     {
       "step_id": 2,
-      "description": "将模型 Y=X\\beta+\\varepsilon 代入估计量表达式",
-      "formula": "\\hat{\\beta} = \\beta + (X^T X)^{-1} X^T \\varepsilon",
+      "description": "计算判别式 $\\Delta = B^2 - 4AC$",
+      "formula": "$\\Delta = 2^2 - 4 \\times 1 \\times 1 = 4 - 4 = 0$",
       "result": null,
-      "method": null
+      "method": "判别式计算"
     },
     {
       "step_id": 3,
-      "description": "利用协方差矩阵的线性变换性质计算 Var(\\hat{\\beta})",
-      "formula": "Var(\\hat{\\beta}) = (X^T X)^{-1} X^T Var(\\varepsilon) X (X^T X)^{-1}",
+      "description": "根据判别式值确定方程类型",
+      "formula": "当 $\\Delta = 0$ 时，方程属于抛物型",
       "result": null,
-      "method": null
-    },
-    {
-      "step_id": 4,
-      "description": "代入误差项协方差假设 Var(\\varepsilon)=\\sigma^2 I",
-      "formula": "Var(\\varepsilon) = \\sigma^2 I_n",
-      "result": null,
-      "method": null
-    },
-    {
-      "step_id": 5,
-      "description": "化简矩阵乘积得到最终结果",
-      "formula": "Var(\\hat{\\beta}) = \\sigma^2 (X^T X)^{-1}",
-      "result": null,
-      "method": null
+      "method": "分类准则"
     }
   ],
   "methods_used": [
-    "最小二乘法",
-    "矩阵代数",
-    "方差性质"
+    "系数识别法",
+    "判别式法"
   ],
   "verification": {
     "is_correct": true,
     "confidence": 1.0,
-    "check_method": "ground_truth_match",
-    "error_details": ""
+    "check_method": "经核实，方程 u_{xx}+2u_{xy}+u_{yy}=0 的二阶偏导数系数为 A=1, B=2, C=1。计算判别式 Δ = B^2 - 4AC = 2^2 - 4×1×1 = 0。根据二阶偏微分方程分类准则，Δ=0 对应抛物型方程。选项 B 为抛物型，结论正确。所用判别式法适用于该问题，推理逻辑严谨。",
+    "error_details": "无"
   },
-  "educational_hint": "该结果表明估计精度受设计矩阵 X 的信息量（X^T X 的逆）和误差方差 \\sigma^2 影响。",
-  "from_cache": true,
-  "question_id": "103",
-  "cache_similarity": 1.0,
-  "cache_matched_question": "对多元线性回归$Y=X\\beta+\\varepsilon$，求$\\hat{\\beta}$的协方差矩阵。"
+  "educational_hint": "二阶线性偏微分方程 $A u_{xx} + B u_{xy} + C u_{yy} + \\dots = 0$ 的类型由判别式 $\\Delta = B^2 - 4AC$ 决定：$\\Delta < 0$ 为椭圆型，$\\Delta = 0$ 为抛物型，$\\Delta > 0$ 为双曲型。",
+  "computation_time_ms": 199492.25401878357,
+  "retry_count": 0,
+  "model_version": null,
+  "from_cache": false,
+  "cache_similarity": null,
+  "cache_matched_question": null,
+  "true_domain": null,
+  "ground_truth": null,
+  "answer_match": null
 }

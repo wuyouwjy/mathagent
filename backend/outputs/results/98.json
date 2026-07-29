@@ -1,64 +1,42 @@
 {
-  "question_id": "98",
-  "timestamp": "2026-07-08T00:26:58.958985",
-  "domain": "functional_analysis",
-  "final_answer": "定理得证：若 Banach 空间上的算子族逐点有界，则一致有界。",
+  "final_answer": "C",
+  "domain": "泛函分析",
   "reasoning_steps": [
     {
       "step_id": 1,
-      "description": "定义集合 E_n = {x in X : sup_||T_alpha x|| <= n}，利用 T_alpha 连续性证明 E_n 为闭集",
-      "formula": "E_n = \\{x \\in X : \\sup_{\\alpha} \\|T_\\alpha x\\| \\le n\\}",
+      "description": "Hahn-Banach 定理的核心内容是：赋范线性空间子空间上的有界线性泛函可以延拓到全空间且保持范数不变",
+      "formula": "f \\in M^*, \\exists F \\in X^*, F|_M = f, \\|F\\| = \\|f\\|",
       "result": null,
       "method": null
     },
     {
       "step_id": 2,
-      "description": "由逐点有界性知 X = union E_n，即全空间被可数个闭集覆盖",
-      "formula": "X = \\bigcup_{n=1}^\\infty E_n",
+      "description": "一致有界原理、开映射定理、闭图像定理均基于空间完备性讨论算子性质，属于 Banach 空间三大基本定理",
+      "formula": "Uniform Boundedness, Open Mapping, Closed Graph",
       "result": null,
       "method": null
     },
     {
       "step_id": 3,
-      "description": "利用 Baire 纲定理，因 X 完备，存在 k 使 E_k 包含非空开球 B(x_0, r)",
-      "formula": "B(x_0, r) \\subset E_k",
-      "result": null,
-      "method": null
-    },
-    {
-      "step_id": 4,
-      "description": "对任意单位向量 x，构造 y = x_0 + rx 属于开球，利用三角不等式估计范数",
-      "formula": "\\|T_\\alpha x\\| \\le \\frac{\\|T_\\alpha(x_0 + rx)\\| + \\|T_\\alpha x_0\\|}{r}",
-      "result": null,
-      "method": null
-    },
-    {
-      "step_id": 5,
-      "description": "导出算子范数上界，证明算子族一致有界",
-      "formula": "\\sup_{\\alpha} \\|T_\\alpha\\| \\le \\frac{2M}{r} < \\infty",
+      "description": "Hahn-Banach 定理的本质在于利用 Zorn 引理保证线性泛函的延拓存在性，因此归类为延拓定理",
+      "formula": "Extension Theorem",
       "result": null,
       "method": null
     }
   ],
   "methods_used": [
-    "Baire 纲定理",
-    "三角不等式",
-    "闭集性质"
+    "Hahn-Banach 延拓原理",
+    "泛函分析定理分类"
   ],
   "verification": {
     "is_correct": true,
-    "confidence": 0.95,
-    "check_method": "Verified the logical flow of the Banach-Steinhaus theorem proof sketch. Confirmed the correct application of the Baire Category Theorem on a Banach space, the closedness of the sets E_n derived from operator continuity, and the standard argument for deriving uniform boundedness from pointwise boundedness via translation and homogeneity.",
-    "error_details": "Step 4 contains a minor terminological inaccuracy: it states that y = x_0 + rx belongs to the open ball B(x_0, r). Since ||y - x_0|| = r, y lies on the boundary of the open ball. However, because E_k is closed (as proven in Step 1) and contains the open ball, it necessarily contains the closed ball, so y in E_k remains valid. This does not affect the correctness of the proof."
+    "confidence": 1.0,
+    "check_method": "ground_truth_match",
+    "error_details": ""
   },
-  "educational_hint": "证明核心在于利用 Banach 空间的完备性（Baire 纲定理），将逐点有界性转化为某集合具有内点，进而通过线性性质导出整体的一致有界性。",
-  "computation_time_ms": 218583.4982395172,
-  "retry_count": 0,
-  "model_version": null,
-  "from_cache": false,
-  "cache_similarity": null,
-  "cache_matched_question": null,
-  "true_domain": null,
-  "ground_truth": null,
-  "answer_match": null
+  "educational_hint": "Hahn-Banach 定理主要解决线性泛函的存在性与延拓问题，区别于基于完备性的算子三大定理。",
+  "from_cache": true,
+  "question_id": "98",
+  "cache_similarity": 1.0,
+  "cache_matched_question": "【选择题·答题要求】你正在解答一道选择题。请在 reasoning_steps 中逐步分析每个选项，在 final_answer 字段中只填入正确选项的字母（A/B/C/D），不要填入任何其他文字。\n\n选择题：Hahn-Banach定理属于泛函分析的哪一类基本定理？\nA. 一致有界原理\nB. 开映射定理\nC. 延拓定理\nD. 闭图像定理"
 }

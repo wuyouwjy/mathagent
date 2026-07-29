@@ -112,13 +112,17 @@ class BaseSolver(ABC):
                 or pj.get("conclusion") or pj.get("final_result")
                 or pj.get("最终答案") or pj.get("答案")
             )
-            if answer and str(answer).strip() and len(str(answer).strip()) > 1:
-                return {
-                    "final_answer": str(answer),
+            if answer and str(answer).strip():
+                ans_str = str(answer).strip()
+                # 对于选择题的单字母答案，也接受（不再要求 len > 1）
+                result = {
+                    "final_answer": ans_str,
                     "reasoning_steps": pj.get("reasoning_steps") or pj.get("steps") or [],
                     "methods_used": pj.get("methods_used") or pj.get("methods") or [],
                     "educational_hint": str(pj.get("educational_hint") or pj.get("explanation") or ""),
+                    "raw_llm_response": raw,  # 始终保留原始输出，供 benchmark 提取
                 }
+                return result
 
         # JSON 解析失败或不含答案 → 从原始文本提取
         text = raw if raw else ""
@@ -136,9 +140,10 @@ class BaseSolver(ABC):
                 if clean:
                     text = clean
             return {"final_answer": text[:500], "reasoning_steps": [],
-                    "methods_used": [], "educational_hint": "", "raw_llm_response": text}
+                    "methods_used": [], "educational_hint": "", "raw_llm_response": raw if raw else text}
 
-        return {"final_answer": default_answer, "reasoning_steps": [], "methods_used": [], "educational_hint": ""}
+        return {"final_answer": default_answer, "reasoning_steps": [], "methods_used": [],
+                "educational_hint": "", "raw_llm_response": raw if raw else ""}
 
     def _extract_answer_from_text(self, text: str) -> str:
         """从 LLM 原始输出中提取纯答案（不包含推理过程）"""

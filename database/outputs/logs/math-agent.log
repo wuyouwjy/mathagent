@@ -1240,3 +1240,15 @@
 2026-07-08 00:07:02.261 | INFO     | tools.intern_client:__init__:249 - [LLM] 客户端已初始化: model=intern-s2-preview, base_url=https://chat.intern-ai.org.cn/api/v1/, temperature=0.1
 2026-07-08 00:07:02.265 | INFO     | graph.graph_builder:build_math_agent_graph:101 - [GraphBuilder] 开始构建 LangGraph 工作流图...
 2026-07-08 00:07:02.280 | INFO     | graph.graph_builder:build_math_agent_graph:192 - [GraphBuilder] 图编译完成 (无 checkpoint)
+2026-07-08 10:46:03.720 | INFO     | utils.logger:setup_logger:86 - [日志系统] 已初始化: level=INFO, dir=./database/outputs\logs
+2026-07-08 10:46:05.124 | INFO     | tools.intern_client:__init__:249 - [LLM] 客户端已初始化: model=intern-s2-preview, base_url=https://chat.intern-ai.org.cn/api/v1/, temperature=0.1
+2026-07-08 10:46:05.128 | INFO     | graph.graph_builder:build_math_agent_graph:101 - [GraphBuilder] 开始构建 LangGraph 工作流图...
+2026-07-08 10:46:05.143 | INFO     | graph.graph_builder:build_math_agent_graph:192 - [GraphBuilder] 图编译完成 (无 checkpoint)
+2026-07-08 12:32:12.307 | INFO     | utils.logger:setup_logger:86 - [日志系统] 已初始化: level=INFO, dir=./database/outputs\logs
+2026-07-08 12:32:13.728 | INFO     | tools.intern_client:__init__:249 - [LLM] 客户端已初始化: model=intern-s2-preview, base_url=https://chat.intern-ai.org.cn/api/v1/, temperature=0.1
+2026-07-08 12:32:13.732 | INFO     | graph.graph_builder:build_math_agent_graph:101 - [GraphBuilder] 开始构建 LangGraph 工作流图...
+2026-07-08 12:32:13.748 | INFO     | graph.graph_builder:build_math_agent_graph:192 - [GraphBuilder] 图编译完成 (无 checkpoint)
+2026-07-08 13:16:17.692 | INFO     | utils.logger:setup_logger:86 - [日志系统] 已初始化: level=INFO, dir=./database/outputs\logs
+2026-07-08 13:16:22.735 | INFO     | tools.intern_client:__init__:249 - [LLM] 客户端已初始化: model=intern-s2-preview, base_url=https://chat.intern-ai.org.cn/api/v1/, temperature=0.1
+2026-07-08 13:16:22.741 | INFO     | graph.graph_builder:build_math_agent_graph:101 - [GraphBuilder] 开始构建 LangGraph 工作流图...
+2026-07-08 13:16:22.758 | INFO     | graph.graph_builder:build_math_agent_graph:192 - [GraphBuilder] 图编译完成 (无 checkpoint)

@@ -1,32 +1,39 @@
 {
-  "final_answer": "命题得证：n 个顶点 m 条边的简单平面图满足 m <= 3n - 6 (n >= 3)",
-  "domain": "combinatorics",
+  "final_answer": "$2^n - 1$",
+  "domain": "离散数学",
   "reasoning_steps": [
     {
       "step_id": 1,
-      "description": "应用欧拉公式联系顶点数、边数和面数",
-      "formula": "n - m + f = 2",
+      "description": "识别递推关系类型",
+      "formula": "a_n = 2a_{n-1} + 1",
       "result": null,
-      "method": null
+      "method": "线性非齐次递推数列"
     },
     {
       "step_id": 2,
-      "description": "根据简单平面图性质，每个面至少由 3 条边围成",
-      "formula": "3f \\le 2m",
+      "description": "构造等比数列",
+      "formula": "a_n + 1 = 2(a_{n-1} + 1)",
       "result": null,
-      "method": null
+      "method": "待定系数法"
     },
     {
       "step_id": 3,
-      "description": "将 f 代入不等式并整理得到 m 的上界",
-      "formula": "3(2 - n + m) \\le 2m \\Rightarrow m \\le 3n - 6",
+      "description": "求解新数列通项",
+      "formula": "a_n + 1 = (a_0 + 1) \\cdot 2^n",
       "result": null,
-      "method": null
+      "method": "等比数列通项公式"
+    },
+    {
+      "step_id": 4,
+      "description": "得出原数列通项",
+      "formula": "a_n = 2^n - 1",
+      "result": null,
+      "method": "代换回原变量"
     }
   ],
   "methods_used": [
-    "欧拉公式",
-    "不等式推导"
+    "待定系数法",
+    "等比数列性质"
   ],
   "verification": {
     "is_correct": true,
@@ -34,9 +41,9 @@
     "check_method": "ground_truth_match",
     "error_details": ""
   },
-  "educational_hint": "证明的关键在于利用欧拉公式 n-m+f=2 以及简单平面图中每个面至少包含 3 条边的性质（3f <= 2m）。",
+  "educational_hint": "对于形如 a_n = p a_{n-1} + q 的递推数列，可通过构造等比数列 a_n + \\lambda = p(a_{n-1} + \\lambda) 求解，其中 \\lambda = q/(1-p)。注意利用初始条件 a_0 确定首项。",
   "from_cache": true,
   "question_id": "18",
-  "cache_similarity": 1.0000001192092896,
-  "cache_matched_question": "证明：$n$个顶点$m$条边的平面图满足$m \\le 3n - 6$（$n \\ge 3$）。"
+  "cache_similarity": 0.9999997615814209,
+  "cache_matched_question": "【填空题·答题要求】你正在解答一道填空题。请在 reasoning_steps 中逐步推理求解，在 final_answer 字段中只填入填空处的答案内容，简洁明了。\n\n填空题：数列a_n=2a_{n-1}+1, a_0=0的通项公式为a_n=______。"
 }

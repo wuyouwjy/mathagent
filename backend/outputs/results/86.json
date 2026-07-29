@@ -1,64 +1,17 @@
 {
-  "question_id": "86",
-  "timestamp": "2026-07-08T00:23:28.254243",
-  "domain": "complex_analysis",
-  "final_answer": "证明：设 $f(z)$ 为整函数，且存在 $M>0$ 使得对所有 $z \\in \\mathbb{C}$ 有 $|f(z)| \\le M$。对任意 $z_0 \\in \\mathbb{C}$ 及 $R>0$，由柯西积分公式的一阶导数形式，$f'(z_0) = \\frac{1}{2\\pi i} \\oint_{C_R} \\frac{f(z)}{(z-z_0)^2} dz$，其中 $C_R$ 为以 $z_0$ 为中心、半径为 $R$ 的圆周。利用估值不等式，$|f'(z_0)| \\le \\frac{1}{2\\pi} \\cdot \\frac{M}{R^2} \\cdot 2\\pi R = \\frac{M}{R}$。令 $R \\to \\infty$，得 $|f'(z_0)| = 0$，即 $f'(z_0)=0$。因 $z_0$ 任意，故 $f'(z) \\equiv 0$，从而 $f(z)$ 为常数。",
-  "reasoning_steps": [
-    {
-      "step_id": 1,
-      "description": "设定整函数有界条件",
-      "formula": "|f(z)| \\le M, \\forall z \\in \\mathbb{C}",
-      "result": null,
-      "method": "假设条件"
-    },
-    {
-      "step_id": 2,
-      "description": "应用柯西积分公式于导数",
-      "formula": "f'(z_0) = \\frac{1}{2\\pi i} \\oint_{C_R} \\frac{f(z)}{(z-z_0)^2} dz",
-      "result": null,
-      "method": "柯西积分公式"
-    },
-    {
-      "step_id": 3,
-      "description": "对积分进行估值",
-      "formula": "|f'(z_0)| \\le \\frac{M}{R}",
-      "result": null,
-      "method": "ML 估值不等式"
-    },
-    {
-      "step_id": 4,
-      "description": "令半径趋于无穷",
-      "formula": "\\lim_{R \\to \\infty} \\frac{M}{R} = 0",
-      "result": null,
-      "method": "极限过程"
-    },
-    {
-      "step_id": 5,
-      "description": "得出结论",
-      "formula": "f'(z) \\equiv 0 \\implies f(z) = C",
-      "result": null,
-      "method": "导数恒为零蕴含常数函数"
-    }
-  ],
-  "methods_used": [
-    "柯西积分公式",
-    "估值引理",
-    "极限论证"
-  ],
+  "final_answer": "\": \"常数\",",
+  "domain": "复分析",
+  "reasoning_steps": [],
+  "methods_used": [],
   "verification": {
     "is_correct": true,
     "confidence": 1.0,
-    "check_method": "验证了证明的五个步骤：1. 设定整函数有界条件正确；2. 应用柯西积分公式求导形式正确，利用了整函数在全平面解析的性质；3. 估值引理（ML 不等式）应用正确，计算过程无误；4. 极限论证合理，因 R 可取任意正数；5. 结论推导符合复变函数基本定理（导数恒为零则函数为常数）。",
-    "error_details": "无。证明过程严谨，无逻辑跳步或数学错误。"
+    "check_method": "ground_truth_match",
+    "error_details": ""
   },
-  "educational_hint": "本证明展示了复分析中一个经典技巧：利用柯西积分公式将局部导数性质与全局有界性联系起来。通过让积分围道无限扩大，利用有界性控制导数模长趋于零，从而证明函数为常数。",
-  "computation_time_ms": 154376.2412071228,
-  "retry_count": 0,
-  "model_version": null,
-  "from_cache": false,
-  "cache_similarity": null,
-  "cache_matched_question": null,
-  "true_domain": null,
-  "ground_truth": null,
-  "answer_match": null
+  "educational_hint": "",
+  "from_cache": true,
+  "question_id": "86",
+  "cache_similarity": 1.000000238418579,
+  "cache_matched_question": "【填空题·答题要求】你正在解答一道填空题。请在 reasoning_steps 中逐步推理求解，在 final_answer 字段中只填入填空处的答案内容，简洁明了。\n\n填空题：Liouville定理：有界整函数必为______。"
 }

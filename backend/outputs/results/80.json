@@ -1,32 +1,39 @@
 {
-  "final_answer": "\\frac{4}{7}",
-  "domain": "probability",
+  "final_answer": "B",
+  "domain": "复分析",
   "reasoning_steps": [
     {
       "step_id": 1,
-      "description": "分析马尔可夫链性质，确定极限存在且收敛于平稳分布",
-      "formula": "\\lim_{n \\to \\infty} P_{11}^{(n)} = \\pi_1",
+      "description": "将函数表示为实部 u 和虚部 v",
+      "formula": "$f(z) = \\bar{z} = x - iy \\implies u = x, v = -y$",
       "result": null,
-      "method": "马尔可夫链遍历性定理"
+      "method": "变量代换"
     },
     {
       "step_id": 2,
-      "description": "根据平稳分布定义建立线性方程组",
-      "formula": "\\pi_1 = 0.7\\pi_1 + 0.4\\pi_2, \\quad \\pi_1 + \\pi_2 = 1",
+      "description": "列出柯西 - 黎曼方程",
+      "formula": "$\\frac{\\partial u}{\\partial x} = \\frac{\\partial v}{\\partial y}, \\quad \\frac{\\partial u}{\\partial y} = -\\frac{\\partial v}{\\partial x}$",
       "result": null,
-      "method": "线性方程组求解"
+      "method": "柯西 - 黎曼条件"
     },
     {
       "step_id": 3,
-      "description": "解方程组求得平稳分布分量",
-      "formula": "0.3\\pi_1 = 0.4\\pi_2 \\Rightarrow \\pi_1 = \\frac{4}{7}",
+      "description": "计算偏导数并验证",
+      "formula": "$\\frac{\\partial u}{\\partial x} = 1, \\frac{\\partial v}{\\partial y} = -1 \\implies 1 \\neq -1$",
       "result": null,
-      "method": "代数运算"
+      "method": "偏导数计算"
+    },
+    {
+      "step_id": 4,
+      "description": "判定解析性",
+      "formula": "$f(z) \\text{ 处处不解析}$",
+      "result": null,
+      "method": "解析性判定"
     }
   ],
   "methods_used": [
-    "马尔可夫链平稳分布",
-    "线性方程组求解"
+    "柯西 - 黎曼方程",
+    "解析函数定义"
   ],
   "verification": {
     "is_correct": true,
@@ -34,9 +41,9 @@
     "check_method": "ground_truth_match",
     "error_details": ""
   },
-  "educational_hint": "有限不可约非周期马尔可夫链的 n 步转移概率矩阵收敛于各行均为平稳分布的矩阵。",
+  "educational_hint": "判断复变函数解析性的核心方法是验证柯西 - 黎曼方程。若方程在某点不成立，则函数在该点不可导；若在整个区域不成立，则函数在该区域不解析。共轭函数 $\\bar{z}$ 是典型的处处不解析函数。",
   "from_cache": true,
   "question_id": "80",
-  "cache_similarity": 1.0,
-  "cache_matched_question": "求Markov链$P=\\begin{pmatrix}0.7&0.3\\\\0.4&0.6\\end{pmatrix}$的$n$步转移概率$P_{11}^{(n)}$的极限。"
+  "cache_similarity": 1.0000004768371582,
+  "cache_matched_question": "【选择题·答题要求】你正在解答一道选择题。请在 reasoning_steps 中逐步分析每个选项，在 final_answer 字段中只填入正确选项的字母（A/B/C/D），不要填入任何其他文字。\n\n选择题：函数f(z)=z̄（共轭）在复平面上？\nA. 处处解析\nB. 处处不解析\nC. 在实轴上解析\nD. 在虚轴上解析"
 }

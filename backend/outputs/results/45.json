@@ -1,39 +1,32 @@
 {
-  "final_answer": "2.0045",
-  "domain": "numerical_analysis",
+  "final_answer": "存在",
+  "domain": "测度积分",
   "reasoning_steps": [
     {
       "step_id": 1,
-      "description": "确定积分区间、分段数及步长",
-      "formula": "$h = \\frac{b-a}{n} = \\frac{\\pi-0}{4} = \\frac{\\pi}{4}$",
+      "description": "应用施泰因豪斯定理，正测度集的差集包含原点邻域",
+      "formula": "若 m(E)>0，则 E-E \\supset (-\\delta, \\delta)",
       "result": null,
-      "method": "步长计算"
+      "method": "施泰因豪斯定理"
     },
     {
       "step_id": 2,
-      "description": "计算各节点处的函数值",
-      "formula": "$x_0=0, x_1=\\frac{\\pi}{4}, x_2=\\frac{\\pi}{2}, x_3=\\frac{3\\pi}{4}, x_4=\\pi$; $y_0=0, y_1=\\frac{\\sqrt{2}}{2}, y_2=1, y_3=\\frac{\\sqrt{2}}{2}, y_4=0$",
+      "description": "利用有理数在实数集中的稠密性",
+      "formula": "\\mathbb{Q} \\cap (-\\delta, \\delta) \\setminus \\{0\\} \\neq \\emptyset",
       "result": null,
-      "method": "函数值计算"
+      "method": "有理数稠密性"
     },
     {
       "step_id": 3,
-      "description": "代入复化 Simpson 公式",
-      "formula": "$S_4 = \\frac{h}{3}[y_0 + 4(y_1+y_3) + 2y_2 + y_4]$",
+      "description": "根据差集定义，存在两点之差为非零有理数",
+      "formula": "\\exists x, y \\in E, x \\neq y, x-y \\in \\mathbb{Q}",
       "result": null,
-      "method": null
-    },
-    {
-      "step_id": 4,
-      "description": "计算最终近似值",
-      "formula": "$S_4 = \\frac{\\pi}{12}(4\\sqrt{2}+2) = \\frac{\\pi}{6}(2\\sqrt{2}+1) \\approx 2.0045$",
-      "result": null,
-      "method": null
+      "method": "集合论定义"
     }
   ],
   "methods_used": [
-    "复化 Simpson 公式",
-    "数值积分"
+    "施泰因豪斯定理",
+    "有理数的稠密性"
   ],
   "verification": {
     "is_correct": true,
@@ -41,9 +34,9 @@
     "check_method": "ground_truth_match",
     "error_details": ""
   },
-  "educational_hint": "复化 Simpson 公式将区间分为偶数段，利用二次多项式逼近被积函数，权重系数为 1, 4, 2, ..., 4, 1。",
+  "educational_hint": "本题考察实分析中正测度集的性质。施泰因豪斯定理指出正测度集的差集包含开区间，结合有理数的稠密性，可证集合内必存在两点之差为有理数。这是构造 Vitali 非可测集的关键引理。",
   "from_cache": true,
   "question_id": "45",
-  "cache_similarity": 1.0000003576278687,
-  "cache_matched_question": "用复化Simpson公式，将$[0,\\pi]$等分为$4$份，求$\\int_0^\\pi \\sin(x)dx$的近似值。"
+  "cache_similarity": 1.000000238418579,
+  "cache_matched_question": "【填空题·答题要求】你正在解答一道填空题。请在 reasoning_steps 中逐步推理求解，在 final_answer 字段中只填入填空处的答案内容，简洁明了。\n\n填空题：设E⊂[0,1]可测且m(E)>0，则E中______两个不同点其差为有理数。"
 }

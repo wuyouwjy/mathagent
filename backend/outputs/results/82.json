@@ -1,25 +1,40 @@
 {
-  "final_answer": "函数 $f(z)$ 在 $z=i$ 处的留数为 $-\\frac{i}{2}$，定积分 $\\int_{-\\infty}^{\\infty}\\frac{dx}{x^2+1}$ 的值为 $\\pi$。推导：留数 $\\mathrm{Res}(f,i)=\\frac{1}{2i}$，围道积分 $2\\pi i \\cdot \\mathrm{Res}(f,i) = \\pi$。",
-  "domain": "complex_analysis",
+  "final_answer": "B",
+  "domain": "复分析",
   "reasoning_steps": [
     {
       "step_id": 1,
-      "description": "确定奇点类型并计算 z=i 处的留数",
-      "formula": "f(z)=\\frac{1}{z^2+1}=\\frac{1}{(z-i)(z+i)}，z=i 为一阶极点，\\mathrm{Res}(f, i)=\\lim_{z \\to i}(z-i)f(z)=\\frac{1}{2i}=-\\frac{i}{2}",
+      "description": "根据广义积分的定义，将无穷区间上的积分表示为极限形式",
+      "formula": "\\int_{-\\infty}^{\\infty} \\frac{1}{1+x^2} dx = \\lim_{a \\to -\\infty} \\int_{a}^{0} \\frac{1}{1+x^2} dx + \\lim_{b \\to \\infty} \\int_{0}^{b} \\frac{1}{1+x^2} dx",
       "result": null,
-      "method": "留数计算"
+      "method": "广义积分定义"
     },
     {
       "step_id": 2,
-      "description": "选取上半平面半圆围道并应用留数定理计算实积分",
-      "formula": "\\oint_C f(z)dz = \\int_{-\\infty}^{\\infty}\\frac{dx}{x^2+1} = 2\\pi i \\cdot \\mathrm{Res}(f, i) = 2\\pi i \\cdot \\frac{1}{2i} = \\pi",
+      "description": "确定被积函数的原函数",
+      "formula": "\\int \\frac{1}{1+x^2} dx = \\arctan x + C",
       "result": null,
-      "method": "围道选择与留数定理"
+      "method": "基本积分公式"
+    },
+    {
+      "step_id": 3,
+      "description": "计算上下限的极限值",
+      "formula": "\\lim_{b \\to \\infty} \\arctan b = \\frac{\\pi}{2}, \\quad \\lim_{a \\to -\\infty} \\arctan a = -\\frac{\\pi}{2}",
+      "result": null,
+      "method": "极限计算"
+    },
+    {
+      "step_id": 4,
+      "description": "代入计算得出积分值",
+      "formula": "\\left( \\frac{\\pi}{2} \\right) - \\left( -\\frac{\\pi}{2} \\right) = \\pi",
+      "result": null,
+      "method": "牛顿 - 莱布尼茨公式推广"
     }
   ],
   "methods_used": [
-    "留数计算",
-    "围道选择"
+    "广义积分定义",
+    "原函数法",
+    "极限计算"
   ],
   "verification": {
     "is_correct": true,
@@ -27,9 +42,9 @@
     "check_method": "ground_truth_match",
     "error_details": ""
   },
-  "educational_hint": "对于无穷区间上的有理函数积分，若分母次数高于分子次数至少 2 次，通常选取上半平面半圆围道。一阶极点留数可直接用 P(z)/Q'(z) 公式快速求得。",
+  "educational_hint": "本题考查广义积分的计算，关键在于掌握 \\arctan x 在正负无穷处的极限值分别为 \\pi/2 和 -\\pi/2。",
   "from_cache": true,
   "question_id": "82",
-  "cache_similarity": 0.9999997615814209,
-  "cache_matched_question": "求函数$f(z)=\\frac{1}{z^2+1}$在$z=i$处的留数并计算$\\int_{-\\infty}^{\\infty}\\frac{dx}{x^2+1}$。"
+  "cache_similarity": 0.9999999403953552,
+  "cache_matched_question": "【选择题·答题要求】你正在解答一道选择题。请在 reasoning_steps 中逐步分析每个选项，在 final_answer 字段中只填入正确选项的字母（A/B/C/D），不要填入任何其他文字。\n\n选择题：∫_{-∞}^∞ 1/(1+x^2)dx =？\nA. π/2\nB. π\nC. 2π\nD. 发散"
 }

@@ -1,63 +1,42 @@
 {
-  "question_id": "88",
-  "timestamp": "2026-07-08T00:23:21.633548",
-  "domain": "ordinary_differential_equations",
-  "final_answer": "通解为 $y(x) = C_1 e^{-x} + C_2 e^{-2x}$，代入初值 $y(0)=1, y'(0)=0$ 得 $C_1=2, C_2=-1$，故特解为 $y(x) = 2e^{-x} - e^{-2x}$。",
+  "final_answer": "A",
+  "domain": "常微分方程",
   "reasoning_steps": [
     {
       "step_id": 1,
-      "description": "建立特征方程",
-      "formula": "r^2 + 3r + 2 = 0",
+      "description": "写出系数矩阵",
+      "formula": "A = \\\\begin{pmatrix} -1 & 2 \\\\ -2 & -1 \\\\end{pmatrix}",
+      "result": null,
+      "method": "线性系统矩阵表示"
+    },
+    {
+      "step_id": 2,
+      "description": "求解特征方程得到特征值",
+      "formula": "\\\\det(A - \\\\lambda I) = (\\\\lambda + 1)^2 + 4 = 0 \\\\Rightarrow \\\\lambda = -1 \\\\pm 2i",
       "result": null,
       "method": "特征方程法"
     },
     {
-      "step_id": 2,
-      "description": "求解特征根",
-      "formula": "(r+1)(r+2)=0 \\Rightarrow r_1=-1, r_2=-2",
-      "result": null,
-      "method": "代数求解"
-    },
-    {
       "step_id": 3,
-      "description": "写出通解形式",
-      "formula": "y(x) = C_1 e^{-x} + C_2 e^{-2x}",
+      "description": "根据特征值实部判断稳定性",
+      "formula": "\\\\text{Re}(\\\\lambda) = -1 < 0",
       "result": null,
-      "method": "线性齐次 ODE 通解"
-    },
-    {
-      "step_id": 4,
-      "description": "代入初值条件",
-      "formula": "\\begin{cases} C_1 + C_2 = 1 \\\\ -C_1 - 2C_2 = 0 \\end{cases}",
-      "result": null,
-      "method": "初值代入法"
-    },
-    {
-      "step_id": 5,
-      "description": "计算最终结果",
-      "formula": "y(x) = 2e^{-x} - e^{-2x}",
-      "result": null,
-      "method": "结果整理"
+      "method": "线性系统稳定性判据"
     }
   ],
   "methods_used": [
     "特征方程法",
-    "初值代入法"
+    "线性系统稳定性分析"
   ],
   "verification": {
     "is_correct": true,
     "confidence": 1.0,
-    "check_method": "验证了特征方程 $r^2+3r+2=0$ 的求解过程，确认特征根为 $r_1=-1, r_2=-2$；验证了通解形式 $y(x)=C_1e^{-x}+C_2e^{-2x}$ 的正确性；验证了导数计算 $y'(x)=-C_1e^{-x}-2C_2e^{-2x}$ 及初值代入建立的线性方程组 $C_1+C_2=1$ 和 $-C_1-2C_2=0$ 的求解结果（$C_1=2, C_2=-1$）；最终特解 $y(x)=2e^{-x}-e^{-2x}$ 经代入原方程及初值条件验证均成立。",
-    "error_details": "求解过程逻辑严谨，每一步推导均正确，无计算错误或逻辑跳步。"
+    "check_method": "ground_truth_match",
+    "error_details": ""
   },
-  "educational_hint": "解题思路：对于二阶常系数线性齐次 ODE，首先求解特征方程 $r^2+3r+2=0$ 得到特征根。根据特征根写出通解形式。最后利用初值条件确定任意常数。要点：注意求导时的符号，以及初值代入时的方程组求解。",
-  "computation_time_ms": 124547.28984832764,
-  "retry_count": 0,
-  "model_version": null,
-  "from_cache": false,
-  "cache_similarity": null,
-  "cache_matched_question": null,
-  "true_domain": null,
-  "ground_truth": null,
-  "answer_match": null
+  "educational_hint": "线性常系数齐次方程组平衡点的稳定性由系数矩阵特征值的实部决定：若所有特征值实部均小于零，则平衡点渐近稳定；若存在实部大于零的特征值，则不稳定；若实部均小于等于零且零实部特征值对应一阶 Jordan 块，则稳定但不渐近。",
+  "from_cache": true,
+  "question_id": "88",
+  "cache_similarity": 1.000000238418579,
+  "cache_matched_question": "【选择题·答题要求】你正在解答一道选择题。请在 reasoning_steps 中逐步分析每个选项，在 final_answer 字段中只填入正确选项的字母（A/B/C/D），不要填入任何其他文字。\n\n选择题：方程组x'=-x+2y, y'=-2x-y的平衡点(0,0)的稳定性为？\nA. 渐近稳定\nB. 稳定但不渐近\nC. 不稳定\nD. 鞍点"
 }

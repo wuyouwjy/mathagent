@@ -1,0 +1,42 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.egg-info/
+dist/
+build/
+*.egg
+
+# ChromaDB
+cache/chroma_db/
+rag/cache/chroma_db/
+rag/chroma_db/
+*.sqlite3
+
+# Outputs & logs
+outputs/
+backend/outputs/
+database/outputs/
+*.log
+
+# Environment
+.env
+*.env.local
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Jupyter
+.ipynb_checkpoints/
