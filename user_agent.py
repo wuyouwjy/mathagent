@@ -1,198 +1,102 @@
-"""Three-stage Plan->Solve->Verify reasoning agent for Challenge Cup 2026."""
+"""user_agent.py — ReasoningAgent for competition evaluation.
 
-from __future__ import annotations
+Platform interface: the judging system provides client with client.chat().
+分类 → 求解 → 答案提取 → 兜底
+"""
 
-import json
 import re
-from dataclasses import dataclass
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Dict, List, Optional
 
-
-PLAN_SYSTEM_PROMPT = (
-    "You are a math contest strategy agent. Read the problem and produce a "
-    "concise solution plan. Do not compute the final answer yet."
-)
-
-SOLVE_SYSTEM_PROMPT = (
-    "You are a math contest solving agent. Use the problem and the plan to solve "
-    "the problem carefully. Show the key derivation and propose a final answer."
-)
-
-VERIFY_SYSTEM_PROMPT = (
-    "You are a math contest verification agent. Check the proposed solution for "
-    "mistakes, then return only one JSON object with keys: answer, explanation. "
-    "The answer should be the final answer to the problem."
-)
-
-
-def _extract_last_json_dict(text: str) -> Optional[Dict[str, Any]]:
-    decoder = json.JSONDecoder()
-    parsed_objects: List[Dict[str, Any]] = []
-    for match in re.finditer(r"\{", text):
-        try:
-            parsed, _ = decoder.raw_decode(text[match.start():])
-        except json.JSONDecodeError:
-            continue
-        if isinstance(parsed, dict):
-            parsed_objects.append(parsed)
-    return parsed_objects[-1] if parsed_objects else None
-
-
-def extract_json_object(text: str) -> Optional[Dict[str, Any]]:
-    stripped = text.strip()
-    if stripped.startswith("```"):
-        stripped = re.sub(r"^```(?:json)?\s*", "", stripped, flags=re.IGNORECASE)
-        stripped = re.sub(r"\s*```$", "", stripped)
-    try:
-        parsed = json.loads(stripped)
-    except json.JSONDecodeError:
-        parsed = _extract_last_json_dict(text)
-        if parsed is None:
-            return None
-    return parsed if isinstance(parsed, dict) else None
-
-
-def extract_answer_value(text: str) -> Optional[str]:
-    answer_matches = re.findall(
-        r'"answer"\s*:\s*"?([-+]?\d+(?:\.\d+)?)"?',
-        text,
-        flags=re.IGNORECASE,
-    )
-    if answer_matches:
-        return answer_matches[-1]
-
-    phrase_patterns = [
-        r"(?:answer|sum|remainder|result|value)\s+(?:is|=)\s*([-+]?\d+(?:\.\d+)?)",
-        r"(?:final answer)\s*[:=]?\s*([-+]?\d+(?:\.\d+)?)",
-    ]
-    for pattern in phrase_patterns:
-        matches = re.findall(pattern, text, flags=re.IGNORECASE)
-        if matches:
-            return matches[-1]
-    return None
-
-
-@dataclass
-class AgentConfig:
-    plan_temperature: float = 0.2
-    solve_temperature: float = 0.2
-    verify_temperature: float = 0.2
-    plan_max_tokens: int = 12288
-    solve_max_tokens: int = 12288
-    verify_max_tokens: int = 12288
+from agents import MathClassifier, ComputeSolver, ProofSolver
 
 
 class ReasoningAgent:
-    """Three-stage Plan->Solve->Verify reasoning agent."""
+    """数学推理智能体 — 兼容平台 official_client"""
 
-    def __init__(self, client, config: Optional[AgentConfig] = None, *args, **kwargs) -> None:
+    def __init__(self, client, *args, **kwargs):
         self.client = client
-        self.config = config or AgentConfig()
+        self.classifier = MathClassifier()
+        self.compute_solver = ComputeSolver(client)
+        self.proof_solver = ProofSolver(client)
 
-    def solve(self, problem: str, metadata: Dict) -> Dict:
-        idx = metadata.get("idx", 0)
-        trace: List[Dict] = []
+    def solve(self, problem: str, metadata: Optional[Dict] = None) -> Dict:
+        if metadata is None:
+            metadata = {}
 
-        plan, plan_trace = self._plan(problem, idx)
-        trace.extend(plan_trace)
+        try:
+            return self._do_solve(problem, metadata)
+        except Exception as e:
+            return {
+                "final_response": "未能求解",
+                "trace": [
+                    {"step": "错误", "content": f"求解异常: {type(e).__name__}: {e}"},
+                ],
+                "verification": {},
+            }
 
-        solution, solve_trace = self._do_solve(problem, plan, idx)
-        trace.extend(solve_trace)
+    def _do_solve(self, problem: str, metadata: Dict) -> Dict:
+        domain, ptype, difficulty = self.classifier.classify(problem)
 
-        final_response, verify_trace = self._verify(problem, plan, solution, idx)
-        trace.extend(verify_trace)
+        if ptype == "证明题":
+            result = self.proof_solver.solve(problem, domain, difficulty, metadata)
+        else:
+            result = self.compute_solver.solve(problem, domain, difficulty, metadata)
+
+        # 安全兜底提取
+        raw = result.get("final_answer", "")
+        if not raw or _is_invalid_answer(raw):
+            for item in result.get("trace", []):
+                content = item if isinstance(item, str) else ""
+                ans = _extract_from_text(content)
+                if ans and not _is_invalid_answer(ans):
+                    raw = ans
+                    break
+        if not raw or _is_invalid_answer(raw):
+            raw = "未能求解"
+
+        # 直接使用 solver 返回的 steps（已含启发性标签）
+        trace = list(result.get("steps", []))
+
+        # 如果 steps 为空，构建最小 trace
+        if not trace:
+            trace = [
+                {"step": "分类", "content": f"领域：{domain}，题型：{ptype}，难度：{difficulty}"},
+            ]
+
+        lp = result.get("learning_points", [])
+        if lp:
+            trace.append({"step": "知识点", "content": "；".join(lp)})
+
+        v = result.get("verification", {})
+        if v:
+            trace.append({"step": "验证", "content": v.get("反馈", "")})
 
         return {
-            "final_response": final_response,
+            "final_response": raw,
             "trace": trace,
+            "verification": v,
         }
 
-    def _plan(self, problem: str, idx: int) -> Tuple[str, List[Dict]]:
-        messages = [
-            {"role": "system", "content": PLAN_SYSTEM_PROMPT},
-            {"role": "user", "content": f"Problem ID: {idx}\n\nProblem:\n{problem}"},
-        ]
-        plan = self.client.chat(
-            messages=messages,
-            temperature=self.config.plan_temperature,
-            max_tokens=self.config.plan_max_tokens,
-        )
-        return plan, [{"step": "plan", "content": plan}]
 
-    def _do_solve(self, problem: str, plan: str, idx: int) -> Tuple[str, List[Dict]]:
-        messages = [
-            {"role": "system", "content": SOLVE_SYSTEM_PROMPT},
-            {
-                "role": "user",
-                "content": (
-                    f"Problem ID: {idx}\n\nProblem:\n{problem}\n\n"
-                    f"Solution plan:\n{plan}\n\nSolve the problem and propose the final answer."
-                ),
-            },
-        ]
-        solution = self.client.chat(
-            messages=messages,
-            temperature=self.config.solve_temperature,
-            max_tokens=self.config.solve_max_tokens,
-        )
-        return solution, [{"step": "model_call", "content": solution}]
+def _is_invalid_answer(text: str) -> bool:
+    """Check if text looks like an error/placeholder, not a real answer."""
+    if not text or text in ("未能求解", ""):
+        return True
+    t = text.strip()
+    if t.startswith("[API错误") or t.startswith("[API"):
+        return True
+    if re.search(r"\[API[^\]]*错误[^\]]*\]", t):
+        return True
+    return False
 
-    def _verify(
-        self, problem: str, plan: str, solution: str, idx: int
-    ) -> Tuple[str, List[Dict]]:
-        messages = [
-            {"role": "system", "content": VERIFY_SYSTEM_PROMPT},
-            {
-                "role": "user",
-                "content": (
-                    f"Problem ID: {idx}\n\nProblem:\n{problem}\n\n"
-                    f"Plan:\n{plan}\n\nProposed solution:\n{solution}\n\n"
-                    'Return only JSON like {"answer": "your answer here", "explanation": "short reason"}.'
-                ),
-            },
-        ]
-        raw_response = self.client.chat(
-            messages=messages,
-            temperature=self.config.verify_temperature,
-            max_tokens=self.config.verify_max_tokens,
-        )
-        trace = [{"step": "verify", "content": raw_response}]
 
-        final_response = self._extract_final_answer(raw_response, solution)
-        trace.append({"step": "finalize", "content": final_response})
-        return final_response, trace
-
-    def _extract_final_answer(self, raw_response: str, solution_fallback: str) -> str:
-        # 1) JSON from verify response
-        parsed = extract_json_object(raw_response)
-        if parsed and "answer" in parsed and parsed["answer"] is not None:
-            answer_str = str(parsed["answer"]).strip()
-            if answer_str:
-                return answer_str
-
-        # 2) Regex fallback for JSON answer when LaTeX backslashes break json.loads
-        m = re.search(r'"answer"\s*:\s*"((?:[^"\\]|\\.)*)"', raw_response, re.DOTALL)
+def _extract_from_text(text: str) -> str:
+    """从文本中提取答案（兜底用）"""
+    if not text:
+        return ""
+    lines = text.strip().split('\n')
+    for i in range(len(lines) - 1, -1, -1):
+        m = re.search(r'ANSWER\s*[：:]\s*(.+)', lines[i], re.IGNORECASE)
         if m:
-            candidate = m.group(1).strip()
-            if candidate:
-                return candidate
-
-        # 3) Numeric regex from verify text
-        fallback = extract_answer_value(raw_response)
-        if fallback:
-            return fallback
-
-        # 4) Numeric regex from solve text
-        fallback = extract_answer_value(solution_fallback)
-        if fallback:
-            return fallback
-
-        # 5) "Final answer:" line from solve
-        m = re.search(r"\*{0,2}Final answer:\*{0,2}\s*(.+)", solution_fallback, re.IGNORECASE)
-        if m:
-            candidate = m.group(1).strip().rstrip(".,;")
-            if candidate:
-                return candidate
-
-        # 6) Last resort: return entire solve response
-        return solution_fallback.strip()
+            return m.group(1).strip()
+    return ""

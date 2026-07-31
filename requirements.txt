@@ -1,1 +1,3 @@
-requests>=2.31.0
+# Competition submission dependencies
+# The platform provides the LLM client; only list extra pip packages here.
+# Current solver uses only Python stdlib + platform client — no extra deps needed.
