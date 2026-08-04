@@ -1,3 +1,4 @@
-# Competition submission dependencies
-# The platform provides the LLM client; only list extra pip packages here.
-# Current solver uses only Python stdlib + platform client — no extra deps needed.
+# Competition submission dependencies (v5)
+# Core agent: Python stdlib only — no extra pip packages required.
+# Local testing (llm_client.py): requires 'requests' for HTTP calls.
+requests>=2.28

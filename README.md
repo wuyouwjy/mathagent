@@ -1,10 +1,10 @@
 <p align="center">
-  <h1 align="center">🧮 Math-Agent-System</h1>
-  <p align="center">基于 <b>Intern-S 系列大模型</b> 的数学推理智能体 — 挑战杯 2026 赛道</p>
+  <h1 align="center">🧮 Math-Agent-System v5</h1>
+  <p align="center">基于 <b>Intern-S 系列大模型</b> 的数学推理智能体 — 2026 挑战杯·书生赛道</p>
   <p align="center">
     <img src="https://img.shields.io/badge/Python-3.12-blue" alt="Python">
     <img src="https://img.shields.io/badge/LLM-Intern--S-orange" alt="Intern-S">
-    <img src="https://img.shields.io/badge/deps-stdlib%20only-brightgreen" alt="deps">
+    <img src="https://img.shields.io/badge/version-v5.0-green" alt="v5">
     <img src="https://img.shields.io/badge/license-MIT-lightgrey" alt="License">
   </p>
 </p>
@@ -13,25 +13,37 @@
 
 ## 📖 简介
 
-**分类 + 求解 + 兜底提取** 的数学推理智能体，专为挑战杯 2026 Intern-S 赛道设计。零额外依赖，仅使用 Python 标准库。
+**Math-Agent-System v5** 是一个为 2026 年度中国青年科技创新"揭榜挂帅"擂台赛·书生赛道设计的数学推理智能体。采用 **多阶段推理 + 自验证** 架构，核心逻辑自包含于 `user_agent.py`，零外部模块依赖风险。
+
+### v5 核心改进（相比 v4）
+
+| 改进项 | v4 | v5 |
+|--------|----|----|
+| 核心逻辑 | 分散在 agents/ 多个文件 | **自包含在 user_agent.py**，消除 ModuleNotFoundError 风险 |
+| 提示词 | 僵化的【标签】格式要求 | **自然的中文对话式提示**，模型遵循度更高 |
+| 推理流程 | 分类→求解→提取 | **结构化思考 → 求解 → 截断续写 → 英文泄露重试 → 自验证 → 提取** |
+| 答案提取 | 5 层策略 | **增强 5 层策略 + 末位兜底扫描** |
+| 可维护性 | 多个 solver 类重复代码 | **统一 MathSolver + 内联核心逻辑** |
 
 ### 推理流程
 
 ```
-Problem → MathClassifier（20+领域分类 + 题型检测）
-       → ComputeSolver（计算题）/ ProofSolver（证明题）
-         → 截断检测续写 → 英文泄露追问 → ANSWER提取
-       → 兜底答案提取 → final_response
+Problem → [结构化思考 Prompt]
+       → 模型求解（max 8192 tokens）
+       → 截断检测 → 自动续写（如需要）
+       → 英文泄露检测 → 中文重试（如需要）
+       → 5 层答案提取
+       → 自验证（弱答案触发）
+       → final_response
 ```
 
 ### 核心特性
 
-- **中文结构化 Prompt**：强制输出 `【策略规划】→【解题过程】→【关键洞察】→ANSWER:→【启发性总结】`
-- **20+ 数学领域分类**：关键词匹配，自动选择计算/证明求解器
-- **5 层答案提取**：`ANSWER:` → `\boxed{}` → 结论标记 → 末尾兜底 → 未能求解
-- **防截断自动续写**：检测未闭合 LaTeX/逗号结尾/转折词等，自动发送续写请求
-- **防英文泄露追问**：检测 Intern-S 英文思考链泄露，两阶段追问中文答案
-- **顶层异常保护**：`solve()` 有 try/except，任何异常都返回合法格式
+- **自包含架构**：核心 Prompt 和逻辑全部内联在 `user_agent.py`，外部模块通过 `try/except` 安全导入，平台环境不会因 `ModuleNotFoundError` 得零分
+- **6 阶段推理管线**：结构化思考 → 求解 → 截断续写 → 泄露重试 → 自验证 → 答案提取
+- **5 层答案提取**：`ANSWER:` 标记 → `\boxed{}` LaTeX → 中文结论标记 → 数学内容末行 → 末行兜底
+- **智能自验证**：仅当答案可疑时触发验证轮（节省 API 配额），验证通过后更新答案
+- **比赛约束适配**：并发 3、单题 20 分钟、总时长 6 小时，推理策略已调优
 
 ---
 
@@ -39,93 +51,143 @@ Problem → MathClassifier（20+领域分类 + 题型检测）
 
 ```python
 from user_agent import ReasoningAgent
+
+# 平台初始化（不可修改此调用格式）
 agent = ReasoningAgent(client=official_client)
-result = agent.solve(problem="题目文本", metadata={"idx": 0})
-# result = {"final_response": "72", "trace": [...], "verification": {...}}
+
+# 求解单题
+result = agent.solve(problem="设$\\mathbb{F}_{81}$为$81$元的有限域...", metadata={"idx": 0})
+
+# 返回格式
+# {
+#   "final_response": "72",
+#   "trace": [
+#     {"step": "solve", "content": "..."},
+#     {"step": "verify", "content": "..."},
+#     {"step": "finalize", "content": "最终答案: 72"}
+#   ]
+# }
 ```
 
 ### 平台 client 接口
 
 ```python
-# client.chat() 可返回 str 或 {"content": "..."}
+# client 由评测平台统一注入，禁止硬编码 API Key
 response = client.chat(
     messages=[{"role": "user", "content": problem}],
     temperature=0.2,
-    max_tokens=12288
+    max_tokens=4096
 )
+# 返回 str 或 {"content": "..."}，v5 同时兼容两种格式
 ```
+
+### 最新比赛规则（2026-08）
+
+| 规则项 | 限制值 |
+|--------|--------|
+| Agent 并发数 | **3** |
+| 单题最长运行时间 | **20 分钟** |
+| Agent 最长运行时间 | **6 小时** |
+| 超时未答题目 | **不计分** |
+| 评分依据 | `final_response` 答案正确率（同分参考 trace 设计优劣） |
 
 ---
 
-## 📂 项目结构（比赛提交）
+## 📂 项目结构
 
 ```
 Math-Agent-System/
-├── user_agent.py              # 【必填】比赛智能体主入口（ReasoningAgent）
+├── user_agent.py              # 【必填】智能体主入口（ReasoningAgent，自包含核心逻辑）
 ├── agents/
-│   ├── __init__.py             # 模块导出
-│   ├── classifier.py           # 20+ 领域分类器
-│   ├── compute_solver.py       # 计算题求解器（防截断+追问+答案提取）
-│   └── proof_solver.py         # 证明题求解器（防截断+追问+结论提取）
+│   ├── __init__.py             # 模块导出（MathClassifier + MathSolver）
+│   ├── classifier.py           # 数学领域分类器（可选，20+ 领域关键词匹配）
+│   └── solver.py               # 统一求解器（可选，多阶段推理管线）
 ├── prompts/
-│   └── __init__.py             # 中文结构化 Prompt 模板 + 检测模式
-├── requirements.txt            # 比赛依赖（零额外依赖）
-├── main.py                     # 本地批量测试 Runner（本地调试用）
-├── llm_client.py               # 本地调试用 LLM 客户端
-├── backend/                    # FastAPI 后端（Web 界面，可选）
-├── frontend/                   # React 前端（Web 界面，可选）
-├── database/datasets/          # 本地评测数据集
+│   └── __init__.py             # 可选 Prompt 模板（user_agent.py 有内联回退）
+├── requirements.txt            # 项目依赖清单
+├── main.py                     # 本地批量测试 Runner
+├── llm_client.py               # 本地调试用 LLM 客户端（需 INTERN_API_KEY）
 └── quick_test.py               # 快速自测脚本
 ```
 
+> ⚠️ 正式评测仅校验 `user_agent.py` 中的 `ReasoningAgent` 类和方法签名。`agents/` 和 `prompts/` 为可选的辅助模块。
+
 ---
 
-## 🚀 快速开始
+## 🚀 本地调试
 
-### 安装
+### 1. 安装依赖
 
 ```bash
 pip install -r requirements.txt
 ```
 
-### 配置
+### 2. 配置 API 密钥
 
 ```bash
-# 设置 API 密钥（必须）
-export INTERN_API_KEY="your-api-key"
-
-# 可选
-export INTERN_MODEL="intern-s2-preview"
+export INTERN_API_KEY="sk-xxxx你的密钥xxxx"
+export INTERN_MODEL="intern-s2-preview"  # 可选，默认 intern-s2-preview
 ```
 
-> ⚠️ API Key 只能通过环境变量传入，禁止硬编码。平台评测时由官方 Client 统一注入。
+> ⚠️ API Key 只能通过环境变量传入，**禁止硬编码在代码中**。平台评测时由官方 Client 统一注入。
 
-### 单题测试
+### 3. 单题快速测试
 
 ```bash
 python quick_test.py
 ```
 
-### 批量测试（比赛格式）
+### 4. 批量测试（比赛 JSONL 格式）
 
 ```bash
-python main.py --input_file database/datasets/benchmark_v1_dev.jsonl --output_dir sample_outputs
+python main.py --input_file sample_data/dev.jsonl --output_dir sample_outputs
 ```
 
-并发控制：
+并发控制（默认 4，比赛实际为 3）：
+
 ```bash
 export LOCAL_MAX_CONCURRENCY=4
 ```
 
-### Web 界面（可选）
+### 5. 本地输出格式
 
-```bash
-# 后端
-cd backend && python main.py
-
-# 前端
-cd frontend && npm install && npm run dev
+```json
+{
+  "idx": 0,
+  "status": "success",
+  "final_response": "72",
+  "trace": [
+    {"step": "solve", "content": "…"},
+    {"step": "finalize", "content": "最终答案: 72"}
+  ]
+}
 ```
+
+支持 **断点续跑**：若对应 `idx` 的 json 文件已存在且非空，Runner 自动跳过。
+
+---
+
+## 🔧 可用基座模型
+
+| 模型 | 说明 |
+|------|------|
+| `intern-s1` | 基础模型 |
+| `intern-s1-pro` | 增强模型 |
+| `intern-s2-preview` | 最新预览版（推荐） |
+
+API 控制台：https://internlm.intern-ai.org.cn/api/document
+
+---
+
+## 📋 零分常见原因 & 防范措施
+
+| 原因 | v5 防范措施 |
+|------|------------|
+| `user_agent.py` 不存在 | ✅ 仓库根目录已放置 |
+| `ModuleNotFoundError` | ✅ 核心逻辑自包含，外部模块 try/except 安全导入 |
+| `final_response` 为空 | ✅ 5 层答案提取 + 末位兜底扫描，确保非空输出 |
+| 超时（单题 >20min / 总 >6h） | ✅ 单次调用 max_tokens=8192，验证轮仅按需触发 |
+| JSON 序列化失败 | ✅ trace 结构确保 JSON 兼容 |
 
 ---
 
