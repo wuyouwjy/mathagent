@@ -38,18 +38,22 @@ class ComplexAnalysisSolver(BaseSolver):
         if skill and skill.strategies:
             strategies = "\n".join(f"  • {s}" for s in skill.strategies)
 
+        if not strategies:
+            strategies = (
+                "1. 明确复数域上的函数定义域和解析区域\n"
+                "2. 识别并分类所有奇点（极点、本性奇点、支点）\n"
+                "3. 选择合适方法：柯西积分公式、留数定理、幅角原理、共形映射\n"
+                "4. 若为围道积分，选择合适积分路径并计算留数\n"
+                "5. 若为级数展开，确定收敛半径和 Laurent 级数形式\n"
+                "6. 给出最终结果并验证"
+            )
+
         system_prompt = (
             f"你是一位复分析（Complex Analysis）领域的资深数学专家。\n\n"
             f"【问题特征】\n"
             f"  • 子类型: {sub_type}\n\n"
             f"【求解策略】\n"
-            f"{strategies if strategies else (
-                '1. 明确复数域上的函数定义域和解析区域\n'
-                '2. 识别并分类所有奇点（极点、本性奇点、支点）\n'
-                '3. 选择合适方法：柯西积分公式、留数定理、幅角原理、共形映射\n'
-                '4. 若为围道积分，选择合适积分路径并计算留数\n'
-                '5. 若为级数展开，确定收敛半径和 Laurent 级数形式\n'
-                '6. 给出最终结果并验证\n')}"
+            f"{strategies}\n"
             f"\n请使用 LaTeX 格式书写所有数学公式。"
         )
 

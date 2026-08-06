@@ -107,6 +107,15 @@ class ODESolver(BaseSolver):
         if skill:
             strategies = "\n".join(f"  • {s}" for s in (skill.strategies or []))
 
+        if not strategies:
+            strategies = (
+                "1. 识别ODE类型：一阶/高阶、线性/非线性、齐次/非齐次\n"
+                "2. 选择适当解法：分离变量法、积分因子法、常数变易法、特征方程法、级数解法等\n"
+                "3. 若为初值问题(IVP)，代入初始条件确定积分常数\n"
+                "4. 若为边值问题(BVP)，用边界条件确定通解中的参数\n"
+                "5. 验证解满足原方程和所有定解条件"
+            )
+
         return (
             f"你是一位常微分方程（ODE）领域的资深数学专家。\n\n"
             f"【问题特征】\n"
@@ -116,12 +125,7 @@ class ODESolver(BaseSolver):
             f"  • 初值问题: {'是' if ode_info.get('is_ivp') else '否'}\n"
             f"  • 边值问题: {'是' if ode_info.get('is_bvp') else '否'}\n\n"
             f"【求解策略】\n"
-            f"{strategies if strategies else (
-                '1. 识别ODE类型：一阶/高阶、线性/非线性、齐次/非齐次\n'
-                '2. 选择适当解法：分离变量法、积分因子法、常数变易法、特征方程法、级数解法等\n'
-                '3. 若为初值问题(IVP)，代入初始条件确定积分常数\n'
-                '4. 若为边值问题(BVP)，用边界条件确定通解中的参数\n'
-                '5. 验证解满足原方程和所有定解条件\n')}"
+            f"{strategies}\n"
             f"\n请使用 LaTeX 格式书写所有数学公式和推导过程。"
         )
 

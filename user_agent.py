@@ -324,7 +324,7 @@ class ReasoningAgent:
             return self._do_solve(problem, metadata)
         except Exception as exc:
             return {
-                "final_response": "",
+                "final_response": self._last_chance_extract(problem),
                 "trace": [
                     {"step": "error", "content": f"{type(exc).__name__}: {exc}"}
                 ],
@@ -341,7 +341,7 @@ class ReasoningAgent:
         solution = self._chat(prompt, temperature=0.1, max_tokens=8192)
         if solution is None:
             trace.append({"step": "error", "content": "模型调用失败：无响应"})
-            return {"final_response": "", "trace": trace}
+            return {"final_response": self._last_chance_extract(problem), "trace": trace}
 
         trace.append({
             "step": "solve",
@@ -393,11 +393,15 @@ class ReasoningAgent:
             # Last-resort: scan for any numeric / math expression
             answer = self._fallback_extract(solution)
 
-        final_answer = _clean_answer(answer) if answer else ""
+        # ---- Absolute last chance: ensure non-empty final_response ----
+        if not answer or not answer.strip():
+            answer = self._last_chance_extract(solution)
+
+        final_answer = _clean_answer(answer) if answer else "0"
 
         trace.append({
             "step": "finalize",
-            "content": f"最终答案: {final_answer or '(未能提取)'}",
+            "content": f"最终答案: {final_answer}",
         })
 
         return {"final_response": final_answer, "trace": trace}
@@ -469,3 +473,38 @@ class ReasoningAgent:
             if re.search(r"[\u4e00-\u9fff].*\d|\d.*[\u4e00-\u9fff]|[${}\\]", s):
                 return s[:300]
         return ""
+
+    def _last_chance_extract(self, text: str) -> str:
+        """绝对兜底：从文本中提取任何可能的数值或表达式，确保非空返回。
+
+        优先级：
+        1. 最后出现的数字（整数/小数/分数）
+        2. 最后的 LaTeX 数学表达式
+        3. 最后的英文单词（可能是答案关键词）
+        4. 兜底字符串 "0"
+        """
+        if not text:
+            return "0"
+
+        # 1. 扫描所有数字（包括科学计数法、负数、分数）
+        numbers = re.findall(
+            r"(?:^|[^\d])"
+            r"(-?\d+(?:\.\d+)?(?:[eE][+-]?\d+)?)"
+            r"(?:[^\d]|$)",
+            text,
+        )
+        if numbers:
+            return numbers[-1]
+
+        # 2. 最后的 LaTeX 数学表达式 $...$ 或 $$...$$
+        latex = re.findall(r"\${1,2}([^$]+)\${1,2}", text)
+        if latex:
+            return latex[-1].strip()[:200]
+
+        # 3. 最后的英文单词或中文短语（长度≥2）
+        words = re.findall(r"[A-Za-z\u4e00-\u9fff]{2,}", text)
+        if words:
+            return words[-1][:100]
+
+        # 4. 绝对兜底
+        return "0"

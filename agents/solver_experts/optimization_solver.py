@@ -84,10 +84,11 @@ class OptimizationSolver(BaseSolver):
 
     def _build_prompt(self, domain: str, sub_type: str, strategies: str) -> str:
         """统一构建各领域提示词"""
+        strategy_text = strategies if strategies else self._default_strategies(domain)
         base = (
             f"你是一位{self._domain_label(domain)}领域的资深数学专家。\n\n"
             f"【问题特征】\n  • 领域: {domain}\n  • 子类型: {sub_type}\n\n"
-            f"【求解策略】\n{strategies if strategies else self._default_strategies(domain)}\n\n"
+            f"【求解策略】\n{strategy_text}\n\n"
             f"请使用 LaTeX 格式书写所有数学公式。"
         )
         return base
