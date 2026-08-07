@@ -1,0 +1,3 @@
+{"idx": 0, "problem": "设$\\mathbb{F}_{81}$为$81$元的有限域。$T=\\{\\alpha\\in\\mathbb{F}_{81}|\\mathbb{F}_{81}=\\mathbb{F}_3(\\alpha)\\}$。求$T$中元素的个数。", "answer": "72", "subject": "抽象代数"}
+{"idx": 1, "problem": "设$G$为$60$阶单群，证明$G$同构于$A_5$。", "answer": "$G \\cong A_5$", "subject": "抽象代数"}
+{"idx": 2, "problem": "设$R$为含幺交换环，$I$为$R$的素理想。证明$R/I$为整环。", "answer": "$R/I$为整环", "subject": "抽象代数"}

@@ -1,14 +1,19 @@
-"""user_agent.py — ReasoningAgent for 2026 Challenge Cup (v5).
+"""user_agent.py — ReasoningAgent for 2026 Challenge Cup (v6).
 
 Multi-stage math reasoning agent for Intern-S series models.
 
-Key improvements over v4:
-- Self-contained core logic: inline prompts avoid ModuleNotFoundError on the
-  competition platform; optional helper imports via try/except with fallbacks.
-- Three-stage pipeline: Structured Think → Solve → Verify → Extract.
-- Robust answer extraction: 5-strategy extraction handles diverse output formats.
-- Competition-aware: tuned for 3-concurrency / 20 min-per-problem / 6 h total limits.
-- Clean trace format matching the competition spec.
+Key improvements over v5:
+- JSON-aware answer extraction: Intern-S models often output JSON;
+  we now parse JSON and extract answer fields before falling back to
+  text-pattern extraction.
+- Robust client.chat() response handling: handles str, dict, and
+  OpenAI-style SDK objects (any object with .content or .choices).
+- Hardened prompt: explicitly prohibits JSON output and requires the
+  "ANSWER:" format for reliable extraction.
+- Cleaner answer stripping: removes JSON syntax fragments (quotes,
+  brackets, braces) that would cause the Judger to mark the answer
+  as "invalid".
+- Better trace diagnostics: traces include extraction strategy info.
 
 Platform interface (fixed by competition rules):
     from user_agent import ReasoningAgent
@@ -19,140 +24,268 @@ Platform interface (fixed by competition rules):
 
 from __future__ import annotations
 
+import json
 import re
 from typing import Any, Dict, List, Optional
 
-# ── optional helper imports (safe fallbacks built-in) ──────────────────────
-try:
-    from prompts import (  # noqa: F401 — available if the repo is deployed as-is
-        COMPUTE_SOLVE_PROMPT,
-        PROOF_SOLVE_PROMPT,
-        ENGLISH_THINK_PATTERNS,
-        TEMPLATE_LEAK_PATTERNS,
-    )
-    _PROMPTS_AVAILABLE = True
-except ImportError:
-    _PROMPTS_AVAILABLE = False
-
-try:
-    from agents import MathClassifier
-    _CLASSIFIER_AVAILABLE = True
-except ImportError:
-    _CLASSIFIER_AVAILABLE = False
-
 
 # ============================================================
-# Inline prompts (always available — no import dependency)
+# Inline prompts — always available
 # ============================================================
 
-_SOLVE_PROMPT = """你是一位资深的数学研究者。请认真解答以下数学问题。
+_SOLVE_PROMPT = """你是一位数学研究者。请解答以下数学问题。
 
 【问题】
 {problem}
 
-【解答要求】
-1. 仔细读题，明确已知条件和求解/求证目标
-2. 分析问题类型，选择最合适的数学方法和定理
-3. 分步骤写出完整推导过程，每一步都要有充分的逻辑依据
-4. 计算过程要详细，避免跳步
-5. 数学公式使用 LaTeX 格式（行内用 $...$，独立的用 $$...$$）
-6. 全程使用中文进行推理分析
+【重要规则 — 必须严格遵守】
+1. 全程使用中文推理，分步骤写出完整推导过程
+2. 数学公式使用 LaTeX 格式（行内 $...$，独立 $$...$$）
+3. **禁止输出 JSON 格式的回复**，请用自然语言写解答
+4. 在解答的最后一行，必须以如下格式单独写出最终答案：
+   ANSWER: <最终答案>
+   （答案应简洁明确——计算题写数值或表达式，证明题写关键结论等式）
 
-【输出格式】
-在解答最后，请单独一行写出最终答案，格式为：
-ANSWER: <你的最终答案>
+请现在开始解答。"""
 
-（答案应简洁明确——计算题写数值或表达式，证明题写关键结论等式）
-"""
+_REFINE_PROMPT = """你之前的解答可能没有正确提取最终答案。请重新审视以下问题，并给出最终答案。
 
-_VERIFY_PROMPT = """你是一位严格的数学审阅者。请仔细检查以下解答。
-
-【原问题】
+【问题】
 {problem}
 
-【已有解答】
-{solution}
+【之前的解答摘要】
+{solution_summary}
 
-【当前答案】
-{answer}
-
-【审阅要求】
-1. 逐行检查推理过程是否有逻辑跳跃或错误
-2. 独立重新计算关键步骤
-3. 判断最终答案是否满足题目所有条件
-4. 如果答案正确 → 输出 "审阅结论：正确" 并复述答案
-5. 如果答案错误 → 输出 "审阅结论：有误" 并在 ANSWER: 后给出修正后的正确答案
-
-ANSWER: <最终/修正后的答案>
-"""
-
-_CONTINUATION_PROMPT = """你的上一轮回答被截断了。请从截断处接着写，完成剩余的推导过程。
-
-最后必须给出：
+请严格按以下格式在最后一行输出：
 ANSWER: <最终答案>
-"""
+
+（只需给出最终答案的简洁形式——数值、表达式或关键结论等式）"""
+
+
+# ============================================================
+# JSON answer extraction
+# ============================================================
+
+def _try_extract_json_answer(text: str) -> Optional[str]:
+    """Try to parse the entire text (or JSON blocks inside it) as JSON
+    and extract an answer from known keys.
+
+    Returns None if no JSON or no recognised answer key is found.
+    """
+    if not text or not text.strip():
+        return None
+
+    def _from_obj(obj: Any, _depth: int = 0) -> Optional[str]:
+        """Recurse into nested JSON to find an answer value."""
+        if _depth > 5:
+            return None
+        if isinstance(obj, dict):
+            for key in ("answer", "final_answer", "result", "conclusion",
+                        "final_response", "value", "output", "答案", "最终答案"):
+                val = obj.get(key)
+                if val is not None and not isinstance(val, (dict, list)):
+                    s = str(val).strip()
+                    if s and len(s) <= 500:
+                        return s
+            for v in obj.values():
+                found = _from_obj(v, _depth + 1)
+                if found:
+                    return found
+        elif isinstance(obj, list) and obj:
+            for item in obj:
+                found = _from_obj(item, _depth + 1)
+                if found:
+                    return found
+        return None
+
+    stripped = text.strip()
+
+    # Strategy 1: whole text is JSON object/array
+    if stripped.startswith("{") and stripped.endswith("}"):
+        try:
+            obj = json.loads(stripped)
+            ans = _from_obj(obj)
+            if ans:
+                return ans
+        except (json.JSONDecodeError, ValueError):
+            pass
+
+    if stripped.startswith("[") and stripped.endswith("]"):
+        try:
+            obj = json.loads(stripped)
+            ans = _from_obj(obj)
+            if ans:
+                return ans
+        except (json.JSONDecodeError, ValueError):
+            pass
+
+    # Strategy 2: fenced JSON blocks ```json ... ```
+    for m in re.finditer(r"```(?:json)?\s*\n?(.*?)```", text, re.DOTALL):
+        try:
+            obj = json.loads(m.group(1).strip())
+            ans = _from_obj(obj)
+            if ans:
+                return ans
+        except (json.JSONDecodeError, ValueError):
+            pass
+
+    # Strategy 3: inline JSON objects (greedy, longest first)
+    for m in re.finditer(r"\{[^{}]*(?:\{[^{}]*\}[^{}]*)*\}", text):
+        try:
+            obj = json.loads(m.group())
+            ans = _from_obj(obj)
+            if ans:
+                return ans
+        except (json.JSONDecodeError, ValueError):
+            pass
+
+    return None
 
 
 # ============================================================
 # Answer extraction utilities
 # ============================================================
 
+def _is_plausible_answer(text: str) -> bool:
+    """Quick check: does this look like it could be an answer?
+
+    Rejects strings that are clearly NOT answers (pure JSON structure, etc.).
+    """
+    if not text or not text.strip():
+        return False
+    t = text.strip()
+
+    if t in ("{", "}", "[", "]", "null", "None", "N/A", "无", "未能求解", "未知"):
+        return False
+
+    if re.match(r'^\s*"[^"]+"\s*:\s*[\[{"]', t):
+        return False
+
+    if len(t) < 2:
+        return False
+
+    return True
+
+
+def _strip_json_artifacts(text: str) -> str:
+    """Strip JSON syntax fragments from text that was inside a JSON value.
+
+    Handles cases like:
+      "answer": 72         → 72
+      {"answer": "72"}     → 72
+      72\n}                → 72
+      "72"                 → 72
+    """
+    if not text:
+        return ""
+    t = text.strip()
+
+    # Step 1: Strip leading JSON structural characters first
+    # (so kv-pair detection works on {"key": val} after { is removed)
+    for ch in ("{", "[", "}", "]"):
+        while t.startswith(ch):
+            t = t[1:].lstrip()
+
+    # Step 2: If it looks like a JSON key-value pair, extract the value
+    m = re.match(r'^"[^"]+"\s*:\s*(.+)$', t)
+    if m:
+        t = m.group(1).strip()
+
+    # Step 3: Strip trailing JSON structural characters
+    for ch in (",", "}", "]", "{"):
+        while t.endswith(ch):
+            t = t[:-1].rstrip()
+
+    # Step 4: Strip leading JSON chars again (kv extraction may leave some)
+    for ch in ("{", "[", "}", "]"):
+        while t.startswith(ch):
+            t = t[1:].lstrip()
+
+    # Step 5: Strip surrounding quotes (only if no inner quotes)
+    if len(t) >= 2 and t[0] == '"' and t[-1] == '"':
+        inner = t[1:-1]
+        if '"' not in inner:
+            t = inner
+
+    # Step 6: Strip single trailing quote
+    if t.endswith('"') and t.count('"') == 1:
+        t = t[:-1]
+
+    return t.strip()
+
+
 def _extract_answer(text: str) -> str:
-    """Multi-strategy answer extraction — 5 layers of fallback."""
+    """Multi-strategy answer extraction.
+
+    Priority:
+    P0 – JSON parsing (handles Intern-S default structured output)
+    L1 – Explicit ANSWER: marker
+    L2 – \\boxed{...} LaTeX
+    L3 – Chinese / English conclusion markers
+    L4 – Last line with mathematical content
+    L5 – Last non-empty line
+    """
     if not text or not text.strip():
         return ""
 
+    # ── P0: JSON parsing ────────────────────────────────────────
+    json_ans = _try_extract_json_answer(text)
+    if json_ans and _is_plausible_answer(json_ans):
+        return json_ans
+
     lines = text.strip().split("\n")
 
-    # L1: explicit ANSWER: marker (highest priority)
+    # ── L1: explicit ANSWER: marker ─────────────────────────────
     for i in range(len(lines) - 1, -1, -1):
         m = re.search(r"ANSWER\s*[：:]\s*(.+)", lines[i], re.IGNORECASE)
         if m:
             ans = m.group(1).strip().rstrip("。，,;；. ")
             if ans:
-                return ans
+                return _strip_json_artifacts(ans)
 
-    # L2: \boxed{...} LaTeX
+    # ── L2: \\boxed{...} LaTeX ──────────────────────────────────
     for i in range(len(lines) - 1, -1, -1):
         matches = re.findall(r"\\boxed\{([^{}]+)\}", lines[i])
         if matches:
             return matches[-1].strip()
 
-    # L3: Chinese conclusion markers
+    # ── L3: Chinese / English conclusion markers ────────────────
     markers = [
         "最终答案", "答案是", "答案为", "结果为", "结论为",
         "答案：", "答案:", "解：", "解:",
+        "Final answer:", "Final Answer:", "The answer is",
     ]
     for marker in markers:
         for i in range(len(lines) - 1, -1, -1):
             if marker in lines[i]:
                 idx = lines[i].find(marker)
                 tail = lines[i][idx + len(marker):].strip().lstrip("：: ")
-                if tail:
-                    # If tail is a math expression, return it
-                    if re.search(r"[$\\\d]", tail) or len(tail) <= 50:
-                        return tail[:300]
+                if tail and _is_plausible_answer(tail):
+                    return _strip_json_artifacts(tail)[:300]
                 if i + 1 < len(lines):
                     nxt = lines[i + 1].strip()
-                    if nxt:
-                        return nxt[:300]
+                    if nxt and _is_plausible_answer(nxt):
+                        return _strip_json_artifacts(nxt)[:300]
 
-    # L4: last line with mathematical content
+    # ── L4: last line with mathematical content ─────────────────
     for i in range(len(lines) - 1, -1, -1):
         s = lines[i].strip()
         if not s:
             continue
         if s.startswith(("#", "//", ">", "-", "*", "```")):
             continue
-        # Prefer lines with math notation or numbers
+        if re.match(r'^\s*"[^"]+"\s*:\s*', s):
+            continue
+        if s in ("{", "}", "[", "]", "},{", "},"):
+            continue
         if re.search(r"[$\\{}]|\d+", s):
-            return s[:300]
+            return _strip_json_artifacts(s)[:300]
 
-    # L5: last non-empty line
+    # ── L5: last non-empty line ─────────────────────────────────
     for i in range(len(lines) - 1, -1, -1):
         s = lines[i].strip()
-        if s:
-            return s[:200]
+        if s and not s.startswith(("#", "//", "```")) and s not in ("{", "}", "[", "]"):
+            return _strip_json_artifacts(s)[:200]
 
     return ""
 
@@ -163,18 +296,16 @@ def _is_valid_answer(text: str) -> bool:
         return False
     t = text.strip()
 
-    # Trivially invalid
     if t in {
         "无", "无解", "未能求解", "未知", "N/A", "null", "None",
         "命题得证", "证毕", "QED", "证明完毕", "得证", "结论成立",
+        "{", "}", "[", "]",
     }:
         return False
 
-    # API error strings
     if "API错误" in t or t.startswith("[API"):
         return False
 
-    # Template / prompt leaks
     if re.search(
         r"(?i)(?:specific (?:equation|mathematical|conclusion)"
         r"|must include|no more than|only.*no reasoning"
@@ -183,71 +314,10 @@ def _is_valid_answer(text: str) -> bool:
     ):
         return False
 
-    # Pure-English with no math / no numbers → not a valid answer
-    if re.match(r"^[A-Za-z\s,.\-;:'\"!?]+$", t):
-        # Allow only if it contains numbers or math notation
-        if not re.search(r"\d|\\|[$^{}]", t):
-            return False
+    if re.match(r'^\s*[{}[\]],:\s"]+\s*$', t):
+        return False
 
     return True
-
-
-def _is_truncated(content: str) -> bool:
-    """Heuristic: detect whether model output was cut off prematurely."""
-    if not content or len(content.strip()) < 10:
-        return False
-
-    # Already has ANSWER marker → not truncated in a problematic way
-    if re.search(r"ANSWER\s*[：:]", content, re.IGNORECASE):
-        return False
-
-    tail = content.rstrip()
-    lines = tail.split("\n")
-    last_line = ""
-    for ln in reversed(lines):
-        s = ln.strip()
-        if s:
-            last_line = s
-            break
-    if not last_line:
-        return False
-
-    # Natural ending punctuation → not truncated
-    if re.search(r"[。！？\.!?]\)]$", last_line):
-        return False
-    if re.search(r"\\[\)\]]\s*$", last_line):
-        return False
-
-    # Ends with a connecting word → truncated
-    connecting_words = [
-        # Chinese
-        "虽然", "但是", "因此", "所以", "由于", "当", "若", "令", "设",
-        "对于", "考虑", "由", "根据", "利用", "通过", "于是", "故",
-        "假设", "注意到",
-        # English
-        "and", "or", "then", "so", "because", "since", "when", "if",
-        "let", "for", "by", "thus", "hence", "therefore", "where",
-        "assuming", "suppose", "consider", "using",
-    ]
-    stripped = re.sub(r"[,，；;、\s]+$", "", last_line)
-    stripped_lower = stripped.lower()
-    for w in connecting_words:
-        if stripped_lower.endswith(w.lower()):
-            return True
-
-    # Unclosed LaTeX math
-    if last_line.count("$") % 2 == 1:
-        return True
-
-    # Ends mid-sentence (comma or open paren)
-    if re.search(r"[,，\(（]\s*$", last_line):
-        return True
-
-    # Long output with no final punctuation
-    if len(content) > 2000 and not re.search(r"[。！？\.!?]\s*$", last_line):
-        return True
-
-    return False
 
 
 def _has_english_leak(content: str) -> bool:
@@ -256,10 +326,8 @@ def _has_english_leak(content: str) -> bool:
         return False
     cn_chars = sum(1 for c in content if "\u4e00" <= c <= "\u9fff")
     total = max(len(content.strip()), 1)
-    # Very low Chinese ratio suggests English leakage
     if cn_chars / total < 0.08 and total > 100:
         return True
-    # Check for common English thinking patterns
     en_patterns = [
         r"\bI (?:will|need|should|shall|think|believe|would|can |must |want )",
         r"\bLet me",
@@ -273,20 +341,86 @@ def _has_english_leak(content: str) -> bool:
 
 
 def _clean_answer(text: str) -> str:
-    """Final cleanup: strip common prefixes, limit length."""
+    """Final cleanup: strip common prefixes, JSON artifacts, limit length."""
     if not text:
         return ""
     text = text.strip()
+
     for prefix in [
         "因此，", "因此", "所以，", "所以", "故",
         "综上所述，", "综上所述", "综上，", "综上",
-        "由此可得，", "由此可得",
+        "由此可得，", "由此可得", "即", "即得",
     ]:
         if text.startswith(prefix):
             text = text[len(prefix):].strip().lstrip("，, ")
+
+    text = _strip_json_artifacts(text)
+
     if len(text) > 500:
         text = text[:500].rstrip()
+
     return text
+
+
+# ============================================================
+# Client response extraction (handles opaque objects)
+# ============================================================
+
+def _extract_content_from_object(obj: Any) -> Optional[str]:
+    """Best-effort extraction of text content from an opaque response object.
+
+    Tries common attribute paths used by OpenAI-compatible SDKs before
+    falling back to str(obj).
+    """
+    # Path 1: .content (simple object)
+    try:
+        val = obj.content
+        if isinstance(val, str) and val.strip():
+            return val
+    except (AttributeError, TypeError):
+        pass
+
+    # Path 2: .message.content
+    try:
+        val = obj.message.content
+        if isinstance(val, str) and val.strip():
+            return val
+    except (AttributeError, TypeError):
+        pass
+
+    # Path 3: .choices[0].message.content (OpenAI SDK)
+    try:
+        val = obj.choices[0].message.content
+        if isinstance(val, str) and val.strip():
+            return val
+    except (AttributeError, IndexError, TypeError):
+        pass
+
+    # Path 4: .text
+    try:
+        val = obj.text
+        if isinstance(val, str) and val.strip():
+            return val
+    except (AttributeError, TypeError):
+        pass
+
+    # Path 5: iterate choices
+    try:
+        for choice in obj.choices:
+            try:
+                val = choice.message.content
+                if isinstance(val, str) and val.strip():
+                    return val
+            except (AttributeError, TypeError):
+                pass
+    except (AttributeError, TypeError):
+        pass
+
+    # Last resort: string representation
+    s = str(obj)
+    if s and s.strip() and not s.startswith("<"):
+        return s
+    return None
 
 
 # ============================================================
@@ -294,7 +428,7 @@ def _clean_answer(text: str) -> str:
 # ============================================================
 
 class ReasoningAgent:
-    """Math reasoning agent — multi-stage pipeline with self-verification.
+    """Math reasoning agent — multi-stage pipeline.
 
     The competition platform instantiates this class as:
         agent = ReasoningAgent(client=official_client)
@@ -302,16 +436,11 @@ class ReasoningAgent:
         agent.solve(problem="...", metadata={"idx": 0})
 
     The *client* object is provided by the platform and exposes:
-        client.chat(messages, temperature, max_tokens) -> str | dict
+        client.chat(messages, temperature, max_tokens) -> str | dict | object
     """
 
     def __init__(self, client: Any, *args: Any, **kwargs: Any) -> None:
         self.client = client
-        # Optional classifier for trace enrichment (safe to fail)
-        if _CLASSIFIER_AVAILABLE:
-            self.classifier: Any = MathClassifier()
-        else:
-            self.classifier = None
 
     # ── public entry point ────────────────────────────────────────────
 
@@ -324,9 +453,10 @@ class ReasoningAgent:
             return self._do_solve(problem, metadata)
         except Exception as exc:
             return {
-                "final_response": self._last_chance_extract(problem),
+                "final_response": "0",
                 "trace": [
-                    {"step": "error", "content": f"{type(exc).__name__}: {exc}"}
+                    {"step": "error",
+                     "content": f"{type(exc).__name__}: {exc}"}
                 ],
             }
 
@@ -335,73 +465,84 @@ class ReasoningAgent:
     def _do_solve(self, problem: str, metadata: Dict) -> Dict:
         trace: List[Dict[str, str]] = []
 
-        # ---- Stage 1: Structured solving ---------------------------------
+        # ---- Stage 1: Primary solve -----------------------------------
         prompt = _SOLVE_PROMPT.format(problem=problem)
 
         solution = self._chat(prompt, temperature=0.1, max_tokens=8192)
-        if solution is None:
+        if solution is None or not solution.strip():
             trace.append({"step": "error", "content": "模型调用失败：无响应"})
-            return {"final_response": self._last_chance_extract(problem), "trace": trace}
+            return {"final_response": "0", "trace": trace}
 
         trace.append({
             "step": "solve",
-            "content": solution[:600] + ("..." if len(solution) > 600 else ""),
+            "content": solution[:500] + ("..." if len(solution) > 500 else ""),
         })
 
-        # ---- Stage 1b: Continuation if truncated -------------------------
-        if _is_truncated(solution):
-            cont = self._chat_continuation(prompt, solution)
-            if cont:
-                solution = solution + "\n" + cont
-                trace.append({
-                    "step": "continue",
-                    "content": cont[:300] + ("..." if len(cont) > 300 else ""),
-                })
-
-        # ---- Stage 1c: Retry if English leak detected --------------------
+        # ---- Stage 1b: Handle English leak ----------------------------
         if _has_english_leak(solution):
-            retry_prompt = (
-                f"请用中文重新解答以下数学问题。直接给出完整的解答过程，"
-                f"不要用英文自言自语。\n\n{problem}\n\n"
-                f"解答最后请写 ANSWER: <最终答案>"
+            cn_prompt = (
+                f"请用中文重新解答以下数学问题。直接写出完整推导和答案。"
+                f"最后一行必须是 ANSWER: <最终答案>\n\n{problem}"
             )
-            retry = self._chat(retry_prompt, temperature=0.15, max_tokens=8192)
-            if retry:
+            retry = self._chat(cn_prompt, temperature=0.15, max_tokens=8192)
+            if retry and retry.strip():
                 solution = retry
                 trace.append({
                     "step": "retry_cn",
                     "content": retry[:300] + ("..." if len(retry) > 300 else ""),
                 })
 
-        # ---- Stage 2: Answer extraction ----------------------------------
+        # ---- Stage 2: Answer extraction --------------------------------
         answer = _extract_answer(solution)
+        extraction_method = "primary"
 
-        # ---- Stage 3: Verification (only when answer looks suspect) ------
-        if not _is_valid_answer(answer):
-            verified = self._verify(problem, solution, answer)
-            if verified:
+        trace.append({
+            "step": "extract",
+            "content": f"策略: {extraction_method}, 候选: {answer[:200] if answer else '(空)'}",
+        })
+
+        # ---- Stage 2b: Refinement if answer empty/suspect --------------
+        if not answer or not _is_valid_answer(answer):
+            refine_prompt = _REFINE_PROMPT.format(
+                problem=problem,
+                solution_summary=solution[-1500:],
+            )
+            refined = self._chat(refine_prompt, temperature=0.05, max_tokens=2048)
+            if refined and refined.strip():
                 trace.append({
-                    "step": "verify",
-                    "content": verified[:400] + ("..." if len(verified) > 400 else ""),
+                    "step": "refine",
+                    "content": refined[:400] + ("..." if len(refined) > 400 else ""),
                 })
-                better = _extract_answer(verified)
+                better = _extract_answer(refined)
                 if better and _is_valid_answer(better):
                     answer = better
+                    extraction_method = "refined"
 
-        # ---- Stage 4: Final cleanup & fallback ---------------------------
-        if not _is_valid_answer(answer):
-            # Last-resort: scan for any numeric / math expression
+        # ---- Stage 2c: JSON-aware fallback -----------------------------
+        if not answer or not _is_valid_answer(answer):
+            json_ans = _try_extract_json_answer(solution)
+            if json_ans and _is_valid_answer(json_ans):
+                answer = json_ans
+                extraction_method = "json"
+                trace.append({
+                    "step": "json_extract",
+                    "content": f"JSON提取: {answer[:200]}",
+                })
+
+        # ---- Stage 3: Last-resort fallback -----------------------------
+        if not answer or not _is_valid_answer(answer):
             answer = self._fallback_extract(solution)
 
-        # ---- Absolute last chance: ensure non-empty final_response ----
         if not answer or not answer.strip():
-            answer = self._last_chance_extract(solution)
+            answer = "0"
 
-        final_answer = _clean_answer(answer) if answer else "0"
+        final_answer = _clean_answer(answer)
+        if not final_answer or not final_answer.strip():
+            final_answer = "0"
 
         trace.append({
             "step": "finalize",
-            "content": f"最终答案: {final_answer}",
+            "content": f"最终答案: {final_answer} (策略: {extraction_method})",
         })
 
         return {"final_response": final_answer, "trace": trace}
@@ -415,10 +556,12 @@ class ReasoningAgent:
         max_tokens: int = 8192,
         messages: Optional[List[Dict[str, str]]] = None,
     ) -> Optional[str]:
-        """Wrapper around client.chat with error handling.
+        """Wrapper around client.chat with robust response handling.
 
-        Pass *messages* directly to send a custom conversation history;
-        otherwise *content* is wrapped as a single user message.
+        Handles return types:
+          - str  → returned directly
+          - dict → looks for "content", "message", "text", "response" keys
+          - object → tries .content, .message.content, .choices[0].message.content
         """
         if messages is None:
             messages = [{"role": "user", "content": content}]
@@ -428,83 +571,50 @@ class ReasoningAgent:
                 temperature=temperature,
                 max_tokens=max_tokens,
             )
-            return resp.get("content", "") if isinstance(resp, dict) else str(resp)
         except Exception:
             return None
 
-    def _chat_continuation(self, original_prompt: str, truncated: str) -> Optional[str]:
-        """Ask model to continue from truncation point."""
-        return self._chat(
-            messages=[
-                {"role": "user", "content": original_prompt},
-                {"role": "assistant", "content": truncated},
-                {"role": "user", "content": _CONTINUATION_PROMPT},
-            ],
-            temperature=0.1,
-            max_tokens=4096,
-        )
+        # — str —
+        if isinstance(resp, str):
+            return resp
 
-    def _verify(
-        self, problem: str, solution: str, answer: str
-    ) -> Optional[str]:
-        """Run a verification pass to check and potentially correct the answer."""
-        prompt = _VERIFY_PROMPT.format(
-            problem=problem,
-            solution=solution[:3000],
-            answer=answer or "(未提取到答案)",
-        )
-        return self._chat(prompt, temperature=0.05, max_tokens=4096)
+        # — dict —
+        if isinstance(resp, dict):
+            for key in ("content", "message", "text", "response", "output"):
+                val = resp.get(key)
+                if isinstance(val, str) and val.strip():
+                    return val
+            choices = resp.get("choices", [])
+            if choices:
+                msg = choices[0].get("message", {}) if isinstance(choices[0], dict) else {}
+                val = msg.get("content", "")
+                if isinstance(val, str) and val.strip():
+                    return val
+            return str(resp)
+
+        # — object (e.g. OpenAI SDK ChatCompletion) —
+        return _extract_content_from_object(resp)
 
     def _fallback_extract(self, text: str) -> str:
         """Last-resort extraction: grab any plausible answer from the text."""
         if not text:
             return ""
-        # LaTeX boxed
+        json_ans = _try_extract_json_answer(text)
+        if json_ans:
+            return json_ans
         boxes = re.findall(r"\\boxed\{([^{}]+)\}", text)
         if boxes:
             return boxes[-1].strip()
-        # Reverse-scan for math content
         for line in reversed(text.split("\n")):
             s = line.strip()
             if not s or len(s) < 2:
                 continue
+            if s in ("{", "}", "[", "]", "null"):
+                continue
             if s.startswith(("#", "//", "```")):
                 continue
+            if re.match(r'^\s*"[^"]+"\s*:', s):
+                continue
             if re.search(r"[\u4e00-\u9fff].*\d|\d.*[\u4e00-\u9fff]|[${}\\]", s):
-                return s[:300]
-        return ""
-
-    def _last_chance_extract(self, text: str) -> str:
-        """绝对兜底：从文本中提取任何可能的数值或表达式，确保非空返回。
-
-        优先级：
-        1. 最后出现的数字（整数/小数/分数）
-        2. 最后的 LaTeX 数学表达式
-        3. 最后的英文单词（可能是答案关键词）
-        4. 兜底字符串 "0"
-        """
-        if not text:
-            return "0"
-
-        # 1. 扫描所有数字（包括科学计数法、负数、分数）
-        numbers = re.findall(
-            r"(?:^|[^\d])"
-            r"(-?\d+(?:\.\d+)?(?:[eE][+-]?\d+)?)"
-            r"(?:[^\d]|$)",
-            text,
-        )
-        if numbers:
-            return numbers[-1]
-
-        # 2. 最后的 LaTeX 数学表达式 $...$ 或 $$...$$
-        latex = re.findall(r"\${1,2}([^$]+)\${1,2}", text)
-        if latex:
-            return latex[-1].strip()[:200]
-
-        # 3. 最后的英文单词或中文短语（长度≥2）
-        words = re.findall(r"[A-Za-z\u4e00-\u9fff]{2,}", text)
-        if words:
-            return words[-1][:100]
-
-        # 4. 绝对兜底
+                return _strip_json_artifacts(s)[:300]
         return "0"
