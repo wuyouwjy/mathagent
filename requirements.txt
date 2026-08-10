@@ -1,4 +1,12 @@
-# Competition submission dependencies (v5)
-# Core agent: Python stdlib only — no extra pip packages required.
-# Local testing (llm_client.py): requires 'requests' for HTTP calls.
+# Competition submission dependencies (T2)
+#
+# CRITICAL PATH (competition platform entry point):
+#   user_agent.py -> svragent/  (pure Python stdlib — zero extra deps)
+#
+# LOCAL TESTING (main.py / quick_test.py / llm_client.py):
+#   requests>=2.28  — HTTP calls to Intern-S API
+#
+# OPTIONAL:
+#   sympy           — enables simplify() / solve_eq() tools (tools gracefully
+#                     return "ERR: sympy not available" if missing)
 requests>=2.28

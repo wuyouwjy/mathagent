@@ -1,12 +1,12 @@
 <p align="center">
-  <h1 align="center">🧮 Math-Agent-System v6</h1>
+  <h1 align="center">🧮 Math-Agent-System T2</h1>
   <p align="center">基于 <b>Intern-S 系列大模型</b> 的数学推理智能体 — 2026 挑战杯·书生赛道</p>
   <p align="center">
     <img src="https://img.shields.io/badge/Python-3.10+-blue" alt="Python">
     <img src="https://img.shields.io/badge/LLM-Intern--S-orange" alt="Intern-S">
-    <img src="https://img.shields.io/badge/version-v6.0-green" alt="v6">
+    <img src="https://img.shields.io/badge/version-T2.0-purple" alt="T2">
     <img src="https://img.shields.io/badge/license-MIT-lightgrey" alt="License">
-    <img src="https://img.shields.io/badge/deps-stdlib%20only-brightgreen" alt="zero deps">
+    <img src="https://img.shields.io/badge/deps-minimal-brightgreen" alt="deps">
   </p>
 </p>
 
@@ -14,48 +14,56 @@
 
 ## 📖 简介
 
-**Math-Agent-System v6** 是为 2026 年度中国青年科技创新"揭榜挂帅"擂台赛·书生赛道设计的数学推理智能体。采用 **多阶段推理 + 自验证 + JSON解析** 架构，核心逻辑完全自包含于 `user_agent.py`，**零外部模块依赖**（仅使用 Python 标准库）。
+**Math-Agent-System T2** 是为 2026 年度中国青年科技创新"揭榜挂帅"擂台赛·书生赛道设计的数学推理智能体。T2 版本参考了 InternS-main 第一名架构（55分），将**多路线并行求解 + 共识投票 + 条件复核**管线整合为轻量化的 `svragent/` 包，同时保持与现有 `agents/` 目录的向后兼容。
 
-### v6 核心改进（相比 v5）
+### T2 核心架构（相比 v6 的颠覆性升级）
 
-| 改进项 | v5（0分版） | v6 修复 |
-|--------|-------------|---------|
-| JSON 模型输出 | 无法解析，提取到 `"answer": 72` 片段 → Judger 判 `invalid` | **优先 JSON 解析**，递归提取 `answer`/`final_answer`/`result` 等键值 |
-| client 返回兼容 | 只处理 `str` 和 `dict["content"]` | **兼容 5 种类型**：str / dict多键 / OpenAI SDK对象 |
-| 答案清理 | 无 JSON 片段剥离 | **剥离引号/花括号/逗号**，从 `"answer": 72` → `72` |
-| 提示词 | 未禁止 JSON 输出 | **显式禁止 JSON**，强制要求 `ANSWER:` 格式 |
-| 弱答案处理 | 仅一次验证 | **Refinement 轮次** + JSON 回退提取 + 兜底扫描 |
-| 依赖风险 | 依赖外部模块导入 | **纯 stdlib 实现**，消除 `ModuleNotFoundError` |
-| 错误降级 | 随机提取问题文本中的数字 | 统一返回 `"0"`，避免虚假答案干扰 |
+| 改进项 | v6（10.71% 得分） | T2 |
+|--------|-------------------|-----|
+| 推理路线 | 单路线求解 | **4 路线并行**（A/D/L/X 不同 stance + temperature） |
+| 答案选择 | 单路线直接提取 | **共识投票**（≥2 路线答案等价 → 立即提交） |
+| 截断问题 | `max_tokens=8192` → 85% 截断 | **max_tokens=131072** → 消除截断 |
+| 答案提取 | 7 层文本正则匹配 | **FINAL: 标记 + AnswerExtractor + AnswerNormalizer** |
+| 答案比较 | 无法比较 | **符号等价判定**（分数/小数/百分比别名、集合无序比较） |
+| 答案歧义处理 | 无 | **复核阶段**（墙钟门控、独立复核调用、严格解析） |
+| 证明题 | 与解答题相同处理 | **4 条独立证明路线**（直接/反证/归纳/极值）+ QED 检测 |
+| 工具调用 | 无 | **30+ 有界数学工具**（算术/数论/组合/代数/矩阵/符号） |
+| 依赖策略 | 纯 stdlib 内联 | **svragent/ 轻量包**（6 模块，fallback 兜底保证可用性） |
 
-### 推理流程
+### T2 推理流程
 
 ```
-Problem → [Solve Prompt（禁止JSON，强制ANSWER格式）]
-       → 模型求解（max 8192 tokens）
-       → 英文泄露检测 → 中文重试（如需要）
-       → 答案提取（3 层优先级）:
-           P0: JSON 解析（answer/final_answer/result 等键）
-           L1: ANSWER: 标记匹配
-           L2: \boxed{} LaTeX
-           L3: 中文结论标记（答案为/结果是）
-           L4: 数学内容末行
-           L5: 非空末行兜底
-       → 答案无效 → Refinement 轮次（重新提取）
-       → 仍无效 → JSON 回退扫描
-       → 仍无效 → _fallback_extract 兜底 → "0"
-       → _strip_json_artifacts 清理 → _clean_answer 规范化
-       → final_response
+solve(problem, metadata)
+  ├── 题面规范化（全角→半角、统一空白）
+  ├── 响应类型检测（answer / proof）
+  ├── WidePipeline.run(session)
+  │    ├── 4 条路线并行调用 LLM
+  │    │    ├── A: 标准最稳妥独立求解
+  │    │    ├── D: 求解后代入复核，冲突重算
+  │    │    ├── L: 聚焦逻辑跳跃、边界/退化/反例
+  │    │    └── X: 有限计算核优先，精确执行
+  │    ├── 答案提取 + 聚类（符号等价判定 answers_equal）
+  │    ├── 共识 ≥2 → 提交最优路线全文
+  │    ├── 无共识 + 墙钟充裕 → 复核调用 → 解析 VERDICT
+  │    └── 兜底：按预注册顺序取第一条含答案路线
+  └── Finalizer.finalize(session)
+       ├── 非空保证（绝对兜底文案）
+       ├── 敏感词审计（题目索引/内部路径泄露检测）
+       ├── 语言一致性检查（中文题面→中文回答）
+       ├── 长度预算保护（>30k 字符截断保护）
+       └── 返回 {"final_response": ..., "trace": [...], "stats": {...}}
 ```
 
 ### 核心特性
 
-- **JSON 优先解析**：Intern-S 模型倾向输出结构化 JSON，v6 能递归解析 JSON 对象/数组/fenced code blocks，提取标准答案键名
-- **自包含架构**：全部核心逻辑内联在 `user_agent.py`，零外部模块依赖，平台环境绝不会因 `ModuleNotFoundError` 得零分
-- **5 种 client 返回类型兼容**：str / dict / OpenAI SDK 对象均可正确处理
-- **答案清理管线**：自动剥离 JSON 语法残留（引号/花括号/逗号），确保 Judger 可解析
-- **智能 Refinement**：当答案为空或无效时，自动以更直接的提示词发起第二轮提取
-- **比赛约束适配**：并发 3、单题 20 分钟、总时长 6 小时，推理策略已调优
+- **多路线并行求解**：4 条独立路线各具不同解题"姿态"和 temperature [0.2, 0.5, 0.3, 0.3]，ThreadPoolExecutor 真并行执行
+- **共识投票机制**：answers_equal() 符号等价判定 → ≥2 路线答案一致即停止，不再调用复核
+- **墙钟门控复核**：路线分歧时，仅当剩余时间充裕才启动复核；复核解析严格（模板复述不算 PASS）
+- **131K token 输出**：解决 v6 中 85% 模型输出被截断的核心问题
+- **鲁棒答案管线**：FINAL: 标记 → \boxed{} → Marker → 占位符过滤 → LaTeX 标准化 → 分数化简 → 小数规范化
+- **30+ 数学工具**：算术/模运算/数论/组合/代数/矩阵/受限表达式求值，TOOL_CALL 协议，所有参数有界
+- **证明题专用模式**：4 条独立证明路线 + QED 完成检测，无共识时取第一条完整证明
+- **自包含 fallback**：svragent 不可用时自动降级为单路线求解，保证平台兼容性
 
 ---
 
@@ -72,12 +80,23 @@ result = agent.solve(problem="设$\\mathbb{F}_{81}$为$81$元的有限域...", m
 
 # 返回格式
 # {
-#   "final_response": "72",
+#   "final_response": "解答全文（含 FINAL: 答案）",
 #   "trace": [
-#     {"step": "solve", "content": "模型解答摘要..."},
-#     {"step": "extract", "content": "策略: primary, 候选: 72"},
-#     {"step": "finalize", "content": "最终答案: 72 (策略: primary)"}
-#   ]
+#     {"step": "routing_signals", "elapsed_s": 0.0, "content": {...}},
+#     {"step": "llm_call", "elapsed_s": 15.2, "content": {...}},
+#     {"step": "wide_wave", "elapsed_s": 45.8, "content": {...}},
+#     {"step": "wide_submit", "elapsed_s": 45.8, "content": {...}},
+#     {"step": "finalize", "elapsed_s": 45.8, "content": {...}}
+#   ],
+#   "stats": {
+#     "llm_calls": 4,
+#     "elapsed_s": 45.8,
+#     "stage": "wide_answer",
+#     "response_kind": "answer",
+#     "final_source": "wide_consensus",
+#     "verification_status": "independent_consensus",
+#     "confidence": 0.8
+#   }
 # }
 ```
 
@@ -90,7 +109,6 @@ response = client.chat(
     temperature=0.2,
     max_tokens=4096
 )
-# v6 兼容所有返回类型：str | dict | OpenAI SDK 对象
 ```
 
 ### 最新比赛规则（2026-08）
@@ -109,18 +127,27 @@ response = client.chat(
 
 ```
 Math-Agent-System/
-├── user_agent.py              # 【必填】智能体主入口（ReasoningAgent，纯 stdlib 自包含）
-├── requirements.txt            # 项目依赖清单（仅 requests 用于本地调试）
+├── user_agent.py              # 【必填】智能体主入口（导入 svragent，含 fallback 兜底）
+├── svragent/                  # T2 多路线求解包（轻量，6 模块）
+│   ├── __init__.py            # 包导出
+│   ├── agent.py               # ReasoningAgent + Finalizer + 题面规范化
+│   ├── config.py              # SVRConfig 配置（max_tokens=131072 等）
+│   ├── session.py             # SVRSession 会话状态
+│   ├── client_wrap.py         # LLMCaller client 响应归一化
+│   ├── parser.py              # AnswerExtractor + AnswerNormalizer + answers_equal
+│   ├── tools.py               # 30+ 有界数学工具（TOOL_CALL 协议）
+│   └── wide.py                # WidePipeline 四路线并行 + 共识投票 + 复核
+├── requirements.txt            # 项目依赖清单
 ├── main.py                     # 本地批量测试 Runner
-├── llm_client.py               # 本地调试用 LLM 客户端（需 INTERN_API_KEY）
+├── llm_client.py               # 本地调试用 LLM 客户端
 ├── quick_test.py               # 快速自测脚本
-├── agents/                     # 可选辅助模块（分类器、求解器等，安全导入不阻塞）
+├── agents/                     # 可选辅助模块（分类器、求解器等，向后兼容）
 ├── prompts/                    # 可选 Prompt 模板
 ├── tools/                      # 自定义工具函数
 └── utils/                      # 通用公共工具脚本
 ```
 
-> ⚠️ 正式评测仅校验 `user_agent.py` 中的 `ReasoningAgent` 类和方法签名。`agents/` 和 `prompts/` 为可选的辅助模块，v6 核心逻辑不依赖它们。
+> ⚠️ 正式评测仅校验 `user_agent.py` 中的 `ReasoningAgent` 类和方法签名。`svragent/` 为核心管线，`agents/` 保持向后兼容。
 
 ---
 
@@ -158,13 +185,13 @@ python main.py --input_file sample_data/dev.jsonl --output_dir sample_outputs
 ### 5. 验证输出格式
 
 ```bash
-# 检查所有题目状态和答案长度
 python - <<'PY'
 import json
 from pathlib import Path
 for path in sorted(Path("sample_outputs").glob("*.json")):
     data = json.loads(path.read_text(encoding="utf-8"))
-    print(f"{path.name}: status={data.get('status')} final_response={repr(data.get('final_response',''))}")
+    src = data.get("stats", {}).get("final_source", "?")
+    print(f"{path.name}: status={data.get('status')} source={src} answer={repr(data.get('final_response',''))[:80]}")
 PY
 ```
 
@@ -174,12 +201,18 @@ PY
 {
   "idx": 0,
   "status": "success",
-  "final_response": "72",
+  "final_response": "解答全文...\nFINAL: 72",
   "trace": [
-    {"step": "solve", "content": "模型解答摘要…"},
-    {"step": "extract", "content": "策略: primary, 候选: 72"},
-    {"step": "finalize", "content": "最终答案: 72 (策略: primary)"}
-  ]
+    {"step": "routing_signals", "elapsed_s": 0.0, "content": {...}},
+    {"step": "llm_call", "elapsed_s": 15.2, "content": {"purpose": "blind_answer:A", ...}},
+    ...
+  ],
+  "stats": {
+    "llm_calls": 4,
+    "elapsed_s": 45.8,
+    "final_source": "wide_consensus",
+    "verification_status": "independent_consensus"
+  }
 }
 ```
 
@@ -193,24 +226,24 @@ PY
 |------|------|
 | `intern-s1` | 基础模型 |
 | `intern-s1-pro` | 增强模型 |
-| `intern-s2-preview` | 最新预览版（推荐） |
-
-API 控制台：https://internlm.intern-ai.org.cn/api/document
+| `intern-s2-preview` | 最新预览版（推荐，共享 reasoning+content token 预算） |
 
 ---
 
-## 📋 零分常见原因 & v6 防范措施
+## 📋 常见问题 & T2 对策
 
-| 原因 | 症状 | v6 防范措施 |
-|------|------|------------|
-| JSON 输出未被解析 | `final_response` = `"answer": 72` → 全部 `invalid` | **P0 JSON 解析**，递归提取标准键值 |
-| client 返回类型不兼容 | `str(obj)` = `<Object at 0x...>` | **5 种类型兼容**：str / dict多键 / OpenAI SDK |
-| `final_response` 含 JSON 片段 | Judger 无法解析数学表达式 | `_strip_json_artifacts` 剥离引号/花括号/逗号 |
-| `final_response` 为空 | 校验失败 | **7 层提取 + 3 轮 refinement + "0" 绝对兜底** |
-| `ModuleNotFoundError` | 外部模块导入失败 | **纯 stdlib 实现**，零外部模块依赖 |
-| 英文思维泄露 | 低质量中文推理 | 中文占比检测 → 自动重试中文 prompt |
-| 超时（单题 >20min / 总 >6h） | 被 kill | 单次 max_tokens=8192，refinement 仅按需触发 |
-| JSON 序列化失败 | trace 写入错误 | trace 结构确保 JSON 兼容，异常归一化为 str |
+| 问题 | 症状 | T2 对策 |
+|------|------|--------|
+| 模型输出截断 | `max_tokens=8192` → 85% 截断，解答不完整 | **max_tokens=131072**，99.9% 解答不截断 |
+| 单一推理路线错误 | 一次计算错误 → 整题零分 | **4 路线并行**，A/D/L/X 不同温度 + 姿态，跨路线纠错 |
+| 答案格式不一致 | `0.5` vs `1/2` vs `50%` 被判不等 | **answers_equal()** 符号等价判定（分数/小数/百分比别名） |
+| 多小问答案 | 混排成一串被判错 | **multipart 识别 + 分号分隔标准化** |
+| 答案含占位符 | 模型写 "最终答案: <最终答案>" → 提取失败 | **占位符过滤**（模板残留/工具载荷/元评论） |
+| 复核不可靠 | 模型选"看起来合理"的答案 | **复核严格解析**（模板复述不算 PASS，需实际数学核对内容） |
+| JSON 输出干扰 | Intern-S 倾向输出 JSON，污染答案 | **OutputParser** 先剥离 code blocks 再提取 FINAL |
+| 英文泄露 | 中文题面 → 英文思维链 | 中文占比检测 + Finalizer 语言一致性检查 |
+| API 限流/错误 | 单路线失败 → 整题零分 | **多路线容错**：一条失败其他继续；5 种 client 返回类型兼容 |
+| 依赖缺失 | `ModuleNotFoundError` → 零分 | **user_agent.py 含 fallback**：svragent 不可用时自动单路线降级 |
 
 ---
 
@@ -219,12 +252,12 @@ API 控制台：https://internlm.intern-ai.org.cn/api/document
 - [ ] 提交根目录包含 `user_agent.py`
 - [ ] `ReasoningAgent.__init__` 接受 `client` 参数
 - [ ] `solve(problem, metadata)` 返回 `dict` 且包含非空 `final_response`
+- [ ] `final_response` 为完整求解过程文本（非仅答案数字）
 - [ ] 本地 `sample_data/dev.jsonl` 全部输出 `status: success`
 - [ ] 返回值可 JSON 序列化
 - [ ] 代码中无硬编码 API Key
-- [ ] 未依赖本地绝对路径
-- [ ] trace 和日志中无敏感信息
-- [ ] 干净环境（新 venv）中可正常导入
+- [ ] `svragent/` 包完整且可正常导入
+- [ ] trace 和最终输出中无敏感信息（题号、内部路径）
 
 ---
 
