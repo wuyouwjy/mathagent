@@ -6,7 +6,7 @@ from typing import Any, Callable
 from langchain_core.runnables import RunnableConfig
 
 from utils.deps import get_deps
-from utils.problem_anchor import verify_problem_anchor
+from utils.problem.anchor import verify_problem_anchor
 
 
 def _node_name(node_func: Callable, explicit_name: str | None = None) -> str:
@@ -48,7 +48,7 @@ def _fallback_for_node(node: str, state: dict, error: dict, config: dict | None 
             "reasoning_attempts": 0,
         }
     if node == "python_agent":
-        from utils.verification_evidence import parse_verification_evidence
+        from utils.verification.evidence import parse_verification_evidence
 
         output = parse_verification_evidence(
             {
@@ -88,7 +88,7 @@ def _fallback_for_node(node: str, state: dict, error: dict, config: dict | None 
             "next_node": "coordinator",
         }
     if node == "semantic_arbiter":
-        from nodes.cross_validator_node import _preferred_answer
+        from graph.nodes.cross_validator import _preferred_answer
         from utils.reconciliation_policy import reconciliation_retry_available
 
         can_retry = False
@@ -148,7 +148,7 @@ class ErrorHandler:
         logger = logging.getLogger("math_agent")
 
         def wrapped(state: dict, config: RunnableConfig) -> dict:
-            from utils.timeout_control import resolve_timeout, run_with_timeout
+            from utils.budget.timeout import resolve_timeout, run_with_timeout
 
             time_budget = None
             try:

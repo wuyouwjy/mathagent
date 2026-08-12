@@ -45,13 +45,13 @@ from __future__ import annotations
 
 from typing import Any, Dict
 
-from langgraph_math_agent import MathAgentGraph
+from graph import MathAgentGraph
 from utils.client_tuning import cap_internal_retries, raise_socket_timeout
-from utils.skills_loader import SkillsLoader
-from utils.python_mcp_client import PythonMCPClient
-from utils.token_budget import TokenBudget
+from utils.skills_util.loader import SkillsLoader
+from utils.executor.client import PythonMCPClient
+from utils.budget.token import TokenBudget
 from utils.logger import get_logger
-from state.math_agent_state import create_initial_state
+from graph.state import create_initial_state
 
 # ==================== PARTICIPANT DESIGN AREA START ====================
 

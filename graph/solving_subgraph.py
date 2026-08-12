@@ -1,9 +1,9 @@
 from langgraph.graph import StateGraph, START, END
 from langgraph.types import Send
-from state.math_agent_state import MathAgentState
-from nodes import reasoning_agent_node, python_agent_node, cross_validator_node
+from graph.state import MathAgentState
+from graph.nodes import reasoning_agent_node, python_agent_node, cross_validator_node
 from utils.error_handler import node_wrapper
-from utils.problem_profile import is_objective_mode
+from utils.problem.profile import is_objective_mode
 
 def build_solving_subgraph():
     sub = StateGraph(MathAgentState)

@@ -63,8 +63,8 @@ def salvage_conclusion(response: str) -> str:
 
     Only for use when header parsing already failed — see the module docstring.
     """
-    from utils.answer_cleanliness import is_noise_answer, looks_derivation_fragment
-    from utils.answer_extractor import looks_incomplete_answer, looks_like_latex_fragment
+    from utils.answer.cleanliness import is_noise_answer, looks_derivation_fragment
+    from utils.answer.extractor import looks_incomplete_answer, looks_like_latex_fragment
     from utils.cot_stripper import is_placeholder_answer
 
     text = response or ""

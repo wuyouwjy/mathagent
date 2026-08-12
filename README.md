@@ -86,87 +86,56 @@ result = agent.solve(
 
 ```
 Math-Agent-System/
-├── user_agent.py                  # 【必填】ReasoningAgent 入口（平台调用接口）
-├── langgraph_math_agent.py        # LangGraph 主图构建 + MathAgentGraph 运行器
-├── config.py                      # 全局配置（模型/超时/温度/token 预算/墙钟预算）
-├── llm_client.py                  # 本地调试用 OpenAI-compatible HTTP Client
-├── main.py                        # 本地批量测试 Runner（读 JSONL → 并发调用 → 写 JSON）
-├── requirements.txt               # 项目依赖清单
+├── user_agent.py              # 【必填】ReasoningAgent 入口（平台调用接口）
+├── config.py                  # 全局配置（模型/超时/温度/token 预算/墙钟预算）
+├── llm_client.py              # 本地调试用 OpenAI-compatible HTTP Client
+├── main.py                    # 本地批量测试 Runner
+├── requirements.txt           # 项目依赖清单
 │
-├── graph/
-│   ├── __init__.py
-│   └── solving_subgraph.py        # solving 子图：reasoning + python 并行扇出
+├── graph/                     # LangGraph 图编排（主图 + 子图 + 节点 + 状态）
+│   ├── main_graph.py          # 主图构建 + MathAgentGraph 运行器
+│   ├── solving_subgraph.py    # solving 子图：reasoning + python 并行扇出
+│   ├── state.py               # MathAgentState TypedDict（全图共享状态）
+│   └── nodes/                 # 图节点（每个节点一个文件）
+│       ├── input.py           # 提取 idx，问题锚定
+│       ├── classifier.py      # 18 领域 LLM 预填充分类 + 确定性回退
+│       ├── reasoning.py       # LLM 四章节结构化推理 + Token 耗尽压缩重试
+│       ├── python_exec.py     # SymPy 验证代码生成 + 子进程安全执行
+│       ├── cross_validator.py # 双路答案交叉验证 + 路由决策
+│       ├── reconciliation.py  # 冲突时生成重试提示 + 轮次控制
+│       ├── semantic_arbiter.py# prefill 仲裁：从既有候选中选择完整答案
+│       └── coordinator.py     # 汇总上下文，格式化 final_response
 │
-├── nodes/
-│   ├── __init__.py
-│   ├── input_node.py              # 提取 idx，问题锚定
-│   ├── classifier_node.py         # 18 领域 LLM 预填充分类 + 确定性回退
-│   ├── reasoning_agent_node.py    # LLM 四章节结构化推理 + Token 耗尽压缩重试
-│   ├── python_agent_node.py       # SymPy 验证代码生成 + 子进程安全执行
-│   ├── cross_validator_node.py    # 双路答案交叉验证 + 路由决策
-│   ├── reconciliation_node.py     # 冲突时生成重试提示 + 轮次控制
-│   ├── semantic_arbiter_node.py   # prefill 仲裁：从既有候选中选择完整答案
-│   └── coordinator_node.py        # 汇总上下文，格式化 final_response
+├── skills/                    # 18 个数学领域 skill 文档 + 验证代码片段
+│   ├── 数学分析/ 高等代数/ 抽象代数/ 概率论/ ...
+│   └── 每个领域：skill.md + 验证示例.py
 │
-├── state/
-│   ├── __init__.py
-│   └── math_agent_state.py        # MathAgentState TypedDict（全图共享状态）
+├── tests/                     # 测试
+│   └── mock_test.py           # 无 API Key 模拟集成测试
 │
-├── skills_pythonscripts/          # 18 个数学领域 skill 文档 + 验证提示
-│   ├── 数学分析/                  # skill.md + 验证示例.py
-│   ├── 高等代数/
-│   ├── 抽象代数/
-│   ├── 概率论/
-│   ├── 统计推断/
-│   ├── 线性回归/
-│   ├── 随机过程/
-│   ├── 复分析/
-│   ├── 常微分方程/
-│   ├── 偏微分方程/
-│   ├── 泛函分析/
-│   ├── 测度积分/
-│   ├── 拓扑学/
-│   ├── 微分几何/
-│   ├── 数值分析/
-│   ├── 离散数学/
-│   ├── 运筹学/
-│   └── 非基础及进阶课程/          # 含初等数论、博弈论等 9 个模块
-│
-├── utils/
-│   ├── deps.py                    # LangGraph configurable 依赖注入
-│   ├── llm_retry.py               # LLM 调用重试 + 指数退避 + prefill 调用
-│   ├── prefill.py                 # assistant 预填充（让推理模型跳过 CoT）
-│   ├── token_budget.py            # 粗粒度 token 预算估算
-│   ├── time_budget.py             # 单题墙钟预算（三级时限）
-│   ├── retry_affordability.py     # 按实测耗时判断重试是否可负担
-│   ├── timeout_control.py         # 通用超时包装
-│   ├── error_handler.py           # 节点异常包装 + fallback 状态
-│   ├── skills_loader.py           # 领域扫描 + 关键词检索 + skill 文档加载
-│   ├── skill_excerpt.py           # 按题目主题选取 skill 文档/验证提示片段
-│   ├── prompt_templates.py        # 分类/推理/Python/仲裁/协调 Prompt 模板
-│   ├── answer_matcher.py          # 数值/符号/字符串/证明题多策略匹配
-│   ├── structured_answer.py       # 结构化字段提取与等价比较
-│   ├── answer_contract.py         # 题面字段契约与缺失组件检测
-│   ├── answer_extractor.py        # 多问/残缺/LaTeX 片段/boxed 答案抽取
-│   ├── answer_formatter.py        # 最终答案格式化 + 契约回捞 + 步骤附加
-│   ├── answer_cleanliness.py      # 噪声答案检测 + 部分结论提取
-│   ├── cot_stripper.py            # CoT 前缀去除 + 占位答案检测
-│   ├── conclusion_salvage.py      # 无章节输出时从散文中捞回结论句
-│   ├── verification_evidence.py   # Python 执行输出证据解析
-│   ├── verification_authenticity.py # 反伪造：无实质计算却宣称 PASS 的证据降级
-│   ├── stdout_miner.py            # 从 stdout 挖掘低置信度候选答案
-│   ├── problem_profile.py         # 题型画像 + 多问识别 + 结构化指令
-│   ├── problem_anchor.py          # 问题 SHA256 锚定 + 完整性校验
-│   ├── client_tuning.py           # 尽力提升平台 client socket 超时
-│   ├── reconciliation_policy.py   # 调解轮次策略
-│   ├── python_mcp_client.py       # Python 代码执行客户端（子进程隔离）
-│   ├── category_embedding_index.py # TF-IDF 领域相似度索引
-│   └── logger.py                  # 日志（支持 python-json-logger）
-│
-└── mcp_servers/
-    └── python_executor/
-        ├── __init__.py
-        └── server.py              # Python 代码执行工具（支持 FastMCP 独立启动）
+└── utils/                     # 工具库（按功能分包）
+    ├── deps.py                # LangGraph configurable 依赖注入
+    ├── error_handler.py       # 节点异常包装 + fallback 状态
+    ├── client_tuning.py       # 尽力提升平台 client socket 超时
+    ├── reconciliation_policy.py # 调解轮次策略
+    ├── conclusion_salvage.py  # 无章节输出时从散文中捞回结论句
+    ├── cot_stripper.py        # CoT 前缀去除 + 占位答案检测
+    ├── logger.py              # 日志
+    ├── answer/                # 答案管线：抽取→匹配→契约→格式化→洁净度
+    │   ├── extractor.py, matcher.py, contract.py
+    │   ├── formatter.py, cleanliness.py, structured.py
+    ├── verification/          # 验证：Python 输出证据解析 + 反伪造 + stdout 挖掘
+    │   ├── evidence.py, authenticity.py, stdout_miner.py
+    ├── budget/                # 资源预算：token + 墙钟 + 重试可行性 + 超时
+    │   ├── token.py, time.py, affordability.py, timeout.py
+    ├── llm/                   # LLM 交互：重试退避 + prefill 预填充 + Prompt 模板
+    │   ├── retry.py, prefill.py, templates.py
+    ├── skills_util/           # 领域技能：文档加载 + 主题摘取 + TF-IDF 索引
+    │   ├── loader.py, excerpt.py, embedding.py
+    ├── problem/               # 题目分析：题型画像 + SHA256 锚定
+    │   ├── profile.py, anchor.py
+    └── executor/              # Python 代码执行：子进程隔离 + FastMCP 服务
+        ├── client.py, server.py
 ```
 
 ---
@@ -281,7 +250,7 @@ PY
 - [ ] 本地 `sample_data/dev.jsonl` 全部输出 `status: success`
 - [ ] 返回值可 JSON 序列化
 - [ ] 代码中无硬编码 API Key
-- [ ] `skills_pythonscripts/` 下 18 个领域完整
+- [ ] `skills/` 下 18 个领域完整
 - [ ] trace 中无敏感信息
 - [ ] 不依赖题目顺序或多个题目共用同一进程
 - [ ] 不依赖样例数据中的 `answer` 字段

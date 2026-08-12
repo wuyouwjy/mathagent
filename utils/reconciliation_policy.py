@@ -10,7 +10,7 @@ what we already have.
 
 from config import CONFIG
 from utils.deps import get_deps
-from utils.retry_affordability import DEFAULT_ATTEMPT_COST_S, last_attempt_cost
+from utils.budget.affordability import DEFAULT_ATTEMPT_COST_S, last_attempt_cost
 
 
 def _deps(config):
