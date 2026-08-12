@@ -1,12 +1,32 @@
-# Competition submission dependencies (T2)
+# Competition submission dependencies (T3)
 #
-# CRITICAL PATH (competition platform entry point):
-#   user_agent.py -> svragent/  (pure Python stdlib — zero extra deps)
+# LangGraph-based multi-agent math reasoning system.
+# Adapted from ICMAnew-main architecture (50+ score).
 #
-# LOCAL TESTING (main.py / quick_test.py / llm_client.py):
-#   requests>=2.28  — HTTP calls to Intern-S API
-#
-# OPTIONAL:
-#   sympy           — enables simplify() / solve_eq() tools (tools gracefully
-#                     return "ERR: sympy not available" if missing)
-requests>=2.28
+# CORE: LangGraph orchestration
+langgraph>=1.2.0,<2.0.0
+langchain-core>=1.4.7,<2.0.0
+
+# CORE: HTTP client for Intern-S API (local debugging)
+requests>=2.31.0
+
+# CORE: Symbolic/numeric computation for Python verification
+sympy>=1.12
+mpmath>=1.3
+numpy>=1.24.0
+scipy>=1.10.0
+
+# CORE: TF-IDF category retrieval for domain classification fallback
+scikit-learn>=1.3.0
+
+# CORE: Fast fuzzy matching for category normalization
+python-Levenshtein>=0.20.0
+
+# CORE: TypedDict NotRequired compatibility
+typing-extensions>=4.9.0
+
+# OPTIONAL: MCP server support for standalone Python executor
+mcp>=1.0.0
+
+# OPTIONAL: Structured JSON logging
+python-json-logger>=2.0.0
