@@ -41,6 +41,18 @@ _SELF_DOUBT_RE = re.compile(
     r"哪里出错|出错了|怎么回事|矛盾了|不对啊|再试一次|等一下|让我们|我们先试|重新来"
 )
 
+#: 英文 CoT 引导句（intern-s2 把私有推理泄到 content 时，fallback 会捞到
+#: "Okay, I will stick to..."/"Let me..."/"We need to..." 这类元叙述；它们在
+#: 中文数学题的答案里绝不合法，且常混入 $n_5=6$ 这类等式导致下面的「混合行
+#: 豁免」放行）。句首即 CoT 引导词时直接拒收，不再看后续是否含等式。
+_ENGLISH_COT_LEAD_RE = re.compile(
+    r"(?i)^\s*(?:okay\b|ok\b|alright\b|"
+    r"i\s+(?:will|would|shall|can|need|want|think|choose|stick|write|go|have)\b|"
+    r"i'?ll\b|let\s+me\b|"
+    r"we\s+(?:will|would|need|want|start|begin|first|proceed|choose|have|are)\b|"
+    r"first\b[,.]?\s*(?:we|i|let)\b|now\b[,.]?\s*(?:we|i|let)\b)"
+)
+
 #: 已提交结论的正面信号：等式、boxed、明确结论词、集合/区间记号。
 _COMMITTED_MARKER_RE = re.compile(
     r"[=≥≤<>∈]|\\boxed|\\frac|\\sqrt|^\s*[-+]?\d+(?:\.\d+)?\s*$|"
@@ -92,6 +104,11 @@ def is_noise_answer(text: str) -> bool:
     if _INTERNAL_INSTRUCTION_RE.search(s):
         return True
     if _SELF_DOUBT_RE.search(s):
+        return True
+    # 英文 CoT 引导句：句首即 "Okay, I will..."/"Let me..."/"We need to..." 这类
+    # 推理过程引导词 → 元叙述，直接拒收（不经过下面的混合行豁免，因为这类文本常
+    # 混入 $n_5=6$ 等式被豁免放行）。
+    if _ENGLISH_COT_LEAD_RE.match(s):
         return True
     # 疑问/感叹收尾：结论不以问句结束。（允许内部含 '?' 的合法记号，如 "P(X>1)"）
     if re.search(r"[？?！!]\s*$", s):

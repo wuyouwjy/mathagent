@@ -18,7 +18,8 @@ from utils.deps import get_deps
 from utils.llm.retry import chat_prefilled, chat_with_retry
 from utils.llm.templates import CLASSIFICATION_PREFILL, CLASSIFICATION_PROMPT
 from utils.budget.token import estimate_tokens
-from utils.cot_stripper import strip_cot_prefix
+from utils.answer.cot_stripper import strip_cot_prefix
+from utils.problem.profile import OBJECTIVE_MODES
 from config import CONFIG
 
 
@@ -580,6 +581,21 @@ def _domain_override(problem: str, categories: list[str]) -> str | None:
 _objective_domain_override = _domain_override
 
 
+def _difficulty_for(question_mode: str, category: str) -> str:
+    """分类后顺带输出难度画像（确定性，不额外花 token）。
+
+    映射：客观题（选择/判断/填空）→ easy（最少资源，快速路径）；证明题或
+    深解领域（数论/组合/高代/抽代）→ hard（给足软预算）；其余计算题 → medium。
+    该画像由 TimeBudget.apply_difficulty_profile 消费，只收紧软预算、不动硬限。
+    """
+    mode = (question_mode or "computation").strip().lower()
+    if mode in OBJECTIVE_MODES:
+        return "easy"
+    if mode == "proof" or (category or "") in CONFIG.get("deep_solver_domains", ()):
+        return "hard"
+    return "medium"
+
+
 def _decision_payload(problem, categories, category, confidence, candidates, stages):
     """Apply the same calibrated boundary decision on every classifier exit."""
     override = _domain_override(problem, categories)
@@ -606,12 +622,23 @@ def classifier_node(state, config):
         allowed_categories="、".join(all_categories),
     )
 
+    def _emit(category, confidence, candidates, stages):
+        """统一出口：补难度画像 + 收紧软预算，返回分类 payload。"""
+        payload = _decision_payload(problem, all_categories, category, confidence, candidates, stages)
+        difficulty = _difficulty_for(state.get("question_mode", "computation"), payload["category"])
+        payload["difficulty"] = difficulty
+        try:
+            tb = deps.time_budget
+            if tb is not None and hasattr(tb, "apply_difficulty_profile"):
+                tb.apply_difficulty_profile(difficulty)
+        except Exception:  # noqa: BLE001 - 难度预算收紧失败不拖垮分类
+            pass
+        return payload
+
     stages = ["llm_prefill"]
     result = _classify_prefilled(deps, prompt, all_categories)
     if result and result[1] >= threshold:
-        return _decision_payload(
-            problem, all_categories, result[0], result[1], all_categories, stages
-        )
+        return _emit(result[0], result[1], all_categories, stages)
 
     # Escalate ONLY when the prefilled reply named no real domain. A low-confidence
     # but valid domain used to escalate too, which cost ~130s to second-guess a ~1s
@@ -621,9 +648,7 @@ def classifier_node(state, config):
     time_budget = deps.time_budget
     if result:
         stages.append("low_confidence_accepted")
-        return _decision_payload(
-            problem, all_categories, result[0], result[1], all_categories, stages
-        )
+        return _emit(result[0], result[1], all_categories, stages)
     # Nothing parseable from the prefill. The escalation is the only remaining way to
     # get the model's own judgement, so it is worth its cost here — but only if the
     # clock can fund a call of the size we now know it to be.
@@ -633,12 +658,8 @@ def classifier_node(state, config):
         if plain:
             # Low confidence still beats a keyword guess: the model named a real domain.
             stages.append("low_confidence_accepted" if plain[1] < threshold else "llm_plain_accepted")
-            return _decision_payload(
-                problem, all_categories, plain[0], plain[1], all_categories, stages
-            )
+            return _emit(plain[0], plain[1], all_categories, stages)
 
     stages.append("deterministic_fallback")
     fallback = _deterministic_fallback(sl, problem, all_categories, deps.logger)
-    return _decision_payload(
-        problem, all_categories, fallback, 0.0, [fallback], stages
-    )
+    return _emit(fallback, 0.0, [fallback], stages)

@@ -19,6 +19,15 @@ backend/outputs/
 database/outputs/
 *.log
 
+# Local sample run outputs（临时结果，不入库）
+sample/sample_outputs*/
+
+# 开发自测数据（含标准答案字段，不入库——评委安全检查禁止提交标准答案/测试集）
+sample/sample_data/
+
+# 自测代码（mock client 单元测试，含自编测试断言，不入库保持提交包零答案痕迹）
+sample/sample_tests/
+
 # Environment
 .env
 *.env.local

@@ -48,7 +48,7 @@ def _fallback_for_node(node: str, state: dict, error: dict, config: dict | None 
             "reasoning_attempts": 0,
         }
     if node == "python_agent":
-        from utils.verification.evidence import parse_verification_evidence
+        from utils.verify.evidence import parse_verification_evidence
 
         output = parse_verification_evidence(
             {
@@ -89,7 +89,7 @@ def _fallback_for_node(node: str, state: dict, error: dict, config: dict | None 
         }
     if node == "semantic_arbiter":
         from graph.nodes.cross_validator import _preferred_answer
-        from utils.reconciliation_policy import reconciliation_retry_available
+        from utils.verify.reconciliation_policy import reconciliation_retry_available
 
         can_retry = False
         try:

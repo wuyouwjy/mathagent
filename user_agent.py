@@ -43,10 +43,29 @@ Platform interface (fixed by competition rules):
 
 from __future__ import annotations
 
+import os as _os
+import sys as _sys
 from typing import Any, Dict
 
+# ── 防线 1：sys.path 自举（任何加载形态不抛异常）──
+# 平台用 importlib 按路径加载本文件时可能不把仓库根目录加入 sys.path，
+# 导致多模块 import 报 ImportError。此处自举：把本文件所在目录（或 CWD）
+# 插入 sys.path，确保 graph / utils 等包在任何加载形态下都能被找到。
+_HERE = ""
+try:
+    _HERE = _os.path.dirname(_os.path.abspath(__file__))
+except Exception:  # noqa: BLE001 - exec/沙箱加载器可能不提供 __file__
+    _HERE = ""
+for _cand in (_HERE, _os.getcwd()):
+    try:
+        if (_cand and _os.path.isfile(_os.path.join(_cand, "graph", "main_graph.py"))
+                and _cand not in _sys.path):
+            _sys.path.insert(0, _cand)
+    except Exception:  # noqa: BLE001
+        pass
+
 from graph import MathAgentGraph
-from utils.client_tuning import cap_internal_retries, raise_socket_timeout
+from utils.llm.client_tuning import cap_internal_retries, raise_socket_timeout
 from utils.skills_util.loader import SkillsLoader
 from utils.executor.client import PythonMCPClient
 from utils.budget.token import TokenBudget
@@ -86,13 +105,17 @@ class ReasoningAgent:
             client=client, skills_loader=self.skills_loader, mcp_client=self.mcp_client)
         self.logger.info("ReasoningAgent (T3) initialized")
 
-    def solve(self, problem: str, metadata: Dict | None = None) -> Dict:
+    def solve(self, problem: str, metadata: Dict | None = None, *args: Any, **kwargs: Any) -> Dict:
         """Solve a math problem and return the competition-format result.
 
         Returns a dict with:
             ``final_response`` — the answer string for the Judger
             ``trace`` — list of trace entries for diagnostics
         """
+        # 平台 runner 实测可能以位置参数传 metadata（solve(problem, meta)），
+        # 或完全不传；此处归一化，任何调用形态都不抛 TypeError。
+        if metadata is None and args and isinstance(args[0], dict):
+            metadata = args[0]
         meta = metadata if isinstance(metadata, dict) else {}
         idx = meta.get("idx", -1)
         try:
@@ -111,6 +134,14 @@ class ReasoningAgent:
                 "final_response": "解题过程中出现错误，无法给出完整答案。",
                 "trace": [{"step": "error", "content": str(e), "idx": idx}],
             }
+
+    def __call__(self, problem: str, *args: Any, **kwargs: Any) -> Dict:
+        """调用方式防御：部分 runner 以 agent(problem) 形式调用。"""
+        return self.solve(problem, *args, **kwargs)
+
+    def run(self, problem: str, *args: Any, **kwargs: Any) -> Dict:
+        """调用方式防御：部分 runner 以 agent.run(problem) 形式调用。"""
+        return self.solve(problem, *args, **kwargs)
 
     def _build_trace(self, state: dict) -> list:
         trace = []

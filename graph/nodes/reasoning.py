@@ -8,8 +8,8 @@ from utils.answer.extractor import (
     looks_incomplete_answer,
     looks_like_latex_fragment,
 )
-from utils.conclusion_salvage import salvage_conclusion
-from utils.cot_stripper import is_placeholder_answer, strip_cot_prefix
+from utils.answer.conclusion_salvage import salvage_conclusion
+from utils.answer.cot_stripper import is_placeholder_answer, strip_cot_prefix
 from utils.skills_util.excerpt import select_skill_excerpt
 from utils.budget.affordability import can_afford_retry, last_attempt_cost
 from utils.problem.profile import (

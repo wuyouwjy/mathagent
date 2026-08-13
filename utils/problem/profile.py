@@ -35,8 +35,15 @@ _FILL_RE = re.compile(
     r"填空|填“|填\"|填入|_{3,}|＿{2,}|[(（]\s*(?:\\\s*)?[)）]"
 )
 _PROOF_RE = re.compile(
-    r"(?:^|[\n])\s*(?:证明|试证)|(?:^|[\n])\s*(?:prove|show)\b|"
-    r"证明题|(?<!or )\b(?:prove|show|demonstrate|establish|justify)\s+that\b|"
+    # 中文证明动词不限位置：官方题集最常见的证明题句式是“设…，证明…/求证…/
+    # 试证…”（证明词在句中而非行首），旧正则只认行首的“证明/试证”和整词
+    # “证明题”，漏判了这类题——2026-08-13 本地实测 idx 1（设 G 为 60 阶单群，
+    # 证明 G 同构于 A_5）被误判成 computation，reasoning 走了计算题契约，最终
+    # 输出英文残片而非结论+证明过程。客观题标记（判断/选择/填空）在本正则在
+    # 上方先行拦截，故不限位置匹配“证明”不会吞掉客观题。
+    r"(?:证明|求证|试证|试证明)|"
+    r"(?:^|[\n])\s*(?:prove|show)\b|"
+    r"(?<!or )\b(?:prove|show|demonstrate|establish|justify)\s+that\b|"
     r"\b(?:prove|show|demonstrate|establish|justify)\b",
     re.I,
 )

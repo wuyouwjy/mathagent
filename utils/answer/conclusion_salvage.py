@@ -65,7 +65,7 @@ def salvage_conclusion(response: str) -> str:
     """
     from utils.answer.cleanliness import is_noise_answer, looks_derivation_fragment
     from utils.answer.extractor import looks_incomplete_answer, looks_like_latex_fragment
-    from utils.cot_stripper import is_placeholder_answer
+    from utils.answer.cot_stripper import is_placeholder_answer
 
     text = response or ""
     if not text.strip():

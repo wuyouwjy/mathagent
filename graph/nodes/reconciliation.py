@@ -7,7 +7,8 @@ returns structured JSON (it may emit a 'Thinking Process:' preamble):
 - round limit reached → route to the evidence-constrained semantic selector.
 The selector itself can only choose an existing candidate or abstain.
 """
-from utils.reconciliation_policy import reconciliation_round_limit
+from utils.verify.reconciliation_policy import reconciliation_round_limit
+from utils.problem.profile import classify_question_mode
 
 
 def _bounded(value, limit=1000):
@@ -20,6 +21,7 @@ def reconciliation_node(state, config):
     max_rounds = reconciliation_round_limit(config)
     recon_trace = list(state.get("reconciliation_trace") or [])
 
+    question_mode = state.get("question_mode") or classify_question_mode(state.get("problem", ""))
     po = state.get("python_output") or {}
     rr = state.get("reasoning_result") or {}
     details = state.get("validation_details") or {}
@@ -62,7 +64,14 @@ def reconciliation_node(state, config):
 
     rs_hint = None
     py_hint = None
-    if not po.get("success"):
+    if question_mode == "proof":
+        # 证明题跳过 Python 是预期（非失败）。这里不把 rs_hint 置空，而是保留
+        # critic 的定向修复提示（若存在），引导补全缺项，避免盲重跑一遍完整推理。
+        rs_hint = (state.get("reasoning_retry_hint")
+                   or "请重新推理，补齐缺失的论证步骤，给出完整的 '## 最终答案' 结论。")
+        py_hint = None
+        action = "retry_reasoning_proof"
+    elif not po.get("success"):
         err = (po.get("stderr") or "")[:300]
         py_hint = (f"上一次 Python 代码执行失败。错误：{err}。"
                    f"请用 sympy 重新生成正确的 ```python``` 代码，结尾 print(\"最终答案:\", answer)。")

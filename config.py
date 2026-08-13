@@ -17,15 +17,25 @@ CONFIG = {
     "node_timeouts": {"input": 5, "classifier": 200, "solving": 1150,
                       "reasoning_agent": 1100, "python_agent": 1100,
                       "python_mcp_execute": 60, "cross_validator": 15,
-                      "reconciliation": 10, "semantic_arbiter": 150, "coordinator": 420},
+                      "reconciliation": 10, "semantic_arbiter": 150, "coordinator": 420,
+                      "critic": 120, "playoff": 300},
     "classifier_confidence_threshold": 0.85,
+    # 置信门控：最少资源高准确率。high(≥0.90)→fast 单路径；low(<0.70)→deep；
+    # 中间→standard 双路验证。
+    "confidence_gate": {"high": 0.90, "low": 0.70},
+    "deep_solver_domains": ["数论", "组合数学", "高等代数", "抽象代数"],
     # Zero-cost deterministic ranking is retained purely as a fallback for a
     # failed/unparseable LLM classification; it no longer narrows the LLM's
     # candidate list (all 18 domains go in one prefilled call).
     "classifier_top_k": 3,
     "computation_tolerance": 1e-6, "proof_confidence_threshold": 0.7,
-    "temperatures": {"classifier": 0.1, "reasoning": 0.8, "objective_reasoning": 0.2,
-                     "python": 0.6,
+    # 2026-08-13 主办方确认 temperature 生效。下调推理/代码温度以压随机性：
+    # reasoning 0.8→0.3、python 0.6→0.2——本系统强依赖四章节结构化输出 + 下游
+    # 解析（extractor/formatter/cleanliness），高温会放大格式偏离、CoT 泄漏与
+    # 英文元叙述（v5 白卷诱因）；深度推理模型的探索主要发生在私有 CoT，低温对
+    # 正确率的边际损失可忽略。coordinator 保持 0.4（成稿留表达余地）。
+    "temperatures": {"classifier": 0.1, "reasoning": 0.3, "objective_reasoning": 0.2,
+                     "python": 0.2,
                      "reconciliation": 0.2, "semantic_arbiter": 0.1, "coordinator": 0.4},
     # Prefilled selection calls (classifier/semantic_arbiter) emit 4-12 completion
     # tokens because the assistant seed suppresses reasoning entirely. The small
@@ -39,13 +49,18 @@ CONFIG = {
     # （*_compressed，助手种子抑制私有推理，全部 token 用于可见章节，~150s）。
     # 首轮 24576-32768 区间的成功解极少（中档题实测 5-7k token，奥赛题贴 32768
     # 也多为耗尽），降低上限牺牲的成功区间可忽略，换来的重试窗口是净收益。
+    # 2026-08-13 主办方新规：max_tokens 被评测环境 cap 到 8192（不传默认 4096）。
+    # 故完整推理/生成场景统一设 8192 上限（max_tokens 只截断不加速，设大不增耗时）；
+    # 超过 8192 的旧值（reconciliation 32768、coordinator 16384）会被静默 cap，
+    # 已显式归一到 8192 以免误导预算预留。prefill 选择题（96）与应急直答（1280）
+    # 仍用刻意小 cap 抑制私有 CoT。
     "max_tokens": {"classifier": 96, "classifier_fallback": 8192,
-                   "objective_reasoning": 4096,
-                   "reasoning": 24576, "python": 24576,
+                   "objective_reasoning": 8192,
+                   "reasoning": 8192, "python": 8192,
                    "reasoning_compressed": 8192, "python_compressed": 8192,
-                   "reconciliation": 32768,
-                   "semantic_arbiter": 96, "semantic_arbiter_fallback": 4096,
-                   "coordinator": 16384, "emergency_answer": 1280},
+                   "reconciliation": 8192,
+                   "semantic_arbiter": 96, "semantic_arbiter_fallback": 8192,
+                   "coordinator": 8192, "emergency_answer": 1280},
     "reconciliation_max_rounds": 2,
     "token_budget_max": 256000, "token_budget_warn_ratio": 0.9,
     # Wall-clock budget per problem. The platform's hard limit is 20 min; the
@@ -73,5 +88,32 @@ CONFIG = {
     # 直答与确定性拼装；node_wrapper 的硬超时兜底最坏情况）。评委实测：按
     # 软预算定价时压缩重试 30 题 0 次放行，6 题以捞回残片出厂。
     "compressed_reserve_margin_s": 150,
+    # ==================== 移植自第三名（VeritasMath）的升级配置 ====================
+    # 全卷完成率引擎（PaperPacer）：平台 6h 全卷硬限。官方实证 V1 每题固定 1200s
+    # 软预算导致 112 题只完成 16 题（14.29%）。按"剩余全卷时间÷剩余题数"动态
+    # 收紧每题软预算，保证 6h 内 112 题全部产出答案（完成率 100% > 单题完美）。
+    "paper_total_seconds": 21600,
+    # PaperPacer 收紧软预算的下限余量（秒）：soft_total 一旦低于 reserve(300s)，
+    # remaining() = soft_total - reserve - elapsed 开局即为负，第一轮
+    # reasoning/python 会被 DeadlineExceeded 直接拒绝——"落后"退化成白卷。
+    # 故收紧后的软预算下限 = reserve + 此余量，保证至少一轮核心推理能发起。
+    "paper_min_work_s": 180,
+    # 难度感知软预算：分类节点顺带输出难度，据此收紧 soft_total（只收紧不放宽）。
+    "difficulty_soft_budgets": {"easy": 480, "medium": 840, "hard": 1200},
+    # 过程审计智能体：定稿前审计题面契约完整性 + 关键计算抽核。
+    "enable_critic": True,
+    "critic_reserve_margin_s": 60,
+    # 确定性复算季后赛：两路冲突时代回复算，替代"只能二选一"的仲裁。
+    # （季后赛代码执行的超时复用 node_timeouts.python_mcp_execute，无需单独配置。）
+    "enable_playoff": True,
+    # 判断题双向确认（Intern-S2 对"是否"题系统性偏"否"）。
+    "enable_judge_confirm": True,
+    # 计数题枚举对照守护（组合计数是 LLM 最弱项）。
+    "enable_counting_guard": True,
+    # 模结构守护：F_2/Z_m 语境注入"结构内聚合"条款 + 代码静态核查。
+    "enable_modular_guard": True,
+    # 答案形式对齐 + 证明结构补强。
+    "enable_form_align": True,
+    "enable_proof_deepener": True,
     "log_level": "INFO", "log_dir": "logs",
 }

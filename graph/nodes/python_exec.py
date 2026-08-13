@@ -10,10 +10,10 @@ from utils.deps import get_deps
 from utils.llm.retry import chat_prefilled, chat_with_retry
 from utils.llm.templates import PYTHON_PROMPT
 from utils.budget.token import estimate_tokens
-from utils.cot_stripper import strip_cot_prefix
+from utils.answer.cot_stripper import strip_cot_prefix
 from utils.budget.affordability import can_afford_retry, last_attempt_cost
 from utils.skills_util.excerpt import select_script_excerpt, select_skill_excerpt
-from utils.verification.evidence import parse_verification_evidence
+from utils.verify.evidence import parse_verification_evidence
 from utils.problem.profile import is_objective_mode, structure_instruction
 from config import CONFIG
 
@@ -233,6 +233,25 @@ def python_agent_node(state, config):
         )
     hint = state.get("branch_hint")
     prompt = f"{base_prompt}\n\n[复核提示] {hint}" if hint else base_prompt
+    # VeritasMath 模结构守护：F_2/Z_m 语境注入"结构内聚合"强制条款
+    # （评委报告 idx 7：六个 F_2 值被按普通整数相加；提示层自觉不可靠，
+    #  生成后还有一道静态核查兜底）。
+    modular = {"hit": False, "cues": []}
+    if CONFIG.get("enable_modular_guard", True):
+        from utils.verify.modular_guard import code_complies, detect_modular_context, prompt_clause
+        modular = detect_modular_context(problem)
+        if modular["hit"]:
+            prompt += prompt_clause(problem)
+    # VeritasMath 计数题枚举对照守护（M6，ultra_112 idx=40 实证）：组合计数是
+    # LLM 最弱项，闭式极易错。检出计数题则注入强制枚举对照条款，生成后静态核查
+    # 代码必须含枚举循环，否则打回（不执行只写闭式的代码）。
+    counting = {"hit": False}
+    if CONFIG.get("enable_counting_guard", True):
+        from utils.verify.counting_guard import code_has_enumeration, detect_counting
+        from utils.verify.counting_guard import prompt_clause as counting_clause
+        counting = {"hit": detect_counting(problem)}
+        if counting["hit"]:
+            prompt += counting_clause(problem)
 
     trace = []
     attempts = 0
@@ -248,6 +267,8 @@ def python_agent_node(state, config):
             "python_output": enriched,
             "python_trace": trace,
             "python_attempts": attempts,
+            "modular_guard": modular,
+            "counting_guard": counting,
             "python_evidence_status": enriched.get("evidence_status", "inconclusive"),
             "python_evidence_summary": enriched.get("evidence_summary", ""),
             "python_contradictions": enriched.get("contradictions", []),
@@ -317,6 +338,31 @@ def python_agent_node(state, config):
         code = _extract_code(resp)
         if code:
             last_code = code
+        if code and modular.get("hit") and not code_complies(code):
+            # 静态核查：模结构语境下最终聚合未见取模/异或——打回修复而非执行。
+            # 执行一段聚合错误的代码只会产出一个"看起来更可信"的错误答案。
+            trace.append({"attempt": attempts, "status": "modular_guard_violation"})
+            if attempts >= max_attempts:
+                break
+            prompt = _retry_prompt(
+                "上一次的代码在模结构语境下未做结构内聚合：最终求和/计数必须显式取模"
+                "（F_2 用 % 2 或 ^，Z_m 用 % m），并在打印最终答案前加一行 "
+                'print("结构核验:", total % m)。请只输出修正后的 ```python``` 代码块。',
+                problem, candidate_answer)
+            continue
+        if code and counting.get("hit") and not code_has_enumeration(code):
+            # 静态核查（M6）：计数题代码只写闭式、无小规模枚举对照——打回修复。
+            # 闭式极易错（重数/漏数/边界），未对照的闭式不值得执行。
+            trace.append({"attempt": attempts, "status": "counting_guard_violation"})
+            if attempts >= max_attempts:
+                break
+            prompt = _retry_prompt(
+                "上一次的代码直接写了闭式/公式，未做小规模枚举对照。计数题必须："
+                "先把规模缩到最小实例（n=2,3,4），用 for/range/itertools 暴力枚举出精确值，"
+                "再让候选公式在同规模逐点 assert 比对，全部吻合才外推。请只输出修正后的 "
+                "```python``` 代码块（含枚举对照打印），结尾 print(\"最终答案:\", answer)。",
+                problem, candidate_answer)
+            continue
         if not code:
             # A *long* response with no code fence means CoT consumed the whole budget
             # before any code was written (this model bills reasoning_content against
@@ -389,8 +435,12 @@ def python_agent_node(state, config):
                 "```python``` 代码块：保留原计算，务必以 print(\"最终答案:\", answer) 结尾。",
                 problem, candidate_answer)
             continue
-        prompt = _retry_prompt(
-            f"代码执行失败：\n错误：{(output.get('stderr') or '')[:500]}\n"
-            "请只输出修正后的 ```python``` 代码块，用 sympy，结尾 print(\"最终答案:\", answer)。",
-            problem, candidate_answer)
+        # 执行失败：改用压缩 prefill 重试（抑制私有 reasoning、代码更短，~150s
+        # 而非 ~200s 完整重生成）。stderr 拼进 failure 让模型针对性修复；已用过
+        # 压缩仍失败则放弃本分支，不再支付第二次完整生成。
+        if compressed_used:
+            break
+        stderr_brief = (output.get('stderr') or '').replace('\n', ' ').strip()[:300]
+        compressed_failure = f"代码执行失败（错误：{stderr_brief}）"
+        compressed_next = True
     return finalize(last_output)

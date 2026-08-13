@@ -7,9 +7,10 @@ compute wrong values). For proof problems or python-failed cases, use reasoning.
 from utils.answer.matcher import AnswerMatcher
 from utils.answer.contract import answer_part_count, missing_components
 from utils.answer.extractor import is_multi_part_problem, looks_incomplete_answer
-from utils.cot_stripper import is_placeholder_answer
-from utils.reconciliation_policy import reconciliation_retry_available
-from utils.verification.evidence import parse_verification_evidence
+from utils.answer.cot_stripper import is_placeholder_answer
+from utils.verify.reconciliation_policy import reconciliation_retry_available
+from utils.verify.evidence import parse_verification_evidence
+from config import CONFIG
 from utils.problem.profile import (
     classify_question_mode,
     fill_answer_matches_blanks,
@@ -120,15 +121,42 @@ def cross_validator_node(state, config):
         if objective_answer_is_usable(candidate, question_mode):
             blank_gap = question_mode == "fill" and not fill_answer_matches_blanks(
                 candidate, state.get("problem", ""))
+            # 填空分项数不足题面空位数时降低置信（评委报告 idx 86：残缺答案
+            # 曾以 0.78 置信直接放行，无任何完整性检查）。
+            confidence = 0.45 if blank_gap else 0.78
+            reason = (f"客观题快速路径已提取{question_mode}答案"
+                      + ("；但分项数少于题面空位数，答案可能不完整" if blank_gap else ""))
+            # VeritasMath 移植（启元实证 P0）：判断题双向确认。Intern-S2 对
+            # "是否"题存在系统性"否"偏向（启元实测 90% 判断错题同根因），单轮
+            # 方向不可靠。确认轮一致才采纳；反向则温度0重解取第三票。
+            # 仅 true_false 题型、答案为判断词、预算充足时触发，其余零成本。
+            if question_mode == "true_false" and CONFIG.get("enable_judge_confirm", True):
+                from utils.verify.judge_confirm import run_judge_confirmation, should_confirm
+                if should_confirm(state.get("problem", ""), candidate):
+                    from utils.deps import get_deps
+                    deps = get_deps(config)
+
+                    def _resolve_prompt():
+                        return (f"【题目】{state.get('problem', '')}\n"
+                                "请独立判断该命题是否成立：逐步推导后，最后一行"
+                                "单独输出 答案:是 或 答案:否（只输出这一行判断）。")
+
+                    jc = run_judge_confirmation(
+                        state.get("problem", ""), candidate, deps,
+                        main_prompt_builder=_resolve_prompt)
+                    if jc.get("action") == "confirm":
+                        confidence = min(confidence + 0.12, 0.95)
+                        reason += f"；双向确认一致（{jc.get('note', '')}）"
+                    elif jc.get("action") == "reverse":
+                        candidate = jc.get("final_word") or candidate
+                        confidence = max(confidence, 0.6)
+                        reason += f"；双向确认反向，改判 {candidate}"
             match_result = {
                 "status": "match",
                 "verdict": True,
                 "comparison_verdict": True,
-                # 填空分项数不足题面空位数时降低置信（评委报告 idx 86：残缺答案
-                # 曾以 0.78 置信直接放行，无任何完整性检查）。
-                "confidence": 0.45 if blank_gap else 0.78,
-                "reason": f"客观题快速路径已提取{question_mode}答案"
-                          + ("；但分项数少于题面空位数，答案可能不完整" if blank_gap else ""),
+                "confidence": confidence,
+                "reason": reason,
                 "method": "objective_direct",
                 "problem_type": question_mode,
                 "text_similarity": 1.0,
@@ -181,6 +209,28 @@ def cross_validator_node(state, config):
     # A program can run successfully while proving that the candidate is false.
     if evidence_status == "contradict":
         match_result["routing_reason"] = "python_evidence_contradiction"
+        # Playoff 确定性复算裁决：计算题 + 双候选 + 未 play 过时，先代回复算
+        # 戳破 Python 的"假证据"（Python 自身算错却自报反驳了正确推理）。
+        already_played = bool(state.get("playoff_trace"))
+        if problem_type == "computation" and CONFIG.get("enable_playoff", True) \
+                and not already_played:
+            from graph.nodes.playoff import playoff_candidates
+            cand_a, cand_b = playoff_candidates(state)
+            if cand_a and cand_b:
+                match_result["routing_reason"] = \
+                    "python_evidence_contradiction_deterministic_playoff"
+                history_entry["status"] = "contradict_playoff"
+                return {
+                    "validation_status": "contradict_playoff",
+                    "validation_details": match_result,
+                    "validated_answer": validated_answer,
+                    "next_node": "playoff",
+                    "python_output": python_output,
+                    "python_evidence_status": evidence_status,
+                    "python_evidence_summary": evidence_summary,
+                    "python_contradictions": contradictions,
+                    "validation_history": [history_entry],
+                }
         if reconciliation_retry_available(state, config):
             status = "mismatch_reconciling"
             next_node = "reconciliation"
@@ -218,6 +268,28 @@ def cross_validator_node(state, config):
             validated_answer = _preferred_answer(state, match_result)
         next_node = "coordinator"
     elif status == "mismatch":
+        # Playoff 确定性复算裁决：计算题冲突先代回复算，季后赛已跑过/不适用时
+        # 回落到既有的重算-仲裁通道。
+        already_played = bool(state.get("playoff_trace"))
+        if problem_type == "computation" and CONFIG.get("enable_playoff", True) \
+                and not already_played:
+            from graph.nodes.playoff import playoff_candidates
+            cand_a, cand_b = playoff_candidates(state)
+            if cand_a and cand_b:
+                status = "mismatch_playoff"
+                match_result["routing_reason"] = "computation_mismatch_deterministic_playoff"
+                history_entry["status"] = status
+                return {
+                    "validation_status": status,
+                    "validation_details": match_result,
+                    "validated_answer": validated_answer,
+                    "next_node": "playoff",
+                    "python_output": python_output,
+                    "python_evidence_status": evidence_status,
+                    "python_evidence_summary": evidence_summary,
+                    "python_contradictions": contradictions,
+                    "validation_history": [history_entry],
+                }
         # subgraph-level retry gated by reconciliation_round (NOT per-node attempts —
         # per-node attempts gate the agent's internal format/code retries; the plan
         # §4.2 keeps these separate).

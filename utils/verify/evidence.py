@@ -12,8 +12,8 @@ from __future__ import annotations
 
 import re
 
-from utils.verification.stdout_miner import mine_stdout_answer
-from utils.verification.authenticity import assess_verification_authenticity
+from utils.verify.stdout_miner import mine_stdout_answer
+from utils.verify.authenticity import assess_verification_authenticity
 
 
 _STATUS_RE = re.compile(

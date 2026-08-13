@@ -6,3 +6,5 @@ from .cross_validator import cross_validator_node
 from .reconciliation import reconciliation_node
 from .coordinator import coordinator_node
 from .semantic_arbiter import semantic_arbiter_node
+from .critic import critic_node
+from .playoff import playoff_node

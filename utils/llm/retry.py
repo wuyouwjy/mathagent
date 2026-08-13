@@ -15,10 +15,19 @@ from typing import Dict, List
 
 from config import CONFIG
 from utils.llm.prefill import prefill_messages, stitch
+from utils.llm.response_normalize import chat_compatible, normalize_chat_response
 
 
 class DeadlineExceeded(RuntimeError):
     """Raised when the problem's time budget cannot fund another attempt."""
+
+
+def _looks_rate_limited(exc: Exception) -> bool:
+    """限流/配额类异常的启发式判断（移植自第三名）。"""
+    text = str(exc).lower()
+    markers = ("429", "rate limit", "rate_limit", "ratelimit", "quota",
+               "too many requests", "限流", "频率", "配额", "-20081")
+    return any(m in text for m in markers)
 
 
 class LLMRetryWrapper:
@@ -95,14 +104,10 @@ class LLMRetryWrapper:
         for attempt in range(1, self.max_retries + 1):
             started = self._now()
             try:
-                result = self.client.chat(
-                    messages=messages,
-                    temperature=temperature,
-                    max_tokens=max_tokens,
-                )
+                result = chat_compatible(self.client, messages, temperature, max_tokens)
                 if self.time_budget:
                     self.time_budget.record(label, self._now() - started)
-                return result
+                return normalize_chat_response(result)
             except Exception as exc:  # noqa: BLE001 - retry transient transport failures.
                 last_error = exc
                 observed = self._now() - started
@@ -121,6 +126,10 @@ class LLMRetryWrapper:
                     )
                     break
                 delay = 0 if self.backoff_factor == 0 else self.backoff_factor ** (attempt - 1)
+                # 限流感知退避：429 / 配额特征时退避 ≥10s，避免在平台限流
+                # 窗口内反复撞墙（移植自第三名）。
+                if _looks_rate_limited(exc):
+                    delay = max(delay, 10.0)
                 self.logger.warning(
                     "LLM call failed on attempt %s/%s: %s", attempt, self.max_retries, exc
                 )

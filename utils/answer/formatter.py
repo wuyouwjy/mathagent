@@ -13,7 +13,7 @@ from utils.answer.extractor import (
     looks_like_latex_fragment,
 )
 from utils.answer.cleanliness import is_noise_answer
-from utils.cot_stripper import is_placeholder_answer, strip_cot_prefix
+from utils.answer.cot_stripper import is_placeholder_answer, strip_cot_prefix
 
 _SENSITIVE = ["推理Agent", "Python Agent", "验证节点", "LangGraph", "重试", "MCP", "子图", "solving"]
 _KEY_LABELS = {
@@ -532,6 +532,14 @@ def _prefer_complete_proof_answer(cleaned: str, formatted_answer: str) -> str:
     if not formatted_answer:
         return section_answer
     stripped = formatted_answer.strip()
+    # 中间结论信号：reasoning 停在推导中途（以「故/因此/所以」等连接词开头），
+    # 而 coordinator 正文的「最终答案」节才是真正的结论命题（如 G ≅ A_5）。
+    # 抽象代数/数论证明题的结论没有 _proof_completeness_score 覆盖的术语，
+    # 单靠长度或包含关系无法识别中间结论，故显式用连接词头识别并替换。
+    import re
+    if re.match(r"^(?:故|因此|所以|从而|于是|综上|由此|进而|于是得到)", stripped) \
+            and len(section_answer) >= 6:
+        return section_answer
     looks_fragmentary = (stripped.startswith("\\") or stripped.count("$") % 2 == 1
                          or looks_like_latex_fragment(stripped))
     if looks_fragmentary and len(section_answer) > len(stripped):

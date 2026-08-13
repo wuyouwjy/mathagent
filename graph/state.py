@@ -21,6 +21,7 @@ class MathAgentState(TypedDict):
     category_confidence: NotRequired[float]
     candidate_categories: NotRequired[List[str]]
     classification_stages_used: NotRequired[List[str]]
+    difficulty: NotRequired[str]  # 分类节点顺带输出的难度画像（easy/medium/hard）
     # 推理阶段
     reasoning_result: NotRequired[Optional[Dict[str, Any]]]
     reasoning_trace: NotRequired[List[Dict]]
@@ -48,6 +49,15 @@ class MathAgentState(TypedDict):
     semantic_arbiter_trace: NotRequired[List[Dict]]
     semantic_arbiter_attempts: NotRequired[int]
     answer_locked: NotRequired[bool]
+    # 过程审计阶段（Critic）
+    critic_status: NotRequired[str]
+    critic_trace: NotRequired[List[Dict]]
+    critic_rounds: NotRequired[int]
+    critic_missing: NotRequired[List[str]]
+    # 确定性复算季后赛（Playoff）
+    playoff_status: NotRequired[str]
+    playoff_trace: NotRequired[List[Dict]]
+    playoff_answer: NotRequired[str]
     # 输出阶段
     final_response: NotRequired[str]
     coordination_detail: NotRequired[Optional[str]]  # coordinator 原始解题说明，记入 trace（计算题 final_response 已收敛为简洁答案）

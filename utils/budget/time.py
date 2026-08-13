@@ -66,6 +66,24 @@ class TimeBudget:
         self._start = clock()
         self._lock = Lock()
         self._spend_log: list[dict] = []
+        # 难度感知软预算：soft_total 是"可选工作"的购买力上限，由分类节点
+        # 按难度画像调用 apply_difficulty_profile() 收紧；self.total 永不下调。
+        self.soft_total = self.total
+        self.difficulty_profile = "default"
+        # PaperPacer 全卷预算帽（秒）：由题间预算池动态给出，None 表示未启用。
+        self.paper_cap: float | None = None
+
+    def apply_difficulty_profile(self, difficulty: str) -> float:
+        """按难度收紧软预算，返回生效的 soft_total。只收紧不放宽。"""
+        profile = (difficulty or "").strip().lower()
+        budgets = CONFIG.get("difficulty_soft_budgets") or {}
+        target = budgets.get(profile)
+        if isinstance(target, (int, float)) and target > 0:
+            with self._lock:
+                if float(target) < self.soft_total:
+                    self.soft_total = float(target)
+                    self.difficulty_profile = profile
+        return self.soft_total
 
     # ---- horizons ----
 
@@ -84,7 +102,7 @@ class TimeBudget:
 
     def remaining(self) -> float:
         """Seconds left before optional work must stop. May go negative."""
-        return self.total - self.reserve - self.elapsed()
+        return self.soft_total - self.reserve - self.elapsed()
 
     def remaining_hard(self) -> float:
         """Seconds left before the platform's hard limit."""
@@ -128,6 +146,8 @@ class TimeBudget:
             "elapsed_s": round(self.elapsed(), 2),
             "remaining_s": round(self.remaining(), 2),
             "total_s": self.total,
+            "soft_total_s": self.soft_total,
+            "difficulty_profile": self.difficulty_profile,
             "reserve_s": self.reserve,
             "fast_path": self.fast_path(),
         }

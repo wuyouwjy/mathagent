@@ -6,7 +6,7 @@ uncertain）：unicode 常量归一化（π√×÷²）→ LaTeX 转 sympy 文�
 """
 import re
 
-from utils.cot_stripper import is_placeholder_answer
+from utils.answer.cot_stripper import is_placeholder_answer
 from utils.answer.structured import (
     LABEL_ASSIGNMENT_PREFIX_RE, compare_structured_answers, is_self_conflicting,
 )

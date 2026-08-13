@@ -10,7 +10,7 @@ from config import CONFIG
 from graph.nodes.cross_validator import _preferred_answer
 from utils.answer.contract import missing_components
 from utils.answer.extractor import looks_incomplete_answer
-from utils.cot_stripper import is_placeholder_answer
+from utils.answer.cot_stripper import is_placeholder_answer
 from utils.deps import get_deps
 from utils.llm.retry import chat_prefilled, chat_with_retry
 from utils.llm.templates import (
@@ -18,7 +18,7 @@ from utils.llm.templates import (
     SEMANTIC_ARBITER_PROMPT,
     SEMANTIC_ARBITER_SYSTEM_PROMPT,
 )
-from utils.reconciliation_policy import reconciliation_retry_available
+from utils.verify.reconciliation_policy import reconciliation_retry_available
 from utils.budget.token import estimate_tokens
 
 
