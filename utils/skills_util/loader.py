@@ -163,7 +163,7 @@ class SkillsLoader:
 
     def get_validation_script(self, category: str) -> str:
         if category not in self._script_cache:
-            f = self.base_path / category / f"{category}验证示例.py"
+            f = self.base_path / category / f"{category}验证示例.md"
             self._script_cache[category] = f.read_text(encoding="utf-8")
         return self._script_cache[category]
 

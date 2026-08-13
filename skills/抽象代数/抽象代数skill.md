@@ -1007,7 +1007,7 @@ from sympy.polys.galoistools import gf_irreducible
 
 ## 参考资源
 
-- 配套验证知识提示：`抽象代数验证示例.py`
+- 配套验证知识提示：`抽象代数验证示例.md`
 - 数据集来源：`抽象代数.md`（20题，涵盖全部核心知识点）
 - 推荐教材：《抽象代数基础教程》（Rotman）、《代数学》（Hungerford）
 - 在线工具：SymPy Live、SageMath

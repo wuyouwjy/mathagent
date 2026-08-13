@@ -1012,7 +1012,7 @@ assert R8 == 2
 
 ## 参考资源
 
-- 配套验证知识提示：`复分析验证示例.py`
+- 配套验证知识提示：`复分析验证示例.md`
 - 数据集来源：`复分析.md`（20题，涵盖全部核心知识点）
 - 推荐教材：《复变函数》（Ahlfors）、《Complex Analysis》（Stein-Shakarchi）、《复变函数与积分变换》
 - 在线工具：SymPy Live、SageMath、Wolfram Alpha
