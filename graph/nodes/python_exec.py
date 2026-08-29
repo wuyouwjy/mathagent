@@ -12,10 +12,23 @@ from utils.llm.templates import PYTHON_PROMPT
 from utils.budget.token import estimate_tokens
 from utils.answer.cot_stripper import strip_cot_prefix
 from utils.budget.affordability import can_afford_retry, last_attempt_cost
+from utils.budget.timeout import NodeTimeoutError, run_with_timeout
 from utils.skills_util.excerpt import select_script_excerpt, select_skill_excerpt
+from utils.retrieval.reference_block import build_reference_block
 from utils.verify.evidence import parse_verification_evidence
 from utils.problem.profile import is_objective_mode, structure_instruction
 from config import CONFIG
+
+
+def _reference_examples_block(examples, problem: str = "") -> str:
+    """Python 提示词里的题库参考区块（题面 600 / 解答 800 字符）。
+
+    额度小于推理侧：这里的示例只用于提示"该用什么工具算"，验证脚本本身才是主体。
+    仍需传入本题题面——验证脚本按近似题的参数写出来，会得出一个自洽但答非本题的
+    "验证结论"，比推理侧照抄更难识破。
+    """
+    return build_reference_block(examples, problem_chars=600, solution_chars=800,
+                                 problem=problem)
 
 
 def _extract_code(response: str) -> str:
@@ -130,6 +143,11 @@ _COMPRESSED_CALL_ESTIMATE_S = 200
 #: 已尽也放行压缩重生成，只要求硬上限前剩余 ≥ 估时 + 收尾余量。
 _COMPRESSED_RESERVE_MARGIN_S = CONFIG.get("compressed_reserve_margin_s", 150)
 
+#: 首轮 Python 调用的单次墙钟上限（断点续写三件套之一，与推理分支同规则）。
+#: 难题上首轮会把整个节点 1100s 上限吃光、被 node_wrapper 掐断后压缩重生成
+#: 永远没机会触发。压到 550s，超时就地转入压缩重生成（math_agent 实测）。
+_FIRST_ATTEMPT_TIMEOUT_S = CONFIG.get("first_attempt_timeout_s", 550)
+
 #: assistant 种子：以代码围栏开头接管助手轮，抑制 reasoning_content（机制同
 #: 分类器/仲裁器 prefill），8192 token 全部用于代码本身。
 _COMPRESSED_PREFILL = "```python\n"
@@ -210,10 +228,12 @@ def python_agent_node(state, config):
         validation_script = sl.get_validation_script(category)
     except Exception:
         validation_script = ""
+    # 题库参考示例：与推理节点收到的是同一批（同一次检索的全部结果）。
+    examples_text = _reference_examples_block(state.get("retrieved_examples"), problem)
     # Validation examples are prompt documents. Select the knowledge-point sections
     # whose vocabulary matches the problem instead of sending a positional prefix.
     base_prompt = PYTHON_PROMPT.format(
-        validation_script=select_script_excerpt(validation_script, problem, 2000),
+        validation_script=select_script_excerpt(validation_script, problem, 2000) + examples_text,
         problem=problem, category=category)
     base_prompt += structure_instruction(problem)
     # 技能手册的速查条目（题型方法论）与验证示例互补：前者决定"算什么/怎么建模"，
@@ -272,6 +292,7 @@ def python_agent_node(state, config):
             "python_evidence_status": enriched.get("evidence_status", "inconclusive"),
             "python_evidence_summary": enriched.get("evidence_summary", ""),
             "python_contradictions": enriched.get("contradictions", []),
+            "python_reference_chars": len(examples_text),
         }
     if clock and clock.fast_path():
         max_attempts = 1
@@ -310,26 +331,50 @@ def python_agent_node(state, config):
             # this branch already produced rather than emptying it, so the other
             # branch is never left as the sole candidate when it did not have to be.
             try:
-                resp = chat_with_retry(
-                    client,
-                    messages=[{"role": "user", "content": prompt}],
-                    temperature=CONFIG["temperatures"]["python"],
-                    max_tokens=CONFIG["max_tokens"]["python"],
-                    logger=deps.logger,
-                    time_budget=deps.time_budget,
-                    label="python",
-                )
+                if attempts == 1 and _FIRST_ATTEMPT_TIMEOUT_S:
+                    # 首轮调用加单次墙钟上限：与推理分支同规则，难题上首轮会把
+                    # 整个节点 1100s 上限吃光、被 node_wrapper 掐断后压缩重生成
+                    # 永远没机会触发。压到 550s，超时就地转入压缩重生成
+                    # （math_agent 断点续写三件套之一）。
+                    resp = run_with_timeout(
+                        lambda: chat_with_retry(
+                            client,
+                            messages=[{"role": "user", "content": prompt}],
+                            temperature=CONFIG["temperatures"]["python"],
+                            max_tokens=CONFIG["max_tokens"]["python"],
+                            logger=deps.logger,
+                            time_budget=deps.time_budget,
+                            label="python",
+                        ),
+                        _FIRST_ATTEMPT_TIMEOUT_S,
+                    )
+                else:
+                    resp = chat_with_retry(
+                        client,
+                        messages=[{"role": "user", "content": prompt}],
+                        temperature=CONFIG["temperatures"]["python"],
+                        max_tokens=CONFIG["max_tokens"]["python"],
+                        logger=deps.logger,
+                        time_budget=deps.time_budget,
+                        label="python",
+                    )
             except Exception as exc:  # noqa: BLE001
+                if isinstance(exc, NodeTimeoutError) and clock:
+                    # 与推理分支同规则：把首轮超时上限记入账，让对账定价看到完整
+                    # 调用的真实成本，而不是压缩重生成的短耗时。
+                    clock.record("python", _FIRST_ATTEMPT_TIMEOUT_S)
                 deps.logger.warning("Python attempt %s failed: %s", attempts, exc)
                 last_output = last_output or {
                     "success": False, "stdout": "", "stderr": str(exc)[:300],
                     "answer": None, "execution_time": 0.0,
                 }
                 trace.append({"attempt": attempts, "status": "failed", "error": str(exc)[:200]})
-                # 传输失败同样先试压缩挽救（2026-08-10 评委建议 3，与推理分支
-                # 同规则）：压缩调用输出短，在并发拥堵下更可能按时返回。
+                # 首轮超时/传输失败同样先试压缩挽救（2026-08-10 评委建议 3，与
+                # 推理分支同规则）：压缩调用输出短，在并发拥堵下更可能按时返回。
                 if not compressed_used:
-                    compressed_failure = "因网络传输故障未能返回"
+                    compressed_failure = (
+                        "因首轮生成超出时限被切断" if isinstance(exc, NodeTimeoutError)
+                        else "因网络传输故障未能返回")
                     compressed_next = True
                     continue
                 break

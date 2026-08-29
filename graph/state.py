@@ -22,6 +22,12 @@ class MathAgentState(TypedDict):
     candidate_categories: NotRequired[List[str]]
     classification_stages_used: NotRequired[List[str]]
     difficulty: NotRequired[str]  # 分类节点顺带输出的难度画像（easy/medium/hard）
+    # 数据库检索阶段
+    retrieved_examples: NotRequired[List[Dict[str, Any]]]
+    # 注入证据：两个子代理各自记录参考示例区块实际写入提示词的字符数。
+    # 必须分键——两个代理并行写 state，同键并发写会被 LangGraph 拒绝。
+    reasoning_reference_chars: NotRequired[int]
+    python_reference_chars: NotRequired[int]
     # 推理阶段
     reasoning_result: NotRequired[Optional[Dict[str, Any]]]
     reasoning_trace: NotRequired[List[Dict]]

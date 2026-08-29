@@ -158,6 +158,43 @@ class ReasoningAgent:
                     "selected": state.get("category"),
                 }],
             })
+        # 题库检索：检索到什么、是否真的写进了两个子代理的提示词，都要留证。
+        examples = state.get("retrieved_examples")
+        if examples is not None:
+            reasoning_chars = int(state.get("reasoning_reference_chars", 0) or 0)
+            python_chars = int(state.get("python_reference_chars", 0) or 0)
+            trace.append({
+                "step": "database_retrieval",
+                "count": len(examples),
+                "injected_into": [name for name, chars in
+                                  (("reasoning_agent", reasoning_chars),
+                                   ("python_agent", python_chars)) if chars > 0],
+                "thinking": {
+                    "purpose": "解题前用原题检索竞赛题库，把最相似的题目与解答作为参考"
+                               "示例注入推理与验证两个子代理。",
+                    "reference_block_chars": {
+                        "reasoning_agent": reasoning_chars,
+                        "python_agent": python_chars,
+                    },
+                },
+                "tools": [{
+                    "name": "tfidf_database_query",
+                    "top_k": len(examples),
+                    "results": [
+                        {
+                            "rank": i,
+                            "similarity": ex.get("similarity", 0.0),
+                            "source": ex.get("source", ""),
+                            "problem_excerpt": self._truncate(ex.get("problem", ""), 600),
+                            "solution_excerpt": self._truncate(ex.get("solution", ""), 900),
+                            "problem_chars": len(str(ex.get("problem") or "")),
+                            "solution_chars": len(str(ex.get("solution") or "")),
+                        }
+                        for i, ex in enumerate(examples, 1)
+                        if isinstance(ex, dict)
+                    ],
+                }],
+            })
         if state.get("reasoning_result"):
             rr = state["reasoning_result"]
             trace.append({
@@ -178,6 +215,11 @@ class ReasoningAgent:
                     "name": "skill_document",
                     "category": state.get("category", ""),
                     "purpose": "加载对应数学领域 skill 文档作为解题参考。",
+                }, {
+                    "name": "database_reference_examples",
+                    "count": len(state.get("retrieved_examples") or []),
+                    "chars_injected": int(state.get("reasoning_reference_chars", 0) or 0),
+                    "purpose": "题库相似题与解答，随 skill 文档一并进入推理提示词。",
                 }, {
                     "name": "reasoning_llm",
                     "attempts": state.get("reasoning_trace", []),
@@ -207,6 +249,11 @@ class ReasoningAgent:
                                                  po.get("contradictions", [])),
                 },
                 "tools": [{
+                    "name": "database_reference_examples",
+                    "count": len(state.get("retrieved_examples") or []),
+                    "chars_injected": int(state.get("python_reference_chars", 0) or 0),
+                    "purpose": "题库相似题与解答，随验证脚本一并进入 Python 提示词。",
+                }, {
                     "name": "python_code_generation",
                     "attempts": state.get("python_trace", []),
                     "code_length": len(python_code),

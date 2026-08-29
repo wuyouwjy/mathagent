@@ -11,7 +11,9 @@ from utils.answer.extractor import (
 from utils.answer.conclusion_salvage import salvage_conclusion
 from utils.answer.cot_stripper import is_placeholder_answer, strip_cot_prefix
 from utils.skills_util.excerpt import select_skill_excerpt
+from utils.retrieval.reference_block import build_reference_block
 from utils.budget.affordability import can_afford_retry, last_attempt_cost
+from utils.budget.timeout import NodeTimeoutError, run_with_timeout
 from utils.problem.profile import (
     answer_coverage_clause,
     is_objective_mode,
@@ -21,6 +23,16 @@ from utils.problem.profile import (
     structure_instruction,
 )
 from config import CONFIG
+
+
+def _reference_examples_block(examples, problem: str = "") -> str:
+    """推理提示词里的题库参考区块（题面 800 / 解答 1200 字符）。
+
+    传入本题题面，让区块能逐条摆出与示例的规模参数差异——检索到的近似题被当成
+    本题照抄结论，是评测中最贵的一类失分（ICMAnew idx 48、17）。
+    """
+    return build_reference_block(examples, problem_chars=800, solution_chars=1200,
+                                 problem=problem)
 
 
 def _parse_reasoning_output(response, question_mode="computation"):
@@ -38,6 +50,16 @@ def _parse_reasoning_output(response, question_mode="computation"):
     am = re.search(r"## 最终答案\s+(.*?)(?=##|$)", response, re.DOTALL)
     if am:
         r["answer"] = _distill_answer(am.group(1).strip())
+    # 结论速览先行："## 结论速览" 是压缩重试输出最前的压缩结论（\boxed{}），当
+    # 模型因 max_tokens 截断、"## 最终答案" 还没写出来时，开头的结论速览仍是
+    # 可用的答案落点（math_agent 提分核心：答案前置，截断也不丢答案）。仅在
+    # "最终答案"缺失时作为兜底，并打上来源标记，避免与四章节答案混淆。
+    if not r["answer"]:
+        qc = re.search(r"## 结论速览\s+(.*?)(?=##|$)", response, re.DOTALL)
+        if qc:
+            r["answer"] = _distill_answer(qc.group(1).strip())
+            if r["answer"]:
+                r["answer_source"] = "quick_conclusion"
     vm = re.search(r"## 关键验证点\s+(.*?)(?=##|$)", response, re.DOTALL)
     if vm:
         r["validation_points"] = re.findall(r"-\s*(.+)", vm.group(1))
@@ -189,6 +211,17 @@ def _distill_answer(text):
         if len(joined) <= 1600 and not looks_like_latex_fragment(joined) and not is_placeholder_answer(joined):
             return joined
 
+    # 2.5. \boxed 结论：\boxed{...} 是模型显式提交的最终结论，优先于引导语与括注
+    # （math_agent 答案前置的必要配套：prefill 种子是 "## 结论速览\n\boxed{"，
+    # 结论速览节里就是 \boxed{...}，必须提炼出括号内的值而非整行）。曾出现整节
+    # 「所有…为 / $$\boxed{ab\ge e^3}$$ /（即…）」按旧逻辑落到策略 3 取最后一行
+    # 括注、把公式丢了。多个 boxed 用「；」连接保留全部结论。
+    boxes = re.findall(r"\\boxed\s*\{((?:[^{}]|\{[^{}]*\})*)\}", text)
+    if boxes:
+        answer = _reject_bad_answer(_join_parts(boxes))
+        if answer:
+            return answer
+
     # 3. 短节 → 最后一行
     if len(text) <= 80:
         return _reject_bad_answer(lines[-1] if lines else text)
@@ -271,10 +304,19 @@ _COMPRESSED_CALL_ESTIMATE_S = 200
 #: 被掐断走 fallback），最坏情况不会击穿平台 20 分钟上限。
 _COMPRESSED_RESERVE_MARGIN_S = CONFIG.get("compressed_reserve_margin_s", 150)
 
+#: 首轮推理调用的单次墙钟上限。难题上首轮会把整个节点 1100s 上限吃光、被
+#: node_wrapper 掐断后压缩重试永远没机会触发（math_agent 实测 idx 0/7/11/12/13
+#: 均报 "operation timed out after 1100s"、attempts=0、无压缩重试记录，最终落
+#: emergency_direct_answer 错答）。压到 550s 后，超时就地转入压缩续写（复用首轮
+#: 已算结论 + 答案前置 prefill），而不是让 node_wrapper 掐死整条分支。8192 token
+#: 首轮 @ ~50 tok/s ≈ 164s，550s 只在并发拥堵/模型变慢时才触发。
+_FIRST_ATTEMPT_TIMEOUT_S = CONFIG.get("first_attempt_timeout_s", 550)
+
 #: 压缩重试的 assistant 种子。以内容开头接管助手轮，模型进入续写模式后不再打开
 #: reasoning_content（与分类器/仲裁器 prefill 同机制，见 utils/prefill.py 实测），
-#: 因此 8192 token 全部落在四章节上。
-_COMPRESSED_PREFILL = "## 问题分析\n"
+#: 因此 8192 token 全部落在四章节上。种子从"## 结论速览"开始：先让模型把结论
+#: 写出来（答案前置），再展开后续章节，截断也不丢答案（math_agent 提分核心）。
+_COMPRESSED_PREFILL = "## 结论速览\n\\boxed{"
 
 _COMPRESSED_INSTRUCTION = (
     "\n\n注意：上一次输出{failure}。现在禁止展开探索性思考："
@@ -284,9 +326,34 @@ _COMPRESSED_INSTRUCTION = (
 )
 
 
+def _extract_clues(text, limit=2000):
+    """从首轮响应提取模型已算出的有效结论，作为续写/压缩重试的线索。
+
+    散文泄漏（模型把私有 CoT 写进 content）里往往已经一路推导到了关键结论，
+    只是没来得及写进 '## 最终答案' 章节就被截断。这些结论可信、可直接复用，
+    让续写/重试不必从头重算（math_agent 断点续写核心：曾实测首轮已算出正确值、
+    从头重解却产出错误值）。
+    """
+    from utils.answer.cleanliness import extract_partial_findings
+
+    parts = []
+    salvaged = salvage_conclusion(text)
+    if salvaged:
+        parts.append(salvaged)
+    findings = extract_partial_findings(text, limit_chars=1200)
+    if findings:
+        parts.append(findings)
+    if not parts:
+        return ""
+    return (
+        "\n\n你上一次推导已经得到以下结论（可信，直接复用，不要再重新推导）：\n"
+        + "\n".join(parts)[:limit]
+    )
+
+
 def _compressed_reasoning_retry(deps, base_prompt,
                                 failure="因长度超限被截断，没有产出任何章节",
-                                coverage=""):
+                                coverage="", first_resp=None):
     """Token 耗尽/传输超时后的阶段性熔断（评委建议 4；2026-08-10 建议 1-3）。
 
     普通重试会以同样的方式再耗尽一次 ~450s；prefill 压缩重试把整份额度花在
@@ -302,10 +369,13 @@ def _compressed_reasoning_retry(deps, base_prompt,
             < _COMPRESSED_CALL_ESTIMATE_S:
         return None, "compressed_retry_unaffordable"
     instruction = _COMPRESSED_INSTRUCTION.format(failure=failure, coverage=coverage)
+    # 复用首轮已算出的结论：压缩重试不再从头重解，而是把首轮 CoT 里已经推导出的
+    # 关键结果作为线索注入（math_agent 断点续写核心）。
+    clue_block = _extract_clues(first_resp) if first_resp else ""
     try:
         resp = chat_prefilled(
             deps.client,
-            messages=[{"role": "user", "content": base_prompt + instruction}],
+            messages=[{"role": "user", "content": base_prompt + clue_block + instruction}],
             prefix=_COMPRESSED_PREFILL,
             temperature=CONFIG["temperatures"]["reasoning"],
             max_tokens=CONFIG["max_tokens"]["reasoning_compressed"],
@@ -341,13 +411,16 @@ def reasoning_agent_node(state, config):
     problem, category = state["problem"], state["category"]
     question_mode = state.get("question_mode", "computation")
     skill_doc = sl.get_skill_document(category)
+    # 题库参考示例：检索到的每一条都注入，不在此二次筛选（条数由
+    # CONFIG["db_retrieval_top_k"] 决定，与 Python 节点收到的是同一批）。
+    examples_text = _reference_examples_block(state.get("retrieved_examples"), problem)
     # Select by topic, not by position. A bare [:3000] slice delivered only the
     # document's opening modules, so after 非基础及进阶课程 grew to 8949 chars its
     # number-theory (offset 3404) and game-theory (offset 5369) modules could never
     # reach the model — a game problem got Lebesgue measure instead.
     base_prompt = REASONING_PROMPT.format(
         category=category,
-        skill_document=select_skill_excerpt(skill_doc, problem, 3000),
+        skill_document=select_skill_excerpt(skill_doc, problem, 3000) + examples_text,
         problem=problem)
     base_prompt += mode_instruction(question_mode)
     base_prompt += structure_instruction(problem)
@@ -567,16 +640,39 @@ def reasoning_agent_node(state, config):
         # exception propagated out of the node and the wrapper substituted an empty
         # result, so cross-validation saw a placeholder and had one candidate left.
         try:
-            resp = chat_with_retry(
-                client,
-                messages=[{"role": "user", "content": prompt}],
-                temperature=CONFIG["temperatures"]["reasoning"],
-                max_tokens=CONFIG["max_tokens"]["reasoning"],
-                logger=deps.logger,
-                time_budget=deps.time_budget,
-                label="reasoning",
-            )
+            if attempts == 1 and _FIRST_ATTEMPT_TIMEOUT_S:
+                # 首轮调用加单次墙钟上限：难题上首轮会把整个节点 1100s 上限吃光、
+                # 被 node_wrapper 掐断后压缩续写永远没机会触发。压到 550s 后，
+                # 超时就地转入压缩续写（复用首轮已算结论 + 答案前置 prefill），
+                # 而不是让 node_wrapper 掐死整条分支（math_agent 断点续写核心）。
+                resp = run_with_timeout(
+                    lambda: chat_with_retry(
+                        client,
+                        messages=[{"role": "user", "content": prompt}],
+                        temperature=CONFIG["temperatures"]["reasoning"],
+                        max_tokens=CONFIG["max_tokens"]["reasoning"],
+                        logger=deps.logger,
+                        time_budget=deps.time_budget,
+                        label="reasoning",
+                    ),
+                    _FIRST_ATTEMPT_TIMEOUT_S,
+                )
+            else:
+                resp = chat_with_retry(
+                    client,
+                    messages=[{"role": "user", "content": prompt}],
+                    temperature=CONFIG["temperatures"]["reasoning"],
+                    max_tokens=CONFIG["max_tokens"]["reasoning"],
+                    logger=deps.logger,
+                    time_budget=deps.time_budget,
+                    label="reasoning",
+                )
         except Exception as exc:  # noqa: BLE001 - keep whatever we already parsed.
+            is_first_timeout = isinstance(exc, NodeTimeoutError)
+            if is_first_timeout and clock:
+                # 首轮被单次墙钟上限切断：把上限耗时记入账，让对账/重试定价看到
+                # 完整调用的真实成本（而非把后续压缩续写的短耗时误当成便宜）。
+                clock.record("reasoning", _FIRST_ATTEMPT_TIMEOUT_S)
             deps.logger.warning("Reasoning attempt %s failed: %s", attempts, exc)
             trace.append({"attempt": attempts, "status": "failed", "error": str(exc)[:200]})
             # 传输失败（8 路并发下 780s 读超时为主）不再直接弃分支（2026-08-10
@@ -584,7 +680,8 @@ def reasoning_agent_node(state, config):
             # 按时返回，且按 reserve_margin 定价——放弃只该发生在时间真不够时。
             attempts += 1
             rescued, fail_reason = _compressed_reasoning_retry(
-                deps, hinted_base, failure="因网络传输故障未能返回",
+                deps, hinted_base,
+                failure="因首轮生成超出时限被切断" if is_first_timeout else "因网络传输故障未能返回",
                 coverage=coverage_clause)
             if rescued is None:
                 trace.append({"attempt": attempts, "status": "skipped",
@@ -615,7 +712,8 @@ def reasoning_agent_node(state, config):
                           "raw_excerpt": _raw_excerpt(resp)} if exhausted else {})})
         if _is_complete(parsed):
             return {"reasoning_result": parsed, "reasoning_trace": trace,
-                    "reasoning_attempts": attempts, "reasoning_raw_response": resp}
+                    "reasoning_attempts": attempts, "reasoning_raw_response": resp,
+                    "reasoning_reference_chars": len(examples_text)}
         # Two different failures need two different retries. A *format* slip is worth
         # re-asking with a format reminder. Token exhaustion is not: on a hard problem
         # this model can spend its whole budget on reasoning_content and emit no
@@ -627,7 +725,7 @@ def reasoning_agent_node(state, config):
         if exhausted:
             attempts += 1
             compressed_resp, fail_reason = _compressed_reasoning_retry(
-                deps, hinted_base, coverage=coverage_clause)
+                deps, hinted_base, coverage=coverage_clause, first_resp=resp)
             if compressed_resp is None:
                 trace.append({"attempt": attempts, "status": "skipped",
                               "reason": fail_reason or "compressed_retry_failed"})
@@ -651,10 +749,12 @@ def reasoning_agent_node(state, config):
                           "response_chars": len(resp or "")})
             if _is_complete(compressed_parsed):
                 return {"reasoning_result": parsed, "reasoning_trace": trace,
-                        "reasoning_attempts": attempts, "reasoning_raw_response": resp}
+                        "reasoning_attempts": attempts, "reasoning_raw_response": resp,
+                        "reasoning_reference_chars": len(examples_text)}
             break
         prompt = (base_prompt + "\n\n注意：上一次输出缺少必需章节（必须含 '## 问题分析'、'## 详细解题步骤'、"
                   "'## 最终答案'）。'## 最终答案' 下必须按题面要求完整列出各字段/各问项的结果"
                   "（含检验结论、区间上下限、全部枚举对象等），不得只给单个数值。请重新严格按格式输出。")
     return {"reasoning_result": parsed, "reasoning_trace": trace,
-            "reasoning_attempts": attempts, "reasoning_raw_response": resp}
+            "reasoning_attempts": attempts, "reasoning_raw_response": resp,
+            "reasoning_reference_chars": len(examples_text)}

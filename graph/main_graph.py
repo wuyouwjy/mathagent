@@ -71,11 +71,12 @@ def build_math_agent_graph():
     return g.compile()
 
 class MathAgentGraph:
-    def __init__(self, client, skills_loader=None, mcp_client=None):
+    def __init__(self, client, skills_loader=None, mcp_client=None, retriever=None):
         self.app = build_math_agent_graph()
         self.client = client
         self.skills_loader = skills_loader
         self.mcp_client = mcp_client
+        self.retriever = retriever
 
     def run(self, initial_state, token_budget=None, time_budget=None):
         from utils.deps import Deps
@@ -112,8 +113,18 @@ class MathAgentGraph:
                 clock.soft_total = float(paper_cap)
         except Exception:  # noqa: BLE001 - 完成率引擎是锦上添花，失败不拖垮单题
             pass
+        # 题库检索器惰性创建：构造轻量，真正加载语料在首次 query。检索是纯增益
+        # 节点，任何初始化失败都降级为"无参考示例"，绝不拖垮求解。
+        retriever = self.retriever
+        if retriever is None:
+            try:
+                from utils.retrieval.tfidf_client import TfidfRetriever
+                retriever = TfidfRetriever()
+            except Exception:  # noqa: BLE001 - 检索缺失不影响求解
+                retriever = None
         deps = Deps(client=self.client, skills_loader=self.skills_loader,
-                    mcp_client=self.mcp_client, token_budget=tb, time_budget=clock)
+                    mcp_client=self.mcp_client, token_budget=tb, time_budget=clock,
+                    retriever=retriever)
         try:
             final_state = self.app.invoke(initial_state, config={"configurable": {"deps": deps}})
         finally:
