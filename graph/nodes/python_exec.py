@@ -299,6 +299,9 @@ def python_agent_node(state, config):
     compressed_next = False
     compressed_used = False
     compressed_failure = "因长度超限在代码之前被截断"
+    # 完整重生成只做一次：首轮生成截断/执行失败后，时间充裕时先做一次普通完整
+    # 重生成（而非直接压缩硬写），把空余墙钟转化为更充分的代码生成；失败则落压缩。
+    full_retried = False
     while True:
         if compressed_next:
             # 熔断重生成不占普通重试名额，也不按上一轮 450s 的实测成本计价——
@@ -425,6 +428,17 @@ def python_agent_node(state, config):
             if compressed_used:
                 break
             if exhausted:
+                # 完整重生成：时间充裕时先做一次普通完整重生成（而非直接压缩硬写），
+                # 把空余墙钟转化为更充分的代码生成；失败再落压缩。full_retried 保证
+                # 只做一次，max_attempts += 1 让这次普通调用绕过次数上限。
+                if not full_retried and can_afford_retry(clock, "python"):
+                    full_retried = True
+                    max_attempts += 1
+                    prompt = _retry_prompt(
+                        "你上一次因长度超限没有输出 ```python``` 代码块。请重新生成完整 "
+                        "Python 程序：用 sympy 计算，最后一行 print(\"最终答案:\", answer)。",
+                        problem, candidate_answer)
+                    continue
                 compressed_next = True
                 continue
             prompt = _retry_prompt(
@@ -486,6 +500,16 @@ def python_agent_node(state, config):
         if compressed_used:
             break
         stderr_brief = (output.get('stderr') or '').replace('\n', ' ').strip()[:300]
+        # 完整重生成：时间充裕时先做一次普通完整重生成（带 stderr 反馈），把空余
+        # 墙钟转化为更充分的修复；失败再落压缩。full_retried 保证只做一次。
+        if not full_retried and can_afford_retry(clock, "python"):
+            full_retried = True
+            max_attempts += 1
+            prompt = _retry_prompt(
+                f"你上一次的代码执行失败（错误：{stderr_brief}）。请修正后重新输出完整 "
+                "```python``` 代码块，最后一行 print(\"最终答案:\", answer)。",
+                problem, candidate_answer)
+            continue
         compressed_failure = f"代码执行失败（错误：{stderr_brief}）"
         compressed_next = True
     return finalize(last_output)

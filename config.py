@@ -99,6 +99,11 @@ CONFIG = {
     # 的 1100s 掐死整条分支（math_agent 实测 idx 0/7/11/12/13 无压缩重试记录、落
     # emergency_direct_answer 错答）。
     "first_attempt_timeout_s": 550,
+    # 完整二次推理/重生成的估时（秒）：首轮 8192 token 耗尽后，若时间充裕先做一次
+    # 完整 8192 推理（复用首轮结论续写），而非直接 prefill 压缩硬写。8192 token
+    # @ ~50 tok/s ≈ 164s，220s 覆盖拥堵余量。只作 can_afford 估时，实测成本仍以
+    # last_attempt_cost 为准。
+    "full_retry_estimate_s": 220,
     # ==================== 移植自第三名（VeritasMath）的升级配置 ====================
     # 全卷完成率引擎（PaperPacer）：平台 6h 全卷硬限。官方实证 V1 每题固定 1200s
     # 软预算导致 112 题只完成 16 题（14.29%）。按"剩余全卷时间÷剩余题数"动态
@@ -110,7 +115,10 @@ CONFIG = {
     # 故收紧后的软预算下限 = reserve + 此余量，保证至少一轮核心推理能发起。
     "paper_min_work_s": 180,
     # 难度感知软预算：分类节点顺带输出难度，据此收紧 soft_total（只收紧不放宽）。
-    "difficulty_soft_budgets": {"easy": 480, "medium": 840, "hard": 1200},
+    # medium 840→1000：给计算题「首轮 164s + 完整二次推理 220s + Critic 120s +
+    # coordinator」留足可选工作购买力（A1 评测 242 次截断、全卷仅用 3h40min，
+    # medium 软预算剩 400-800s 被浪费）。easy 微调余量，hard 已是 1200 上限。
+    "difficulty_soft_budgets": {"easy": 600, "medium": 1000, "hard": 1200},
     # 过程审计智能体：定稿前审计题面契约完整性 + 关键计算抽核。
     "enable_critic": True,
     "critic_reserve_margin_s": 60,

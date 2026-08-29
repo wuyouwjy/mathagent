@@ -312,6 +312,12 @@ _COMPRESSED_RESERVE_MARGIN_S = CONFIG.get("compressed_reserve_margin_s", 150)
 #: 首轮 @ ~50 tok/s ≈ 164s，550s 只在并发拥堵/模型变慢时才触发。
 _FIRST_ATTEMPT_TIMEOUT_S = CONFIG.get("first_attempt_timeout_s", 550)
 
+#: 完整二次推理的估时（秒）：首轮 8192 token 耗尽后，若时间充裕先做一次完整
+#: 8192 推理（复用首轮结论续写），而非直接 prefill 压缩硬写。8192 token @ ~50
+#: tok/s ≈ 164s，220s 覆盖拥堵余量；只作 can_afford 估时，实测成本仍以
+#: last_attempt_cost 为准。
+_FULL_RETRY_ESTIMATE_S = CONFIG.get("full_retry_estimate_s", 220)
+
 #: 压缩重试的 assistant 种子。以内容开头接管助手轮，模型进入续写模式后不再打开
 #: reasoning_content（与分类器/仲裁器 prefill 同机制，见 utils/prefill.py 实测），
 #: 因此 8192 token 全部落在四章节上。种子从"## 结论速览"开始：先让模型把结论
@@ -391,6 +397,41 @@ def _compressed_reasoning_retry(deps, base_prompt,
     if deps.token_budget:
         deps.token_budget.consume(estimate_tokens(base_prompt), estimate_tokens(resp))
     return resp, ""
+
+
+def _full_reasoning_retry(deps, base_prompt, first_resp=None):
+    """首轮 token 耗尽后的完整二次推理（断点续写升级，math_agent 思想）。
+
+    与压缩重试的区别：不用 prefill 抑制私有思考，而是带首轮已算结论做一次
+    完整 8192 token 推理。对"首轮被打断、还没想清楚"的难题，这比"别思考、
+    直接写答案"的压缩重试质量更高。复用 _extract_clues 的结论避免从头重算
+    （A1 评测 242 次截断、全卷仅用 3h40min，软预算剩大量余量被浪费）。
+    失败返回 None，由调用方落压缩重试兜底。
+    """
+    clue = _extract_clues(first_resp) if first_resp else ""
+    instruction = (
+        "\n\n上一次推导因长度超限被截断。现在不要从头重算："
+        "基于已得到的结论直接续写，先给出 '## 最终答案' 的明确结论，"
+        "再补 '## 详细解题步骤'（最多 4 步、每步 3 行以内）。"
+        "若尚不能完全确定，也必须给出当前最可信的具体结论。"
+    )
+    try:
+        resp = chat_with_retry(
+            deps.client,
+            messages=[{"role": "user", "content": base_prompt + clue + instruction}],
+            temperature=CONFIG["temperatures"]["reasoning"],
+            max_tokens=CONFIG["max_tokens"]["reasoning"],
+            logger=deps.logger,
+            time_budget=deps.time_budget,
+            expected_call_seconds=_FULL_RETRY_ESTIMATE_S,
+            label="reasoning_full_retry",
+        )
+    except Exception as exc:  # noqa: BLE001 - degrade to compressed retry.
+        deps.logger.warning("Full reasoning retry failed: %s", exc)
+        return None
+    if deps.token_budget:
+        deps.token_budget.consume(estimate_tokens(base_prompt), estimate_tokens(resp))
+    return resp
 
 
 def _raw_excerpt(text, head=600, tail=1400):
@@ -724,6 +765,26 @@ def reasoning_agent_node(state, config):
         # 种子抑制私有推理，~150s 即产出可解析章节（阶段性熔断，评委建议 4）。
         if exhausted:
             attempts += 1
+            # 完整二次推理（断点续写升级）：首轮 token 耗尽后，若时间充裕先做一次
+            # 完整 8192 推理（复用首轮已算结论续写），把空余墙钟转化为更充分的思考；
+            # 完整推理仍失败/截断，再落到下面的压缩重试（三级兜底）。can_afford_retry
+            # 用 last_attempt_cost 定价，时间不够时自动跳过。
+            if can_afford_retry(clock, "reasoning"):
+                second_resp = _full_reasoning_retry(deps, hinted_base, first_resp=resp)
+                if second_resp is not None:
+                    second_parsed = _parse_reasoning_output(
+                        second_resp, question_mode=question_mode)
+                    trace.append({"attempt": attempts,
+                                  "status": "success" if _is_complete(second_parsed) else "failed",
+                                  "reason": "full_retry_after_exhaustion",
+                                  "response_chars": len(second_resp or "")})
+                    if _is_complete(second_parsed):
+                        return {"reasoning_result": second_parsed, "reasoning_trace": trace,
+                                "reasoning_attempts": attempts,
+                                "reasoning_raw_response": second_resp,
+                                "reasoning_reference_chars": len(examples_text)}
+                    # 二次推理仍截断/不完整：用它的结论作为压缩重试的续写线索。
+                    resp = second_resp
             compressed_resp, fail_reason = _compressed_reasoning_retry(
                 deps, hinted_base, coverage=coverage_clause, first_resp=resp)
             if compressed_resp is None:

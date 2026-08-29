@@ -1,10 +1,10 @@
 <p align="center">
-  <h1 align="center">🧮 Math-Agent-System A1</h1>
+  <h1 align="center">🧮 Math-Agent-System A2</h1>
   <p align="center">基于 <b>Intern-S 系列大模型</b> 的 LangGraph 多智能体数学推理系统 — 2026 挑战杯·书生赛道</p>
   <p align="center">
     <img src="https://img.shields.io/badge/Python-3.10+-blue" alt="Python">
     <img src="https://img.shields.io/badge/LLM-Intern--S-orange" alt="Intern-S">
-    <img src="https://img.shields.io/badge/version-A1-purple" alt="A1">
+    <img src="https://img.shields.io/badge/version-A2-purple" alt="A2">
     <img src="https://img.shields.io/badge/framework-LangGraph-green" alt="LangGraph">
     <img src="https://img.shields.io/badge/score-target-70%2B-brightgreen" alt="Target">
   </p>
@@ -14,7 +14,7 @@
 
 ## 📖 简介
 
-**Math-Agent-System A1** 是为 2026 年度中国青年科技创新"揭榜挂帅"擂台赛·书生赛道设计的数学推理智能体。
+**Math-Agent-System A2** 是为 2026 年度中国青年科技创新"揭榜挂帅"擂台赛·书生赛道设计的数学推理智能体。
 
 T3 版本基于 ICMAnew-main 架构（50 分 / 56 correct / 112 题）完成了从 T2 svragent 到 **LangGraph 多智能体图编排**的重构。T4 在 T3 基础上，参照 VeritasMath 前三名架构补齐了四块**正确性与完成率**短板：
 
@@ -23,10 +23,15 @@ T3 版本基于 ICMAnew-main 架构（50 分 / 56 correct / 112 题）完成了�
 3. **扇出门控 + 确定性守卫（Guard 组）**：置信门控按资源档位扇出（实算填空升级双路），计数题/模结构/判断题/证明题/答案形式各有零成本确定性守卫兜底；
 4. **平台防线（response_normalize + sys.path 自举）**：响应归一化 + chat 签名三级降级探测 + 接口签名兼容，杜绝平台加载/调用形态变化导致的整批 0 分。
 
-A1 在 T4 基础上，融合两份高分作品（ICMAnew 66.96 分 / math_agent 69 分）的差异化能力，补齐两块**正确率**短板：
+A1 在 T4 基础上，融合两份高分作品（ICMAnew 66.96 分 / math_agent 69 分）的差异化能力，补齐两块**正确率**短板（A1 官方评测 64.29 分：72 correct / 40 incorrect，112 题全完成）：
 
 5. **RAG 题库检索（参照 ICMAnew 66.96 分）**：解题前用原题检索相似竞赛题，把 top-k 条题面+解答作为 few-shot 参考注入推理与验证两个子代理；TF-IDF 轻量检索（char_wb n-gram 2-5）替代 chroma+embedding，评测环境可复现；配套**反锚定机制**防止近似题结论误迁移（近似题结论不可直接照抄，数值参数差异需显式对比）；
 6. **断点续写 / 答案前置（参照 math_agent 69 分）**：压缩重试用"结论速览"prefill 让结论先落盘（答案前置，截断也不丢答案）；复用首轮已算结论作为续写线索（断点续写）；首轮加 550s 墙钟上限，触发即就地转入压缩续写而非被掐死。
+
+A2 针对 A1 评测暴露的「时间浪费」瓶颈做定向优化——A1 全卷实际只跑 **3h40min**（空余 2h20min），却有 **242 次请求被 max_tokens=8192 截断**（679 请求的 35.6%）。medium/hard 难题是「首轮推理 ~164s 被截断 → 150s prefill 压缩重试（抑制私有思考，硬写）→ 交卷」，软预算剩 400-800s 被浪费。A2 把空余墙钟转化为「截断难题的第二次完整思考」：
+
+7. **完整二次推理（full reasoning retry）**：把「首轮截断 → 压缩重试」两级升级为「首轮截断 → **完整二次推理**（复用首轮结论断点续写、保留私有思考）→ 仍失败才压缩重试」三级；reasoning 与 python 两侧对称实现，Python 侧用 `full_retried` 标志保证完整重生成只做一次；
+8. **难度软预算上调**：medium 840→1000（给计算题「首轮 164s + 完整二次推理 220s + Critic + coordinator」留足购买力），easy 480→600 微调余量。完整二次推理只在 `can_afford_retry` 放行时触发，时间不足自动退回压缩重试，PaperPacer 落后收紧仍是最后防线，不会击穿 6h。
 
 ### T4 vs T3 核心增量
 
@@ -41,7 +46,7 @@ A1 在 T4 基础上，融合两份高分作品（ICMAnew 66.96 分 / math_agent 
 
 ### A1 vs T4 核心增量
 
-| 维度 | T4（目标 60 分+） | A1（目标 70 分+） |
+| 维度 | T4（目标 60 分+） | A1（实测 64.29 分） |
 |---|---|---|
 | **外部知识** | 无——仅靠 skill 文档内建知识 | **RAG 题库检索**：原题检索相似竞赛题，top-k 题面+解答作为 few-shot 参考注入推理/验证两个子代理 |
 | **检索实现** | — | **TF-IDF**（char_wb n-gram 2-5）轻量检索，替代 chroma+embedding，评测环境可复现、零额外依赖 |
@@ -50,7 +55,16 @@ A1 在 T4 基础上，融合两份高分作品（ICMAnew 66.96 分 / math_agent 
 | **续写复用** | 首轮残片丢弃 | **断点续写**：`_extract_clues` 复用首轮已算结论，压缩重试带线索续写 |
 | **首轮超时** | 只有 node_wrapper 1100s 掐死 | **550s 墙钟上限**：触发即就地转入压缩续写，而非让整条分支被掐死 |
 
-### A1 图架构总览
+### A2 vs A1 核心增量
+
+| 维度 | A1（实测 64.29 分） | A2（目标 70 分+） |
+|---|---|---|
+| **截断难题兜底** | 首轮截断 → prefill 压缩重试（抑制私有思考，硬写） | **三级兜底**：首轮截断 → 完整二次推理（复用结论续写、保留私有思考）→ 仍失败才压缩重试 |
+| **Python 侧截断/失败** | 直接落压缩重生成 | **完整重生成**：先完整重生成一次（`full_retried` 只触发一次），失败再压缩 |
+| **medium 软预算** | 840s（截断后剩 400-800s 浪费） | **1000s**：给「首轮 164s + 二次推理 220s + Critic + coordinator」留足购买力 |
+| **时间利用** | 全卷 3h40min，空余 2h20min | 把空余墙钟转化为第二次完整思考（预计 ~5.2h，仍 < 6h 硬限） |
+
+### A2 图架构总览
 
 ```
 solve(problem, metadata)
@@ -59,8 +73,8 @@ solve(problem, metadata)
        ├── classifier_node: 18 领域 LLM 预填充分类（~1s）+ 难度画像
        ├── database_retrieval_node: TF-IDF 题库检索 → top-k 相似题 + 反锚定 reference_block
        ├── solving_subgraph: 置信门控扇出（实算填空升级双路；纯概念客观题单路径）
-       │    ├── reasoning_agent: 加载领域 skill → 四章节结构化输出
-       │    ├── python_agent: 生成 SymPy 验证代码 → 执行 → 独立答案
+       │    ├── reasoning_agent: 加载领域 skill → 四章节结构化输出（截断→完整二次推理→压缩重试三级兜底）
+       │    ├── python_agent: 生成 SymPy 验证代码 → 执行 → 独立答案（失败/截断→完整重生成→压缩三级兜底）
        │    └── cross_validator: 两路答案匹配 → 路由决策
        │         ├── match → critic
        │         ├── mismatch / contradict → playoff（确定性复算裁决）
@@ -102,7 +116,7 @@ result = agent.solve(
 # }
 ```
 
-接口防御（A1）：`solve` 兼容 `metadata=None` / 位置参数 / 额外参数；额外暴露
+接口防御（A2）：`solve` 兼容 `metadata=None` / 位置参数 / 额外参数；额外暴露
 `agent(problem)` 与 `agent.run(problem)` 别名；文件被 importlib 按路径加载时
 自动 `sys.path` 自举，任何加载形态都能找到 `graph`/`utils` 包。
 
@@ -131,8 +145,8 @@ Math-Agent-System/
 │       ├── input.py           # 提取 idx，问题锚定
 │       ├── classifier.py      # 18 领域 LLM 预填充分类 + 难度画像 + 确定性回退
 │       ├── database_retrieval.py # RAG 题库检索：TF-IDF 相似题 + 反锚定 reference_block
-│       ├── reasoning.py       # LLM 四章节结构化推理 + Token 耗尽压缩重试 + 断点续写/答案前置
-│       ├── python_exec.py     # SymPy 验证代码生成 + 子进程安全执行
+│       ├── reasoning.py       # LLM 四章节结构化推理 + 截断三级兜底（完整二次推理→压缩重试）+ 断点续写/答案前置
+│       ├── python_exec.py     # SymPy 验证代码生成 + 子进程安全执行 + 失败/截断完整重生成
 │       ├── cross_validator.py # 双路答案交叉验证 + 路由决策（含 playoff 路由）
 │       ├── playoff.py         # 确定性复算季后赛：冲突候选代回复算裁决
 │       ├── critic.py          # 过程审计门：契约完整性 + 计算抽核 + 推导矛盾自检
@@ -250,12 +264,13 @@ PY
 两路并行执行，交叉验证节点汇总结果，按 match/mismatch/uncertain 路由。
 **证明题例外**：抽象证明（同构/整环等）无法数值验证，Python 分支 answer 恒为空却并行耗数百秒，故证明题直接走推理单路径（零准确率损失，省下软预算给 coordinator 成稿）。此外证明题 critic 判缺项后**不再重试完整 reasoning**——实测第 2 次 reasoning 仍被判缺项、其产出从未被采纳（`validated_answer` 保持第 1 次值，最终靠 `coordinator_llm` 独立成稿才正确），故直接成稿，省一次完整推理（~280-527s），几乎不损正确率。
 
-### 3. 分级熔断与压缩重试
+### 3. 分级熔断、完整二次推理与压缩重试（三级兜底）
 
 `intern-s2-preview-397b` 的 CoT（私有 `reasoning_content`）与可见 `content` 都计入
-`max_tokens`。难题可能耗完整份额度却没产出任何章节。对策：
+`max_tokens`。难题可能耗完整份额度却没产出任何章节。A2 把「截断 → 压缩重试」两级升级为三级：
 - 首轮 `max_tokens=8192`（约 150s）——原 24576 首轮在奥赛题上几乎总被私有推理耗尽，成功解极少，降上限换来的是重试窗口
-- Token 耗尽时自动转入 **prefill 压缩重试**（`max_tokens=8192`）：assistant 种子抑制私有推理，全部额度用于可见章节
+- **Token 耗尽时先做完整二次推理**（`reasoning_full_retry`）：`can_afford_retry` 放行且时间充裕时，用普通 `chat_with_retry`（保留私有思考）复用首轮 `_extract_clues` 结论断点续写，先给"## 最终答案"明确结论再补步骤；Python 侧对称地做一次完整重生成（`full_retried` 只触发一次）
+- 完整二次推理仍失败/截断才转入 **prefill 压缩重试**（`max_tokens=8192`）：assistant 种子抑制私有推理，全部额度用于可见章节
 - 压缩按 **reserve_margin 定价**：软预算耗尽后仍可动用 hard reserve
 - 偶发地，私有 CoT 会**泄到可见 `content`**（同题两次跑一次正常一次白卷）：reasoning 无四章节 → 捞回层可能误捞 "Okay, I will..." 这类英文推理引导句当答案（其常混入 `$n_5=6$` 等式，躲过「含等式即放行」豁免）。`cleanliness.py` 在洁净度门最前拒收句首英文 CoT 引导词，避免英文残片出厂
 
@@ -263,7 +278,7 @@ PY
 
 官方约束：112 题、平台并发 3、智能体总运行 6h 封顶，超出后未答题不计分。
 PaperPacer 用**题间预算池**动态计算每题软预算帽：已用全卷时间 ÷ 剩余题数超速时收紧
-（仍 ≥ 120s 保底），健康时给足理想预算。与难度画像（easy 480 / medium 840 / hard 1200）
+（仍 ≥ 120s 保底），健康时给足理想预算。与难度画像（easy 600 / medium 1000 / hard 1200）
 取 min 作为该题软预算。只收紧软预算（可选阶段购买力），不动 1200s 平台硬限。
 
 ### 5. 过程审计门（Critic）
@@ -321,14 +336,15 @@ PaperPacer 用**题间预算池**动态计算每题软预算帽：已用全卷�
 - **注入两个子代理**：top-k 条题面+解答随 skill 文档一并进入 reasoning 与 python 提示词（`db_retrieval_top_k=2`），检索内容与注入字符数均写入 trace 留证；
 - **反锚定机制（reference_block）**：近似题结论不可直接迁移——提示块显式声明"参考题与本题参数不同"，要求数值参数差异对比、只借鉴解题方法不照抄结论，防误抄近似题。
 
-### 12. 断点续写 / 答案前置（参照 math_agent）
+### 12. 断点续写 / 答案前置 / 完整二次推理（参照 math_agent）
 
-针对深度推理模型 token 耗尽 / 首轮超时导致白卷的三件套：
+针对深度推理模型 token 耗尽 / 首轮超时导致白卷的完整兜底链：
 
 - **答案前置 prefill**：压缩重试以 `## 结论速览\n\boxed{` 开头，让结论先落盘——即便再次截断，`\boxed{}` 内容仍可被 `_distill_answer` 策略 2.5 提炼，不丢答案；
 - **结论速览兜底**：四章节解析失败时，从"结论速览"章节兜底提炼（`answer_source="quick_conclusion"`）；
-- **断点续写（`_extract_clues`）**：复用首轮已算结论作为续写线索注入压缩重试，而非从零重生成；
-- **首轮墙钟上限（550s）**：`first_attempt_timeout_s=550` 触发即就地转入压缩续写，而非让 node_wrapper 的 1100s 掐死整条分支（reasoning 与 python 两侧均生效）。
+- **断点续写（`_extract_clues`）**：复用首轮已算结论作为续写线索注入二次/压缩重试，而非从零重生成；
+- **完整二次推理（A2 新增）**：首轮截断后、压缩重试前，若时间充裕先用普通 `chat_with_retry`（保留私有思考）带结论续写一次完整推理，把"没想清楚就硬写"升级为"想清楚了再写"；被拒/失败/再截断才降级到压缩重试；
+- **首轮墙钟上限（550s）**：`first_attempt_timeout_s=550` 触发即就地转入续写，而非让 node_wrapper 的 1100s 掐死整条分支（reasoning 与 python 两侧均生效）。
 
 ---
 
@@ -341,7 +357,7 @@ PaperPacer 用**题间预算池**动态计算每题软预算帽：已用全卷�
 | `time_reserve_s` | `300` | 预留时间：越过后不再购买可选 LLM 阶段 |
 | `paper_total_seconds` | `21600` | 全卷 6h 硬限（PaperPacer 预算池） |
 | `paper_min_work_s` | `180` | 软预算下限余量：收紧后 soft_total ≥ reserve + 此值，避免"落后"时 `remaining()` 开局为负导致 LLM 全拒 |
-| `difficulty_soft_budgets` | `{easy:480, medium:840, hard:1200}` | 难度画像软预算 |
+| `difficulty_soft_budgets` | `{easy:600, medium:1000, hard:1200}` | 难度画像软预算（A2 上调 medium 840→1000，给完整二次推理留购买力） |
 | `reconciliation_max_rounds` | `2` | 调解轮次上限 |
 | `temperatures.reasoning` | `0.3` | 推理温度（0.8→0.3 压随机性，防 CoT 泄漏/格式偏离） |
 | `temperatures.python` | `0.2` | 代码生成温度（0.6→0.2 求确定性） |
@@ -358,7 +374,8 @@ PaperPacer 用**题间预算池**动态计算每题软预算帽：已用全卷�
 | `enable_form_align` | `true` | 答案形式对齐 |
 | `enable_proof_deepener` | `true` | 证明结构补强 |
 | `db_retrieval_top_k` | `2` | 题库检索 top-k 条数（2 条同时进推理/验证两个子代理） |
-| `first_attempt_timeout_s` | `550` | 首轮推理/Python 单次墙钟上限（触发即转压缩续写） |
+| `first_attempt_timeout_s` | `550` | 首轮推理/Python 单次墙钟上限（触发即转续写） |
+| `full_retry_estimate_s` | `220` | 完整二次推理/重生成估时（8192 token @ ~50 tok/s + 余量，只作 can_afford 估时） |
 
 ---
 
@@ -387,7 +404,8 @@ PaperPacer 用**题间预算池**动态计算每题软预算帽：已用全卷�
 | T2 | 15.18% | svragent 多路线并行 | 4 路线共识投票、131K token、答案管线 |
 | T3 | 50 分（56/112） | LangGraph 多智能体图 | skill 文档、Python 验证、交叉校验、语义仲裁、时间预算 |
 | T4 | 目标 60 分+ | + Critic + Playoff + PaperPacer + Guards | 全卷完成率引擎、过程审计门、确定性复算季后赛、扇出门控、7 确定性守卫、响应归一化防 0 分 |
-| **A1** | **目标 70 分+** | + RAG 题库检索 + 断点续写/答案前置 | TF-IDF 相似题检索 + 反锚定参考块；结论速览 prefill + 线索复用续写 + 550s 首轮墙钟上限 |
+| A1 | 64.29 分（72/112） | + RAG 题库检索 + 断点续写/答案前置 | TF-IDF 相似题检索 + 反锚定参考块；结论速览 prefill + 线索复用续写 + 550s 首轮墙钟上限 |
+| **A2** | **目标 70 分+** | + 完整二次推理 + 难度软预算上调 | 截断难题三级兜底（首轮→完整二次推理→压缩重试）；medium 软预算 840→1000；把 A1 空余 2h20min 转化为第二次完整思考 |
 
 ---
 
