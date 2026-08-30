@@ -24,6 +24,11 @@ CONFIG = {
     # 中间→standard 双路验证。
     "confidence_gate": {"high": 0.90, "low": 0.70},
     "deep_solver_domains": ["数论", "组合数学", "高等代数", "抽象代数"],
+    # A3：证明题与深解领域（deep_solver_domains）首轮直接压缩 prefill（答案前置 +
+    # 抑制私有 CoT），跳过"几乎必超 8192"的完整 CoT（A2 实测完整二次推理 80% 也
+    # 截断）。压缩产出不完整时回退完整 CoT 兜底，不损失深度思考。设 false 可整体
+    # 关闭此优化（回退到 A2 的「完整 CoT → 完整二次推理 → 压缩重试」三级路径）。
+    "enable_deep_direct_compressed": True,
     # Zero-cost deterministic ranking is retained purely as a fallback for a
     # failed/unparseable LLM classification; it no longer narrows the LLM's
     # candidate list (all 18 domains go in one prefilled call).
@@ -115,10 +120,12 @@ CONFIG = {
     # 故收紧后的软预算下限 = reserve + 此余量，保证至少一轮核心推理能发起。
     "paper_min_work_s": 180,
     # 难度感知软预算：分类节点顺带输出难度，据此收紧 soft_total（只收紧不放宽）。
-    # medium 840→1000：给计算题「首轮 164s + 完整二次推理 220s + Critic 120s +
-    # coordinator」留足可选工作购买力（A1 评测 242 次截断、全卷仅用 3h40min，
-    # medium 软预算剩 400-800s 被浪费）。easy 微调余量，hard 已是 1200 上限。
-    "difficulty_soft_budgets": {"easy": 600, "medium": 1000, "hard": 1200},
+    # A3：medium 1000→1200——A2 瓶颈已从「时间浪费」转为「8192 token 截断」
+    # （truncated_count 328 / 41.7%，完整二次推理 80% 也截断）。给计算题的首轮
+    # 完整 CoT + 完整二次推理 + 压缩续写三级熔断留足购买力，把剩余空余墙钟换成
+    # 准确率。风险是更接近 6h 红线，由 PaperPacer 落后收紧 + can_afford_retry
+    # 双重兜底。easy 微调余量，hard 已是 1200 上限不变。
+    "difficulty_soft_budgets": {"easy": 600, "medium": 1200, "hard": 1200},
     # 过程审计智能体：定稿前审计题面契约完整性 + 关键计算抽核。
     "enable_critic": True,
     "critic_reserve_margin_s": 60,

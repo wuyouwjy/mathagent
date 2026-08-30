@@ -332,6 +332,43 @@ _COMPRESSED_INSTRUCTION = (
 )
 
 
+def _extract_key_equations(text, limit=500):
+    """提取首轮推导中"已算出的关键等式"（结果形，右端含数字），作为续写线索。
+
+    extract_partial_findings 只收带结论标记（因此/所以/故…）的句子，会漏掉推导
+    中途的裸等式（n_5=6、x=√2、f'(x)=2x 这类已算出的中间结果）——这些中间值
+    同样可信、可直接复用。保守起见只收"右端含具体数字"的短式，排除定义式
+    （f(x)=x²）、比较（==）与英文 CoT 探索句，避免把中途试错当结论注入。
+    """
+    text = text or ""
+    if not text:
+        return ""
+    eqs, seen = [], set()
+    for frag in re.split(r"[\n；;。]", text):
+        frag = frag.strip().strip("*# 　")
+        if not (3 <= len(frag) <= 90):
+            continue
+        if "==" in frag or "=" not in frag:
+            continue
+        if re.search(r"(?i)okay|suppose|assume|let\s+\w+\s+be|we\s+have|note\s+that", frag):
+            continue
+        rhs = frag.split("=", 1)[1].strip()
+        if not re.search(r"\d|\\sqrt|\\pi|\\frac", rhs):
+            continue
+        if re.fullmatch(r"[A-Za-z\\][A-Za-z0-9_\\()\^\{\}]*", rhs):
+            continue
+        key = re.sub(r"\s+", "", frag)[:50]
+        if key in seen:
+            continue
+        seen.add(key)
+        eqs.append(frag)
+        if len(eqs) >= 5 or sum(len(e) for e in eqs) >= limit:
+            break
+    if not eqs:
+        return ""
+    return "（已算出的中间结果）" + "；".join(eqs)
+
+
 def _extract_clues(text, limit=2000):
     """从首轮响应提取模型已算出的有效结论，作为续写/压缩重试的线索。
 
@@ -349,6 +386,10 @@ def _extract_clues(text, limit=2000):
     findings = extract_partial_findings(text, limit_chars=1200)
     if findings:
         parts.append(findings)
+    # A4 思路4：补充裸等式（中间结果），让续写/压缩重试带着精确中间值续写。
+    equations = _extract_key_equations(text)
+    if equations:
+        parts.append(equations)
     if not parts:
         return ""
     return (
@@ -467,6 +508,28 @@ def reasoning_agent_node(state, config):
     base_prompt += structure_instruction(problem)
     # 压缩重试要压的是推导篇幅，不是答案该覆盖的分支（评委复测 idx 14）。
     coverage_clause = answer_coverage_clause(problem)
+
+    # A3 手段1：紧凑输出——A2 首轮/二次完整 CoT 的私有 reasoning_content 常吃满
+    # 8192、导致 '## 最终答案' 没写出就被截断（truncated_count 328 / 41.7%）。
+    # 提示层引导模型"先锁定结论、少铺陈"，把额度留给可见章节。客观题走独立的
+    # objective_prompt，不受此影响。
+    base_prompt += (
+        "\n\n[紧凑输出要求] 推理预算有限：先在思考中锁定最终结论，再倒推最简推导链。"
+        "'## 问题分析' 不超过 3 行（不要复述题面）；'## 详细解题步骤' 只保留关键步骤，"
+        "每个步骤一行公式一行结论，略去纯代数展开；把额度留给 '## 最终答案' 的完整结论"
+        "（先在心里定稿，确保在输出结束前写出）。"
+    )
+
+    # A4 思路3：medium 计算题（computation 且非深解领域）答案前置——先在推理中算准
+    # 数值、锁定最终答案，再先写 '## 最终答案' 后倒推步骤（步骤是佐证不是重新探索）。
+    # 深解题/证明题不适用（其完整 CoT 必截断，已由 A3 手段2 首轮压缩接管）。
+    if question_mode == "computation" and category not in CONFIG.get("deep_solver_domains", []):
+        base_prompt += (
+            "\n\n[答案前置要求] 计算题请遵循：先在推理中把数值算准、锁定最终答案的"
+            "精确值，再在输出中先写 '## 最终答案' 的完整结论（数值/区间/集合），"
+            "然后用 '## 详细解题步骤' 倒推展示如何得到该值——步骤是佐证答案，"
+            "不是重新探索。"
+        )
 
     if is_objective_mode(question_mode):
         # Objective items do not need a 30k-token proof search or an independent
@@ -663,6 +726,46 @@ def reasoning_agent_node(state, config):
     clock = deps.time_budget
     if clock and clock.fast_path():
         max_attempts = 1
+
+    # A3 手段2：证明题与深解领域（数论/组合/高代/抽代）的完整 CoT 几乎必超 8192
+    # （A2 实测完整二次推理 80% 也截断）。首轮先试压缩 prefill（答案前置 + 抑制
+    # 私有 CoT，~150s），成功即省下"注定截断"的完整 CoT + 完整二次推理（~384s）；
+    # 压缩产出不完整则回退下面的完整 CoT 兜底，不损失深度思考。fast_path 时间
+    # 紧张或开关关闭时跳过，直接走最短路径。
+    deep_direct = (CONFIG.get("enable_deep_direct_compressed", True)
+                   and (question_mode == "proof"
+                        or category in CONFIG.get("deep_solver_domains", [])))
+    if deep_direct and not (clock and clock.fast_path()):
+        deep_resp, _deep_fail = _compressed_reasoning_retry(
+            deps, hinted_base, coverage=coverage_clause)
+        if deep_resp is not None:
+            deep_parsed = _parse_reasoning_output(deep_resp, question_mode=question_mode)
+            trace.append({"attempt": 1,
+                          "status": "success" if _is_complete(deep_parsed) else "failed",
+                          "reason": "deep_direct_compressed_first",
+                          "response_chars": len(deep_resp or "")})
+            if _is_complete(deep_parsed):
+                # A4 思路2：压缩 prefill 成功但低置信（抑制了私有思考），时间充裕时
+                # 用省下的时间做一次完整 CoT 二次确认（复用压缩答案续写、保留私有
+                # 思考）。完整 CoT 产出完整答案则采用（更高置信），否则保留压缩答案。
+                if can_afford_retry(clock, "reasoning"):
+                    verify_resp = _full_reasoning_retry(
+                        deps, hinted_base, first_resp=deep_resp)
+                    if verify_resp is not None:
+                        verify_parsed = _parse_reasoning_output(
+                            verify_resp, question_mode=question_mode)
+                        trace.append({"attempt": 2,
+                                      "status": "success" if _is_complete(verify_parsed) else "failed",
+                                      "reason": "deep_verify_full_cot",
+                                      "response_chars": len(verify_resp or "")})
+                        if _is_complete(verify_parsed):
+                            return {"reasoning_result": verify_parsed, "reasoning_trace": trace,
+                                    "reasoning_attempts": 2, "reasoning_raw_response": verify_resp,
+                                    "reasoning_reference_chars": len(examples_text)}
+                return {"reasoning_result": deep_parsed, "reasoning_trace": trace,
+                        "reasoning_attempts": 1, "reasoning_raw_response": deep_resp,
+                        "reasoning_reference_chars": len(examples_text)}
+
     for _ in range(max_attempts):
         # Fund the retry against what the previous attempt actually cost, not against
         # "time has not run out yet". Without this, a second 545s attempt was authorised

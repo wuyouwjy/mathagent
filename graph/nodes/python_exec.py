@@ -302,6 +302,37 @@ def python_agent_node(state, config):
     # 完整重生成只做一次：首轮生成截断/执行失败后，时间充裕时先做一次普通完整
     # 重生成（而非直接压缩硬写），把空余墙钟转化为更充分的代码生成；失败则落压缩。
     full_retried = False
+
+    # A4 思路1：深解领域（数论/组合/高代/抽代）首轮直接压缩重生成（代码前置 prefill，
+    # ~200s），跳过"几乎必超 8192"的完整代码生成（与推理分支 A3 手段2 对称）。压缩
+    # 产出有效代码并执行出答案则直接返回；否则回退下面的完整生成兜底。fast_path
+    # 时间紧张或开关关闭时跳过。
+    deep_direct = (CONFIG.get("enable_deep_direct_compressed", True)
+                   and category in CONFIG.get("deep_solver_domains", []))
+    if deep_direct and not (clock and clock.fast_path()):
+        attempts = 1
+        resp, _dfail = _compressed_python_call(
+            deps, problem, candidate_answer,
+            failure="因深解领域完整代码生成几乎必超 8192")
+        if resp is not None:
+            compressed_used = True
+            code = _extract_code(resp)
+            if code and mcp_client is not None:
+                last_code = code
+                output = mcp_client.execute(
+                    code, timeout=CONFIG["node_timeouts"]["python_mcp_execute"])
+                last_output = output
+                probe = parse_verification_evidence(
+                    output, candidate_answer=candidate_answer, code=code)
+                trace.append({"attempt": attempts,
+                              "status": "success" if output.get("success") else "failed",
+                              "reason": "deep_direct_compressed_first",
+                              "response_chars": len(resp or "")})
+                if output.get("success") and str(probe.get("answer") or "").strip():
+                    return finalize(output)
+        # 压缩未产出有效答案：重置 attempts，回退下面 while 循环的完整生成兜底。
+        attempts = 0
+
     while True:
         if compressed_next:
             # 熔断重生成不占普通重试名额，也不按上一轮 450s 的实测成本计价——
