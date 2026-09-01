@@ -66,8 +66,8 @@ CONFIG = {
     # 仍用刻意小 cap 抑制私有 CoT。
     "max_tokens": {"classifier": 96, "classifier_fallback": 8192,
                    "objective_reasoning": 8192,
-                   "reasoning": 8192, "python": 8192,
-                   "reasoning_compressed": 8192, "python_compressed": 8192,
+                   "reasoning": 12288, "python": 12288,
+                   "reasoning_compressed": 12288, "python_compressed": 12288,
                    "reconciliation": 8192,
                    "semantic_arbiter": 96, "semantic_arbiter_fallback": 8192,
                    "coordinator": 8192, "emergency_answer": 1280},
@@ -127,7 +127,7 @@ CONFIG = {
     # 双重兜底。easy 微调余量，hard 已是 1200 上限不变。
     "difficulty_soft_budgets": {"easy": 600, "medium": 1200, "hard": 1200},
     # 过程审计智能体：定稿前审计题面契约完整性 + 关键计算抽核。
-    "enable_critic": True,
+    "enable_critic": False,
     "critic_reserve_margin_s": 60,
     # 确定性复算季后赛：两路冲突时代回复算，替代"只能二选一"的仲裁。
     # （季后赛代码执行的超时复用 node_timeouts.python_mcp_execute，无需单独配置。）
@@ -137,7 +137,7 @@ CONFIG = {
     # 计数题枚举对照守护（组合计数是 LLM 最弱项）。
     "enable_counting_guard": True,
     # 模结构守护：F_2/Z_m 语境注入"结构内聚合"条款 + 代码静态核查。
-    "enable_modular_guard": True,
+    "enable_modular_guard": False,
     # 答案形式对齐 + 证明结构补强。
     "enable_form_align": True,
     "enable_proof_deepener": True,
