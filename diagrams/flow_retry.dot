@@ -1,0 +1,39 @@
+digraph RetryFallback {
+    rankdir=TB;
+    bgcolor="white";
+    node [shape=box, style="rounded,filled", fontname="SimHei", fontsize=13, color="#333333"];
+    edge [fontname="SimHei", fontsize=12, color="#555555"];
+
+    start [label="reasoning_agent 开始", fillcolor="#e8f4fd"];
+    deep  [label="深解题？\nproof 或 deep_solver_domains", shape=diamond, fillcolor="#fff3cd"];
+
+    c1 [label="首轮直接压缩 prefill\n答案前置 + 抑制私有 CoT", fillcolor="#d1ecf1"];
+    c2 [label="首轮完整 CoT\nmax_tokens = 12288", fillcolor="#d1ecf1"];
+
+    t1 [label="产出完整？", shape=diamond, fillcolor="#fff3cd"];
+    t2 [label="token 耗尽？", shape=diamond, fillcolor="#fff3cd"];
+
+    c3 [label="完整二次推理\n复用结论断点续写", fillcolor="#d1ecf1"];
+    t3 [label="仍截断 / 失败？", shape=diamond, fillcolor="#fff3cd"];
+
+    c4  [label="压缩 prefill 重试\n结论速览 + 答案前置", fillcolor="#d4edda"];
+    out [label="输出四章节答案", fillcolor="#d4edda"];
+
+    start -> deep;
+    deep -> c1 [label="是"];
+    deep -> c2 [label="否"];
+
+    c1 -> t1;
+    c2 -> t2;
+
+    t1 -> out [label="是"];
+    t1 -> c3  [label="否"];
+
+    t2 -> out [label="否"];
+    t2 -> c3  [label="是"];
+
+    c3 -> t3;
+    t3 -> out [label="否"];
+    t3 -> c4  [label="是"];
+    c4 -> out;
+}

@@ -224,6 +224,14 @@ def python_agent_node(state, config):
         }
     reasoning_result = state.get("reasoning_result") or {}
     candidate_answer = str(reasoning_result.get("answer") or "").strip()
+    if CONFIG.get("python_independent_solve", False):
+        # 计算题走工具主解（去锚定）：不注入 reasoning 候选，避免"核验候选"锚定
+        # 效应——模型看到候选后围绕它复现而非从题目独立求解。candidate_answer
+        # 清空后，下游 prompt 注入（下方第 248 行）、_retry_prompt 的候选提示、
+        # evidence 的 _MAX_RATIO_RE 对照全部随之去锚定（evidence 退回用 Python
+        # 自身 answer 做输出自洽检查，语义更合理）。cross_validator 在
+        # computation+success 时优先采纳这个独立答案（_preferred_answer 第 94 行）。
+        candidate_answer = ""
     try:
         validation_script = sl.get_validation_script(category)
     except Exception:

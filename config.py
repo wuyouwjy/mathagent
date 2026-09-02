@@ -23,7 +23,11 @@ CONFIG = {
     # 置信门控：最少资源高准确率。high(≥0.90)→fast 单路径；low(<0.70)→deep；
     # 中间→standard 双路验证。
     "confidence_gate": {"high": 0.90, "low": 0.70},
-    "deep_solver_domains": ["数论", "组合数学", "高等代数", "抽象代数"],
+    # 深解领域（首轮直接压缩 prefill 跳过"几乎必超 8192"的完整 CoT）：数论/组合/
+    # 高代/抽代 + 运筹学（A8 新增）。运筹学题（规划/调度/运输/网络流）正确解靠 Python
+    # 建模+算法求解，reasoning 心算基本无用，加入后 reasoning/Python 首轮压缩省时间给
+    # Python 生成正确求解代码（离线诊断定位的运筹学 3/3 全错重灾区）。
+    "deep_solver_domains": ["数论", "组合数学", "高等代数", "抽象代数", "运筹学"],
     # A3：证明题与深解领域（deep_solver_domains）首轮直接压缩 prefill（答案前置 +
     # 抑制私有 CoT），跳过"几乎必超 8192"的完整 CoT（A2 实测完整二次推理 80% 也
     # 截断）。压缩产出不完整时回退完整 CoT 兜底，不损失深度思考。设 false 可整体
@@ -66,8 +70,8 @@ CONFIG = {
     # 仍用刻意小 cap 抑制私有 CoT。
     "max_tokens": {"classifier": 96, "classifier_fallback": 8192,
                    "objective_reasoning": 8192,
-                   "reasoning": 12288, "python": 12288,
-                   "reasoning_compressed": 12288, "python_compressed": 12288,
+                   "reasoning": 8192, "python": 8192,
+                   "reasoning_compressed": 8192, "python_compressed": 8192,
                    "reconciliation": 8192,
                    "semantic_arbiter": 96, "semantic_arbiter_fallback": 8192,
                    "coordinator": 8192, "emergency_answer": 1280},
@@ -127,7 +131,7 @@ CONFIG = {
     # 双重兜底。easy 微调余量，hard 已是 1200 上限不变。
     "difficulty_soft_budgets": {"easy": 600, "medium": 1200, "hard": 1200},
     # 过程审计智能体：定稿前审计题面契约完整性 + 关键计算抽核。
-    "enable_critic": False,
+    "enable_critic": True,
     "critic_reserve_margin_s": 60,
     # 确定性复算季后赛：两路冲突时代回复算，替代"只能二选一"的仲裁。
     # （季后赛代码执行的超时复用 node_timeouts.python_mcp_execute，无需单独配置。）
@@ -137,7 +141,15 @@ CONFIG = {
     # 计数题枚举对照守护（组合计数是 LLM 最弱项）。
     "enable_counting_guard": True,
     # 模结构守护：F_2/Z_m 语境注入"结构内聚合"条款 + 代码静态核查。
-    "enable_modular_guard": False,
+    "enable_modular_guard": True,
+    # 计算题工具主解（去锚定）：Python 分支不再注入 reasoning 候选答案，从题目
+    # 独立生成求解代码。现状是 Python 拿到 reasoning 的 candidate_answer 后被
+    # "核验候选"锚定——代码围绕候选复现而非从零求解，而第一名实证工具执行正确率
+    # 67.25% vs 直接推理 34.50%（memory first-place）。去锚定后 cross_validator
+    # 在 computation+success 时优先采纳 Python 独立答案（_preferred_answer 第 94
+    # 行已有该逻辑），释放工具执行的高正确率，直击离线诊断的真错重灾区（运筹学
+    # 3/3 全错、组合 3 错、AIME 计算题 6 错）。设 false 回退"注入候选核验"（A4）。
+    "python_independent_solve": True,
     # 答案形式对齐 + 证明结构补强。
     "enable_form_align": True,
     "enable_proof_deepener": True,

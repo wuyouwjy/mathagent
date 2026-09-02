@@ -1,0 +1,58 @@
+digraph MathAgentFlow {
+    rankdir=TB;
+    bgcolor="white";
+    node [shape=box, style="rounded,filled", fontname="SimHei", fontsize=13, color="#333333"];
+    edge [fontname="SimHei", fontsize=12, color="#555555"];
+
+    // ── 入口层 / 运行层 ──
+    solve [label="平台调用\nagent.solve(problem, metadata)", fillcolor="#e8f4fd"];
+    init  [label="create_initial_state\n归一化 problem + idx", fillcolor="#e8f4fd"];
+    run   [label="MathAgentGraph.run\nTokenBudget + TimeBudget + PaperPacer", fillcolor="#e8f4fd"];
+
+    // ── 图执行层：线性链 ──
+    input      [label="input_node\n提取 idx / 问题锚定", fillcolor="#ffffff"];
+    classifier [label="classifier_node\n18 领域 prefill 分类 + 难度画像", fillcolor="#ffffff"];
+    retrieval  [label="database_retrieval_node\nTF-IDF 相似题检索 top-2", fillcolor="#ffffff"];
+
+    // ── 扇出 ──
+    fanout [label="fan_out 扇出", shape=diamond, fillcolor="#fff3cd"];
+
+    // ── 双路并行 ──
+    reasoning [label="reasoning_agent\n四章节结构化推理\n(三级兜底)", fillcolor="#d1ecf1"];
+    python    [label="python_agent\nSymPy 验证代码执行\n(三级兜底)", fillcolor="#d1ecf1"];
+
+    // ── 交叉验证 ──
+    cross [label="cross_validator\n两路答案匹配 + 路由", shape=diamond, fillcolor="#fff3cd"];
+
+    // ── 分支节点 ──
+    playoff  [label="playoff\n候选代回复算", fillcolor="#ffffff"];
+    arbiter  [label="semantic_arbiter\nprefill 仲裁", fillcolor="#ffffff"];
+    reconcil [label="reconciliation\n定向重试提示", fillcolor="#ffffff"];
+
+    // ── 收尾 ──
+    critic [label="critic_node\n(A7 已关闭 → 透传)", fillcolor="#f8d7da"];
+    coord  [label="coordinator_node\n格式化 final_response", fillcolor="#d4edda"];
+    ret    [label="返回 dict\nfinal_response + trace", fillcolor="#d4edda"];
+
+    // ── 边 ──
+    solve -> init -> run -> input -> classifier -> retrieval -> fanout;
+
+    fanout -> reasoning [label="始终"];
+    fanout -> python    [label="非 proof / 实算填空"];
+
+    reasoning -> cross;
+    python    -> cross;
+
+    cross -> critic   [label="match"];
+    cross -> playoff  [label="contradict"];
+    cross -> arbiter  [label="uncertain"];
+    cross -> reconcil [label="retry"];
+
+    reconcil -> retrieval [label="重跑子图"];
+    reconcil -> arbiter   [label="转仲裁"];
+
+    playoff -> critic;
+    arbiter -> critic;
+
+    critic -> coord -> ret;
+}
