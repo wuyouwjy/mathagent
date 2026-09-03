@@ -1,10 +1,10 @@
 <p align="center">
-  <h1 align="center">🧮 Math-Agent-System A8</h1>
+  <h1 align="center">🧮 Math-Agent-System A9</h1>
   <p align="center">基于 <b>Intern-S 系列大模型</b> 的 LangGraph 多智能体数学推理系统 — 2026 挑战杯·书生赛道</p>
   <p align="center">
     <img src="https://img.shields.io/badge/Python-3.10+-blue" alt="Python">
     <img src="https://img.shields.io/badge/LLM-Intern--S-orange" alt="Intern-S">
-    <img src="https://img.shields.io/badge/version-A8-purple" alt="A8">
+    <img src="https://img.shields.io/badge/version-A9-purple" alt="A9">
     <img src="https://img.shields.io/badge/framework-LangGraph-green" alt="LangGraph">
     <img src="https://img.shields.io/badge/score-target-75%2B-brightgreen" alt="Target">
   </p>
@@ -14,7 +14,7 @@
 
 ## 📖 简介
 
-**Math-Agent-System A8** 是为 2026 年度中国青年科技创新"揭榜挂帅"擂台赛·书生赛道设计的数学推理智能体。
+**Math-Agent-System A9** 是为 2026 年度中国青年科技创新"揭榜挂帅"擂台赛·书生赛道设计的数学推理智能体。
 
 T3 版本基于 ICMAnew-main 架构（50 分 / 56 correct / 112 题）完成了从 T2 svragent 到 **LangGraph 多智能体图编排**的重构。T4 在 T3 基础上，参照 VeritasMath 前三名架构补齐了四块**正确性与完成率**短板：
 
@@ -38,7 +38,7 @@ A3 针对 A2 评测暴露的「8192 token 截断」瓶颈做定向优化——A2
 9. **紧凑输出（先锁定结论、少铺陈）**：推理提示追加"紧凑输出要求"——先在心里锁定最终结论再倒推最简推导链，"问题分析"≤3 行、"详细步骤"一行公式一行结论，把额度留给"最终答案"，减少"耗尽前没写出结论"的截断；
 10. **深解题首轮直接压缩 prefill**：证明题与深解领域（`deep_solver_domains`）首轮直接走压缩 prefill（答案前置 + 抑制私有 CoT，~150s），跳过"几乎必超 8192"的完整 CoT + 完整二次推理（~384s）；压缩产出不完整则回退完整 CoT 兜底，不损失深度思考（`enable_deep_direct_compressed` 可整体关闭）；
 11. **medium 软预算 1000→1200**：给计算题三级熔断（首轮 → 完整二次推理 → 压缩续写）留足购买力，把剩余空余墙钟继续换成准确率（风险是更接近 6h，由 PaperPacer 落后收紧 + `can_afford_retry` 双重兜底）；
-12. **Python 侧深解领域对称压缩**：`python_exec` 对深解领域（数论/组合/高代/抽代/运筹学）首轮直接压缩重生成（代码前置 prefill，~200s），跳过"几乎必超 8192"的完整代码生成，与推理分支第 10 点对称；产出有效代码并执行出答案则直接返回，否则回退完整生成兜底；
+12. **Python 侧深解领域对称压缩**：`python_exec` 对深解领域（数论/组合/高代/抽代；A9 移除运筹学）首轮直接压缩重生成（代码前置 prefill，~200s），跳过"几乎必超 8192"的完整代码生成，与推理分支第 10 点对称；产出有效代码并执行出答案则直接返回，否则回退完整生成兜底；
 13. **深解题压缩后二次验证**：压缩 prefill 成功但低置信（抑制了私有思考）时，时间充裕（`can_afford_retry` 放行）则复用压缩答案续写做一次完整 CoT 二次确认（保留私有思考），把省下的时间换成置信度；
 14. **medium 计算题答案前置**：medium 计算题（computation 且非深解领域）先锁定数值再先写 "## 最终答案" 后倒推步骤——步骤是佐证而非重新探索，进一步降低"耗尽前没写出结论"的截断；
 15. **中间等式线索增强**：`_extract_key_equations` 从首轮残片提取"已算出的关键等式"（右端含数字）作为续写线索，让二次推理/压缩重试带精确中间值续写。
@@ -49,6 +49,12 @@ A7 官方评测 **68.75 分**（77/112），比 A4 基线（73.21，82/112）倒
 17. **计算题工具主解（去锚定，`python_independent_solve`）**：Python 分支不再注入 reasoning 候选答案，从题目独立生成求解代码。此前 Python 拿到 reasoning 的 `candidate_answer` 后被「核验候选」锚定——围绕候选复现而非从零求解；而 cross_validator 在 computation + Python 成功时本就优先采纳 Python 答案（第一名实证工具执行 67.25% vs 直接推理 34.50%），去锚定释放工具执行的高正确率，直击计算题真错重灾区；
 18. **提交包去冗余**（沿用 A7）：删除本地调试脚手架（`main.py` / `llm_client.py`）、离线构建脚本（`scripts/`）、样例数据与测试（`sample/`、`test/`），提交包只保留竞赛运行时必需文件 + 文档，零答案痕迹。
 19. **扩大深解领域压缩覆盖到运筹学**：`deep_solver_domains` 加入「运筹学」——运筹学题（规划/调度/运输/网络流）的正确解靠 Python 建模+算法求解，reasoning 心算基本无用、其完整 CoT 也容易截断；加入后 reasoning/Python 首轮直接压缩 prefill，省时间给 Python 生成正确求解代码（直击离线诊断的运筹学 3/3 全错）。
+
+A9 本版为「回退 A8 负收益 + 两个定向优化」（官方评测待跑）。A8 官方 **67.86 分**（76/112）比 A4 基线（82/112）净 **−6 题**，两条假设双双证伪：① 第一名「工具执行 67% vs 心算 34%」的数据已被验证为错误，去锚定让 Python 在 reasoning 算对的题上也独立重算、经 cross_validator 优先采纳反而带错；② 运筹学加入 `deep_solver_domains` 首轮压缩抑制 CoT，Python 代码生成质量下降、3 题仍全错。A9 先回退这两条，再做两个**严格非负、零额外 LLM 调用**的定向优化（直击离线诊断的「计算题真错重灾区」）：
+
+20. **回退 A8 负收益**：`python_independent_solve` True→False（Python 恢复「注入候选核验」的验证器定位，A8 去锚定负收益 −6 题）；`deep_solver_domains` 移除「运筹学」（首轮压缩只保留数论/组合/高代/抽代）。回到 A4 基线（82/112）；
+21. **条件求解器框架（`enable_python_solver_fallback`）**：仅当推理侧候选为空（reasoning 截断/未算出答案）时，Python 分支改用独立求解器 prompt（`PYTHON_SOLVER_PROMPT`，去掉「验证状态/验证证据/待核验候选」契约），聚焦「直接算出答案」而非「验证不存在的候选」。与去锚定的本质区别：去锚定「有候选也独立算」覆盖了正确推理（A8 负收益根因），本开关只在「无候选」时独立求解——无正确推理可被覆盖，Python 算对即净赚、算错也不损失（推理侧本就无答案，下游走兜底）；
+22. **运筹学确定性求解守卫（`enable_operations_research_guard`）**：运筹学 3/3 全错是「缺对口求解范式」而非「偶尔算错」。仿照 modular_guard/counting_guard 的「领域守卫」模式，命中运筹学题（分类器 category 或题面关键词）时向 Python 注入 scipy.optimize.linprog/minimize/milp 求解器建模模板，生成后静态核查代码必须真调用求解器或枚举穷举，纯手算闭式则打回修复。
 
 ### A2 vs A1 核心增量
 
@@ -81,7 +87,7 @@ solve(problem, metadata)
        ├── database_retrieval_node: TF-IDF 题库检索 → top-k 相似题 + 反锚定 reference_block
        ├── solving_subgraph: 置信门控扇出（实算填空升级双路；纯概念客观题单路径）
        │    ├── reasoning_agent: 加载领域 skill → 四章节结构化输出（深解题首轮压缩 prefill；截断→完整二次推理→压缩重试三级兜底）
-       │    ├── python_agent: 去锚定生成 SymPy 求解代码（A8 不注入推理候选）→ 执行 → 独立答案（失败/截断→完整重生成→压缩三级兜底）
+       │    ├── python_agent: 候选核验生成 SymPy 验证代码（候选空则独立求解）→ 执行 → 答案（失败/截断→完整重生成→压缩三级兜底）
        │    └── cross_validator: 两路答案匹配 → 路由决策
        │         ├── match → critic
        │         ├── mismatch / contradict → playoff（确定性复算裁决）
@@ -149,7 +155,7 @@ Math-Agent-System/
 │       ├── classifier.py      # 18 领域 LLM 预填充分类 + 难度画像 + 确定性回退
 │       ├── database_retrieval.py # RAG 题库检索：TF-IDF 相似题 + 反锚定 reference_block
 │       ├── reasoning.py       # LLM 四章节结构化推理 + 深解题首轮压缩 prefill + 截断三级兜底（完整二次推理→压缩重试）+ 断点续写/答案前置
-│       ├── python_exec.py     # SymPy 求解代码生成（去锚定独立求解）+ 子进程安全执行 + 失败/截断完整重生成
+│       ├── python_exec.py     # SymPy 求解/验证代码生成（候选空则独立求解）+ 子进程安全执行 + 失败/截断完整重生成
 │       ├── cross_validator.py # 双路答案交叉验证 + 路由决策（含 playoff 路由）
 │       ├── playoff.py         # 确定性复算季后赛：冲突候选代回复算裁决
 │       ├── critic.py          # 过程审计门：契约完整性 + 计算抽核 + 推导矛盾自检
@@ -255,7 +261,7 @@ assert isinstance(r, dict) and r["final_response"].strip()
 ### 2. 并行双路验证
 
 - **LLM 推理分支**：加载领域 skill → 四章节结构化输出（问题分析/详细解题步骤/最终答案/关键验证点）
-- **Python/SymPy 分支**：去锚定独立求解（A8）——不注入推理候选答案，从题目独立生成求解代码 → 子进程隔离执行 → 抽取答案
+- **Python/SymPy 分支**：注入 reasoning 候选做核验（候选为空时切换独立求解器框架，A9）——从题目生成 SymPy 求解/验证代码 → 子进程隔离执行 → 抽取答案
 
 两路并行执行，交叉验证节点汇总结果，按 match/mismatch/uncertain 路由。
 **证明题例外**：抽象证明（同构/整环等）无法数值验证，Python 分支 answer 恒为空却并行耗数百秒，故证明题直接走推理单路径（零准确率损失，省下软预算给 coordinator 成稿）。此外证明题 critic 判缺项后**不再重试完整 reasoning**——实测第 2 次 reasoning 仍被判缺项、其产出从未被采纳（`validated_answer` 保持第 1 次值，最终靠 `coordinator_llm` 独立成稿才正确），故直接成稿，省一次完整推理（~280-527s），几乎不损正确率。
@@ -349,7 +355,7 @@ PaperPacer 用**题间预算池**动态计算每题软预算帽：已用全卷�
 A2 瓶颈是 8192 token 截断（`truncated_count=328` / 41.7%，完整二次推理 80% 也截断）——深解领域的完整 CoT（私有 `reasoning_content`）几乎必超 8192，首轮完整 CoT + 完整二次推理（~384s）是"注定截断"的浪费。A3 六条手段治截断：
 
 - **紧凑输出（先锁定结论、少铺陈）**：推理提示追加"紧凑输出要求"——先在思考中锁定最终结论再倒推最简推导链，"问题分析"≤3 行、"详细步骤"一行公式一行结论，把额度留给"最终答案"，减少"耗尽前没写出结论"的截断；
-- **深解题首轮直接压缩 prefill**：`question_mode == "proof"` 或 `category ∈ deep_solver_domains`（数论/组合/高代/抽代/运筹学）的题，首轮直接走压缩 prefill（`## 结论速览\n\boxed{` 答案前置 + 抑制私有 CoT，~150s），成功即省下"注定截断"的完整 CoT + 完整二次推理（~384s）；压缩产出不完整则回退完整 CoT 兜底，不损失深度思考。`fast_path`（时间紧张）跳过，`enable_deep_direct_compressed=false` 可整体关闭回退 A2 三级路径。
+- **深解题首轮直接压缩 prefill**：`question_mode == "proof"` 或 `category ∈ deep_solver_domains`（数论/组合/高代/抽代；A9 移除运筹学）的题，首轮直接走压缩 prefill（`## 结论速览\n\boxed{` 答案前置 + 抑制私有 CoT，~150s），成功即省下"注定截断"的完整 CoT + 完整二次推理（~384s）；压缩产出不完整则回退完整 CoT 兜底，不损失深度思考。`fast_path`（时间紧张）跳过，`enable_deep_direct_compressed=false` 可整体关闭回退 A2 三级路径。
 - **Python 侧深解领域对称压缩**：`category ∈ deep_solver_domains` 的题，Python 代码生成首轮直接压缩重生成（代码前置 prefill，~200s），跳过"几乎必超 8192"的完整代码生成，与推理分支对称；产出有效代码并执行出答案则直接返回，否则回退完整生成兜底；
 - **深解题压缩后二次验证**：压缩 prefill 成功但低置信时（抑制了私有思考），时间充裕（`can_afford_retry` 放行）则复用压缩答案续写做一次完整 CoT 二次确认，保留私有思考，把省下的时间换成置信度；
 - **medium 计算题答案前置**：medium 计算题（computation 且非深解领域）先锁定数值，输出先写 "## 最终答案" 再倒推步骤——步骤是佐证不是重新探索；
@@ -380,7 +386,9 @@ A2 瓶颈是 8192 token 截断（`truncated_count=328` / 41.7%，完整二次推
 | `enable_judge_confirm` | `true` | 判断题双向确认（是/否偏向纠偏） |
 | `enable_counting_guard` | `true` | 计数题枚举对照守护 |
 | `enable_modular_guard` | `true` | 模结构守护（F_2/Z_m 结构内聚合；A7 曾关闭实测 -5 题，A8 恢复） |
-| `python_independent_solve` | `true` | 计算题工具主解（去锚定）：Python 不注入 reasoning 候选、独立求解（A8 新增） |
+| `python_independent_solve` | `false` | 计算题工具主解（去锚定）：A8 新增、A9 回退 false（去锚定负收益 −6 题，Python 恢复注入候选核验） |
+| `enable_python_solver_fallback` | `true` | 条件求解器框架（A9）：候选为空时 Python 改用独立求解器 prompt，候选非空仍核验 |
+| `enable_operations_research_guard` | `true` | 运筹学确定性求解守卫（A9）：命中运筹学题注入 linprog/minimize/milp 模板 + 静态核查 |
 | `enable_form_align` | `true` | 答案形式对齐 |
 | `enable_proof_deepener` | `true` | 证明结构补强 |
 | `db_retrieval_top_k` | `2` | 题库检索 top-k 条数（2 条同时进推理/验证两个子代理） |
@@ -414,6 +422,7 @@ A2 瓶颈是 8192 token 截断（`truncated_count=328` / 41.7%，完整二次推
 | **A3** | 73.21 分（82/112） | + 紧凑输出 + 深解题首轮压缩 prefill + Python 对称压缩 + 二次验证 + 答案前置 + 线索增强 | 8192 内更高效思考（先锁定结论少铺陈）；证明/深解题首轮直接压缩 prefill（~150s 替代 ~384s 完整 CoT）；medium 软预算 1000→1200；Python 侧深解领域首轮压缩、压缩后完整 CoT 二次验证、计算题答案前置、中间等式线索增强 |
 | A7 | 68.75 分（77/112） | + max_tokens 8192→12288 + 减调用（关 critic / modular_guard） | 提上限 12288（无效：环境 cap 8192）+ 关 critic/modular_guard（-5 题）；提交包去冗余。**被 A8 回退** |
 | **A8** | 目标 75 分+ | 回退 A7 恢复 A4 基线 + 计算题工具主解（去锚定） | max_tokens 回退 8192 + 恢复 critic/modular_guard；Python 分支去锚定独立求解（`python_independent_solve`），释放工具执行 67% vs 心算 34% |
+| **A9** | 目标 75 分+ | 回退 A8 恢复 A4 基线 + 条件求解器 + 运筹学守卫 | 回退去锚定/运筹学压缩（A8 负收益 −6 题）；候选空时 Python 独立求解（条件求解器框架）；运筹学题注入 scipy.optimize 求解器模板 + 静态核查 |
 
 ---
 

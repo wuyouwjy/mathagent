@@ -24,10 +24,9 @@ CONFIG = {
     # 中间→standard 双路验证。
     "confidence_gate": {"high": 0.90, "low": 0.70},
     # 深解领域（首轮直接压缩 prefill 跳过"几乎必超 8192"的完整 CoT）：数论/组合/
-    # 高代/抽代 + 运筹学（A8 新增）。运筹学题（规划/调度/运输/网络流）正确解靠 Python
-    # 建模+算法求解，reasoning 心算基本无用，加入后 reasoning/Python 首轮压缩省时间给
-    # Python 生成正确求解代码（离线诊断定位的运筹学 3/3 全错重灾区）。
-    "deep_solver_domains": ["数论", "组合数学", "高等代数", "抽象代数", "运筹学"],
+    # 高代/抽代。A8 曾加「运筹学」，A9 回退移除——运筹学题首轮压缩抑制 CoT 后 Python
+    # 代码生成质量下降，3 题仍全错，省时间换正确代码的预期未兑现（A8 实测负收益）。
+    "deep_solver_domains": ["数论", "组合数学", "高等代数", "抽象代数"],
     # A3：证明题与深解领域（deep_solver_domains）首轮直接压缩 prefill（答案前置 +
     # 抑制私有 CoT），跳过"几乎必超 8192"的完整 CoT（A2 实测完整二次推理 80% 也
     # 截断）。压缩产出不完整时回退完整 CoT 兜底，不损失深度思考。设 false 可整体
@@ -142,14 +141,26 @@ CONFIG = {
     "enable_counting_guard": True,
     # 模结构守护：F_2/Z_m 语境注入"结构内聚合"条款 + 代码静态核查。
     "enable_modular_guard": True,
-    # 计算题工具主解（去锚定）：Python 分支不再注入 reasoning 候选答案，从题目
-    # 独立生成求解代码。现状是 Python 拿到 reasoning 的 candidate_answer 后被
-    # "核验候选"锚定——代码围绕候选复现而非从零求解，而第一名实证工具执行正确率
-    # 67.25% vs 直接推理 34.50%（memory first-place）。去锚定后 cross_validator
-    # 在 computation+success 时优先采纳 Python 独立答案（_preferred_answer 第 94
-    # 行已有该逻辑），释放工具执行的高正确率，直击离线诊断的真错重灾区（运筹学
-    # 3/3 全错、组合 3 错、AIME 计算题 6 错）。设 false 回退"注入候选核验"（A4）。
-    "python_independent_solve": True,
+    # 运筹学确定性求解守护（A9）：运筹学 3/3 全错（零命中，缺对口求解范式）。命中
+    # 运筹学题时给 Python 分支注入 scipy.optimize.linprog/minimize/milp 求解器模板，
+    # 生成后静态核查代码必须真调用求解器或枚举，否则打回（不执行纯手算闭式）。零额外
+    # LLM 调用、纯 prompt 注入 + 静态核查，与 modular_guard/counting_guard 同模式。
+    "enable_operations_research_guard": True,
+    # 计算题工具主解（去锚定）——A9 回退为 False（A8 已验证负收益 −6 题）：
+    # 去锚定让 Python 分支不注入 reasoning 候选、独立求解，但第一名「工具执行
+    # 67.25% vs 推理 34.50%」的数据已被验证为错误（其裸三段式 + 12288 + 极简
+    # prompt 的架构优势无法移植到本系统「复杂 prompt + 8192 cap + 验证器定位」
+    # 的 Python 分支）。去锚定后 cross_validator 在 computation+success 时优先
+    # 采纳 Python 独立答案，反而把 reasoning 算对的题带错（A8 实测 76/112 vs
+    # A4 82/112）。设 True 恢复去锚定，False 回到 A4「注入候选核验」基线。
+    "python_independent_solve": False,
+    # 条件求解器框架（A9）：仅当推理侧候选为空（reasoning 截断/未算出答案）时，Python
+    # 分支改用独立求解器 prompt（PYTHON_SOLVER_PROMPT，去掉验证状态/证据/候选契约），
+    # 聚焦"直接算出答案"；候选非空时仍走验证器框架核验候选（A4 基线）。与去锚定
+    # （python_independent_solve）的本质区别：去锚定"有候选也独立算"覆盖了正确推理
+    # （A8 负收益 −6 题），本开关只在"无候选"时独立求解，无正确推理可被覆盖，严格
+    # 非负且零额外 LLM 调用。设 False 关闭（回到"候选为空时仍用验证器框架"的旧行为）。
+    "enable_python_solver_fallback": True,
     # 答案形式对齐 + 证明结构补强。
     "enable_form_align": True,
     "enable_proof_deepener": True,

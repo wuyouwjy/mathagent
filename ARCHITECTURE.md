@@ -1,4 +1,4 @@
-# 🏗️ Math-Agent-System 架构与调用流程（A8）
+# 🏗️ Math-Agent-System 架构与调用流程（A9）
 
 > 本文讲解系统的完整调用链路：从竞赛平台调用 `ReasoningAgent.solve` 开始，到 LangGraph
 > 多智能体图编排、推理/验证双路并行、交叉验证、仲裁与收尾的端到端流程。
@@ -115,7 +115,7 @@ class ReasoningAgent:
 两路并行执行，各自产出独立答案，交给 `cross_validator` 对比：
 
 - **reasoning**：加载领域 skill → 四章节结构化输出（`## 问题分析` / `## 详细解题步骤` / `## 最终答案` / `## 关键验证点`）；
-- **python**：**去锚定独立求解**（A8）——不注入 reasoning 候选答案，从题目独立生成 SymPy 求解代码 → 子进程隔离执行 → 从 stdout 抽取答案（计数题注入枚举对照，modular_guard 模结构核查 A8 恢复开启）。
+- **python**：**注入候选核验**（A4 基线，A9 恢复）——注入 reasoning 候选答案生成 SymPy 验证代码；候选为空时切换**独立求解器框架**（A9 条件求解器）直接算出答案；运筹学题注入 scipy.optimize 求解器模板（A9 运筹学守卫）。子进程隔离执行 → 从 stdout 抽取答案（计数题注入枚举对照，modular_guard 模结构核查 A8 恢复开启）。
 
 ---
 
@@ -148,7 +148,18 @@ Python 侧对称实现三级兜底：首轮完整生成 → 完整重生成（`f
 
 ---
 
-## 9. A8 版本改动标记
+## 9. A9 版本改动标记
+
+A8 官方 67.86 分（76/112），比 A4 基线（82/112）净 **−6 题**——「去锚定 + 运筹学压缩」两条假设双双证伪（① 第一名「工具执行 67% vs 心算 34%」数据已验证为错误；② 运筹学首轮压缩抑制 CoT 致 Python 代码质量下降）。A9 先**回退 A8 恢复 A4 基线**，再做两个**严格非负、零额外 LLM 调用**的定向优化：
+
+| 改动 | 影响节点 | 说明 |
+|---|---|---|
+| `python_independent_solve` True → **False** | python_exec / cross_validator | 回退：去锚定负收益 −6 题，Python 恢复「注入候选核验」的 A4 验证器定位 |
+| `deep_solver_domains` 移除「运筹学」 | reasoning / python_exec | 回退：运筹学首轮压缩抑制 CoT 致 3 题仍全错，压缩只保留数论/组合/高代/抽代 |
+| `enable_python_solver_fallback = True` | python_exec | 条件求解器：候选为空时改用独立求解器 prompt（`PYTHON_SOLVER_PROMPT`），候选非空仍核验——严格非负，不覆盖正确推理 |
+| `enable_operations_research_guard = True` | python_exec | 运筹学守卫：命中运筹学题注入 linprog/minimize/milp 模板 + 静态核查（必须真调用求解器/枚举，纯手算闭式打回） |
+
+### 9.1 A8 版本改动（已被 A9 回退）
 
 A7 官方评测 68.75 分（77/112），比 A4 基线（73.21，82/112）倒退 5 题——A7 的两条假设（「提 max_tokens 降截断」「关 critic/modular_guard 减调用」）双双证伪。A8 先**回退 A7 恢复 A4 基线**，再做「计算题工具主解」：
 
@@ -157,7 +168,7 @@ A7 官方评测 68.75 分（77/112），比 A4 基线（73.21，82/112）倒退 
 | `max_tokens` 12288 → **8192** | reasoning / python / compressed | 回退：环境静默 cap 8192，提上限是自欺（token 反推铁证） |
 | `enable_critic = True` | critic | 恢复：关掉实测 -5 题，契约完整性审计有正向价值 |
 | `enable_modular_guard = True` | python_exec | 恢复：F₂/Z_m 模结构确定性防线，关掉实测 -5 题 |
-| `python_independent_solve = True` | python_exec / cross_validator | 去锚定：Python 不注入 reasoning 候选，独立求解释放工具执行 67% vs 心算 34% |
-| `deep_solver_domains` 加「运筹学」 | reasoning / python_exec | 运筹学题首轮直接压缩 prefill，省时间给 Python 建模求解（直击运筹学 3/3 全错） |
+| `python_independent_solve = True` | python_exec / cross_validator | 去锚定：Python 不注入 reasoning 候选，独立求解释放工具执行 67% vs 心算 34%（A9 证伪回退） |
+| `deep_solver_domains` 加「运筹学」 | reasoning / python_exec | 运筹学题首轮直接压缩 prefill，省时间给 Python 建模求解（A9 证伪回退） |
 
 `classifier` / `semantic_arbiter`（96）与 `emergency_answer`（1280）仍用小 cap 抑制私有 CoT，未改动。

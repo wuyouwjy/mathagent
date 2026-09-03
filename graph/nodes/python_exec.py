@@ -8,7 +8,7 @@ code is found — never executes CoT as code.
 import re
 from utils.deps import get_deps
 from utils.llm.retry import chat_prefilled, chat_with_retry
-from utils.llm.templates import PYTHON_PROMPT
+from utils.llm.templates import PYTHON_PROMPT, PYTHON_SOLVER_PROMPT
 from utils.budget.token import estimate_tokens
 from utils.answer.cot_stripper import strip_cot_prefix
 from utils.budget.affordability import can_afford_retry, last_attempt_cost
@@ -240,8 +240,17 @@ def python_agent_node(state, config):
     examples_text = _reference_examples_block(state.get("retrieved_examples"), problem)
     # Validation examples are prompt documents. Select the knowledge-point sections
     # whose vocabulary matches the problem instead of sending a positional prefix.
-    base_prompt = PYTHON_PROMPT.format(
-        validation_script=select_script_excerpt(validation_script, problem, 2000) + examples_text,
+    validation_excerpt = select_script_excerpt(validation_script, problem, 2000) + examples_text
+    # 条件求解器框架（A9）：候选为空（推理侧截断/未算出答案）时，切换为独立求解器
+    # prompt——去掉"验证状态/验证证据/待核验候选"契约，让模型聚焦"直接算出答案"而非
+    # "验证不存在的候选"。候选非空时保持验证器框架（A4 基线，核验推理候选）。
+    # 与 A8 去锚定的本质区别：A8 是"有候选也去锚定"（覆盖了正确推理，负收益 −6 题）；
+    # 这里只在"无候选"时独立求解，没有正确推理可被覆盖——Python 算对即净赚，算错
+    # 也不损失（推理侧本就无答案，下游走兜底）。严格非负，零额外 LLM 调用。
+    use_solver = (CONFIG.get("enable_python_solver_fallback", True)
+                  and not candidate_answer)
+    base_prompt = (PYTHON_SOLVER_PROMPT if use_solver else PYTHON_PROMPT).format(
+        validation_script=validation_excerpt,
         problem=problem, category=category)
     base_prompt += structure_instruction(problem)
     # 技能手册的速查条目（题型方法论）与验证示例互补：前者决定"算什么/怎么建模"，
@@ -280,6 +289,17 @@ def python_agent_node(state, config):
         counting = {"hit": detect_counting(problem)}
         if counting["hit"]:
             prompt += counting_clause(problem)
+    # 运筹学确定性求解守护（A9）：运筹学 3/3 全错（零命中）是"缺对口求解范式"，
+    # 不是"偶尔算错"。注入 scipy.optimize.linprog/minimize/milp 求解器模板，让模型
+    # 用确定性求解器而非手算单纯形/拉格朗日（手算正是算错的根源）。生成后静态核查
+    # 代码必须真调用求解器或做了枚举，否则打回（不执行纯手算闭式的代码）。
+    or_guard = {"hit": False, "cues": []}
+    if CONFIG.get("enable_operations_research_guard", True):
+        from utils.verify.operations_research_guard import (
+            code_uses_solver, detect_operations_research, prompt_clause as or_clause)
+        or_guard = detect_operations_research(problem, category)
+        if or_guard["hit"]:
+            prompt += or_clause(or_guard["cues"])
 
     trace = []
     attempts = 0
@@ -297,6 +317,7 @@ def python_agent_node(state, config):
             "python_attempts": attempts,
             "modular_guard": modular,
             "counting_guard": counting,
+            "operations_research_guard": or_guard,
             "python_evidence_status": enriched.get("evidence_status", "inconclusive"),
             "python_evidence_summary": enriched.get("evidence_summary", ""),
             "python_contradictions": enriched.get("contradictions", []),
@@ -448,6 +469,20 @@ def python_agent_node(state, config):
                 "先把规模缩到最小实例（n=2,3,4），用 for/range/itertools 暴力枚举出精确值，"
                 "再让候选公式在同规模逐点 assert 比对，全部吻合才外推。请只输出修正后的 "
                 "```python``` 代码块（含枚举对照打印），结尾 print(\"最终答案:\", answer)。",
+                problem, candidate_answer)
+            continue
+        if code and or_guard.get("hit") and not code_uses_solver(code):
+            # 静态核查（A9）：运筹学题代码既没调求解器（linprog/minimize/milp）也没
+            # 枚举穷举，仍靠手算/闭式——正是"缺对口范式"导致 3/3 全错的形态。打回
+            # 修复而非执行（执行一段手算闭式的代码只会产出"看起来更可信"的错值）。
+            trace.append({"attempt": attempts, "status": "operations_research_guard_violation"})
+            if attempts >= max_attempts:
+                break
+            prompt = _retry_prompt(
+                "上一次的代码没有调用确定性求解器（scipy.optimize.linprog/minimize/milp）"
+                "也没有做枚举穷举，仍靠手算/闭式公式。运筹学题必须用求解器或穷举"
+                "实际算出最优值/最优解。请只输出修正后的 ```python``` 代码块，"
+                '结尾 print("最终答案:", answer)。',
                 problem, candidate_answer)
             continue
         if not code:
