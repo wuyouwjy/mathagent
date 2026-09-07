@@ -30,3 +30,11 @@ mcp>=1.0.0
 
 # OPTIONAL: Structured JSON logging
 python-json-logger>=2.0.0
+
+# CORE: ChromaDB 题库检索（B1 迁移自 ICMAnew）：向量库 + 本地 embedding 模型
+# （Qwen3-Embedding-0.6B）。database_client 在缺少真实权重时会降级到
+# ModelScope 下载，不会打断求解。
+chromadb>=0.4.0
+sentence-transformers>=2.2.0
+modelscope>=1.11.0
+torch>=2.0.0

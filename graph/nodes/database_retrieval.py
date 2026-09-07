@@ -1,7 +1,7 @@
 """Database retrieval node: fetch the top-k similar problems+solutions.
 
 Runs before reasoning_agent and python_agent to provide reference examples.
-轻量 TF-IDF 实现（utils.retrieval.TfidfRetriever），替代 ICMAnew 的 chroma 路径。
+ChromaDB 向量检索（utils.retrieval.database_client.DatabaseClient），照 ICMAnew 的 chroma 路径复现。
 """
 
 from typing import Any, Dict
@@ -19,7 +19,7 @@ def database_retrieval_node(state: Dict[str, Any], config: Dict) -> Dict[str, An
 
     Returns:
         Dict with 'retrieved_examples': List[Dict]，每项含 problem / solution /
-        similarity / source / subject。
+        similarity / source。
     """
     # 检索是纯增益节点：任何失败都必须降级为"无参考示例"，绝不能打断求解子图。
     # get_deps 曾在 try 之外——缺 deps 的配置会让整条子图记下 KeyError。
@@ -37,7 +37,7 @@ def database_retrieval_node(state: Dict[str, Any], config: Dict) -> Dict[str, An
 
     try:
         retriever = deps.retriever
-        if retriever is None or not retriever.is_available():
+        if retriever is None:
             logger.warning("[db_retrieval] retriever not initialized, skip")
             return {"retrieved_examples": []}
 
@@ -50,7 +50,6 @@ def database_retrieval_node(state: Dict[str, Any], config: Dict) -> Dict[str, An
                 "solution": r.get("solution", ""),
                 "similarity": r.get("similarity", 0.0),
                 "source": r.get("source", ""),
-                "subject": r.get("subject", ""),
             })
             logger.info(
                 f"[db_retrieval] #{i + 1} sim={r.get('similarity', 0.0):.3f} "

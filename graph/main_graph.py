@@ -118,8 +118,8 @@ class MathAgentGraph:
         retriever = self.retriever
         if retriever is None:
             try:
-                from utils.retrieval.tfidf_client import TfidfRetriever
-                retriever = TfidfRetriever()
+                from utils.retrieval.database_client import DatabaseClient
+                retriever = DatabaseClient()
             except Exception:  # noqa: BLE001 - 检索缺失不影响求解
                 retriever = None
         deps = Deps(client=self.client, skills_loader=self.skills_loader,

@@ -178,7 +178,7 @@ class ReasoningAgent:
                     },
                 },
                 "tools": [{
-                    "name": "tfidf_database_query",
+                    "name": "vector_database_query",
                     "top_k": len(examples),
                     "results": [
                         {

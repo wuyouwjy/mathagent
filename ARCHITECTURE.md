@@ -1,4 +1,4 @@
-# 🏗️ Math-Agent-System 架构与调用流程（A9）
+# 🏗️ Math-Agent-System 架构与调用流程（B1）
 
 > 本文讲解系统的完整调用链路：从竞赛平台调用 `ReasoningAgent.solve` 开始，到 LangGraph
 > 多智能体图编排、推理/验证双路并行、交叉验证、仲裁与收尾的端到端流程。
@@ -55,7 +55,7 @@ class ReasoningAgent:
 1. `TokenBudget()`：token 预算（`token_budget_max=256000`）；
 2. `TimeBudget()`：**每题一个时钟**，所有节点共享同一时间原点（平台按墙钟判超时）；
 3. `PaperPacer.get_instance()`：全卷完成率引擎，按「剩余全卷时间 ÷ 剩余题数」动态计算本题软预算 `paper_cap`，并 `mark_started(idx)`；
-4. 惰性创建 `TfidfRetriever`（RAG 检索器，失败降级为 `None`，不影响求解）；
+4. 惰性创建 `DatabaseClient`（ChromaDB 向量检索器，失败降级为 `None`，不影响求解）；
 5. 组装 `Deps(client, skills_loader, mcp_client, token_budget, time_budget, retriever)`；
 6. `app.invoke(initial_state, config={"configurable": {"deps": deps}})` 执行图；
 7. `finally` 里 `PaperPacer.mark_done()` 计数（每题结束都计数，驱动全卷节奏）。
@@ -98,7 +98,7 @@ class ReasoningAgent:
 
 ### 6.1 `database_retrieval`（纯增益节点）
 
-用原题检索竞赛题库（`data/retrieval_corpus.json`，1555 条），TF-IDF `char_wb` n-gram 2-5 特征，取 top-2 条题面+解答作为 few-shot 参考注入推理与验证两个子代理。**反锚定机制**：近似题结论不可照抄，只借鉴方法、显式对比参数差异。检索失败降级为空列表，绝不影响求解。
+用原题检索竞赛题库（ChromaDB 向量库 `database/`，27,984 条 AI-MO 竞赛题，`Qwen3-Embedding-0.6B` 嵌入，Git LFS 托管），取 top-2 条题面+解答作为 few-shot 参考注入推理与验证两个子代理。**反锚定机制**：近似题结论不可照抄，只借鉴方法、显式对比参数差异。检索失败降级为空列表，绝不影响求解。
 
 ### 6.2 `fan_out` 扇出规则
 
@@ -144,11 +144,22 @@ Python 侧对称实现三级兜底：首轮完整生成 → 完整重生成（`f
 | **PaperPacer** | `utils/budget/paper_pacer.py` | 全卷 6h 完成率引擎 |
 | **AnswerMatcher + 契约** | `utils/answer/matcher.py`、`contract.py` | 数值/符号答案匹配 + 多空契约完整性 |
 | **确定性守卫组** | `utils/verify/*` | 计数枚举 / 判断题确认 / 形式对齐 / 证明补强等零成本兜底 |
-| **RAG 检索** | `utils/retrieval/tfidf_client.py` | TF-IDF 相似题 few-shot 注入 |
+| **RAG 检索** | `utils/retrieval/database_client.py` | ChromaDB 向量检索相似题 few-shot 注入 |
 
 ---
 
-## 9. A9 版本改动标记
+## 9. B1 版本改动标记（当前版本）
+
+B1 把题库检索从 TF-IDF 升级为 **ChromaDB 向量库**（照 ICMAnew 99.11 分作品复现），检索规模从 1,555 条 TF-IDF 语料扩大到 27,984 条 AI-MO 竞赛题，检索质量对齐满分作品：
+
+| 改动 | 影响节点 | 说明 |
+|---|---|---|
+| 检索实现 TF-IDF → **ChromaDB 向量库** | database_retrieval / main_graph | 向量库 `database/chroma.sqlite3`（27,984 条 AI-MO 竞赛题，cosine 相似度）+ `Qwen3-Embedding-0.6B`（1024 维）嵌入；大文件直接进项目目录、Git LFS 托管，模型另有 ModelScope 在线兜底，检索失败一律降级为空、不阻塞求解 |
+| 检索器 TfidfRetriever → **DatabaseClient** | main_graph | `utils/retrieval/database_client.py` 复现 ICMAnew 的 chroma 查询路径；TfidfRetriever 保留为无 LFS 环境的轻量替代，默认不再启用 |
+
+---
+
+## 10. A9 版本改动标记（上一版本，B1 保留其改动）
 
 A8 官方 67.86 分（76/112），比 A4 基线（82/112）净 **−6 题**——「去锚定 + 运筹学压缩」两条假设双双证伪（① 第一名「工具执行 67% vs 心算 34%」数据已验证为错误；② 运筹学首轮压缩抑制 CoT 致 Python 代码质量下降）。A9 先**回退 A8 恢复 A4 基线**，再做两个**严格非负、零额外 LLM 调用**的定向优化：
 
@@ -159,7 +170,7 @@ A8 官方 67.86 分（76/112），比 A4 基线（82/112）净 **−6 题**—�
 | `enable_python_solver_fallback = True` | python_exec | 条件求解器：候选为空时改用独立求解器 prompt（`PYTHON_SOLVER_PROMPT`），候选非空仍核验——严格非负，不覆盖正确推理 |
 | `enable_operations_research_guard = True` | python_exec | 运筹学守卫：命中运筹学题注入 linprog/minimize/milp 模板 + 静态核查（必须真调用求解器/枚举，纯手算闭式打回） |
 
-### 9.1 A8 版本改动（已被 A9 回退）
+### 10.1 A8 版本改动（已被 A9 回退）
 
 A7 官方评测 68.75 分（77/112），比 A4 基线（73.21，82/112）倒退 5 题——A7 的两条假设（「提 max_tokens 降截断」「关 critic/modular_guard 减调用」）双双证伪。A8 先**回退 A7 恢复 A4 基线**，再做「计算题工具主解」：
 

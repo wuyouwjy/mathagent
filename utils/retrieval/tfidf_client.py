@@ -2,7 +2,7 @@
 
 为什么不用 chroma：ICMAnew 的向量库（chroma.sqlite3）与 embedding 模型权重
 （Qwen3-Embedding-0.6B）在 git 里都是 LFS 指针，本地 checkout 无真实数据；其
-语料目录（E:/test/AI-MO）也不存在于评测环境。照搬 chroma 路径等于在评测时
+语料目录也不存在于评测环境。照搬 chroma 路径等于在评测时
 "检索永远为空"。
 
 本实现用纯 scikit-learn 的 TF-IDF（char n-gram，捕捉 LaTeX 符号、CJK 子串与

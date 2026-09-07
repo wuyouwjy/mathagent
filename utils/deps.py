@@ -11,8 +11,8 @@ class Deps:
     #: Per-problem wall-clock budget (utils.time_budget.TimeBudget). Optional so
     #: unit tests can omit it; every consumer treats None as "unbounded".
     time_budget: Any = None
-    #: 题库检索器（utils.retrieval.TfidfRetriever）。Optional 以便单测省略；
-    #: 检索节点对 None 一律降级为"无参考示例"。
+    #: 题库检索器（utils.retrieval.database_client.DatabaseClient，ChromaDB 向量检索）。
+    #: Optional 以便单测省略；检索节点对 None 一律降级为"无参考示例"。
     retriever: Any = None
     logger: logging.Logger = field(default_factory=lambda: logging.getLogger("math_agent"))
 

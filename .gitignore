@@ -12,6 +12,8 @@ cache/chroma_db/
 rag/cache/chroma_db/
 rag/chroma_db/
 *.sqlite3
+# 题库向量库（ChromaDB 持久化文件，Git LFS 托管）例外：不得被 *.sqlite3 排除
+!database/chroma.sqlite3
 
 # Outputs & logs
 outputs/

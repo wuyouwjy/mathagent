@@ -1,10 +1,10 @@
 <p align="center">
-  <h1 align="center">🧮 Math-Agent-System A9</h1>
+  <h1 align="center">🧮 Math-Agent-System B1</h1>
   <p align="center">基于 <b>Intern-S 系列大模型</b> 的 LangGraph 多智能体数学推理系统 — 2026 挑战杯·书生赛道</p>
   <p align="center">
     <img src="https://img.shields.io/badge/Python-3.10+-blue" alt="Python">
     <img src="https://img.shields.io/badge/LLM-Intern--S-orange" alt="Intern-S">
-    <img src="https://img.shields.io/badge/version-A9-purple" alt="A9">
+    <img src="https://img.shields.io/badge/version-B1-purple" alt="B1">
     <img src="https://img.shields.io/badge/framework-LangGraph-green" alt="LangGraph">
     <img src="https://img.shields.io/badge/score-target-75%2B-brightgreen" alt="Target">
   </p>
@@ -14,7 +14,7 @@
 
 ## 📖 简介
 
-**Math-Agent-System A9** 是为 2026 年度中国青年科技创新"揭榜挂帅"擂台赛·书生赛道设计的数学推理智能体。
+**Math-Agent-System B1** 是为 2026 年度中国青年科技创新"揭榜挂帅"擂台赛·书生赛道设计的数学推理智能体。
 
 T3 版本基于 ICMAnew-main 架构（50 分 / 56 correct / 112 题）完成了从 T2 svragent 到 **LangGraph 多智能体图编排**的重构。T4 在 T3 基础上，参照 VeritasMath 前三名架构补齐了四块**正确性与完成率**短板：
 
@@ -56,6 +56,10 @@ A9 本版为「回退 A8 负收益 + 两个定向优化」（官方评测待跑�
 21. **条件求解器框架（`enable_python_solver_fallback`）**：仅当推理侧候选为空（reasoning 截断/未算出答案）时，Python 分支改用独立求解器 prompt（`PYTHON_SOLVER_PROMPT`，去掉「验证状态/验证证据/待核验候选」契约），聚焦「直接算出答案」而非「验证不存在的候选」。与去锚定的本质区别：去锚定「有候选也独立算」覆盖了正确推理（A8 负收益根因），本开关只在「无候选」时独立求解——无正确推理可被覆盖，Python 算对即净赚、算错也不损失（推理侧本就无答案，下游走兜底）；
 22. **运筹学确定性求解守卫（`enable_operations_research_guard`）**：运筹学 3/3 全错是「缺对口求解范式」而非「偶尔算错」。仿照 modular_guard/counting_guard 的「领域守卫」模式，命中运筹学题（分类器 category 或题面关键词）时向 Python 注入 scipy.optimize.linprog/minimize/milp 求解器建模模板，生成后静态核查代码必须真调用求解器或枚举穷举，纯手算闭式则打回修复。
 
+B1 本版为「题库检索升级」（官方评测待跑）：把 A1 以来的 TF-IDF 轻量检索升级为 **ChromaDB 向量库**，照 99.11 分参考作品 ICMAnew 复现——检索规模从 1,555 条 TF-IDF 语料扩大到 27,984 条 AI-MO 竞赛题，检索质量对齐满分作品。向量库（`database/chroma.sqlite3`）与嵌入模型权重（`Qwen3-Embedding-0.6B`）按 ICMAnew 的做法直接进项目目录、由 Git LFS 托管，模型另有 ModelScope 在线下载兜底，检索失败一律降级为空、不阻塞求解：
+
+23. **ChromaDB 向量检索（照 ICMAnew 99.11 分）**：`utils/retrieval/database_client.py` 复现 ICMAnew 的 chroma 查询路径——加载 `Qwen3-Embedding-0.6B`（1024 维，CPU）对题面编码，在 `olympiad_problems` 集合（27,984 条 AI-MO 竞赛题）做 cosine 相似度检索，取 top-2 注入推理/验证两个子代理；`TfidfRetriever` 保留为无 LFS 环境的轻量替代，默认不启用。
+
 ### A2 vs A1 核心增量
 
 | 维度 | A1（实测 64.29 分） | A2（实测 67.86 分） |
@@ -84,7 +88,7 @@ solve(problem, metadata)
   └── MathAgentGraph.run(initial_state)          # PaperPacer 接入 + 难度软预算
        ├── input_node: 提取 idx，问题锚定
        ├── classifier_node: 18 领域 LLM 预填充分类（~1s）+ 难度画像
-       ├── database_retrieval_node: TF-IDF 题库检索 → top-k 相似题 + 反锚定 reference_block
+       ├── database_retrieval_node: ChromaDB 向量检索 → top-k 相似题 + 反锚定 reference_block
        ├── solving_subgraph: 置信门控扇出（实算填空升级双路；纯概念客观题单路径）
        │    ├── reasoning_agent: 加载领域 skill → 四章节结构化输出（深解题首轮压缩 prefill；截断→完整二次推理→压缩重试三级兜底）
        │    ├── python_agent: 候选核验生成 SymPy 验证代码（候选空则独立求解）→ 执行 → 答案（失败/截断→完整重生成→压缩三级兜底）
@@ -143,8 +147,15 @@ Math-Agent-System/
 ├── config.py                  # 全局配置（模型/超时/温度/token 预算/墙钟预算/PaperPacer）
 ├── requirements.txt           # 项目依赖清单
 │
-├── data/                      # 题库检索语料（离线构建，评测可复现）
+├── data/                      # TF-IDF 轻量替代语料（无 LFS 环境时用）
 │   └── retrieval_corpus.json  # 相似题面+解答语料库（TF-IDF 检索源）
+│
+├── database/                  # 题库向量库（ChromaDB 持久化，Git LFS 托管）
+│   ├── chroma.sqlite3         # ChromaDB 主库（27,984 条 AI-MO 竞赛题，cosine 相似度）
+│   └── <uuid>/                # ChromaDB 段文件（data_level0.bin 等）
+│
+├── models/                    # 嵌入模型权重（Git LFS 托管）
+│   └── Qwen3-Embedding-0.6B/  # Qwen3-Embedding-0.6B（1024 维，ModelScope 兜底）
 │
 ├── graph/                     # LangGraph 图编排（主图 + 子图 + 节点 + 状态）
 │   ├── main_graph.py          # 主图构建 + MathAgentGraph 运行器（PaperPacer 接入）
@@ -153,7 +164,7 @@ Math-Agent-System/
 │   └── nodes/                 # 图节点（每个节点一个文件）
 │       ├── input.py           # 提取 idx，问题锚定
 │       ├── classifier.py      # 18 领域 LLM 预填充分类 + 难度画像 + 确定性回退
-│       ├── database_retrieval.py # RAG 题库检索：TF-IDF 相似题 + 反锚定 reference_block
+│       ├── database_retrieval.py # RAG 题库检索：ChromaDB 向量检索相似题 + 反锚定 reference_block
 │       ├── reasoning.py       # LLM 四章节结构化推理 + 深解题首轮压缩 prefill + 截断三级兜底（完整二次推理→压缩重试）+ 断点续写/答案前置
 │       ├── python_exec.py     # SymPy 求解/验证代码生成（候选空则独立求解）+ 子进程安全执行 + 失败/截断完整重生成
 │       ├── cross_validator.py # 双路答案交叉验证 + 路由决策（含 playoff 路由）
@@ -198,8 +209,9 @@ Math-Agent-System/
     │   └── client_tuning.py   # 尽力提升平台 client socket 超时
     ├── skills_util/           # 领域技能：文档加载 + 主题摘取 + TF-IDF 索引
     │   ├── loader.py, excerpt.py, embedding.py
-    ├── retrieval/             # 题库检索（RAG）：TF-IDF 检索 + 反锚定 reference_block
-    │   ├── tfidf_client.py    # char_wb n-gram 2-5 轻量检索
+    ├── retrieval/             # 题库检索（RAG）：ChromaDB 向量检索 + 反锚定 reference_block
+    │   ├── database_client.py # ChromaDB 向量检索（27,984 条 AI-MO 竞赛题）
+    │   ├── tfidf_client.py    # TF-IDF 轻量检索（无 LFS 环境的替代，默认不启用）
     │   └── reference_block.py # 反锚定提示块 + 参数差异对比
     ├── problem/               # 题目分析：题型画像 + SHA256 锚定
     │   ├── profile.py, anchor.py
@@ -336,7 +348,7 @@ PaperPacer 用**题间预算池**动态计算每题软预算帽：已用全卷�
 
 解题前用原题检索竞赛题库，把最相似的题目与解答作为 few-shot 参考注入推理与验证两个子代理（`database_retrieval` 节点）：
 
-- **TF-IDF 轻量检索**：`char_wb` n-gram 2-5 特征，替代 chroma+embedding——评测环境无 GPU/额外依赖即可复现，语料离线构建为 `data/retrieval_corpus.json`；
+- **ChromaDB 向量检索**：向量库 `database/chroma.sqlite3`（27,984 条 AI-MO 竞赛题，cosine 相似度）+ `Qwen3-Embedding-0.6B`（1024 维）嵌入，照 ICMAnew 99.11 分作品复现——大文件直接进项目目录、Git LFS 托管，模型另有 ModelScope 在线兜底；
 - **注入两个子代理**：top-k 条题面+解答随 skill 文档一并进入 reasoning 与 python 提示词（`db_retrieval_top_k=2`），检索内容与注入字符数均写入 trace 留证；
 - **反锚定机制（reference_block）**：近似题结论不可直接迁移——提示块显式声明"参考题与本题参数不同"，要求数值参数差异对比、只借鉴解题方法不照抄结论，防误抄近似题。
 
@@ -423,6 +435,7 @@ A2 瓶颈是 8192 token 截断（`truncated_count=328` / 41.7%，完整二次推
 | A7 | 68.75 分（77/112） | + max_tokens 8192→12288 + 减调用（关 critic / modular_guard） | 提上限 12288（无效：环境 cap 8192）+ 关 critic/modular_guard（-5 题）；提交包去冗余。**被 A8 回退** |
 | **A8** | 目标 75 分+ | 回退 A7 恢复 A4 基线 + 计算题工具主解（去锚定） | max_tokens 回退 8192 + 恢复 critic/modular_guard；Python 分支去锚定独立求解（`python_independent_solve`），释放工具执行 67% vs 心算 34% |
 | **A9** | 目标 75 分+ | 回退 A8 恢复 A4 基线 + 条件求解器 + 运筹学守卫 | 回退去锚定/运筹学压缩（A8 负收益 −6 题）；候选空时 Python 独立求解（条件求解器框架）；运筹学题注入 scipy.optimize 求解器模板 + 静态核查 |
+| **B1** | 目标 90 分+ | 题库检索 TF-IDF → ChromaDB 向量库（照 ICMAnew 99.11 分作品） | 向量库 `database/chroma.sqlite3`（27,984 条 AI-MO 竞赛题）+ `Qwen3-Embedding-0.6B` 嵌入；大文件 Git LFS 托管 + 模型 ModelScope 在线兜底，检索失败降级为空 |
 
 ---
 

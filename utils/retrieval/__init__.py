@@ -1,15 +1,16 @@
-"""题库检索（RAG）轻量实现。
+"""题库检索（RAG）。
 
-ICMAnew 的差异化能力是"解题前检索相似竞赛题，把题面+解答作为 few-shot 参考
-注入推理与验证两个子代理"。其 chroma + Qwen3-Embedding-0.6B 的实现依赖 Git LFS
-模型权重与外部语料目录（E:/test/AI-MO），在评测环境不可复现。
+主路径照 ICMAnew 用 ChromaDB 向量库（database_client.DatabaseClient），检索
+27,984 条 AI-MO 竞赛题；向量库（chroma.sqlite3）与嵌入模型权重
+（Qwen3-Embedding-0.6B）按 ICMAnew 的做法直接进项目目录、由 Git LFS 托管，
+模型另有 ModelScope 在线下载兜底，检索失败一律降级为空、不阻塞求解。
 
-本包用纯 sklearn 的 TF-IDF（char n-gram）替代向量检索，语料从比赛公开的
-sample_data 离线提取为紧凑 JSON（data/retrieval_corpus.json），零新增依赖、
-任何环境可跑，并完整保留 ICMAnew 的"反锚定"参考区块（防止近似题结论被误抄）。
+TfidfRetriever 保留为无 LFS 环境的轻量替代（840KB 语料，任何环境可跑），
+默认不再启用。
 """
 
 from utils.retrieval.reference_block import build_reference_block
 from utils.retrieval.tfidf_client import TfidfRetriever
+from utils.retrieval.database_client import DatabaseClient
 
-__all__ = ["build_reference_block", "TfidfRetriever"]
+__all__ = ["build_reference_block", "DatabaseClient", "TfidfRetriever"]
