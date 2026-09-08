@@ -2,6 +2,7 @@ from .input import input_node
 from .classifier import classifier_node
 from .database_retrieval import database_retrieval_node
 from .reasoning import reasoning_agent_node
+from .objective_review import objective_review_node
 from .python_exec import python_agent_node
 from .cross_validator import cross_validator_node
 from .reconciliation import reconciliation_node

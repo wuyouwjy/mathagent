@@ -44,6 +44,29 @@ _PAYLOAD_RE = re.compile(
 #: point must not split `0.5`, hence the lookarounds on the ASCII period.
 _SENTENCE_SPLIT_RE = re.compile(r"(?:[。；;!?！？\n]|(?<!\d)\.(?!\d))+")
 
+#: 试探排除句：模型在推导中否掉一族候选构造/量级，然后继续找真正的答案。
+#: 2026-08-19 评委报告 idx 8：`所以任何 $O(1/n)$ 的收敛都不行` 带着结论词 `所以`
+#: 与载荷词 `收敛`，旧闸门逐条放行，于是这句中间思考被当作最终答案出厂（标准
+#: 答案是 603729）。这类句子的共同结构是「全称量词 + 否定判决」——它排除了一族
+#: 候选，却没有说出所求的值，因此永远不是结论。
+_TRIAL_REJECTION_RE = re.compile(
+    r"(?:任何|所有|任意|每(?:个|一)|凡是?|一切)[^，。；\n]{0,40}"
+    r"(?:都|均|皆)?\s*(?:不行|行不通|不可能|做不到|办不到|不满足|不成立|"
+    r"不奏效|无法(?:满足|做到|实现|达到)|达不到|不够|失败)"
+    r"|\b(?:any|every|all|no)\b[^,.;\n]{0,40}\b"
+    r"(?:fails?|does\s*n[o']t\s+work|do\s+not\s+work|cannot\s+work|"
+    r"is\s+impossible|are\s+impossible|won'?t\s+work)\b",
+    re.IGNORECASE,
+)
+
+#: 模型给结论贴的显式标签。带标签的排除句是真的把"排除"当成了答案
+#: （"答案是：不存在这样的 n"），此时不再按试探排除处理。
+_ANSWER_LABEL_RE = re.compile(
+    r"(?:最终)?答案\s*(?:是|为|[：:])|所求(?:为|是|的)|结论\s*(?:是|为|[：:])|"
+    r"\bthe\s+answer\s+is\b",
+    re.IGNORECASE,
+)
+
 #: Long enough to be a claim, short enough to be an answer rather than a paragraph.
 _MIN_CHARS = 6
 _MAX_CHARS = 400
@@ -90,6 +113,10 @@ def salvage_conclusion(response: str) -> str:
         # 对账门（2026-08-10 评委建议 4）：条件对/裸符号和/true-false 试错
         # 记录这类推导现场碎片，带结论词也不得出厂。
         if looks_derivation_fragment(sentence):
+            continue
+        # 试探排除门（2026-08-19 评委报告 idx 8）：「任何 X 都不行」排除的是一族
+        # 候选，不是所求的值；除非模型自己把它标成了答案，否则继续往前找。
+        if _TRIAL_REJECTION_RE.search(sentence) and not _ANSWER_LABEL_RE.search(sentence):
             continue
         return sentence
     return ""

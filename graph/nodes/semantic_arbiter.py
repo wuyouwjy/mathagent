@@ -19,6 +19,15 @@ from utils.llm.templates import (
     SEMANTIC_ARBITER_SYSTEM_PROMPT,
 )
 from utils.verify.reconciliation_policy import reconciliation_retry_available
+from utils.verify.candidate_health import assess_candidate_health
+from utils.verify.evidence import python_answer_is_trusted
+from utils.problem.profile import (
+    is_objective_mode,
+    normalize_objective_answer,
+    objective_answer_is_usable,
+    objective_answer_is_consistent,
+    fill_answer_matches_blanks,
+)
 from utils.budget.token import estimate_tokens
 
 
@@ -53,14 +62,68 @@ def _usable_answer(value) -> str:
     return answer
 
 
+#: 断言"无解/不存在"的答案必须携带排除性论证才可作为候选（2026-08-16 idx 6：
+#: Python 分支输出裸的 "No solution"（其代码只是试了若干候选），仲裁器仍选中它，
+#: 把推理分支两个已代回验证的具体解否决掉。裸断言没有任何证伪能力）。
+_NO_SOLUTION_RE = re.compile(
+    r"(?:no\s+solution|no\s+such|none\s+exist|does\s+not\s+exist|无解|不存在|没有解)",
+    re.IGNORECASE)
+_CONTRADICTION_EVIDENCE_RE = re.compile(
+    r"(?:矛盾|反证|contradiction|impossible|violates|must\s+fail|假设.*不成立)",
+    re.IGNORECASE)
+
+
+def _is_bare_no_solution(answer: str) -> bool:
+    """整段答案就是一个"无解/不存在"断言（允许 LaTeX 外壳与短尾注）才算裸断言。
+
+    多分支答案（如"u 有无穷多个；v 只可能取 1、3 或 5，不存在 v≥6 的解"）里
+    出现"不存在"字样不算——它给出了具体的正面结论。
+    """
+    text = re.sub(r"\s+", " ", answer or "").strip()
+    if not text:
+        return False
+    if len(text) > 120:  # 长答案即使含"无解"字样也是多分支结论，不是裸断言
+        return False
+    # 锚定：整串 = 断言词 + 至多 30 个字符的尾巴，且不含数字/字母/更多中文
+    m = re.fullmatch(
+        r"(?:\\(?:text|mathbf|mathrm|rm|boxed)\s*\{)*\s*"
+        r"(?:no\s+solution|no\s+such(?:\s+[a-z]+)?|none\s+exist|"
+        r"does\s+not\s+exist|do\s+not\s+exist|无解|不存在|没有解)"
+        r"[^0-9A-Za-z一-鿿]{0,30}(?:\})*\s*",
+        text, re.IGNORECASE)
+    return bool(m)
+
+
 def _candidate_pool(state: dict) -> list[_Candidate]:
     rr = state.get("reasoning_result") or {}
+    objective_review = state.get("objective_review_result") or {}
     po = state.get("python_output") or {}
+    problem = state.get("problem", "")
+    question_mode = state.get("question_mode", "")
     reasoning_answer = _usable_answer(rr.get("answer", ""))
     # stdout 挖掘出的答案（answer_source=stdout_mined）不要求 success：截断前
     # 打印的结论仍是真实计算产物，作为候选参加仲裁优于凭空丢弃。
     python_answer = _usable_answer(po.get("answer", "")) \
         if (po.get("success") or po.get("answer_source") == "stdout_mined") else ""
+
+    if is_objective_mode(question_mode):
+        if reasoning_answer and not objective_answer_is_usable(reasoning_answer, question_mode):
+            reasoning_answer = ""
+        if python_answer and not objective_answer_is_usable(python_answer, question_mode):
+            python_answer = ""
+    if question_mode == "fill":
+        if not fill_answer_matches_blanks(reasoning_answer, problem):
+            reasoning_answer = ""
+        if not fill_answer_matches_blanks(python_answer, problem):
+            python_answer = ""
+        if reasoning_answer and not objective_answer_is_consistent(
+            reasoning_answer, problem, question_mode
+        ):
+            reasoning_answer = ""
+        if python_answer and not objective_answer_is_consistent(
+            python_answer, problem, question_mode
+        ):
+            python_answer = ""
 
     reasoning_steps = "\n".join(
         f"步骤{s.get('step_num', '')}: {s.get('description', '')}"
@@ -87,14 +150,62 @@ def _candidate_pool(state: dict) -> list[_Candidate]:
     )
 
     candidates = []
-    if reasoning_answer:
-        candidates.append(_Candidate("reasoning", reasoning_answer, reasoning_evidence))
+    if is_objective_mode(question_mode):
+        # 客观题候选不做"交付物契约"健康检查：选项字母类答案天然不含契约要求的
+        # 其他组成部分，契约检查会以"缺少 extremum_value"之类的误报把正确候选
+        # 踢出仲裁池（2026-08-31 Q96 实测），而 objective_review 候选从不做该
+        # 检查——不对称过滤让谁被踢全凭来源。归一化与语义门已在上游执行。
+        if reasoning_answer:
+            candidates.append(_Candidate("reasoning", reasoning_answer, reasoning_evidence))
+    elif reasoning_answer:
+        health = assess_candidate_health(problem, reasoning_answer, mode=question_mode)
+        if health.get("usable") or not health.get("format_complete"):
+            # 保留"完整的纯文本推理候选"；确定性健康失败（负计数、截断）在此过滤。
+            if health.get("numeric_health") != "fail" and health.get("format_complete"):
+                candidates.append(_Candidate("reasoning", reasoning_answer, reasoning_evidence))
+    review_answer = _usable_answer(objective_review.get("answer", ""))
+    if review_answer and is_objective_mode(question_mode):
+        review_answer = normalize_objective_answer(review_answer, question_mode)
+        if objective_answer_is_usable(review_answer, question_mode):
+            review_evidence = "\n".join(part for part in (
+                _bounded(objective_review.get("analysis", ""), 1800),
+                _bounded("\n".join(
+                    str(item.get("description", ""))
+                    for item in (objective_review.get("steps", []) or [])
+                ), 1800),
+            ) if part.strip())
+            candidates.append(_Candidate("objective_review", review_answer, review_evidence))
+    # 被判伪造（字面量直答 / 无实质计算 / 权威引用代替计算）的 Python 答案不得入仲裁池：
+    # 2026-09-02 全量评测里"验证成功"的 66 题有 19 题是伪验证，其中 idx 35 的伪候选
+    # 顶掉了推理已算对的 3986729。仲裁器对数值没有独立复算能力，只要伪候选入池就存在
+    # 被"它跑过代码"的表象带偏的风险；证据仍完整留在 trace 里，只是失去参选资格。
+    if python_answer and authenticity.get("fabricated"):
+        python_answer = ""
     if python_answer:
-        candidates.append(_Candidate("python", python_answer, python_evidence))
+        health = assess_candidate_health(problem, python_answer, mode=question_mode, python_output=po)
+        # ``evidence_quality == "contradict"`` 指 Python 计算结果与另一分支候选
+        # 不一致——这正是仲裁要裁决的冲突，不得据此把它排除出池（2026-08-31 Q9
+        # 实测：Python 算出的正确答案因 contradict 被踢，池中只剩推理候选，
+        # 仲裁以 fewer_than_two_usable_candidates 跳过，错答直接出厂）。
+        # untrusted（代码缺独立基准比对）同理：与推理候选冲突时仍入池，证据
+        # 前缀标注验证强度，由仲裁器权衡；仅排除截断/数值不健康者。两者答案
+        # 一致时经下方去重自然合并，不会造成假冲突。
+        if health.get("numeric_health") != "fail" and health.get("format_complete"):
+            evidence = python_evidence
+            if not python_answer_is_trusted(po):
+                evidence = ("[验证强度不足：该代码缺少独立小规模基准断言。注意：这只说明未做基准比对，"
+                            "不说明计算错误——若代码实际执行了题面定义的完整构造/枚举/逐层生成，"
+                            "该执行证据仍是强证据]\n" + evidence)
+            candidates.append(_Candidate("python", python_answer, evidence))
 
     unique = []
     seen = set()
     for candidate in candidates:
+        # 裸"无解"断言且证据中没有任何排除性论证（矛盾推导）时，若池中还有
+        # 实质内容候选，则该断言无证伪能力，不得参与仲裁。
+        if _is_bare_no_solution(candidate.answer) \
+                and not _CONTRADICTION_EVIDENCE_RE.search(candidate.evidence or ""):
+            continue
         key = re.sub(r"\s+", " ", candidate.answer).strip().rstrip("。.")
         if key and key not in seen:
             seen.add(key)
@@ -190,9 +301,10 @@ def _fallback_result(state: dict, config: dict, status: str, trace: list[dict]) 
         deps = None
     time_budget = getattr(deps, "time_budget", None)
 
+    force_recheck = bool(state.get("recheck_required"))
     worth_retry = (
-        status in _SEMANTIC_STALEMATE
-        and reconciliation_retry_available(state, config)
+        (status in _SEMANTIC_STALEMATE or force_recheck)
+        and reconciliation_retry_available(state, config, force=force_recheck)
         and not (time_budget and time_budget.fast_path())
     )
     if worth_retry:

@@ -59,6 +59,7 @@ def _fallback_for_node(node: str, state: dict, error: dict, config: dict | None 
                 "execution_time": 0.0,
             },
             candidate_answer=(state.get("reasoning_result") or {}).get("answer", ""),
+            problem=state.get("problem", ""),
         )
         return {
             **base,

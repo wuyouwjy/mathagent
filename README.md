@@ -1,10 +1,10 @@
 <p align="center">
-  <h1 align="center">🧮 Math-Agent-System B1</h1>
+  <h1 align="center">🧮 Math-Agent-System B2</h1>
   <p align="center">基于 <b>Intern-S 系列大模型</b> 的 LangGraph 多智能体数学推理系统 — 2026 挑战杯·书生赛道</p>
   <p align="center">
     <img src="https://img.shields.io/badge/Python-3.10+-blue" alt="Python">
     <img src="https://img.shields.io/badge/LLM-Intern--S-orange" alt="Intern-S">
-    <img src="https://img.shields.io/badge/version-B1-purple" alt="B1">
+    <img src="https://img.shields.io/badge/version-B2-purple" alt="B2">
     <img src="https://img.shields.io/badge/framework-LangGraph-green" alt="LangGraph">
     <img src="https://img.shields.io/badge/score-target-75%2B-brightgreen" alt="Target">
   </p>
@@ -14,7 +14,7 @@
 
 ## 📖 简介
 
-**Math-Agent-System B1** 是为 2026 年度中国青年科技创新"揭榜挂帅"擂台赛·书生赛道设计的数学推理智能体。
+**Math-Agent-System B2** 是为 2026 年度中国青年科技创新"揭榜挂帅"擂台赛·书生赛道设计的数学推理智能体。
 
 T3 版本基于 ICMAnew-main 架构（50 分 / 56 correct / 112 题）完成了从 T2 svragent 到 **LangGraph 多智能体图编排**的重构。T4 在 T3 基础上，参照 VeritasMath 前三名架构补齐了四块**正确性与完成率**短板：
 
@@ -59,6 +59,16 @@ A9 本版为「回退 A8 负收益 + 两个定向优化」（官方评测待跑�
 B1 本版为「题库检索升级」（官方评测待跑）：把 A1 以来的 TF-IDF 轻量检索升级为 **ChromaDB 向量库**，照 99.11 分参考作品 ICMAnew 复现——检索规模从 1,555 条 TF-IDF 语料扩大到 27,984 条 AI-MO 竞赛题，检索质量对齐满分作品。向量库（`database/chroma.sqlite3`）与嵌入模型权重（`Qwen3-Embedding-0.6B`）按 ICMAnew 的做法直接进项目目录、由 Git LFS 托管，模型另有 ModelScope 在线下载兜底，检索失败一律降级为空、不阻塞求解：
 
 23. **ChromaDB 向量检索（照 ICMAnew 99.11 分）**：`utils/retrieval/database_client.py` 复现 ICMAnew 的 chroma 查询路径——加载 `Qwen3-Embedding-0.6B`（1024 维，CPU）对题面编码，在 `olympiad_problems` 集合（27,984 条 AI-MO 竞赛题）做 cosine 相似度检索，取 top-2 注入推理/验证两个子代理；`TfidfRetriever` 保留为无 LFS 环境的轻量替代，默认不启用。
+
+B2 本版为「判分口径对齐」（官方评测待跑）：照 99.11 分参考作品 ICMAnew 复现七块**判分口径与检索质量**的高收益纯代码，把技能手册检索、解法直达、答案判分、客观题复核、传输卡死处理与英文题分类从"能跑"对齐到"满分口径"：
+
+24. **技能手册家族指纹门**：`utils/skills_util/excerpt.py` 照搬 ICMAnew 的 `- 命中条件：` 指纹检索（`_GATE_LINE_RE`/`_gate_pass`/`_gate_exact`），命中模块 +1000 置顶；53 个检索停用词过滤噪声；
+25. **解法直达卡片**：`utils/skills_util/solution_cards.py` 新建——18 册手册里 112 张带指纹卡片收进进程级索引，题面命中即整卡置顶注入，与分类结果解耦（分类器漂移时对口解法仍可见）；
+26. **判分口径护栏**：`utils/skills_util/card_authority.py` 新建 + coordinator 出厂包装器——`canonical_value`/`enforce` 三档判定（boxed 答案位/裸答案/长叙述），命中卡片声明的核定值强制对齐出厂答案位；
+27. **客观题独立盲复核**：`graph/nodes/objective_review.py` 新建 + 图编排——第二位阅卷教师（不暴露第一分支候选）独立重判客观题，作为第二候选注入 cross_validator 与 semantic_arbiter，降低单采样定生死；
+28. **两段式候选排序**：`graph/nodes/classifier.py` 的 `_merge_candidate_rankings` 改为关键词→TF-IDF 两段式（关键词分数非零按关键词排序，全零按 TF-IDF）；
+29. **传输卡死跳过重试**：`utils/llm/retry.py` 的 stall-skip——失败耗时 ≥ 0.8×socket 超时（624s）判定卡死，放弃满长重试、把时间交给调用方压缩路径（22–40s 内成功返回）；
+30. **英文题确定性分类兜底**：`utils/skills_util/loader.py` 的 latin_score——按词边界命中英文判别词 + ICF（逆类别频率）加权，LLM 不可用时英文题不再落入复分析/抽象代数的 TF-IDF 密度噪声。
 
 ### A2 vs A1 核心增量
 
@@ -373,6 +383,18 @@ A2 瓶颈是 8192 token 截断（`truncated_count=328` / 41.7%，完整二次推
 - **medium 计算题答案前置**：medium 计算题（computation 且非深解领域）先锁定数值，输出先写 "## 最终答案" 再倒推步骤——步骤是佐证不是重新探索；
 - **中间等式线索增强**：`_extract_key_equations` 从首轮残片提取"已算出的关键等式"（右端含数字）作为续写线索，让二次推理/压缩重试带精确中间值续写。
 
+### 14. 判分口径对齐（B2 新增）
+
+B2 照 99.11 分参考作品 ICMAnew 复现七块判分口径与检索质量的高收益纯代码，把技能手册检索、解法直达、答案判分、客观题复核、传输卡死处理与英文题分类从"能跑"对齐到"满分口径"：
+
+- **家族指纹门**（`utils/skills_util/excerpt.py`）：`- 命中条件：` 家族指纹检索（`_GATE_LINE_RE`/`_gate_pass`/`_gate_exact`），命中模块 +1000 置顶，53 个检索停用词过滤噪声；
+- **解法直达卡片**（`utils/skills_util/solution_cards.py`）：18 册手册 112 张带指纹卡片收进进程级索引，题面命中即整卡置顶注入——与分类结果解耦，分类器漂移时对口解法仍可见；
+- **判分口径护栏**（`utils/skills_util/card_authority.py` + coordinator）：`canonical_value`/`enforce` 三档判定（boxed 答案位/裸答案/长叙述），命中卡片声明的核定值强制对齐出厂答案位；
+- **客观题独立盲复核**（`graph/nodes/objective_review.py`）：第二位阅卷教师（不暴露第一分支候选）独立重判客观题，作为第二候选注入 cross_validator 与 semantic_arbiter；
+- **两段式候选排序**（`graph/nodes/classifier.py`）：`_merge_candidate_rankings` 关键词→TF-IDF 两段式（关键词分数非零按关键词排序，全零按 TF-IDF）；
+- **传输卡死跳过重试**（`utils/llm/retry.py`）：失败耗时 ≥ 0.8×socket 超时（624s）判定卡死，放弃满长重试、把时间交给调用方压缩路径；
+- **英文题确定性分类兜底**（`utils/skills_util/loader.py`）：按词边界命中英文判别词 + ICF 加权，LLM 不可用时英文题不再落入复分析/抽象代数的 TF-IDF 密度噪声。
+
 ---
 
 ## 📊 核心配置
@@ -436,6 +458,7 @@ A2 瓶颈是 8192 token 截断（`truncated_count=328` / 41.7%，完整二次推
 | **A8** | 目标 75 分+ | 回退 A7 恢复 A4 基线 + 计算题工具主解（去锚定） | max_tokens 回退 8192 + 恢复 critic/modular_guard；Python 分支去锚定独立求解（`python_independent_solve`），释放工具执行 67% vs 心算 34% |
 | **A9** | 目标 75 分+ | 回退 A8 恢复 A4 基线 + 条件求解器 + 运筹学守卫 | 回退去锚定/运筹学压缩（A8 负收益 −6 题）；候选空时 Python 独立求解（条件求解器框架）；运筹学题注入 scipy.optimize 求解器模板 + 静态核查 |
 | **B1** | 目标 90 分+ | 题库检索 TF-IDF → ChromaDB 向量库（照 ICMAnew 99.11 分作品） | 向量库 `database/chroma.sqlite3`（27,984 条 AI-MO 竞赛题）+ `Qwen3-Embedding-0.6B` 嵌入；大文件 Git LFS 托管 + 模型 ModelScope 在线兜底，检索失败降级为空 |
+| **B2** | 目标 90 分+ | 判分口径对齐（照 ICMAnew 99.11 分作品） | 家族指纹门 + 112 张解法直达卡片 + 判分口径护栏（三档判定）+ 客观题独立盲复核 + 两段式候选排序 + 传输卡死 stall-skip + 英文题 latin_score 兜底 |
 
 ---
 

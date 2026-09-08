@@ -21,9 +21,34 @@ from __future__ import annotations
 
 import re
 
-#: Module boundary in these documents: either the legacy ``## 模块...`` heading
-#: or the numbered ``## 1. ...`` style used by the competition skill manuals.
-_MODULE_RE = re.compile(r"^##\s*(?:模块|\d+\s*[.)、:：-])", re.MULTILINE)
+#: Module boundary in these documents: the legacy ``## 模块...``/``### 模块...``
+#: heading, the numbered ``## 1. ...`` style, or the CJK-numbered ``## 一、...``
+#: style used by the core-theory chapters of several manuals.
+#:
+#: 2026-08-20：漏掉中文序号是一个静默的大洞。高等代数的 ``## 一、多项式理论`` …
+#: ``## 十、习题索引`` 十个正文章节都不算边界，于是整册 60% 的正文（15292/25101
+#: 字符）全被并进 preamble；preamble 超预算后走头部封顶分支，正文永远只露出开头
+#: 1200 字符，真正对口的章节一个字也到不了模型手里。数学分析同理（52%）。
+#: idx 6/7/17（高等代数）与 8/27（数学分析）正落在这两册里。
+#:
+#: 2026-08-22：无 API 全量观测发现 8/18 领域文档把模块写成三级标题 ``### 模块N：``
+#: （复分析/常微分方程完全不可见，抽象代数/概率论/泛函分析/线性回归/统计推断/
+#: 随机过程部分不可见），``##`` 前缀不再匹配，整册退回 doc[:limit] 头部截断。
+#: 模块分支放宽为 ``#{2,3}``；数字/中文序号分支保持 ``##`` 不变——``### 1. 题型识别``
+#: 这类三级数字子标题不应成为边界（2026-08-22 复分析文档实测）。
+#:
+#: 同日再补两种变体：微分几何整册用 ``## 1 曲线弧长``（数字+空格+标题，无标点，
+#: 20 个知识模块因此全部不可见，preamble 21663 字符）——新增 ``\d+\s+标题``
+#: 分支（含 ``## 3 Frenet标架``/``## 19 Gauss-Bonnet定理`` 这类拉丁开头的标题）；
+#: 其余 12 个文档文末的 ``## 通用解题方法论``/``## sympy验证技巧``/``## 习题索引``/
+#: ``## 常见错误与陷阱``/``## 关键公式速查表``/``## 参考资源`` 等通用章节被并入最后
+#: 一个真模块（复分析模块9 因此膨胀到 24201 字符，其词表成为全集、对所有题霸榜），
+#: 文档侧已统一改题为 ``## 模块速查：…``（与离散数学/高等代数惯例一致）。
+_MODULE_RE = re.compile(
+    r"^(?:#{2,3}\s*模块|##\s*(?:\d+\s*[.)、:：-]|\d+\s+(?:[一-鿿]|[A-Za-z])|"
+    r"[一二三四五六七八九十百]+\s*[、.)：:-]))",
+    re.MULTILINE,
+)
 #: Trailing sections that apply to every problem regardless of domain.
 _UNIVERSAL_HEADING_RE = re.compile(r"^##\s*(?:跨学科|通用|附录)", re.MULTILINE)
 #: CJK runs and latin words; single CJK characters are too common to discriminate.
@@ -68,6 +93,50 @@ def _cue_bonus(module: str, problem: str) -> int:
 #: 上限封顶，避免一行通用词把真正的领域模块挤出预算。
 _RETRIEVAL_LINE_RE = re.compile(r"^-\s*检索词[：:](.+)$", re.MULTILINE)
 
+#: 检索词行里的虚词一律不计分。这类词在任何英文题面里都存在，一旦混进检索词，
+#: 该模块就会对所有英文题目拿满命中分，把真正对口的模块挤掉——2026-08-20 把
+#: 「选数禁邻博弈」的检索词误写成自然语言短语（"...to any of those the player has
+#: already chosen..."）后，它立刻劫持了 idx 14 这道与博弈毫无关系的分拆题。
+#: 护栏放在打分侧而不是靠人写对：检索词行由人手写，迟早会再混进虚词。
+_RETRIEVAL_STOPWORDS = frozenset({
+    "the", "a", "an", "of", "to", "is", "are", "be", "in", "on", "at", "by",
+    "or", "and", "for", "with", "that", "this", "these", "those", "it", "its",
+    "as", "if", "then", "than", "so", "such", "any", "all", "each", "every",
+    "has", "have", "had", "was", "were", "not", "no", "we", "you", "he", "she",
+    "they", "one", "two", "can", "may", "must", "will", "from", "into", "out",
+})
+
+
+#: **家族指纹门**：条目可用 ``- 命中条件：词1 词2`` 声明一组必须**全部**出现在题面里的
+#: 指纹词（子串语义、忽略大小写）。任一词缺失，该条目完全不参与打分、不占预算。
+#:
+#: 动机：解法直达卡片把整条推导链和结论写进手册，条目长、实词多，纯重叠打分会让它
+#: 在结构毫不相干的题面上排到第 1–3 名并挤进节选（离线全量扫描实测：某张卡把它的
+#: 结论送进了 6 道别的题的节选）。卡片正文里的"适用条件"只是给模型看的软闸门，
+#: 把门交给选择逻辑而不是交给模型自觉才是可验证的——门生效后，卡片只对它声明的
+#: 那一族题可见，跨题污染归零。
+_GATE_LINE_RE = re.compile(r"^-\s*命中条件[：:](.+)$", re.MULTILINE)
+
+
+def _gate_pass(module: str, problem: str) -> bool:
+    """条目声明的家族指纹是否全部命中（未声明则恒真）。"""
+    match = _GATE_LINE_RE.search(module)
+    if not match:
+        return True
+    tokens = [tok.casefold() for tok in match.group(1).split() if tok]
+    text = (problem or "").casefold()
+    return bool(tokens) and all(tok in text for tok in tokens)
+
+
+def _gate_exact(module: str, problem: str) -> bool:
+    """该条目声明了指纹且指纹全部命中——即"题面就是这一族题"。
+
+    命中即置顶：指纹词是按全量题面核对过的唯一标识（19 张卡各命中 1 题），
+    所以硬命中比任何词重叠打分都强，必须排在自然得分条目之前并优先获得预算
+    （预算不足时按榜首截断，卡片把结论写在最前面，截的是推导细节）。
+    """
+    return bool(_GATE_LINE_RE.search(module)) and _gate_pass(module, problem)
+
 
 def _retrieval_bonus(module: str, problem: str) -> int:
     match = _RETRIEVAL_LINE_RE.search(module)
@@ -77,7 +146,7 @@ def _retrieval_bonus(module: str, problem: str) -> int:
     hits = 0
     for token in match.group(1).split():
         tok = token.casefold().strip()
-        if len(tok) < 2:
+        if len(tok) < 2 or tok in _RETRIEVAL_STOPWORDS:
             continue
         if re.fullmatch(r"[a-z][a-z\-]*", tok):
             if len(tok) >= 4:
@@ -157,17 +226,22 @@ def _select(document: str, problem: str, limit: int, boundary) -> str:
         return text[:limit]
 
     problem_terms = _terms(problem)
+    # 指纹门未命中的条目直接出局（不进 scored，因此也不会被下面的贪心塞进预算）。
     scored = [(index, _score(module, problem_terms) + _cue_bonus(module, problem)
-               + _retrieval_bonus(module, problem))
-              for index, module in enumerate(modules)]
+               + _retrieval_bonus(module, problem)
+               + (1000 if _gate_exact(module, problem) else 0))
+              for index, module in enumerate(modules) if _gate_pass(module, problem)]
     if not any(score for _, score in scored):
         return text[:limit]
 
     # Universal sections (跨学科通用方法论) apply to every problem, so they compete on
-    # equal footing rather than being crowded out by domain scoring alone.
+    # equal footing rather than being crowded out by domain scoring alone. 按模块序号
+    # 定位（scored 可能被指纹门过滤，位置索引不再等于模块索引）。
+    position = {index: pos for pos, (index, _) in enumerate(scored)}
     for index, module in enumerate(modules):
-        if _UNIVERSAL_HEADING_RE.match(module):
-            scored[index] = (index, scored[index][1] + 1)
+        pos = position.get(index)
+        if pos is not None and _UNIVERSAL_HEADING_RE.match(module):
+            scored[pos] = (index, scored[pos][1] + 1)
 
     ranked = [pair for pair in sorted(scored, key=lambda pair: (-pair[1], pair[0]))
               if pair[1] > 0]

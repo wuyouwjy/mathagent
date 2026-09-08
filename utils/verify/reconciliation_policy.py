@@ -44,18 +44,34 @@ def projected_solving_seconds(time_budget) -> float:
     )
 
 
-def reconciliation_retry_available(state, config) -> bool:
-    """Whether entering reconciliation can still produce another solving run."""
-    # V3 证明题重试收敛：proof 无 Python 锚定，critic 判缺项后第 2 次完整 reasoning
-    # 的边际收益≈0。实测 idx 1「60阶单群≅A5」：第 2 次 reasoning（280s）仍被判缺项、
-    # 其产出从未被采纳（validated_answer 保持第 1 次的中间结论，最终靠 coordinator_llm
-    # 独立成稿才正确）。证明题直接成稿，省一次完整推理（~280-527s），几乎不损正确率。
+def reconciliation_retry_available(state, config, *, force: bool = False) -> bool:
+    """Whether entering reconciliation can still produce another solving run.
+
+    ``force`` 用于未决证据缺口，可动用硬时钟 reserve，但绝不绕过断路器或快路径；
+    默认路径对既有调用方保持不变。
+    V3 证明题重试收敛：proof 无 Python 锚定，critic 判缺项后第 2 次完整 reasoning
+    的边际收益≈0。实测 idx 1「60阶单群≅A5」：第 2 次 reasoning（280s）仍被判缺项、
+    其产出从未被采纳（validated_answer 保持第 1 次的中间结论，最终靠 coordinator_llm
+    独立成稿才正确）。证明题直接成稿，省一次完整推理（~280-527s），几乎不损正确率。
+    force 也不得绕过这条：证明题不存在"代回复算"的独立复核价值。
+    """
     question_mode = state.get("question_mode") or classify_question_mode(state.get("problem", ""))
     if question_mode == "proof":
         return False
     completed_rounds = state.get("reconciliation_round", 0)
     if completed_rounds + 1 >= reconciliation_round_limit(config):
         return False
+    if force and state.get("forced_recheck_used"):
+        return False
     deps = _deps(config)
     clock = getattr(deps, "time_budget", None)
-    return clock is None or clock.can_afford(projected_solving_seconds(clock))
+    if clock is None:
+        return True
+    if clock.fast_path():
+        return False
+    projected = projected_solving_seconds(clock)
+    if force:
+        reserve = float(CONFIG.get("forced_recheck_reserve_s", 240))
+        hard_remaining = getattr(clock, "remaining_hard", clock.remaining)()
+        return hard_remaining >= projected + reserve
+    return clock.can_afford(projected)

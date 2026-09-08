@@ -13,7 +13,8 @@ from utils.budget.token import estimate_tokens
 from utils.answer.cot_stripper import strip_cot_prefix
 from utils.budget.affordability import can_afford_retry, last_attempt_cost
 from utils.budget.timeout import NodeTimeoutError, run_with_timeout
-from utils.skills_util.excerpt import select_script_excerpt, select_skill_excerpt
+from utils.skills_util.excerpt import select_script_excerpt
+from utils.skills_util.solution_cards import select_excerpt_with_cards as select_skill_excerpt
 from utils.retrieval.reference_block import build_reference_block
 from utils.verify.evidence import parse_verification_evidence
 from utils.problem.profile import is_objective_mode, structure_instruction
@@ -28,7 +29,8 @@ def _reference_examples_block(examples, problem: str = "") -> str:
     "验证结论"，比推理侧照抄更难识破。
     """
     return build_reference_block(examples, problem_chars=600, solution_chars=800,
-                                 problem=problem)
+                                 problem=problem, include_solutions=False,
+                                 role="python")
 
 
 def _extract_code(response: str) -> str:
@@ -196,7 +198,8 @@ def python_agent_node(state, config):
     client = deps.client
     mcp_client = deps.mcp_client
     budget = deps.token_budget
-    max_attempts = 1 if budget and budget.is_tight() else CONFIG["max_retries_per_node"]
+    max_attempts = 1 if budget and budget.is_tight() else CONFIG.get(
+        "python_max_retries", CONFIG["max_retries_per_node"])
     problem, category = state["problem"], state["category"]
     question_mode = state.get("question_mode", "computation")
     if is_objective_mode(question_mode):
@@ -237,7 +240,7 @@ def python_agent_node(state, config):
     except Exception:
         validation_script = ""
     # 题库参考示例：与推理节点收到的是同一批（同一次检索的全部结果）。
-    examples_text = _reference_examples_block(state.get("retrieved_examples"), problem)
+    examples_text = _reference_examples_block(state.get("python_references"), problem)
     # Validation examples are prompt documents. Select the knowledge-point sections
     # whose vocabulary matches the problem instead of sending a positional prefix.
     validation_excerpt = select_script_excerpt(validation_script, problem, 2000) + examples_text
@@ -309,7 +312,7 @@ def python_agent_node(state, config):
 
     def finalize(output):
         enriched = parse_verification_evidence(
-            output, candidate_answer=candidate_answer, code=last_code)
+            output, candidate_answer=candidate_answer, code=last_code, problem=problem)
         return {
             "python_code": last_code,
             "python_output": enriched,
@@ -352,7 +355,7 @@ def python_agent_node(state, config):
                     code, timeout=CONFIG["node_timeouts"]["python_mcp_execute"])
                 last_output = output
                 probe = parse_verification_evidence(
-                    output, candidate_answer=candidate_answer, code=code)
+                    output, candidate_answer=candidate_answer, code=code, problem=problem)
                 trace.append({"attempt": attempts,
                               "status": "success" if output.get("success") else "failed",
                               "reason": "deep_direct_compressed_first",
@@ -539,7 +542,7 @@ def python_agent_node(state, config):
         })
         if output.get("success"):
             probe = parse_verification_evidence(
-                output, candidate_answer=candidate_answer, code=code)
+                output, candidate_answer=candidate_answer, code=code, problem=problem)
             if str(probe.get("answer") or "").strip():
                 return finalize(output)
             # 执行成功但连 stdout 挖掘都拿不到结论 → 先做确定性补调用修复
@@ -551,7 +554,7 @@ def python_agent_node(state, config):
                 repaired_output = mcp_client.execute(
                     repaired, timeout=CONFIG["node_timeouts"]["python_mcp_execute"])
                 repaired_probe = parse_verification_evidence(
-                    repaired_output, candidate_answer=candidate_answer, code=repaired)
+                    repaired_output, candidate_answer=candidate_answer, code=repaired, problem=problem)
                 answer_text = str(repaired_probe.get("answer") or "").strip()
                 if repaired_output.get("success") and answer_text \
                         and answer_text.lower() not in {"none", "null"}:

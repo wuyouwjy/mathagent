@@ -2,8 +2,8 @@ from langgraph.graph import StateGraph, START, END
 from langgraph.types import Send
 from graph.state import MathAgentState
 from graph.nodes import (
-    reasoning_agent_node, python_agent_node, cross_validator_node,
-    database_retrieval_node,
+    reasoning_agent_node, objective_review_node, python_agent_node,
+    cross_validator_node, database_retrieval_node,
 )
 from utils.error_handler import node_wrapper
 from utils.problem.profile import is_objective_mode, classify_question_mode
@@ -11,9 +11,13 @@ from utils.problem.profile import is_objective_mode, classify_question_mode
 def build_solving_subgraph():
     sub = StateGraph(MathAgentState)
     # 题库检索：纯增益节点，失败降级为空列表。放在 fan_out 之前，两个子代理
-    # 并行前各自从 state 读 retrieved_examples 注入参考区块（反锚定）。
+    # 并行前各自从 state 读 reasoning_references / python_references（秩奇偶
+    # 分流、Python 解答抑制）注入参考区块（反锚定）。
     sub.add_node("database_retrieval", node_wrapper(database_retrieval_node, "database_retrieval"))
     sub.add_node("reasoning_agent", node_wrapper(reasoning_agent_node, "reasoning_agent"))
+    # 客观题独立盲复核：第二位阅卷教师（不暴露第一分支候选），只在客观题上运行，
+    # 作为跨校验的第二候选注入 cross_validator 与 semantic_arbiter。
+    sub.add_node("objective_review", node_wrapper(objective_review_node, "objective_review"))
     sub.add_node("python_agent", node_wrapper(python_agent_node, "python_agent"))
     sub.add_node("cross_validator", node_wrapper(cross_validator_node, "cross_validator"))
 
@@ -57,7 +61,20 @@ def build_solving_subgraph():
         return sends
     sub.add_edge(START, "database_retrieval")
     sub.add_conditional_edges("database_retrieval", fan_out, ["reasoning_agent", "python_agent"])
-    sub.add_edge("reasoning_agent", "cross_validator")
+    # 客观题在 reasoning 之后走一次独立盲复核再进 cross_validator；非客观题直达
+    # cross_validator（与 ICMAnew 的 objective_review 接入一致，不受上面 fan_out
+    # 自研跳过逻辑影响——fan_out 决定是否并行 Python，这里决定是否盲复核）。
+    def route_after_reasoning(state):
+        return "objective_review" if is_objective_mode(
+            state.get("question_mode", "computation")
+        ) else "cross_validator"
+
+    sub.add_conditional_edges(
+        "reasoning_agent",
+        route_after_reasoning,
+        {"objective_review": "objective_review", "cross_validator": "cross_validator"},
+    )
+    sub.add_edge("objective_review", "cross_validator")
     sub.add_edge("python_agent", "cross_validator")
     sub.add_edge("cross_validator", END)
     return sub.compile()

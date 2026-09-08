@@ -27,6 +27,27 @@ CLASSIFICATION_PROMPT = """判断下面这道数学题属于哪一个类别。
 
 CLASSIFICATION_PREFILL = '{"category": "'
 
+# Independent second pass for objective questions. It receives no first-pass
+# answer or retrieved material and commits a normalized candidate after checking
+# definitions and coverage. 2026-08-31: it does receive the domain skill excerpt —
+# a blind grader without the textbook convention loses knowledge questions by
+# construction (实测 Q99/101/103：盲复核全错并经仲裁覆盖了正确首答).
+OBJECTIVE_REVIEW_PROMPT = """你是独立的第二位阅卷教师。请只根据下面原题与学科口径参考重新判断答案，
+不要参考任何先前候选、题库解答或外部答案。逐项核对题面定义；选择题检查每个选项，
+判断题检查命题方向，填空题按空位顺序覆盖全部结果。作答口径以下方"学科口径参考"为准。
+先在心中核对，再只输出两行：
+答案：<正确选项/正确判断/各空结果>
+依据：<不超过两句的独立核对理由>
+
+题型：{question_mode}
+学科：{category}
+学科口径参考（教材判分口径，可信）：
+{skill_reference}
+原题：
+{problem}"""
+
+OBJECTIVE_REVIEW_PREFILL = "答案："
+
 REASONING_PROMPT = """你是一个数学专家，使用intern-s2-preview-397b模型，专注于{category}领域。
 
 严格输出要求：

@@ -48,8 +48,32 @@ def _bounded(text: str, limit: int = 1000) -> str:
     return text if len(text) <= limit else text[:limit].rstrip() + "...[truncated]"
 
 
+def python_answer_is_trusted(python_output: dict | None) -> bool:
+    """Python 分支是否真的验证过——未验证的答案一律不可信。
+
+    这是 ``python_verification_trusted`` 的**唯一**读取入口。该字段由
+    ``parse_verification_evidence`` 写入，此前每个消费点各写一份等价判断，结果
+    2026-08-19 的闸门漏了第三个消费点（协调器 ``_evidence_override``），idx 4 与
+    idx 77 的正确推理答案被未验证的 Python 答案覆盖出厂。读取集中到一处，新增
+    消费点只需 import，不会再各自漏判。
+
+    缺字段时退回 ``authenticity.verified``；两者皆缺（未提供 code、夹具与空分支）
+    时不做有罪推定，沿用旧语义返回 True。
+    """
+    po = python_output or {}
+    if "python_verification_trusted" in po:
+        return bool(po.get("python_verification_trusted"))
+    authenticity = po.get("authenticity")
+    if isinstance(authenticity, dict) and "verified" in authenticity:
+        return bool(authenticity["verified"])
+    return True
+
+
 def parse_verification_evidence(
-    output: dict | None, candidate_answer: str = "", code: str = ""
+    output: dict | None,
+    candidate_answer: str = "",
+    code: str = "",
+    problem: str = "",
 ) -> dict:
     """Add conservative evidence fields without changing executor success semantics."""
     result = dict(output or {})
@@ -108,12 +132,51 @@ def parse_verification_evidence(
 
     # 反伪造：不做计算却宣称 PASS 的代码，其 support 不构成数学证据。
     # 只降级 support（contradict 的反例本身就是计算产物，不受权威引用污染）。
-    authenticity = assess_verification_authenticity(code, stdout) if code else \
-        {"fabricated": False, "reasons": []}
+    default_authenticity = {
+        "fabricated": False,
+        "reasons": [],
+        "strength_reasons": [],
+        "verified": False,
+        "requires_baseline": False,
+        "has_baseline_check": False,
+        "baseline_names": [],
+    }
+    provided_authenticity = result.get("authenticity")
+    if code:
+        authenticity = assess_verification_authenticity(code, stdout, problem)
+    elif isinstance(provided_authenticity, dict):
+        # Preserve explicit metadata supplied by a caller or a test fixture;
+        # only missing keys receive the legacy defaults.
+        authenticity = {**default_authenticity, **provided_authenticity}
+    else:
+        authenticity = default_authenticity
     if authenticity["fabricated"] and status == "support":
         status = "inconclusive"
         warning = "；".join(authenticity["reasons"])
         evidence_summary = f"[反伪造] {warning}。原声明不作为验证证据。"
+
+    # 未验证即不可信（2026-08-19）：代码里没有任何实质计算、或答案是抄进 print
+    # 的常量时，这条分支没有"验证"过任何东西，其答案不得充当验证结论。
+    # trusted=False 的 Python 答案在下游一律不参与答案选择。
+    # 没有 code 可查时仍尊重调用方明确给出的不可信标记；只有完全缺少
+    # 可信度元数据时才沿用旧语义的 fail-open 兼容行为。
+    if code:
+        trusted = bool(authenticity.get("verified"))
+    elif "python_verification_trusted" in result:
+        trusted = bool(result.get("python_verification_trusted"))
+    elif isinstance(provided_authenticity, dict) and "verified" in provided_authenticity:
+        trusted = bool(provided_authenticity.get("verified"))
+    else:
+        trusted = True
+    if status == "support" and not trusted:
+        status = "inconclusive"
+        strength_reasons = authenticity.get("strength_reasons") or []
+        if strength_reasons:
+            evidence_summary = (
+                "[验证强度不足] " + "；".join(strength_reasons)
+                + (f"。原声明不作为验证证据。" if evidence_summary else "")
+            )
+    result["python_verification_trusted"] = trusted
 
     result.update({
         "evidence_status": status,
@@ -122,4 +185,25 @@ def parse_verification_evidence(
         "evidence_marker": bool(marker),
         "authenticity": authenticity,
     })
+    # Keep answer-format and numeric sanity in the same parsed payload so every
+    # downstream consumer observes one health assessment.
+    try:
+        from utils.verify.candidate_health import assess_candidate_health
+
+        result["candidate_health"] = assess_candidate_health(
+            problem,
+            str(result.get("answer") or candidate_answer or ""),
+            mode="computation",
+            python_output=result,
+        )
+    except Exception:  # noqa: BLE001 - evidence parsing must remain fail-open.
+        result["candidate_health"] = {
+            "usable": bool(result.get("answer")),
+            "format_complete": bool(result.get("answer")),
+            "evidence_quality": status or "unknown",
+            "counterexample_free": "unknown",
+            "numeric_health": "unknown",
+            "reasons": ["候选健康度解析失败"],
+            "score": 0.0,
+        }
     return result

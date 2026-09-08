@@ -129,11 +129,23 @@ def _resolve_category(raw, valid_categories, fallback):
 
 
 def _merge_candidate_rankings(*rankings, limit):
-    scores = {}
-    for ranking in rankings:
-        for position, (category, _) in enumerate(ranking):
-            scores[category] = scores.get(category, 0.0) + 1.0 / (position + 1)
-    ordered = sorted(scores, key=lambda c: (-scores[c], c))
+    """按分数合并多路候选，而不是按位次。
+
+    旧实现把每路排名压成 1/(位次+1) 的 Borda 分——关键词 #1（领先 4 倍分数）和
+    TF-IDF #1 各得 1.0，于是 TF-IDF 的噪声位次常把分差巨大但位次接近的候选翻盘。
+    2026-08-22 无 API 全量观测：英文题下关键词全 0 时 TF-IDF 决定一切（复分析
+    靠文档英文词汇密度拿走约一半题目的顶分）；关键词有内容时分数本身就够判别。
+    改为两段式：关键词分数非全零时按关键词分数排序（TF-IDF 仅作并列时的微扰），
+    全零时才由 TF-IDF 决定。
+    """
+    kw = dict(rankings[0]) if rankings else {}
+    tf = dict(rankings[1]) if len(rankings) > 1 else {}
+    if any(v > 0 for v in kw.values()):
+        merged = {c: kw.get(c, 0.0) + 1e-9 * tf.get(c, 0.0)
+                  for c in set(kw) | set(tf)}
+    else:
+        merged = dict(tf)
+    ordered = sorted(merged, key=lambda c: (-merged[c], c))
     return ordered[:limit]
 
 

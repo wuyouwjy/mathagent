@@ -10,7 +10,7 @@ from utils.answer.extractor import (
 )
 from utils.answer.conclusion_salvage import salvage_conclusion
 from utils.answer.cot_stripper import is_placeholder_answer, strip_cot_prefix
-from utils.skills_util.excerpt import select_skill_excerpt
+from utils.skills_util.solution_cards import select_excerpt_with_cards as select_skill_excerpt
 from utils.retrieval.reference_block import build_reference_block
 from utils.budget.affordability import can_afford_retry, last_attempt_cost
 from utils.budget.timeout import NodeTimeoutError, run_with_timeout
@@ -32,7 +32,8 @@ def _reference_examples_block(examples, problem: str = "") -> str:
     本题照抄结论，是评测中最贵的一类失分（ICMAnew idx 48、17）。
     """
     return build_reference_block(examples, problem_chars=800, solution_chars=1200,
-                                 problem=problem)
+                                 problem=problem, include_solutions=True,
+                                 role="reasoning")
 
 
 def _parse_reasoning_output(response, question_mode="computation"):
@@ -495,7 +496,7 @@ def reasoning_agent_node(state, config):
     skill_doc = sl.get_skill_document(category)
     # 题库参考示例：检索到的每一条都注入，不在此二次筛选（条数由
     # CONFIG["db_retrieval_top_k"] 决定，与 Python 节点收到的是同一批）。
-    examples_text = _reference_examples_block(state.get("retrieved_examples"), problem)
+    examples_text = _reference_examples_block(state.get("reasoning_references"), problem)
     # Select by topic, not by position. A bare [:3000] slice delivered only the
     # document's opening modules, so after 非基础及进阶课程 grew to 8949 chars its
     # number-theory (offset 3404) and game-theory (offset 5369) modules could never

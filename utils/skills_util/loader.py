@@ -1,6 +1,30 @@
+import math
 import re
 from pathlib import Path
 from typing import Dict, List, Tuple
+
+from utils.skills_util.excerpt import _RETRIEVAL_STOPWORDS
+
+
+#: 检索词行的英文判别词：确定性分类器（LLM 不可用时的兜底）用它们给英文题面打分。
+#: 2026-08-22 无 API 全量观测：英文题下中文关键词命中恒为 0，而 TF-IDF 的
+#: char-ngram 余弦对英文题只是文档词汇密度噪声——复分析/抽象代数两本文档英文
+#: 最密，于是拿走了约一半题目的顶分（博弈/组合/数论题全被分进复分析）。
+#: 各模块 ``- 检索词：`` 行里本来就写好了判别词（game/player/parity/coprime…），
+#: 按词边界取出并做 ICF（逆类别频率）加权：minimum/number 这类跨类通用词权近 0，
+#: parity/lebesgue/dual 这类判别词权重高。
+_RETRIEVAL_LINE_RE = re.compile(r"^-\s*检索词[：:](.+)$", re.MULTILINE)
+_LATIN_TOKEN_RE = re.compile(r"[A-Za-z][A-Za-z\-]{3,}")
+
+
+def _latin_tokens_from_retrieval_lines(text: str) -> set:
+    tokens = set()
+    for m in _RETRIEVAL_LINE_RE.finditer(text):
+        for token in m.group(1).split():
+            tok = token.casefold()
+            if _LATIN_TOKEN_RE.fullmatch(tok) and tok not in _RETRIEVAL_STOPWORDS:
+                tokens.add(tok)
+    return tokens
 
 
 DOMAIN_ALIASES = {
@@ -8,10 +32,16 @@ DOMAIN_ALIASES = {
         "依概率", "依分布", "几乎必然", "随机变量", "分布函数", "概率收敛",
         "中心极限定理", "大数定律", "Slutsky", "贝叶斯", "全概率",
         "二项分布", "泊松分布", "指数分布", "正态分布", "矩母函数", "特征函数",
+        # 2026-08-29:分类兜底实测缺口。"概率"是最强判别词却从未入表,
+        # 中文概率题(剧院/座位/市民型)落入 TF-IDF 噪声(测度积分)。
+        "概率", "剧院", "座位", "正态函数", "标准正态", "统计量",
     ],
     "随机过程": [
         "Brownian", "布朗", "Wiener", "首达时", "停时", "鞅", "Markov链",
         "马尔可夫", "Poisson过程", "泊松过程", "生灭过程", "更新过程", "随机游走",
+        # 2026-08-29:同类缺口。"随机游动"≠"随机游走",覆盖时间/首次遍访/
+        # 完全图是随机游走覆盖时间的特征词,不入表则题被 TF-IDF 分往别处。
+        "随机游动", "覆盖时间", "首次遍访", "完全图", "随机行走",
     ],
     "数学分析": [
         "一致收敛", "函数列", "函数项级数", "逐点收敛", "极限函数", "可导",
@@ -60,6 +90,8 @@ DOMAIN_ALIASES = {
     "离散数学": [
         "图", "树", "组合", "递推", "生成函数", "布尔", "命题逻辑", "数论",
         "整除", "素数", "丢番图", "同余", "鸽巢", "组合博弈", "拉丁方",
+        # 2026-08-29:子集和/相邻元约束极值类(题面以 subset、minimal 为主特征)。
+        "subset", "minimal",
     ],
     "非基础及进阶课程": [
         "欧氏几何", "平面几何", "凸几何", "射影几何", "外心", "内心", "垂心",
@@ -104,10 +136,17 @@ DOMAIN_PRIORITY_TERMS = {
     "高等代数": [
         "高等代数", "极小多项式", "对称多项式", "特征多项式", "二元域",
         "max-plus", "热带代数", "特征值", "线性空间", "二次型",
+        # 2026-08-29：多项式系数/次数/整系数判定与"幂和约束"类找全部 n 的题。
+        "integer coefficients", "degree less than", "幂和",
+    ],
+    "数学分析": [
+        "distinct real roots", "实根判定", "实根个数", "三次方程",
     ],
     "非基础及进阶课程": [
         "欧氏几何", "平面几何", "外心", "内心", "垂心", "角平分线",
         "外接圆", "根轴", "极点极线", "circumcenter", "circumcircle",
+        # 2026-08-29:函数不等式/函数值域枚举族(nice 函数类题位于本文档)。
+        "nice function", "possible values of",
     ],
 }
 
@@ -131,6 +170,7 @@ class SkillsLoader:
         self.base_path = Path(base_path) if base_path else self.DEFAULT_BASE
         self.categories = self._scan_category_names()
         self.keywords_index = self._build_keywords_index()
+        self._retrieval_tokens, self._retrieval_weights = self._build_retrieval_index()
         self._doc_cache: Dict[str, str] = {}
         self._script_cache: Dict[str, str] = {}
         self._embedding_index = None
@@ -155,6 +195,31 @@ class SkillsLoader:
             idx[cat] = list(kw)
         return idx
 
+    def _build_retrieval_index(self):
+        """类别级英文检索词表 + ICF 权重。
+
+        Returns:
+            (tokens_by_category: Dict[str, set[str]], weights: Dict[str, float])
+        """
+        tokens_by_cat: Dict[str, set] = {}
+        for cat in self.categories:
+            md = self.base_path / cat / f"{cat}skill.md"
+            if md.exists():
+                tokens_by_cat[cat] = _latin_tokens_from_retrieval_lines(
+                    md.read_text(encoding="utf-8"))
+            else:
+                tokens_by_cat[cat] = set()
+        df: Dict[str, int] = {}
+        for tokens in tokens_by_cat.values():
+            for tok in tokens:
+                df[tok] = df.get(tok, 0) + 1
+        n = len(self.categories)
+        weights = {
+            tok: math.log((n + 1) / (df_count + 1))
+            for tok, df_count in df.items()
+        }
+        return tokens_by_cat, weights
+
     def get_skill_document(self, category: str) -> str:
         if category not in self._doc_cache:
             f = self.base_path / category / f"{category}skill.md"
@@ -169,11 +234,19 @@ class SkillsLoader:
 
     def find_candidate_categories(self, problem: str, top_k: int = 5) -> List[Tuple[str, float]]:
         scores = {}
+        problem_words = set(
+            re.findall(r"[a-z][a-z\-]*", (problem or "").casefold()))
         for cat, kws in self.keywords_index.items():
             hits = [kw for kw in kws if kw and kw in problem]
             alias_hits = [kw for kw in DOMAIN_ALIASES.get(cat, []) if kw and kw in problem]
             category_hit = 1.0 if cat in problem else 0.0
-            scores[cat] = len(hits) + len(alias_hits) + category_hit + _domain_priority_boost(cat, problem)
+            # 英文判别词：只按词边界命中（cover 不得命中 coverage），ICF 加权。
+            latin_score = sum(
+                self._retrieval_weights.get(tok, 0.0)
+                for tok in self._retrieval_tokens.get(cat, ())
+                if tok in problem_words)
+            scores[cat] = (len(hits) + len(alias_hits) + category_hit
+                           + latin_score + _domain_priority_boost(cat, problem))
         return sorted(scores.items(), key=lambda x: (x[1], x[0]), reverse=True)[:top_k]
 
     def get_embedding_index(self):

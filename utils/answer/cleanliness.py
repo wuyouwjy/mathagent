@@ -82,9 +82,59 @@ def _exploratory_sentences(text: str) -> int:
     )
 
 
+_BACKSLASH = chr(92)
+
+
+def _strip_math_spans(text):
+    """剥掉数学片段（dollar 定界的行内/行间公式、以及 boxed 命令）。
+
+    这些区间里的拉丁字母是变量名与 LaTeX 命令名，不是英文功能词，叙述词密度必须
+    只看公式之外的散文。用字符扫描而不是正则实现：片段的定界符本身就是反斜杠与
+    美元号，再叠一层模式串转义只会让这里更容易出错。
+    """
+    s = str(text or "")
+    out = []
+    i, n = 0, len(s)
+    boxed = _BACKSLASH + "boxed"
+    while i < n:
+        ch = s[i]
+        if ch == "$":
+            closing = "$$" if s.startswith("$$", i) else "$"
+            j = s.find(closing, i + len(closing))
+            if j > i:
+                i = j + len(closing)
+                out.append(" ")
+                continue
+        if s.startswith(boxed, i):
+            brace = s.find("{", i)
+            if brace > i:
+                depth, k = 0, brace
+                while k < n:
+                    if s[k] == "{":
+                        depth += 1
+                    elif s[k] == "}":
+                        depth -= 1
+                        if depth == 0:
+                            break
+                    k += 1
+                i = k + 1
+                out.append(" ")
+                continue
+        out.append(ch)
+        i += 1
+    return "".join(out)
+
+
 def _narrative_ratio(text: str) -> float:
-    """英文叙述词密度：单词里 the/we/so/that 类虚词占比高 → 思维流。"""
-    words = re.findall(r"[A-Za-z']+", text or "")
+    """英文叙述词密度：单词里 the/we/so/that 类虚词占比高 → 思维流。
+
+    2026-09-02 先剥掉数学片段再统计：形如 `$a_{a_{a_p}}=a_{p+1}+1$` 的公式里
+    变量名 `a` 出现七次，而 `a` 恰好在虚词表里——一道正确答案（复合格序列方程的
+    两族取值）因此被判成"叙述词占 62%"的思维流并在协调器终门丢弃。变量名不是
+    英文功能词，公式密集度越高误杀越严重，故比例只对公式之外的散文计算。
+    """
+    stripped = _strip_math_spans(text)
+    words = re.findall(r"[A-Za-z']+", stripped)
     if len(words) < 4:
         return 0.0
     narrative = {

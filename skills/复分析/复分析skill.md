@@ -20,6 +20,7 @@ description: Use when verifying complex analysis problems with sympy — complex
 ## 知识点体系
 
 ### 模块1：复数运算与de Moivre公式
+- 检索词：复数 complex 复数运算 moivre 高次幂 幂次 power exponent 极坐标 polar
 
 #### 核心概念
 
@@ -56,6 +57,7 @@ description: Use when verifying complex analysis problems with sympy — complex
 ---
 
 ### 模块2：解析函数与Cauchy-Riemann方程
+- 检索词：解析 analytic holomorphic 全纯 cauchy-riemann 调和 harmonic 可微 differentiable 共轭 conjugate
 
 #### 核心概念
 
@@ -103,6 +105,7 @@ description: Use when verifying complex analysis problems with sympy — complex
 ---
 
 ### 模块3：Cauchy积分理论
+- 检索词：cauchy 积分 integral 围道 contour 环路 closed curve 曲线 路径 path
 
 #### 核心概念
 
@@ -144,6 +147,7 @@ description: Use when verifying complex analysis problems with sympy — complex
 ---
 
 ### 模块4：级数展开
+- 检索词：级数 series 收敛半径 radius 收敛 convergence taylor laurent 展开 expansion 幂级数 power
 
 #### 核心概念
 
@@ -190,6 +194,7 @@ description: Use when verifying complex analysis problems with sympy — complex
 ---
 
 ### 模块5：留数理论
+- 检索词：留数 residue 极点 pole 本性奇点 singularity 奇点 无穷远 infinity
 
 #### 核心概念
 
@@ -231,6 +236,7 @@ description: Use when verifying complex analysis problems with sympy — complex
 ---
 
 ### 模块6：围道积分与实积分计算
+- 检索词：围道 contour 实积分 improper 反常积分 三角积分 trigonometric 有理函数 rational
 
 #### 核心概念
 
@@ -288,6 +294,7 @@ description: Use when verifying complex analysis problems with sympy — complex
 ---
 
 ### 模块7：保形映射
+- 检索词：保形 conformal 映射 mapping 双线性 bilinear 单位圆 unit disk 上半平面 upper half
 
 #### 核心概念
 
@@ -327,6 +334,7 @@ description: Use when verifying complex analysis problems with sympy — complex
 ---
 
 ### 模块8：零点与极点理论
+- 检索词：零点 zero 极点 pole 辐角 argument 原理 principle 有理型 meromorphic
 
 #### 核心概念
 
@@ -383,6 +391,7 @@ description: Use when verifying complex analysis problems with sympy — complex
 ---
 
 ### 模块9：经典定理
+- 检索词：liouville 最大模 maximum modulus 代数基本定理 fundamental 辐角原理 rouche 解析延拓 continuation
 
 #### Liouville定理
 
@@ -435,7 +444,7 @@ $$\frac{1}{2\pi i} \oint_C \frac{f'(z)}{f(z)}\,dz = N - P$$
 
 ---
 
-## 通用解题方法论
+## 模块速查：通用解题方法论
 
 ### 1. 题型识别
 
@@ -492,11 +501,11 @@ $$\frac{1}{2\pi i} \oint_C \frac{f'(z)}{f(z)}\,dz = N - P$$
 
 ---
 
-## sympy验证技巧
+## 模块速查：sympy验证技巧
 
 本节给出可供 Python 生成阶段使用的 SymPy 核验思路，覆盖复数运算、级数展开、留数计算和围道积分；题面数据仍为唯一的数值来源。
 
-### 复数基础运算
+## 模块速查：sympy验证：复数基础运算
 
 ```python
 from sympy import I, re, im, Abs, arg, conjugate, expand, simplify
@@ -521,7 +530,7 @@ z_conj = conjugate(z)     # 3 - 4*I
 assert Abs(z)**2 == expand(z * conjugate(z))
 ```
 
-### de Moivre公式与复数的高次幂
+## 模块速查：sympy验证：de Moivre公式与复数的高次幂
 
 ```python
 from sympy import I, expand, sqrt, pi, cos, sin, simplify
@@ -554,7 +563,7 @@ theta_val = arg(z_expr)
 # 结果 = r^n * (cos(n*theta) + i*sin(n*theta))
 ```
 
-### Cauchy-Riemann方程验证
+## 模块速查：sympy验证：Cauchy-Riemann方程验证
 
 ```python
 from sympy import I, symbols, diff, expand
@@ -592,7 +601,7 @@ uy_neg = -diff(u_harm, y)              # e^x sin y
 assert simplify(vx_check - uy_neg) == 0
 ```
 
-### Cauchy积分公式
+## 模块速查：sympy验证：Cauchy积分公式
 
 ```python
 from sympy import I, pi, exp, diff, symbols
@@ -622,7 +631,7 @@ def factorial_sympy(k):
 result_high = (2*pi*I / factorial_sympy(n)) * f_n_at_a
 ```
 
-### 级数展开与收敛半径
+## 模块速查：sympy验证：级数展开与收敛半径
 
 ```python
 from sympy import symbols, series, oo, limit_seq, summation
@@ -656,7 +665,7 @@ R = limit(a_n / a_np1, n, oo)  # 2
 # 或识别为几何级数 Σ (z/2)^n，收敛当 |z/2| < 1，即 |z| < 2
 ```
 
-### 留数计算
+## 模块速查：sympy验证：留数计算
 
 ```python
 from sympy import I, oo, limit, diff, symbols
@@ -690,7 +699,7 @@ def compute_residue(f, z0, order=1):
         return limit(dg, z, z0) / sp_fact(order - 1)
 ```
 
-### 实积分计算（留数定理）
+## 模块速查：sympy验证：实积分计算（留数定理）
 
 ```python
 from sympy import I, pi, oo, limit, diff, cos, sin, symbols, expand, simplify, factor
@@ -741,7 +750,7 @@ res_i = limit((z - I) * sp.exp(I*z) / (z**2 + 1), z, I)
 # 由偶对称性，∫_0^∞ = π/(2e)
 ```
 
-### 全参数化验证流程
+## 模块速查：sympy验证：全参数化验证流程
 
 ```python
 from sympy import I, pi, oo, limit, diff, cos, sin, symbols, expand, simplify, Abs, arg, integrate
@@ -781,7 +790,7 @@ assert R8 == 2
 
 ---
 
-## 习题索引
+## 模块速查：习题索引
 
 | idx | 题型 | 难度 | 主题 | 关键公式/定理 | 核心方法 | 验证方法 |
 |-----|------|------|------|-------------|---------|---------|
@@ -808,7 +817,7 @@ assert R8 == 2
 
 ---
 
-## 常见错误与陷阱
+## 模块速查：常见错误与陷阱
 
 ### 复数运算
 1. **辐角计算忽略象限**：$\arctan(b/a)$ 只给出 $(-\pi/2, \pi/2)$ 内的值。当 $a < 0$ 时辐角应为 $\arctan(b/a) + \pi$（或 $-\pi$），否则会差 $\pi$。例如 $\sqrt{3}+i$ 的辐角是 $\pi/6$，但 $-\sqrt{3}+i$ 的辐角是 $5\pi/6$ 而非 $\arctan(-1/\sqrt{3}) \approx -\pi/6$。
@@ -851,7 +860,7 @@ assert R8 == 2
 
 ---
 
-## 关键公式速查表
+## 模块速查：关键公式速查表
 
 ### 复数运算
 
@@ -922,7 +931,7 @@ assert R8 == 2
 
 ---
 
-## 计算题标准解法速查
+## 模块速查：计算题标准解法速查
 
 ### 类型A：复数高次幂（de Moivre公式）
 **步骤**：极坐标 $re^{i\theta}$ $\to$ $(re^{i\theta})^n = r^n e^{in\theta}$ $\to$ 化回代数形式
@@ -976,7 +985,7 @@ assert R8 == 2
 
 ---
 
-## 证明题标准策略速查
+## 模块速查：证明题标准策略速查
 
 ### 策略1：双方向极限法
 **适用**：C-R方程必要性（idx 14）
@@ -1010,7 +1019,7 @@ assert R8 == 2
 
 ---
 
-## 参考资源
+## 模块速查：参考资源
 
 - 配套验证知识提示：`复分析验证示例.md`
 - 数据集来源：`复分析.md`（20题，涵盖全部核心知识点）
@@ -1019,7 +1028,7 @@ assert R8 == 2
 
 ---
 
-## 竞赛拓展：虚二次域范数方程与复数表示
+## 模块速查：虚二次域范数方程与复数表示
 
 ### 核心概念
 

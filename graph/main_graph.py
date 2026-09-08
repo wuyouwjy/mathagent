@@ -113,15 +113,17 @@ class MathAgentGraph:
                 clock.soft_total = float(paper_cap)
         except Exception:  # noqa: BLE001 - 完成率引擎是锦上添花，失败不拖垮单题
             pass
-        # 题库检索器惰性创建：构造轻量，真正加载语料在首次 query。检索是纯增益
-        # 节点，任何初始化失败都降级为"无参考示例"，绝不拖垮求解。
+        # 题库检索器惰性创建并跨题复用：首次 run 创建后缓存到 self.retriever，之后
+        # 每题复用同一实例（模型/collection 在 DatabaseClient 内还有进程级缓存，只
+        # 加载一次）。检索是纯增益节点，任何初始化失败都降级为"无参考示例"，绝不
+        # 拖垮求解。
         retriever = self.retriever
         if retriever is None:
             try:
                 from utils.retrieval.database_client import DatabaseClient
-                retriever = DatabaseClient()
+                self.retriever = retriever = DatabaseClient()
             except Exception:  # noqa: BLE001 - 检索缺失不影响求解
-                retriever = None
+                self.retriever = retriever = None
         deps = Deps(client=self.client, skills_loader=self.skills_loader,
                     mcp_client=self.mcp_client, token_budget=tb, time_budget=clock,
                     retriever=retriever)

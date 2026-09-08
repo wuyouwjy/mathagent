@@ -21,6 +21,7 @@ Python 分支，损失比放过一段回声大得多。
 
 from __future__ import annotations
 
+import ast
 import re
 
 
@@ -37,8 +38,33 @@ _COMPUTE_RE = re.compile(
     r"\bdef\s+\w+\s*\([^)]*\)\s*:"                   # 定义了函数（递归/记忆化）
 )
 
-#: 对变量的真实算术（排除纯字面量算式 "1+1"）。
-_VAR_ARITH_RE = re.compile(r"[A-Za-z_]\w*\s*[*/+\-%]{1,2}\s*[\w(]|[\w)]\s*\*\*\s*\w")
+#: 对变量的真实算术（排除纯字面量算式 "1+1"、"3 * 20**19"）。
+#: 至少一侧操作数必须是标识符——2026-08-19 idx=0 事故：旧式 `[\w)]\s*\*\*\s*\w`
+#: 把 `3 * 20**19` 这个纯常量表达式认成"实质计算"，于是"没算就宣称 PASS"的
+#: 回声代码逃过反伪造闸门，用 1.57e25 覆盖了推理算出的正确答案 20460。
+_VAR_ARITH_RE = re.compile(
+    r"[A-Za-z_]\w*\s*(?:\*\*|[*/+\-%])\s*[\w(\[]"      # 名字 OP 某物
+    r"|[\w)\]]\s*(?:\*\*|[*/+\-%])\s*[A-Za-z_]\w*"     # 某物 OP 名字
+)
+
+#: 数值字面量（含科学计数、浮点），用于判断表达式是否"只有常量"。
+_NUMERIC_LITERAL_RE = re.compile(r"\d+\.?\d*(?:[eE][-+]?\d+)?")
+
+#: `最终答案:` 的打印形态，用于检查答案是否由字面量常量直接给出。
+_FINAL_ANSWER_PRINT_RE = re.compile(
+    r"""print\s*\(\s*["']\s*最终答案\s*[:：]?\s*["']\s*,\s*([^)]*)\)"""
+    r"""|print\s*\(\s*f["']\s*最终答案\s*[:：]?\s*\{([^}:!]*)[^}]*\}["']\s*\)"""
+)
+
+
+def _expression_is_literal_only(expr: str) -> bool:
+    """表达式里是否不含任何标识符（即纯常量算式，无计算来源）。"""
+    text = str(expr or "").strip()
+    if not text:
+        return False
+    residue = _NUMERIC_LITERAL_RE.sub("", text)
+    residue = re.sub(r"""["'][^"']*["']""", "", residue)
+    return not re.search(r"[A-Za-z_]", residue)
 
 #: 比较/断言：验证结论至少要有一次比较。
 _ASSERT_RE = re.compile(r"\bassert\b|==|!=|<=|>=|\bis\s+not\b")
@@ -51,11 +77,53 @@ _AUTHORITY_RE = re.compile(
 )
 
 #: PASS 的打印形态：实参是字面量（伪造嫌疑）还是变量（正常）。
+#: 冒号可以落在第一个字面量里（`print("验证状态:", "PASS")`），旧式两条分支都
+#: 匹配不到这一形态——idx=0 正是这样绕过字面量 PASS 检查的。
 _LITERAL_PASS_RE = re.compile(
-    r"""print\s*\(\s*["']验证状态\s*[:：]?\s*(?:PASS|通过)["']|"""
-    r"""print\s*\(\s*["']验证状态["']\s*,\s*["'](?:PASS|通过)["']"""
+    r"""print\s*\(\s*(["'])\s*验证状态\s*[:：]?\s*(?:PASS|通过)\s*\1"""
+    r"""|print\s*\(\s*(["'])\s*验证状态\s*[:：]?\s*\2\s*,\s*(["'])\s*(?:PASS|通过)\s*\3"""
 )
 _STATUS_MARKER_RE = re.compile(r"验证状态")
+
+_HIGH_RISK_PROBLEM_RE = re.compile(
+    r"(?i)\b(?:count|counting|number\s+of|how\s+many|maximum|minimum|largest|"
+    r"smallest|optimal|search|arrangement|permutation|combination|divisible)\b|"
+    r"计数|多少|最大|最小|极值|最优|搜索|排列|组合|方案|路径|状态转移|动态规划"
+)
+_HIGH_RISK_CODE_RE = re.compile(
+    r"(?i)\b(?:dp|memo|cache|dfs|bfs|backtrack|search|enumerate|brute|"
+    r"itertools|combinations|permutations|for|while)\b"
+)
+
+
+def _baseline_evidence(code: str) -> tuple[bool, list[str]]:
+    """Find an independently named small-instance comparison in Python code.
+
+    A PASS print is not a baseline.  The code must contain a real ``assert``
+    whose test is a comparison, and one side must look like an intentionally
+    independent brute/exhaustive/small-case implementation.  AST inspection
+    avoids treating comments or output strings as evidence.
+    """
+    try:
+        tree = ast.parse(str(code or ""))
+    except SyntaxError:
+        return False, []
+    names = [
+        node.id.lower() for node in ast.walk(tree) if isinstance(node, ast.Name)
+    ] + [
+        node.name.lower()
+        for node in ast.walk(tree)
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
+    ]
+    has_compare_assert = any(
+        isinstance(node, ast.Assert) and isinstance(node.test, ast.Compare)
+        for node in ast.walk(tree)
+    )
+    markers = ("brute", "naive", "enumerate", "exhaustive", "exact_small", "small_case")
+    independent_names = sorted({
+        name for name in names if any(marker in name for marker in markers)
+    })
+    return has_compare_assert and bool(independent_names), independent_names
 
 
 def _strip_comments_and_strings(code: str) -> tuple[str, str]:
@@ -74,7 +142,9 @@ def _strip_comments_and_strings(code: str) -> tuple[str, str]:
     return skeleton, "\n".join(comments + strings)
 
 
-def assess_verification_authenticity(code: str, stdout: str = "") -> dict:
+def assess_verification_authenticity(
+    code: str, stdout: str = "", problem: str = ""
+) -> dict:
     """静态评估验证代码的可信度。
 
     返回 {"fabricated": bool, "reasons": [str, ...]}。fabricated=True 表示
@@ -82,7 +152,17 @@ def assess_verification_authenticity(code: str, stdout: str = "") -> dict:
     """
     text = str(code or "")
     if not text.strip():
-        return {"fabricated": False, "reasons": []}
+        return {
+            "fabricated": False,
+            "reasons": [],
+            "verified": False,
+            "has_compute": False,
+            "has_assert": False,
+            "answer_hardcoded": False,
+            "requires_baseline": False,
+            "has_baseline_check": False,
+            "baseline_names": [],
+        }
 
     skeleton, prose = _strip_comments_and_strings(text)
     has_compute = bool(_COMPUTE_RE.search(skeleton)) or bool(_VAR_ARITH_RE.search(skeleton))
@@ -91,8 +171,24 @@ def assess_verification_authenticity(code: str, stdout: str = "") -> dict:
         "PASS" in str(stdout or "") and _STATUS_MARKER_RE.search(str(stdout or "")) is not None
     )
     cites_authority = bool(_AUTHORITY_RE.search(prose))
+    has_baseline_check, baseline_names = _baseline_evidence(text)
+    requires_baseline = bool(
+        _HIGH_RISK_PROBLEM_RE.search(str(problem or ""))
+        and _HIGH_RISK_CODE_RE.search(skeleton)
+    )
+
+    # 答案自身是否由纯常量表达式直接打印：`print("最终答案:", 3 * 20**19)` 这类
+    # 代码没有推导过程，只是把结论抄进 print，属于"未进行验证"。
+    answer_hardcoded = False
+    for match in _FINAL_ANSWER_PRINT_RE.finditer(text):
+        expr = match.group(1) or match.group(2) or ""
+        if _expression_is_literal_only(expr):
+            answer_hardcoded = True
+            break
 
     reasons: list[str] = []
+    if answer_hardcoded:
+        reasons.append("最终答案由字面量常量直接打印，代码未推导出该答案")
     if claims_pass and not has_compute:
         reasons.append("代码未含循环/求解/枚举等实质计算却宣称验证通过")
     if claims_pass and has_compute and not has_assert and cites_authority:
@@ -104,4 +200,31 @@ def assess_verification_authenticity(code: str, stdout: str = "") -> dict:
         if "代码未含循环/求解/枚举等实质计算却宣称验证通过" not in reasons:
             reasons.append("验证状态为硬编码字面量，与计算结果无关")
 
-    return {"fabricated": bool(reasons), "reasons": reasons}
+    strength_reasons: list[str] = []
+    # 实质迭代：≥2 个循环头或任何 while——这是"对题面定义做完整构造/枚举"的
+    # 静态特征。此类代码本身就是答案的生成过程（构造即证明），独立基准断言
+    # 对它不再硬性要求（2026-09-01 Q80：正确的逐层 BFS 因缺基准被判
+    # verified=False，仲裁器随之否决正确答案）。单循环/无循环代码仍按原口径。
+    loop_headers = re.findall(r"(?m)^\s*(?:for|while)\s", skeleton)
+    substantial_iteration = len(loop_headers) >= 2 or bool(re.search(r"\bwhile\s", skeleton))
+    if requires_baseline and not has_baseline_check and not substantial_iteration:
+        strength_reasons.append(
+            "高风险计数/DP/搜索/极值代码缺少独立小规模基准与比较断言"
+        )
+
+    # verified：这段代码是否真的"验证"过什么——有实质计算，且答案不是抄进
+    # print 的常量。调用方据此判定 Python 分支可否作为答案来源（未验证即不可信）。
+    verified = bool(has_compute) and not answer_hardcoded \
+        and (not requires_baseline or has_baseline_check or substantial_iteration)
+    return {
+        "fabricated": bool(reasons),
+        "reasons": reasons,
+        "strength_reasons": strength_reasons,
+        "verified": verified,
+        "has_compute": bool(has_compute),
+        "has_assert": has_assert,
+        "answer_hardcoded": answer_hardcoded,
+        "requires_baseline": requires_baseline,
+        "has_baseline_check": has_baseline_check,
+        "baseline_names": baseline_names,
+    }

@@ -96,6 +96,64 @@ def _strip_conclusion_prefix(s: str) -> str:
     return re.sub(r"^\s*(?:结论|最终答案)\s*[：:]\s*", "", s or "").strip()
 
 
+_SUBSCRIPT_DIGITS = str.maketrans("0123456789", "₀₁₂₃₄₅₆₇₈₉")
+
+
+def format_fill_submission(answer: str) -> str:
+    """Render a fill-in payload as ordered values rather than explanation text.
+
+    The model often gives useful parenthetical definitions after a blank.  They
+    are appropriate in its reasoning trace but make an otherwise clear
+    fill-in answer harder for a strict evaluator to compare.  This formatter
+    preserves the ordered payload, removes only explicit explanatory wrappers,
+    and normalizes a small set of common LaTeX presentation wrappers.
+    """
+    import re
+    from utils.answer.extractor import extract_boxed_answer
+
+    text = _strip_conclusion_prefix(str(answer or ""))
+    if "\\boxed" in text:
+        boxed = extract_boxed_answer(text)
+        if boxed:
+            text = boxed
+    # Unwrap text labels before splitting fields: ``\text{；空2: }`` must
+    # become a real field separator rather than remain inside a LaTeX wrapper.
+    text = re.sub(r"\\text\s*\{([^{}]*)\}", r"\1", text)
+    text = re.sub(
+        r"（\s*(?:其中|即|等价地|或等价地|(?:where(?:in)?|with)\b)[^（）]*）",
+        "",
+        text,
+        flags=re.I,
+    )
+    text = re.sub(
+        r"\(\s*(?:(?:where(?:in)?|with)\b)[^()]*\)",
+        "",
+        text,
+        flags=re.I,
+    )
+    text = text.replace("$", "")
+    # In compact LaTeX answers ``\;`` is often used between blank fields; it
+    # is spacing inside a formula only rarely, while leaving it untouched
+    # creates stray backslash-only fields after semicolon splitting.
+    text = text.replace(r"\;", "；")
+    text = re.sub(r"\\mathbb\s*\{\s*Q\s*\}", "Q", text)
+    text = re.sub(r"\\sqrt\s*\[\s*4\s*\]\s*\{\s*([^{}]+?)\s*\}",
+                  lambda match: "∜" + match.group(1).strip(), text)
+    text = re.sub(r"\\zeta\s*_\s*\{?\s*(\d+)\s*\}?",
+                  lambda match: "ζ" + match.group(1).translate(_SUBSCRIPT_DIGITS), text)
+    text = text.replace(r"\,", "").replace(r"\!", "").replace(r"\quad", "")
+    text = re.sub(r"\\(?:left|right)\b", "", text)
+
+    parts = []
+    for part in re.split(r"[；;\n]+", text):
+        part = re.sub(r"^\s*(?:空|blank)\s*\d+\s*[:：]\s*", "", part,
+                      flags=re.I)
+        part = re.sub(r"\s+", " ", part).strip().strip("`*_ ")
+        if part:
+            parts.append(part)
+    return "；".join(parts)
+
+
 def format_answer_for_output(validated_answer: str, problem_type: str) -> str:
     if is_placeholder_answer(validated_answer):
         return ""
@@ -400,6 +458,17 @@ def _append_recovered_components(fa: str, cleaned: str, missing: list) -> str:
 _STEPS_HEADING = "关键步骤："
 _MAX_STEPS_IN_BLOCK = 6
 _MAX_STEPS_BLOCK_CHARS = 1200
+
+#: 答案行最前端的标签包装（"最终答案：1" / "结论：x"）。2026-08-24 评委要求：
+#: final_response 只放答案/证明/结论本身，标签与步骤块一律不进响应（步骤进 trace）。
+_ANSWER_LABEL_RE = re.compile(r"^\s*(?:最终答案|结论)\s*[：:]\s*")
+
+
+def _strip_answer_label(text: str) -> str:
+    """去掉答案文本最前端的标签包装；非标签开头原样返回。"""
+    return _ANSWER_LABEL_RE.sub("", text or "", count=1).strip()
+
+
 _THEOREM_MARKER_RE = __import__("re").compile(
     r"(?m)^\s*(?:使用)?公式\s*/?\s*定理\s*[：:]\s*(.+?)\s*$")
 
@@ -596,7 +665,8 @@ def post_process_final_response(raw: str, validated_answer: str, problem_type: s
             cleaned = f"根据推理与计算过程，得到结论：{fa or '无法确定'}"
         # 证明题结论行同样不得携带思维流尾巴（idx 34）；证明过程正文不受影响。
         fa = _clean_noise_head(fa)
-        return f"结论：{fa}\n\n{cleaned}" if fa else cleaned
+        # 2026-08-24：响应只含证明正文，结论行不再带"结论："标签包装。
+        return f"{_strip_answer_label(fa)}\n\n{cleaned}" if fa else cleaned
     # 计算题：仅输出简洁最终答案，避免 final_response 过长（赛题明确要求"避免过长"）。
     # 完整解题过程通过 coordination_detail 记入 trace，供异常排查与设计质量参考。
     if not fa:
@@ -646,4 +716,6 @@ def post_process_final_response(raw: str, validated_answer: str, problem_type: s
         missing = missing_components(problem, fa)
     if missing:
         fa = _append_recovered_components(fa, cleaned, missing)
-    return f"最终答案：{fa}"
+    # 2026-08-24 评委要求：final_response 只放答案本身，不再带"最终答案："标签；
+    # 完整叙述与关键步骤经 coordination_detail 进 trace。
+    return _strip_answer_label(fa)

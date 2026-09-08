@@ -11,6 +11,7 @@
 ## 第一部分：知识模块
 
 ### 模块1：一阶可分离变量方程
+- 检索词：可分离变量 separable 一阶 first-order 初值 initial 微分方程 differential
 
 **核心概念：** 形如 $\frac{dy}{dx}=f(x)g(y)$ 的方程，可以将含 $x$ 和含 $y$ 的项分别移到等号两边。
 
@@ -36,6 +37,7 @@
 ---
 
 ### 模块2：一阶线性微分方程
+- 检索词：一阶 first-order 线性 linear 积分因子 integrating
 
 **核心概念：** 形如 $\frac{dy}{dx}+P(x)y=Q(x)$ 的方程。
 
@@ -64,6 +66,7 @@
 ---
 
 ### 模块3：一阶齐次方程
+- 检索词：齐次 homogeneous 一阶 first-order 代换 substitution
 
 **核心概念：** 形如 $\frac{dy}{dx}=F\left(\frac{y}{x}\right)$ 的方程。通过变量代换 $v=\frac{y}{x}$ 化为可分离变量方程。
 
@@ -88,6 +91,7 @@
 ---
 
 ### 模块4：一阶伯努利方程
+- 检索词：bernoulli 一阶 first-order 变换 transform
 
 **核心概念：** 形如 $\frac{dy}{dx}+P(x)y=Q(x)y^n$（$n\neq0,1$）的方程。
 
@@ -113,6 +117,7 @@
 ---
 
 ### 模块5：可降阶的二阶方程（不显含y）
+- 检索词：降阶 reduction order 二阶 second-order 代换 substitution
 
 **核心概念：** 形如 $F(x,y',y'')=0$（不显含 $y$）的方程。
 
@@ -137,6 +142,7 @@
 ---
 
 ### 模块6：可降阶的二阶方程（不显含x）
+- 检索词：降阶 reduction order 二阶 second-order 参数 parametrize
 
 **核心概念：** 形如 $F(y,y',y'')=0$（不显含 $x$）的方程。
 
@@ -161,6 +167,7 @@
 ---
 
 ### 模块7：二阶常系数齐次线性方程
+- 检索词：二阶 second-order 常系数 constant coefficient 齐次 homogeneous 特征方程 characteristic
 
 **核心概念：** 形如 $ay''+by'+cy=0$（$a,b,c$ 为常数，$a\neq0$）的方程。
 
@@ -189,6 +196,7 @@
 ---
 
 ### 模块8：二阶常系数非齐次—多项式型
+- 检索词：非齐次 nonhomogeneous 特解 particular 多项式 polynomial
 
 **核心概念：** 形如 $ay''+by'+cy=P_n(x)$（$P_n$ 为 $n$ 次多项式）的方程。
 
@@ -216,6 +224,7 @@
 ---
 
 ### 模块9：二阶常系数非齐次—指数型
+- 检索词：非齐次 nonhomogeneous 特解 particular 指数 exponential
 
 **核心概念：** 形如 $ay''+by'+cy=Ae^{\lambda x}$ 的方程。
 
@@ -242,6 +251,7 @@
 ---
 
 ### 模块10：二阶常系数非齐次—三角型
+- 检索词：非齐次 nonhomogeneous 特解 particular 三角 trigonometric
 
 **核心概念：** 形如 $ay''+by'+cy=A\cos\omega x+B\sin\omega x$ 的方程。
 
@@ -267,6 +277,7 @@
 ---
 
 ### 模块11：欧拉方程
+- 检索词：euler 欧拉 变系数 variable coefficient
 
 **核心概念：** 形如 $x^2y''+axy'+by=f(x)$ 的方程（二阶欧拉方程）。
 
@@ -293,6 +304,7 @@
 ---
 
 ### 模块12：拉普拉斯变换
+- 检索词：laplace 拉普拉斯 transform 变换 卷积 convolution
 
 **核心概念：** 用积分变换将微分方程初值问题化为代数方程。
 
@@ -324,6 +336,7 @@
 ---
 
 ### 模块13：幂级数法
+- 检索词：幂级数 power series 收敛半径 radius 解析解 analytic
 
 **核心概念：** 设解为幂级数 $y=\sum_{n=0}^{\infty}a_nx^n$，代入方程求系数递推关系。
 
@@ -349,6 +362,7 @@
 ---
 
 ### 模块14：常系数线性微分方程组
+- 检索词：方程组 system 常系数 constant coefficient 矩阵 matrix 指数矩阵 exponential
 
 **核心概念：** 形如 $\vec{x}'=A\vec{x}$（$A$ 为常矩阵）的方程组。
 
@@ -376,6 +390,7 @@
 ---
 
 ### 模块15：解的存在唯一性分析
+- 检索词：存在性 existence 唯一性 uniqueness 利普希茨 lipschitz 连续性 continuity
 
 **核心概念：** Picard 存在唯一性定理：若 $f(x,y)$ 在区域上连续且关于 $y$ 满足 Lipschitz 条件，则初值问题有唯一解。
 
@@ -402,6 +417,7 @@
 ---
 
 ### 模块16：稳定性分析
+- 检索词：稳定性 stability 稳定 stable 平衡点 equilibrium 李雅普诺夫 lyapunov
 
 **核心概念：** 对自治方程 $\frac{dy}{dt}=f(y)$，平衡解 $y^*$（$f(y^*)=0$）的稳定性由 $f'(y^*)$ 的符号决定。
 
@@ -428,6 +444,7 @@
 ---
 
 ### 模块17：奇点分类与相图分析
+- 检索词：奇点 singular 相图 phase portrait 鞍点 saddle 结点 node
 
 **核心概念：** 对二维线性系统 $\dot{\vec{x}}=A\vec{x}$，根据特征值分类奇点类型。
 
@@ -461,6 +478,7 @@
 ---
 
 ### 模块18：正交轨线
+- 检索词：正交轨线 orthogonal trajectory 垂直 perpendicular 斜率 slope
 
 **核心概念：** 与给定曲线族中每条曲线正交的曲线族。
 
@@ -485,6 +503,7 @@
 ---
 
 ### 模块19：物理应用题建模
+- 检索词：建模 modeling 混合 mixture 种群 population 温度 cooling 弹簧 spring
 
 **核心概念：** 将物理问题转化为微分方程，求解后分析物理意义。
 
@@ -510,6 +529,7 @@
 ---
 
 ### 模块20：参数讨论
+- 检索词：参数 parameter 临界值 threshold 分岔 bifurcation
 
 **核心概念：** 分析含参数的微分方程解的性质如何随参数变化。
 
@@ -531,7 +551,7 @@
 
 ---
 
-## 第二部分：通用解题方法论
+## 模块速查：通用解题方法论
 
 ### 如何识别题型
 
@@ -569,7 +589,7 @@
 
 ---
 
-## 第三部分：习题索引表
+## 模块速查：习题索引表
 
 | idx | 题目关键词 | 知识点模块 | 解题方法 | 难度 |
 |-----|-----------|-----------|---------|------|
@@ -600,7 +620,7 @@
 
 ---
 
-## 竞赛拓展：ODE 综合技巧
+## 模块速查：ODE 综合技巧
 
 ### 竞赛拓展1：参数化法求解ODE（几何视角）
 

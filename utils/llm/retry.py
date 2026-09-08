@@ -16,6 +16,13 @@ from typing import Dict, List
 from config import CONFIG
 from utils.llm.prefill import prefill_messages, stitch
 from utils.llm.response_normalize import chat_compatible, normalize_chat_response
+from utils.llm.client_tuning import DESIRED_SOCKET_TIMEOUT_S
+
+
+#: 失败耗时达到 socket 超时的这个比例即判定为"传输卡死"而非"偶发错误"。
+#: 卡死的调用重试还会卡死；偶发错误（4xx/5xx、JSON 解析失败）几秒内就返回，
+#: 远低于这条线，仍然照常重试。
+_STALL_THRESHOLD_S = 0.8 * DESIRED_SOCKET_TIMEOUT_S
 
 
 class DeadlineExceeded(RuntimeError):
@@ -114,6 +121,20 @@ class LLMRetryWrapper:
                 if self.time_budget:
                     self.time_budget.record(f"{label}:failed", observed)
                 if attempt >= self.max_retries:
+                    break
+                # 传输卡死不重试同一个满长调用（2026-08-20 全量计时统计）：221 次
+                # 成功调用最长 245s、中位 54s，而 206 次失败**全部**卡在 socket 超时
+                # 上（168 次 360s、38 次 780s）——两者之间没有任何重叠。这说明超过
+                # 超时的调用不是"慢"，是不会回来了；在同样的并发负载下重试必然
+                # 再卡一次。实测代价：idx 17 连吃两个 360s 才升级到压缩路径，最后
+                # 只剩 22s 用来真正解题。此处直接放弃重试，把时间交给调用方的
+                # 压缩路径——它在观测到的每一次卡死后都在 22–40s 内成功返回。
+                if observed >= _STALL_THRESHOLD_S:
+                    self.logger.warning(
+                        "%s: transport stalled %.0fs (>=%ss); skipping the full-length "
+                        "retry so the caller can escalate to its compressed path (%s)",
+                        label, observed, _STALL_THRESHOLD_S, exc,
+                    )
                     break
                 # A retry is only worth buying if the clock can still fund a call
                 # that costs what the last one cost. Otherwise fail fast so the

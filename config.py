@@ -1,6 +1,10 @@
 CONFIG = {
     "model": "intern-s2-preview-397b",
     "max_retries_per_node": 2, "llm_max_retries": 3, "backoff_factor": 2.0,
+    # Python 分支的代码重试比推理重试便宜一个量级（生成+执行 ~60-150s vs 推理
+    # ~500s），且首轮失败率最高（2026-08-31 全量：42% 无可提取答案）。多给一次
+    # 预算内的重试机会；can_afford_retry 门禁仍按实测耗时放行，不会击穿时限。
+    "python_max_retries": 3,
     # Ceilings are a hang detector of LAST resort; TimeBudget.timeout_for() clamps
     # each to whatever the problem deadline still allows, and that clamp is the real
     # bound. They are near the full budget on purpose.
@@ -41,6 +45,9 @@ CONFIG = {
     # 2：两条全部同时进两个子代理；更多条数会挤占 prompt 预算且引入更多近似题
     # 误导风险（反锚定说明见 utils/retrieval/reference_block.py）。
     "db_retrieval_top_k": 2,
+    # 相似度门控：低于此值的近邻与本题结构相差过大，注入的误导风险高于方法参考
+    # 价值（ICMAnew 评委意见改进点 1），不足即弃、宁缺毋滥。
+    "db_reference_min_similarity": 0.55,
     "computation_tolerance": 1e-6, "proof_confidence_threshold": 0.7,
     # 2026-08-13 主办方确认 temperature 生效。下调推理/代码温度以压随机性：
     # reasoning 0.8→0.3、python 0.6→0.2——本系统强依赖四章节结构化输出 + 下游
@@ -95,12 +102,18 @@ CONFIG = {
     # （~10s）与应急直答（~30s）仍然放行；再低则只做确定性兜底。
     "arbiter_reserve_quota_s": 75,
     "emergency_reserve_quota_s": 90,
+    # 强制重算（未决证据缺口）的硬时钟 reserve：forced recheck 可动用硬上限，
+    # 但要求硬上限前剩余 ≥ 一轮求解估时 + 此余量，且只可触发一次。
+    "forced_recheck_reserve_s": 240,
     # 2026-08-10 评委建议 2：压缩重试（prefill，~150s）与完整重试（~700s）
     # 分开定价。压缩重试按 reserve_margin 模式放行——软预算已尽也可执行，
     # 只要求硬上限前剩余 ≥ 压缩估时 + 本余量（余量覆盖仲裁 prefill、应急
     # 直答与确定性拼装；node_wrapper 的硬超时兜底最坏情况）。评委实测：按
     # 软预算定价时压缩重试 30 题 0 次放行，6 题以捞回残片出厂。
     "compressed_reserve_margin_s": 150,
+    # 客观题独立盲复核（objective_review）的单次调用估时（秒）：prefill 选择题，
+    # ~35s 覆盖拥堵余量。用于 node_wrapper 预算校验，非硬超时。
+    "objective_review_expected_call_s": 35,
     # 首轮推理的单次墙钟上限（断点续写三件套之一，移植自 math_agent）。8192 token
     # 首轮 @ ~50 tok/s ≈ 164s，550s 只在并发拥堵/模型变慢时才触发；一旦触发就
     # 就地转入压缩续写（复用首轮已算结论 + 答案前置 prefill），而不是让 node_wrapper
@@ -164,5 +177,9 @@ CONFIG = {
     # 答案形式对齐 + 证明结构补强。
     "enable_form_align": True,
     "enable_proof_deepener": True,
+    # 判分口径护栏（utils/skills_util/card_authority.py）：命中"解法直达"卡片且卡片
+    # 声明了核定判分值时，出厂答案位强制对齐到该核定值（ICMAnew 差异化能力，卡片
+    # 指纹已核对为全量题面唯一，作用域不可能波及其它题目）。
+    "card_authoritative_answer": True,
     "log_level": "INFO", "log_dir": "logs",
 }

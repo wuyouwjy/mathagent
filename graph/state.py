@@ -24,6 +24,10 @@ class MathAgentState(TypedDict):
     difficulty: NotRequired[str]  # 分类节点顺带输出的难度画像（easy/medium/hard）
     # 数据库检索阶段
     retrieved_examples: NotRequired[List[Dict[str, Any]]]
+    # 秩奇偶分流后的分支专属参考：reasoning 拿偶数位（带解答）、python 拿奇数位
+    # （解答已抑制），两分支不共享同一份带答案的示例（防锚定）。
+    reasoning_references: NotRequired[List[Dict[str, Any]]]
+    python_references: NotRequired[List[Dict[str, Any]]]
     # 注入证据：两个子代理各自记录参考示例区块实际写入提示词的字符数。
     # 必须分键——两个代理并行写 state，同键并发写会被 LangGraph 拒绝。
     reasoning_reference_chars: NotRequired[int]
@@ -33,6 +37,10 @@ class MathAgentState(TypedDict):
     reasoning_trace: NotRequired[List[Dict]]
     reasoning_retry_hint: NotRequired[Optional[str]]
     reasoning_raw_response: NotRequired[str]
+    # 客观题独立盲复核（第二位阅卷教师，不暴露第一分支候选）
+    objective_review_result: NotRequired[Optional[Dict[str, Any]]]
+    objective_review_trace: NotRequired[List[Dict]]
+    objective_review_attempts: NotRequired[int]
     # Python 验证阶段
     python_code: NotRequired[str]
     python_output: NotRequired[Optional[Dict[str, Any]]]
@@ -46,6 +54,8 @@ class MathAgentState(TypedDict):
     validation_details: NotRequired[Dict[str, Any]]
     validated_answer: NotRequired[str]
     validation_history: NotRequired[Annotated[List[Dict], operator.add]]
+    recheck_required: NotRequired[bool]
+    forced_recheck_used: NotRequired[bool]
     # 协调阶段
     reconciliation_trace: NotRequired[List[Dict]]
     reconciliation_round: NotRequired[int]

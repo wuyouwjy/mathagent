@@ -1,30 +1,21 @@
 """题库参考示例区块的唯一构造入口。
 
 推理节点与 Python 节点各自内联拼装过同一段文本，两份实现的截断长度不同、
-措辞也会各自漂移。检索条数（`db_retrieval_top_k`）与注入契约"两条全部同时进
-两个子代理"必须在一处可验证，故收敛到这里；调用方只保留各自的截断额度。
+措辞也会各自漂移。检索条数与分支注入契约在这里集中实现，调用方只保留各自的
+截断额度。
 
-2026-08-20：区块必须自带**反锚定**说明。检索是向量近邻，命中的常常是"看起来
-几乎一样、答案却不同"的近似题，而这正是评测中最贵的一类失分：
-
-* idx 48（黑板上 1997 个 1 的取数博弈）：题库以 0.773 命中 ISL 2020 的同题型
-  （2020 个 1、B 可自由选择），其解法用二进制数字和 S₂(n)。代理照搬得
-  S₂(1997)=8，而本题因为**个数是奇数**且**硬币剥夺了 B 的选择权**，正解是 999。
-* idx 17（x²+y²+z²=xy³+yz³+zx³=3 的实数解个数）：题库以 0.814 命中 USAMO 1973
-  的 x+y+z=x²+y²+z²=x³+y³+z³=3（答案只有对称解 1,1,1），代理据此只数出对称解
-  得 2，而本题的非对称轨道使正解为 8。
-
-两次都不是"检索没找到"，而是"找到了近似题并把它的结论当成本题的结论"。因此
-区块除了给出示例，还必须（1）显式声明结论不可迁移，(2) 把两边题面的数值差异
-直接摆出来，让模型无法忽略参数已经变了这件事。
+检索结果只能提供可迁移的方法线索。近邻题可能改变参数、操作角色、量词或边界，
+所以本模块只生成反锚定提示和题面差异，绝不把任何评测题号或固定答案写进提示。
 """
 
 from __future__ import annotations
 
 import re
+from collections.abc import Mapping, Sequence
 from typing import Any, Dict, List
 
 _HEADER = "\n\n参考示例（来自数学竞赛题库的相似题目与解答）：\n"
+_PYTHON_HEADER = "\n\n参考题面（来自题库的相似题，仅用于验证方法）：\n"
 
 #: 反锚定说明。放在示例**之前**——写在后面时模型往往已经先读完解答并锚定了结论。
 _ANTI_ANCHOR_NOTE = """
@@ -40,7 +31,7 @@ _ANTI_ANCHOR_NOTE = """
 """
 
 #: 题面里有判别力的整数字面量：跳过 0/1 这类到处都是的数，也跳过 LaTeX 命令里
-#: 的上下标数字（\\sqrt[3]、x^{2}），只留下真正描述规模的参数。
+#: 的上下标数字（\sqrt[3]、x^{2}），只留下真正描述规模的参数。
 _INT_RE = re.compile(r"(?<![\\^_{\w])(\d{2,})(?![}\w])")
 
 
@@ -74,11 +65,59 @@ def _numeric_diff_line(problem: str, example_problem: str) -> str:
             + "。参数不同则结论不同，必须在本题参数下重算。\n")
 
 
+def partition_reference_examples(
+    examples: Sequence[Mapping[str, Any]] | None,
+) -> dict[str, Any]:
+    """Split retrieved examples into independent branch contexts.
+
+    Retrieval is intentionally performed once, but the two solving branches must
+    not see the same answer-bearing example.  Rank parity is deterministic and
+    keeps the partition stable in traces and tests.  The Python side receives a
+    copy with its solution removed, so it can use topic/parameter cues without
+    inheriting a proposed conclusion.
+    """
+    usable: list[dict[str, Any]] = []
+    for rank, example in enumerate(examples or []):
+        if not isinstance(example, Mapping):
+            continue
+        item = dict(example)
+        source = str(item.get("source") or "retrieved")
+        item["reference_id"] = f"{source}:{rank}"
+        item["retrieval_rank"] = rank
+        usable.append(item)
+
+    reasoning: list[dict[str, Any]] = []
+    python: list[dict[str, Any]] = []
+    for position, item in enumerate(usable):
+        if position % 2 == 0:
+            branch_item = dict(item)
+            branch_item["reference_role"] = "reasoning"
+            reasoning.append(branch_item)
+        else:
+            branch_item = dict(item)
+            branch_item["reference_role"] = "python"
+            branch_item["solution"] = ""
+            branch_item["answer_suppressed"] = True
+            python.append(branch_item)
+
+    reasoning_ids = {item["reference_id"] for item in reasoning}
+    python_ids = {item["reference_id"] for item in python}
+    return {
+        "reasoning": reasoning,
+        "python": python,
+        "strategy": "rank_parity_disjoint_solution_suppressed",
+        "overlap": sorted(reasoning_ids & python_ids),
+    }
+
+
 def build_reference_block(
     examples: List[Dict[str, Any]] | None,
     problem_chars: int,
     solution_chars: int,
     problem: str = "",
+    *,
+    include_solutions: bool = True,
+    role: str = "reasoning",
 ) -> str:
     """把检索到的每一条相似题拼成参考区块；无检索结果时返回空串。
 
@@ -87,11 +126,14 @@ def build_reference_block(
         problem_chars: 每条题面的截断长度。
         solution_chars: 每条解答的截断长度。
         problem: 本题题面。给出时逐条附上与示例的规模参数差异（反锚定）。
+        include_solutions: 是否包含示例解答；Python 分支必须关闭。
+        role: 使用该区块的分支名称，写入提示以便审计。
     """
     usable = [ex for ex in (examples or []) if isinstance(ex, dict)]
     if not usable:
         return ""
-    parts = [_HEADER, _ANTI_ANCHOR_NOTE]
+    header = _HEADER if include_solutions else _PYTHON_HEADER
+    parts = [header, f"\n[参考区块角色：{role}]\n", _ANTI_ANCHOR_NOTE]
     for i, example in enumerate(usable, 1):
         try:
             similarity = float(example.get("similarity") or 0.0)
@@ -103,7 +145,10 @@ def build_reference_block(
         if diff:
             parts.append(diff)
         parts.append(f"**题目：**\n{example_problem[:problem_chars]}\n\n")
-        parts.append(f"**解答：**\n{str(example.get('solution') or '')[:solution_chars]}\n")
+        if include_solutions:
+            parts.append(f"**解答：**\n{str(example.get('solution') or '')[:solution_chars]}\n")
+        else:
+            parts.append("**验证用途：** 仅使用题面和参数差异核对方法；忽略任何示例结论。\n")
         if i < len(usable):
             parts.append("\n---\n")
     return "".join(parts)

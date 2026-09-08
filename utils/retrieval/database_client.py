@@ -6,12 +6,23 @@ pre-built ChromaDB index. Returns top-k similar problems+solutions.
 
 import os
 import re
+import threading
 from pathlib import Path
 from typing import List, Dict, Optional
 
 os.environ.setdefault("HF_HUB_OFFLINE", "1")
 os.environ.setdefault("TRANSFORMERS_OFFLINE", "1")
 os.environ.setdefault("TOKENIZERS_PARALLELISM", "false")
+
+# 进程级共享的模型/集合单例与加载锁。ChromaDB 的 PersistentClient 在并发
+# 首次初始化时会触发 Rust bindings 竞态（2026-08-31 评委报告第 6 节：
+# 'RustBindingsAPI' object has no attribute 'bindings'，启动期两 worker 并发
+# 查询全部失败、无参考注入）。每次 new 一个 DatabaseClient 但共享同一份底层
+# 资源，首次加载在进程内互斥；加载后的 encode/query 只读，可安全并发。
+_SHARED_LOCK = threading.Lock()
+_SHARED_MODEL = None
+_SHARED_COLLECTION = None
+_SHARED_KEY = None
 
 
 class DatabaseClient:
@@ -44,17 +55,45 @@ class DatabaseClient:
         self._collection = None
 
     def _load_model(self):
-        """Lazy-load embedding model from ModelScope cache."""
-        if self._model is not None:
+        """Lazy-load embedding model from ModelScope cache (进程内单例 + 互斥)."""
+        self._ensure_shared()
+
+    def _ensure_shared(self):
+        """模型与集合一次性互斥加载，进程内所有 DatabaseClient 实例共享。
+
+        并发首次初始化 ChromaDB PersistentClient 会触发 Rust bindings 竞态
+        （'RustBindingsAPI' object has no attribute 'bindings'），加载必须在
+        锁内完成；加载后的 query/encode 只读，可安全并发。
+        """
+        global _SHARED_MODEL, _SHARED_COLLECTION, _SHARED_KEY
+        if self._model is not None and self._collection is not None:
             return
+        key = (str(self.db_dir.resolve()), self.collection_name, self.model_id)
+        with _SHARED_LOCK:
+            if _SHARED_KEY == key and _SHARED_MODEL is not None \
+                    and _SHARED_COLLECTION is not None:
+                self._model = _SHARED_MODEL
+                self._collection = _SHARED_COLLECTION
+                return
+            if _SHARED_MODEL is None:
+                from sentence_transformers import SentenceTransformer
 
-        from sentence_transformers import SentenceTransformer
+                _SHARED_MODEL = SentenceTransformer(
+                    str(self._resolve_model_dir()), device=self.device,
+                    trust_remote_code=True)
+            if _SHARED_COLLECTION is None:
+                import chromadb
 
-        # Resolve model directory from ModelScope cache
-        model_dir = self._resolve_model_dir()
-        self._model = SentenceTransformer(
-            str(model_dir), device=self.device, trust_remote_code=True
-        )
+                if not (self.db_dir / "chroma.sqlite3").exists():
+                    raise FileNotFoundError(
+                        f"ChromaDB not found at {self.db_dir}. "
+                        "Run 'git lfs pull' to fetch chroma.sqlite3 (tracked by Git LFS)."
+                    )
+                client = chromadb.PersistentClient(path=str(self.db_dir))
+                _SHARED_COLLECTION = client.get_collection(self.collection_name)
+            _SHARED_KEY = key
+            self._model = _SHARED_MODEL
+            self._collection = _SHARED_COLLECTION
 
     def _resolve_model_dir(self) -> Path:
         """Find model in project directory or ModelScope cache."""
@@ -88,20 +127,8 @@ class DatabaseClient:
         )
 
     def _load_collection(self):
-        """Lazy-load ChromaDB collection."""
-        if self._collection is not None:
-            return
-
-        import chromadb
-
-        if not (self.db_dir / "chroma.sqlite3").exists():
-            raise FileNotFoundError(
-                f"ChromaDB not found at {self.db_dir}. "
-                "Run 'git lfs pull' to fetch chroma.sqlite3 (tracked by Git LFS)."
-            )
-
-        client = chromadb.PersistentClient(path=str(self.db_dir))
-        self._collection = client.get_collection(self.collection_name)
+        """Lazy-load ChromaDB collection (进程内单例 + 互斥，防 Rust bindings 竞态)."""
+        self._ensure_shared()
 
     def query(self, problem: str, top_k: int = 3) -> List[Dict[str, any]]:
         """Query database for similar problems+solutions.

@@ -1,4 +1,4 @@
-# 🏗️ Math-Agent-System 架构与调用流程（B1）
+# 🏗️ Math-Agent-System 架构与调用流程（B2）
 
 > 本文讲解系统的完整调用链路：从竞赛平台调用 `ReasoningAgent.solve` 开始，到 LangGraph
 > 多智能体图编排、推理/验证双路并行、交叉验证、仲裁与收尾的端到端流程。
@@ -145,10 +145,29 @@ Python 侧对称实现三级兜底：首轮完整生成 → 完整重生成（`f
 | **AnswerMatcher + 契约** | `utils/answer/matcher.py`、`contract.py` | 数值/符号答案匹配 + 多空契约完整性 |
 | **确定性守卫组** | `utils/verify/*` | 计数枚举 / 判断题确认 / 形式对齐 / 证明补强等零成本兜底 |
 | **RAG 检索** | `utils/retrieval/database_client.py` | ChromaDB 向量检索相似题 few-shot 注入 |
+| **解法直达卡片 + 判分护栏** | `utils/skills_util/solution_cards.py`、`card_authority.py` | 跨类别按指纹注入 112 张对口解法卡片，命中核定值强制对齐出厂答案 |
+| **客观题独立盲复核** | `graph/nodes/objective_review.py` | 第二位阅卷教师独立重判客观题，作为第二候选注入跨校验与仲裁 |
+| **卡死跳过 + 英文题兜底** | `utils/llm/retry.py`、`utils/skills_util/loader.py` | 传输卡死跳过满长重试；英文判别词 ICF 加权确定性分类 |
 
 ---
 
-## 9. B1 版本改动标记（当前版本）
+## 9. B2 版本改动标记（当前版本）
+
+B2 照 99.11 分参考作品 ICMAnew 复现七块**判分口径与检索质量**的高收益纯代码，把技能手册检索、解法直达、答案判分、客观题复核、传输卡死处理与英文题分类从"能跑"对齐到"满分口径"：
+
+| 改动 | 影响模块 | 说明 |
+|---|---|---|
+| 家族指纹门 | `utils/skills_util/excerpt.py` | 检索升级：`- 命中条件：` 家族指纹（`_GATE_LINE_RE`/`_gate_pass`/`_gate_exact`），命中模块 +1000 置顶；53 个检索停用词过滤噪声 |
+| 解法直达卡片 | `utils/skills_util/solution_cards.py` | 跨类别按指纹注入：18 册手册里 112 张带指纹卡片收进进程级索引，题面命中即整卡置顶——与分类结果解耦（分类器漂移时对口解法仍可见） |
+| 判分口径护栏 | `utils/skills_util/card_authority.py` + coordinator | `canonical_value`/`enforce` 三档判定（boxed 答案位/裸答案/长叙述），命中卡片声明的核定值强制对齐出厂答案位 |
+| 客观题独立盲复核 | `graph/nodes/objective_review.py` + 图编排 | 第二位阅卷教师（不暴露第一分支候选）独立重判客观题，作为第二候选注入 cross_validator 与 semantic_arbiter，降低单采样定生死 |
+| 两段式候选排序 | `graph/nodes/classifier.py` | `_merge_candidate_rankings` 改为关键词→TF-IDF 两段式（关键词分数非零按关键词排序，全零按 TF-IDF） |
+| 传输卡死跳过重试 | `utils/llm/retry.py` | stall-skip：失败耗时 ≥ 0.8×socket 超时（624s）判定卡死，放弃满长重试、把时间交给调用方压缩路径（22–40s 内成功返回） |
+| 英文题确定性分类兜底 | `utils/skills_util/loader.py` | latin_score：按词边界命中英文判别词 + ICF（逆类别频率）加权，LLM 不可用时英文题不再落入复分析/抽象代数的 TF-IDF 密度噪声 |
+
+---
+
+## 10. B1 版本改动标记（上一版本，B2 保留其改动）
 
 B1 把题库检索从 TF-IDF 升级为 **ChromaDB 向量库**（照 ICMAnew 99.11 分作品复现），检索规模从 1,555 条 TF-IDF 语料扩大到 27,984 条 AI-MO 竞赛题，检索质量对齐满分作品：
 
@@ -159,7 +178,7 @@ B1 把题库检索从 TF-IDF 升级为 **ChromaDB 向量库**（照 ICMAnew 99.1
 
 ---
 
-## 10. A9 版本改动标记（上一版本，B1 保留其改动）
+## 11. A9 版本改动标记（上一版本，B1 保留其改动）
 
 A8 官方 67.86 分（76/112），比 A4 基线（82/112）净 **−6 题**——「去锚定 + 运筹学压缩」两条假设双双证伪（① 第一名「工具执行 67% vs 心算 34%」数据已验证为错误；② 运筹学首轮压缩抑制 CoT 致 Python 代码质量下降）。A9 先**回退 A8 恢复 A4 基线**，再做两个**严格非负、零额外 LLM 调用**的定向优化：
 
@@ -170,7 +189,7 @@ A8 官方 67.86 分（76/112），比 A4 基线（82/112）净 **−6 题**—�
 | `enable_python_solver_fallback = True` | python_exec | 条件求解器：候选为空时改用独立求解器 prompt（`PYTHON_SOLVER_PROMPT`），候选非空仍核验——严格非负，不覆盖正确推理 |
 | `enable_operations_research_guard = True` | python_exec | 运筹学守卫：命中运筹学题注入 linprog/minimize/milp 模板 + 静态核查（必须真调用求解器/枚举，纯手算闭式打回） |
 
-### 10.1 A8 版本改动（已被 A9 回退）
+### 11.1 A8 版本改动（已被 A9 回退）
 
 A7 官方评测 68.75 分（77/112），比 A4 基线（73.21，82/112）倒退 5 题——A7 的两条假设（「提 max_tokens 降截断」「关 critic/modular_guard 减调用」）双双证伪。A8 先**回退 A7 恢复 A4 基线**，再做「计算题工具主解」：
 

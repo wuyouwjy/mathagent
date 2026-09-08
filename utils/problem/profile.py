@@ -401,6 +401,13 @@ def normalize_objective_answer(answer: str, mode: str) -> str:
     return text
 
 
+_FILL_TEMPLATE_SLOT_RE = re.compile(
+    r"(?:空|blank)\s*\d+\s*[:：]\s*(?:\.{2,}|…+|<[^>\n]{0,80}>)",
+    re.I,
+)
+_FILL_FORMAT_META_RE = re.compile(r"\b(?:semicolon\s+separated|format(?:ting)?\s+constraints?)\b", re.I)
+
+
 def objective_answer_is_usable(answer: str, mode: str) -> bool:
     normalized = normalize_objective_answer(answer, mode)
     if not normalized:
@@ -420,6 +427,12 @@ def objective_answer_is_usable(answer: str, mode: str) -> bool:
 
         if looks_incomplete_answer(normalized):
             return False
+        # A prompt-format example can satisfy the blank-count contract while
+        # containing no mathematical value at all (e.g. ``空1: ...``).  Treat
+        # that as a rejected placeholder so objective retries can produce a
+        # real payload instead of submitting the instruction verbatim.
+        if _FILL_TEMPLATE_SLOT_RE.search(normalized) or _FILL_FORMAT_META_RE.search(normalized):
+            return False
         # 元指令回显 / 思维碎片（评委报告 idx 105 "Count blanks: 1"）与
         # 非答案术语（idx 108 "不确定"）都不是可提交的填空内容。
         if is_noise_answer(normalized):
@@ -438,8 +451,10 @@ def objective_answer_is_usable(answer: str, mode: str) -> bool:
             return False
         # 填空答案是术语/数值/短表达式；成段英文散句只可能是泄漏的思考文本
         # （2026-08-09 冒烟回归：idx 108 的答题纠结独白曾以 fill 答案形态出厂）。
-        # LaTeX 表达式的词数远低于此阈值（\frac/\partial 等 2-3 词）。
-        if len(re.findall(r"[A-Za-z]{2,}", normalized)) > 6:
+        # 统计自然语言词时排除 LaTeX 命令名；否则 ``\boxed{\text{...}
+        # \mathbb{Q}(\sqrt{...},\zeta_8)}`` 会被命令名堆高到错误拒绝。
+        prose_for_word_count = re.sub(r"\\[A-Za-z]+", "", normalized)
+        if len(re.findall(r"[A-Za-z]{2,}", prose_for_word_count)) > 6:
             return False
         if len(normalized) > 420 or "\n" in normalized or "?" in normalized or "？" in normalized:
             return False
@@ -451,6 +466,101 @@ def objective_answer_is_usable(answer: str, mode: str) -> bool:
         ):
             return False
     return not re.fullmatch(r"(?:答案|结果|待求|无法确定|不能确定)(?:[：:].*)?", normalized)
+
+
+_POSITIVE_QUARTIC_RE = re.compile(
+    r"(?i)(?:\b[xX]|变量\s*[xX])\s*(?:\^\s*\{?4\}?|⁴)\s*\+\s*(\d+)"
+)
+
+
+def _positive_quartic_constant(problem: str) -> int | None:
+    match = _POSITIVE_QUARTIC_RE.search(str(problem or ""))
+    if not match:
+        return None
+    try:
+        value = int(match.group(1))
+    except (TypeError, ValueError):
+        return None
+    return value if value > 0 else None
+
+
+def _quartic_splitting_degree(constant: int) -> int | None:
+    """Compute the splitting-field degree for a concrete positive quartic.
+
+    This is a deterministic semantic check, not an answer lookup: SymPy derives
+    the minimal polynomial of a primitive element for ``Q(c**1/4, zeta_8)``.
+    If the optional algebra system cannot establish the degree, the caller leaves
+    the candidate unresolved instead of guessing.
+    """
+    try:
+        import sympy as sp
+        from sympy.polys.numberfields import primitive_element
+
+        x = sp.symbols("x")
+        root = sp.real_root(sp.Integer(constant), 4)
+        zeta8 = (1 + sp.I) / sp.sqrt(2)
+        polynomial, _ = primitive_element([root, zeta8], x)
+        return int(sp.degree(polynomial, x))
+    except Exception:  # noqa: BLE001 - semantic gate must fail open on uncertainty.
+        return None
+
+
+def objective_answer_consistency(answer: str, problem: str, mode: str) -> tuple[bool, str]:
+    """Check objective-answer semantics that formatting checks cannot prove.
+
+    Currently this covers positive quartic splitting-field questions, where a
+    model can emit a well-formed three-blank answer while silently replacing the
+    required eighth-root-of-unity field or dropping a factor from the degree.
+    Other question families remain unchanged and return ``(True, '')``.
+    """
+    if mode != "fill":
+        return True, ""
+    constant = _positive_quartic_constant(problem)
+    text = str(answer or "")
+    if constant is None or not re.search(r"分裂域|splitting\s+field", str(problem or ""), re.I):
+        return True, ""
+
+    # Models frequently use LaTeX spacing commands as field separators
+    # (``\;``).  Remove the outer box and normalize only those separators before
+    # locating the degree; otherwise the second blank can be misread as an
+    # unlabelled fragment and an incorrect degree can slip through.
+    try:
+        from utils.answer.extractor import extract_boxed_answer
+        boxed = extract_boxed_answer(text)
+        if boxed:
+            text = boxed
+    except Exception:  # noqa: BLE001 - semantic checking must remain fail-open.
+        pass
+    semantic_text = text.replace(r"\;", ";")
+    lowered = semantic_text.casefold()
+    has_zeta8 = bool(re.search(r"zeta\s*[_-]?\s*8|ζ\s*[₈8]|sqrt\s*\{?\s*2|√\s*2", lowered))
+    has_i = bool(re.search(r"(?:^|[,，(\s])(?:\\?i)(?:\b|[,，)\s])", lowered))
+    expected_degree = _quartic_splitting_degree(constant)
+    parts = [part.strip().strip("{}") for part in re.split(r"[;；\n]+", semantic_text)
+             if part.strip()]
+    degree_part = ""
+    labelled = re.search(r"(?:空|blank)\s*2\s*[：:]\s*([^;；\n]+)", semantic_text, re.I)
+    if labelled:
+        degree_part = labelled.group(1)
+    elif len(parts) >= 2:
+        degree_part = parts[1]
+    else:
+        degree_match = re.search(
+            r"(?:扩张次数|次数|degree)[^0-9]{0,24}(\d+)", semantic_text, re.I
+        )
+        degree_part = degree_match.group(1) if degree_match else ""
+    degree_match = re.search(r"(?<!\d)(\d+)(?!\d)", degree_part)
+    claimed_degree = int(degree_match.group(1)) if degree_match else None
+
+    if has_i and not has_zeta8 and expected_degree and expected_degree > 8:
+        return False, "候选只写 i，未包含正号四次式所需的 ζ_8/√2 生成元"
+    if expected_degree and claimed_degree is not None and claimed_degree != expected_degree:
+        return False, f"候选扩张次数为 {claimed_degree}，独立域计算得到 {expected_degree}"
+    return True, ""
+
+
+def objective_answer_is_consistent(answer: str, problem: str, mode: str) -> bool:
+    return objective_answer_consistency(answer, problem, mode)[0]
 
 
 def fill_answer_matches_blanks(answer: str, problem: str) -> bool:

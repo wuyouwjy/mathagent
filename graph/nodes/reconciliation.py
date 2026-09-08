@@ -7,7 +7,13 @@ returns structured JSON (it may emit a 'Thinking Process:' preamble):
 - round limit reached → route to the evidence-constrained semantic selector.
 The selector itself can only choose an existing candidate or abstain.
 """
-from utils.verify.reconciliation_policy import reconciliation_round_limit
+from config import CONFIG
+from utils.deps import get_deps
+from utils.verify.reconciliation_policy import (
+    projected_solving_seconds,
+    reconciliation_retry_available,
+    reconciliation_round_limit,
+)
 from utils.problem.profile import classify_question_mode
 
 
@@ -35,6 +41,7 @@ def reconciliation_node(state, config):
         or po.get("contradictions") or []
     evidence_context = _bounded(evidence_summary or "；".join(map(str, contradictions)))
     candidate = _bounded(rr.get("answer", ""), 2000)
+    forced = bool(state.get("recheck_required")) and not state.get("forced_recheck_used")
 
     if round_num >= max_rounds:
         # Circuit breaker: give the semantic selector one final chance to adopt an
@@ -61,6 +68,50 @@ def reconciliation_node(state, config):
                 "contradictions": list(contradictions)[:10],
             }]
         return result
+
+    # Reconciliation is normally reached through a policy check in the
+    # cross-validator, but graph state can also be resumed or supplied directly.
+    # Re-check the affordability here so a stale route cannot start a full pass
+    # after the hard-clock reserve has become unavailable.
+    if not reconciliation_retry_available(state, config, force=forced):
+        try:
+            deps = get_deps(config)
+        except Exception:  # noqa: BLE001 - preserve the deterministic fallback.
+            deps = None
+        clock = getattr(deps, "time_budget", None)
+        if clock is None:
+            remaining_s = None
+            required_s = 0.0
+        else:
+            remaining_fn = getattr(clock, "remaining_hard", None)
+            remaining_s = float(
+                remaining_fn() if callable(remaining_fn) else clock.remaining()
+            )
+            required_s = projected_solving_seconds(clock)
+            if forced:
+                required_s += float(CONFIG.get("forced_recheck_reserve_s", 240))
+        blocked = {
+            "remaining_s": remaining_s,
+            "required_s": round(float(required_s), 2),
+            "forced": forced,
+        }
+        recon_trace.append({
+            "round": state.get("reconciliation_round", 0),
+            "action": "budget_blocked",
+            "budget_blocked": blocked,
+        })
+        return {
+            "reconciliation_round": state.get("reconciliation_round", 0),
+            "reconciliation_trace": recon_trace,
+            "reasoning_retry_hint": None,
+            "python_retry_hint": None,
+            "next_node": "semantic_arbiter",
+            "validation_status": "reconciliation_budget_blocked",
+            "budget_blocked": True,
+            "budget_blocked_details": blocked,
+            "forced_recheck_used": bool(state.get("forced_recheck_used") or forced),
+            "recheck_required": bool(state.get("recheck_required")),
+        }
 
     rs_hint = None
     py_hint = None
@@ -99,10 +150,14 @@ def reconciliation_node(state, config):
         action = "retry_both"
 
     recon_trace.append({"round": round_num, "action": action})
-    return {
+    result = {
         "reconciliation_round": round_num,
         "reconciliation_trace": recon_trace,
         "reasoning_retry_hint": rs_hint,
         "python_retry_hint": py_hint,
         "next_node": "solving",
     }
+    if forced:
+        result["forced_recheck_used"] = True
+        recon_trace[-1]["forced"] = True
+    return result
