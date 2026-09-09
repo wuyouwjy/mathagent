@@ -91,9 +91,12 @@ class MathAgentGraph:
         clock = time_budget or TimeBudget()
         # 全卷完成率引擎：按"剩余全卷时间 ÷ 剩余题数"收紧本题软预算
         # （paper_cap），保证 6h 内全部题完成。只影响软预算，不动硬限。
+        # idx 在 try 之外初始化：mark_done 在 finally 里要按题配对递减活跃计数，
+        # 若 get_instance/budget_for 在赋值前抛异常，idx 未定义会让 finally 再抛
+        # NameError，把"完成率引擎失败不拖垮单题"的保护反噬成单题失败。
+        idx = -1
         try:
             pacer = PaperPacer.get_instance()
-            idx = -1
             meta = initial_state.get("metadata") if isinstance(initial_state, dict) else None
             if isinstance(meta, dict):
                 idx = meta.get("idx", -1)
@@ -102,10 +105,11 @@ class MathAgentGraph:
             clock.paper_cap = paper_cap
             # 软预算下限保护：soft_total 一旦低于 reserve，remaining() 的公式
             # (soft_total - reserve - elapsed) 开局即为负，第一轮 reasoning/python
-            # 会被 DeadlineExceeded 直接拒绝。全卷"落后"时 PaperPacer 收紧到
-            # MIN_SOFT(120) < reserve(300)，必须抬到 reserve 之上并留出至少一轮
-            # 核心推理的余量，否则"落后"直接退化成白卷（本地 3 题实测 problem 1/2
-            # 因此全废：soft_total 收紧到 190.8s，remaining 开局 -109s）。
+            # 会被 DeadlineExceeded 直接拒绝。全卷"落后"时 PaperPacer 的保底是
+            # MIN_SOFT×并发度（120×3=360s），仍低于 reserve(300) + 一轮核心推理所需，
+            # 必须抬到 reserve 之上并留出至少一轮核心推理的余量，否则"落后"直接
+            # 退化成白卷（本地 3 题实测 problem 1/2 因此全废：soft_total 收紧到
+            # 190.8s，remaining 开局 -109s）。
             min_soft = clock.reserve + float(CONFIG.get("paper_min_work_s", 180.0))
             if paper_cap < min_soft:
                 paper_cap = min_soft
@@ -114,14 +118,15 @@ class MathAgentGraph:
         except Exception:  # noqa: BLE001 - 完成率引擎是锦上添花，失败不拖垮单题
             pass
         # 题库检索器惰性创建并跨题复用：首次 run 创建后缓存到 self.retriever，之后
-        # 每题复用同一实例（模型/collection 在 DatabaseClient 内还有进程级缓存，只
-        # 加载一次）。检索是纯增益节点，任何初始化失败都降级为"无参考示例"，绝不
-        # 拖垮求解。
+        # 每题复用同一实例。默认是 ResilientRetriever（向量检索 → TF-IDF 降级链）：
+        # 向量库不可用时由它永久降级，不会每题重试加载（2026-09-09：评测环境不执行
+        # `git lfs pull`，chroma.sqlite3 是 LFS 指针，重试是纯浪费）。检索是纯增益
+        # 节点，任何初始化失败都降级为"无参考示例"，绝不拖垮求解。
         retriever = self.retriever
         if retriever is None:
             try:
-                from utils.retrieval.database_client import DatabaseClient
-                self.retriever = retriever = DatabaseClient()
+                from utils.retrieval.resilient_client import build_resilient_retriever
+                self.retriever = retriever = build_resilient_retriever()
             except Exception:  # noqa: BLE001 - 检索缺失不影响求解
                 self.retriever = retriever = None
         deps = Deps(client=self.client, skills_loader=self.skills_loader,
@@ -132,7 +137,7 @@ class MathAgentGraph:
         finally:
             # 每题结束都计数（无论成功失败），驱动全卷节奏
             try:
-                PaperPacer.get_instance().mark_done()
+                PaperPacer.get_instance().mark_done(idx)
             except Exception:  # noqa: BLE001
                 pass
         if isinstance(final_state, dict):

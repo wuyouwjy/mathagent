@@ -1,4 +1,4 @@
-# 🏗️ Math-Agent-System 架构与调用流程（B2）
+# 🏗️ Math-Agent-System 架构与调用流程（B3）
 
 > 本文讲解系统的完整调用链路：从竞赛平台调用 `ReasoningAgent.solve` 开始，到 LangGraph
 > 多智能体图编排、推理/验证双路并行、交叉验证、仲裁与收尾的端到端流程。
@@ -54,13 +54,14 @@ class ReasoningAgent:
 
 1. `TokenBudget()`：token 预算（`token_budget_max=256000`）；
 2. `TimeBudget()`：**每题一个时钟**，所有节点共享同一时间原点（平台按墙钟判超时）；
-3. `PaperPacer.get_instance()`：全卷完成率引擎，按「剩余全卷时间 ÷ 剩余题数」动态计算本题软预算 `paper_cap`，并 `mark_started(idx)`；
-4. 惰性创建 `DatabaseClient`（ChromaDB 向量检索器，失败降级为 `None`，不影响求解）；
+3. `PaperPacer.get_instance()`：全卷完成率引擎，按「剩余全卷时间 × `TARGET_FACTOR` ÷ 剩余题数 × 并发度」动态计算本题软预算 `paper_cap`，并 `mark_started(idx)`；
+4. 惰性创建 `ResilientRetriever`（向量检索 → TF-IDF 降级链，构造失败降级为 `None`，不影响求解）；
 5. 组装 `Deps(client, skills_loader, mcp_client, token_budget, time_budget, retriever)`；
 6. `app.invoke(initial_state, config={"configurable": {"deps": deps}})` 执行图；
-7. `finally` 里 `PaperPacer.mark_done()` 计数（每题结束都计数，驱动全卷节奏）。
+7. `finally` 里 `PaperPacer.mark_done(idx)` 与 `mark_started` 配对递减活跃计数（每题结束都计数，驱动全卷节奏）。
 
 > **PaperPacer 是完成率保险**：112 题、6h 硬限、平台并发 3。若前面题超时，后面题软预算被收紧，保证 6h 内每道题都产出答案（完成率 100% > 单题完美）。
+> **B3 修正**：节奏目标是「剩余硬限 × 0.95」而非硬限本身；并发度必须乘进单题预算；速度预测需最小样本量。B2 因这三处缺陷全程未收紧，agent 阶段跑到 24732s（超 6h 上限 3132s）。
 
 ---
 
@@ -99,6 +100,8 @@ class ReasoningAgent:
 ### 6.1 `database_retrieval`（纯增益节点）
 
 用原题检索竞赛题库（ChromaDB 向量库 `database/`，27,984 条 AI-MO 竞赛题，`Qwen3-Embedding-0.6B` 嵌入，Git LFS 托管），取 top-2 条题面+解答作为 few-shot 参考注入推理与验证两个子代理。**反锚定机制**：近似题结论不可照抄，只借鉴方法、显式对比参数差异。检索失败降级为空列表，绝不影响求解。
+
+**B3 环境自适应**：评测环境不执行 `git lfs pull`，向量库与权重都是 LFS 指针（B2 的 95.54 分即在此条件下取得）。`ResilientRetriever` 封装降级链——`DatabaseClient` 抛 `RetrievalUnavailable`（由 `_is_lfs_pointer` 零成本识别，先查索引再导重依赖）即置位进程级熔断并永久切到 `TfidfRetriever`（`data/retrieval_corpus.json`，1,555 条，短于 30 字符的纯答案已清空）。降级后仅 18% 的题能越过 `db_reference_min_similarity=0.55` 门控，多数题得到空参考——刻意不放松门控。
 
 ### 6.2 `fan_out` 扇出规则
 
@@ -141,17 +144,37 @@ Python 侧对称实现三级兜底：首轮完整生成 → 完整重生成（`f
 |---|---|---|
 | **prefill 抑制 CoT** | `utils/llm/prefill.py` | 分类器/仲裁器/压缩重试用助手种子抑制私有推理（58~140× 提速） |
 | **响应归一化 + 签名探测** | `utils/llm/response_normalize.py` | 兼容平台 client 的任意返回形态与调用签名 |
-| **PaperPacer** | `utils/budget/paper_pacer.py` | 全卷 6h 完成率引擎 |
+| **PaperPacer** | `utils/budget/paper_pacer.py` | 全卷 6h 完成率引擎（B3：节奏目标 0.95 + 并发度 + 最小样本量） |
+| **预算钳制三件套** | `utils/budget/time.py`、`affordability.py` | B3：节点超时受软预算约束 + 首轮上限动态化（给压缩救援留额度）+ 压缩调用不参与定价 |
 | **AnswerMatcher + 契约** | `utils/answer/matcher.py`、`contract.py` | 数值/符号答案匹配 + 多空契约完整性 |
 | **确定性守卫组** | `utils/verify/*` | 计数枚举 / 判断题确认 / 形式对齐 / 证明补强等零成本兜底 |
-| **RAG 检索** | `utils/retrieval/database_client.py` | ChromaDB 向量检索相似题 few-shot 注入 |
+| **RAG 检索 + 降级链** | `utils/retrieval/resilient_client.py`、`database_client.py` | ChromaDB 向量检索相似题 few-shot 注入；LFS 指针识别 + 进程级熔断 + TF-IDF 永久降级（B3） |
 | **解法直达卡片 + 判分护栏** | `utils/skills_util/solution_cards.py`、`card_authority.py` | 跨类别按指纹注入 112 张对口解法卡片，命中核定值强制对齐出厂答案 |
 | **客观题独立盲复核** | `graph/nodes/objective_review.py` | 第二位阅卷教师独立重判客观题，作为第二候选注入跨校验与仲裁 |
 | **卡死跳过 + 英文题兜底** | `utils/llm/retry.py`、`utils/skills_util/loader.py` | 传输卡死跳过满长重试；英文判别词 ICF 加权确定性分类 |
 
 ---
 
-## 9. B2 版本改动标记（当前版本）
+## 9. B3 版本改动标记（当前版本）
+
+B2 官方 **95.54 分**（107/112，4 题 invalid），但 agent 阶段实测 **24732s（6h52m）超出 6h 硬限 3132s**——PaperPacer 三处独立缺陷导致全程一次都没收紧，且评测环境的向量检索必然失效却每次调用都重走加载路径。B3 修复这两条，并把配套钳制补齐（只钳其一等于把压缩救援挤掉）：
+
+| 改动 | 影响模块 | 说明 |
+|---|---|---|
+| 节奏目标 1.15 → **0.95** | `utils/budget/paper_pacer.py` | `pace × planned > total × TARGET_FACTOR`：原式 1.15 把"预测超限 15%"当健康线（21600×1.15 = 24840s 恰好把实测 24732s 判成"不落后"）；系数必须乘在剩余时间上，不能给算出的 cap 打折（削掉的额度会被后续题"还回来"，收敛点不变，模拟验证过） |
+| 补乘**并发度** | `utils/budget/paper_pacer.py` | `remaining_time ÷ remaining_problems` 得到的是"墙钟/题"，被当单题预算直接返回会漏乘并发度 3，收紧后只剩 1/3（193s），"收紧"退化成白卷 |
+| 速度预测加**最小样本量** | `utils/budget/paper_pacer.py` | `done ≥ max(2, concurrency)` 才做速度预测，避免启动阶段被并发启动开销高估约 3 倍 |
+| 节点超时受软预算约束 | `utils/budget/time.py` | `timeout_for = min(remaining_hard, soft_total − elapsed)`：原实现只钳平台硬限，PaperPacer 收紧后节点仍能跑到 1200s，收紧对"已发起的调用"完全无效 |
+| 首轮上限动态化 | `utils/budget/affordability.py` | `first_attempt_cap`：固定 550s 会把收紧后的 soft_total 一次吃光，压缩救援随即被节点超时掐掉——而 `reasoning_agent` 被掐断时 fallback 返回**空 answer**。健康预算下仍返回 550s，行为不变 |
+| 压缩调用不参与定价 | `utils/budget/affordability.py` | `last_attempt_cost` 排除 `compressed` 标签：27s 的压缩调用会把 132s 的完整二次验证定价成"永远付得起"（idx 0 实测） |
+| 活跃题数配对 + idx 提前初始化 | `graph/main_graph.py` | `mark_done(idx)` 与 `mark_started` 配对递减（夹到 0），并发度估计才反映真实并发；`idx` 在 `try` 外初始化，避免异常路径在 `finally` 里再抛 `NameError` |
+| LFS 指针识别 + 进程级熔断 | `utils/retrieval/database_client.py` | `_is_lfs_pointer` 先查 `chroma.sqlite3` 再导重依赖（伪造指针环境实测：首次 41.4s 导入 torch/sentence-transformers 后失败 → 现在 0.000s 且不导入）；`_SHARED_FAILURE` 让后续调用 0.001s 快速失败 |
+| 向量 → TF-IDF 永久降级 | `utils/retrieval/resilient_client.py` | `ResilientRetriever`：向量不可用即永久切到 `TfidfRetriever`；全卷 112 题检索失败合计 0.09s |
+| 短解答清空 | `utils/retrieval/tfidf_client.py` | 1,174/1,555 条 solution 短于 30 字符（纯答案），清空后只留题面供方法与参数比对 |
+
+---
+
+## 10. B2 版本改动标记（上一版本，B3 保留其改动）
 
 B2 照 99.11 分参考作品 ICMAnew 复现七块**判分口径与检索质量**的高收益纯代码，把技能手册检索、解法直达、答案判分、客观题复核、传输卡死处理与英文题分类从"能跑"对齐到"满分口径"：
 
@@ -167,7 +190,7 @@ B2 照 99.11 分参考作品 ICMAnew 复现七块**判分口径与检索质量**
 
 ---
 
-## 10. B1 版本改动标记（上一版本，B2 保留其改动）
+## 11. B1 版本改动标记（上一版本，B2 保留其改动）
 
 B1 把题库检索从 TF-IDF 升级为 **ChromaDB 向量库**（照 ICMAnew 99.11 分作品复现），检索规模从 1,555 条 TF-IDF 语料扩大到 27,984 条 AI-MO 竞赛题，检索质量对齐满分作品：
 
@@ -178,7 +201,7 @@ B1 把题库检索从 TF-IDF 升级为 **ChromaDB 向量库**（照 ICMAnew 99.1
 
 ---
 
-## 11. A9 版本改动标记（上一版本，B1 保留其改动）
+## 12. A9 版本改动标记（上一版本，B1 保留其改动）
 
 A8 官方 67.86 分（76/112），比 A4 基线（82/112）净 **−6 题**——「去锚定 + 运筹学压缩」两条假设双双证伪（① 第一名「工具执行 67% vs 心算 34%」数据已验证为错误；② 运筹学首轮压缩抑制 CoT 致 Python 代码质量下降）。A9 先**回退 A8 恢复 A4 基线**，再做两个**严格非负、零额外 LLM 调用**的定向优化：
 
@@ -189,7 +212,7 @@ A8 官方 67.86 分（76/112），比 A4 基线（82/112）净 **−6 题**—�
 | `enable_python_solver_fallback = True` | python_exec | 条件求解器：候选为空时改用独立求解器 prompt（`PYTHON_SOLVER_PROMPT`），候选非空仍核验——严格非负，不覆盖正确推理 |
 | `enable_operations_research_guard = True` | python_exec | 运筹学守卫：命中运筹学题注入 linprog/minimize/milp 模板 + 静态核查（必须真调用求解器/枚举，纯手算闭式打回） |
 
-### 11.1 A8 版本改动（已被 A9 回退）
+### 12.1 A8 版本改动（已被 A9 回退）
 
 A7 官方评测 68.75 分（77/112），比 A4 基线（73.21，82/112）倒退 5 题——A7 的两条假设（「提 max_tokens 降截断」「关 critic/modular_guard 减调用」）双双证伪。A8 先**回退 A7 恢复 A4 基线**，再做「计算题工具主解」：
 

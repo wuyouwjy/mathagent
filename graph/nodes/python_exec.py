@@ -11,7 +11,7 @@ from utils.llm.retry import chat_prefilled, chat_with_retry
 from utils.llm.templates import PYTHON_PROMPT, PYTHON_SOLVER_PROMPT
 from utils.budget.token import estimate_tokens
 from utils.answer.cot_stripper import strip_cot_prefix
-from utils.budget.affordability import can_afford_retry, last_attempt_cost
+from utils.budget.affordability import can_afford_retry, first_attempt_cap, last_attempt_cost
 from utils.budget.timeout import NodeTimeoutError, run_with_timeout
 from utils.skills_util.excerpt import select_script_excerpt
 from utils.skills_util.solution_cards import select_excerpt_with_cards as select_skill_excerpt
@@ -337,11 +337,13 @@ def python_agent_node(state, config):
 
     # A4 思路1：深解领域（数论/组合/高代/抽代）首轮直接压缩重生成（代码前置 prefill，
     # ~200s），跳过"几乎必超 8192"的完整代码生成（与推理分支 A3 手段2 对称）。压缩
-    # 产出有效代码并执行出答案则直接返回；否则回退下面的完整生成兜底。fast_path
-    # 时间紧张或开关关闭时跳过。
+    # 产出有效代码并执行出答案则直接返回；否则回退下面的完整生成兜底。
+    #
+    # 2026-09-09 与推理分支同规则修正：原为 `and not clock.fast_path()`，把压缩
+    # 从最需要它的场景（时间紧张）里排除了。压缩才是这里最短的路径。
     deep_direct = (CONFIG.get("enable_deep_direct_compressed", True)
                    and category in CONFIG.get("deep_solver_domains", []))
-    if deep_direct and not (clock and clock.fast_path()):
+    if deep_direct:
         attempts = 1
         resp, _dfail = _compressed_python_call(
             deps, problem, candidate_answer,
@@ -396,11 +398,14 @@ def python_agent_node(state, config):
             # Same rule as the reasoning branch: a transport failure keeps whatever
             # this branch already produced rather than emptying it, so the other
             # branch is never left as the sole candidate when it did not have to be.
+            # 首轮上限按本题剩余预算动态收紧（与推理分支同规则，健康预算下不变）。
+            first_cap = first_attempt_cap(
+                clock, _FIRST_ATTEMPT_TIMEOUT_S, _COMPRESSED_CALL_ESTIMATE_S)
             try:
-                if attempts == 1 and _FIRST_ATTEMPT_TIMEOUT_S:
+                if attempts == 1 and first_cap:
                     # 首轮调用加单次墙钟上限：与推理分支同规则，难题上首轮会把
-                    # 整个节点 1100s 上限吃光、被 node_wrapper 掐断后压缩重生成
-                    # 永远没机会触发。压到 550s，超时就地转入压缩重生成
+                    # 整个节点上限吃光、被 node_wrapper 掐断后压缩重生成
+                    # 永远没机会触发。压到上限后，超时就地转入压缩重生成
                     # （math_agent 断点续写三件套之一）。
                     resp = run_with_timeout(
                         lambda: chat_with_retry(
@@ -412,7 +417,7 @@ def python_agent_node(state, config):
                             time_budget=deps.time_budget,
                             label="python",
                         ),
-                        _FIRST_ATTEMPT_TIMEOUT_S,
+                        first_cap,
                     )
                 else:
                     resp = chat_with_retry(
@@ -428,7 +433,7 @@ def python_agent_node(state, config):
                 if isinstance(exc, NodeTimeoutError) and clock:
                     # 与推理分支同规则：把首轮超时上限记入账，让对账定价看到完整
                     # 调用的真实成本，而不是压缩重生成的短耗时。
-                    clock.record("python", _FIRST_ATTEMPT_TIMEOUT_S)
+                    clock.record("python", first_cap)
                 deps.logger.warning("Python attempt %s failed: %s", attempts, exc)
                 last_output = last_output or {
                     "success": False, "stdout": "", "stderr": str(exc)[:300],

@@ -16,7 +16,7 @@ mpmath>=1.3
 numpy>=1.24.0
 scipy>=1.10.0
 
-# CORE: TF-IDF category retrieval for domain classification fallback
+# CORE: TF-IDF —— 分类兜底 + 题库检索降级路径（utils/retrieval/tfidf_client.py）
 scikit-learn>=1.3.0
 
 # CORE: Fast fuzzy matching for category normalization
@@ -31,9 +31,11 @@ mcp>=1.0.0
 # OPTIONAL: Structured JSON logging
 python-json-logger>=2.0.0
 
-# CORE: ChromaDB 题库检索（B1 迁移自 ICMAnew）：向量库 + 本地 embedding 模型
-# （Qwen3-Embedding-0.6B）。database_client 在缺少真实权重时会降级到
-# ModelScope 下载，不会打断求解。
+# OPTIONAL: ChromaDB 题库检索（迁移自 ICMAnew）：向量库 + 本地 embedding 模型
+# （Qwen3-Embedding-0.6B）。这两份数据由 Git LFS 托管；评测环境通常只 clone、
+# 不执行 `git lfs pull`，拿到的是 LFS 指针——database_client 会识别并熔断，
+# 自动降级到 TF-IDF 检索器（data/retrieval_corpus.json + 上面的 scikit-learn）。
+# 所以这组依赖不装也不影响求解，只是失去向量检索这一路参考。
 chromadb>=0.4.0
 sentence-transformers>=2.2.0
 modelscope>=1.11.0

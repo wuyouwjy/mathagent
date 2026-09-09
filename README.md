@@ -1,12 +1,12 @@
 <p align="center">
-  <h1 align="center">🧮 Math-Agent-System B2</h1>
+  <h1 align="center">🧮 Math-Agent-System B3</h1>
   <p align="center">基于 <b>Intern-S 系列大模型</b> 的 LangGraph 多智能体数学推理系统 — 2026 挑战杯·书生赛道</p>
   <p align="center">
     <img src="https://img.shields.io/badge/Python-3.10+-blue" alt="Python">
     <img src="https://img.shields.io/badge/LLM-Intern--S-orange" alt="Intern-S">
-    <img src="https://img.shields.io/badge/version-B2-purple" alt="B2">
+    <img src="https://img.shields.io/badge/version-B3-purple" alt="B3">
     <img src="https://img.shields.io/badge/framework-LangGraph-green" alt="LangGraph">
-    <img src="https://img.shields.io/badge/score-target-75%2B-brightgreen" alt="Target">
+    <img src="https://img.shields.io/badge/score-95.54-brightgreen" alt="Score">
   </p>
 </p>
 
@@ -14,7 +14,7 @@
 
 ## 📖 简介
 
-**Math-Agent-System B2** 是为 2026 年度中国青年科技创新"揭榜挂帅"擂台赛·书生赛道设计的数学推理智能体。
+**Math-Agent-System B3** 是为 2026 年度中国青年科技创新"揭榜挂帅"擂台赛·书生赛道设计的数学推理智能体。
 
 T3 版本基于 ICMAnew-main 架构（50 分 / 56 correct / 112 题）完成了从 T2 svragent 到 **LangGraph 多智能体图编排**的重构。T4 在 T3 基础上，参照 VeritasMath 前三名架构补齐了四块**正确性与完成率**短板：
 
@@ -69,6 +69,15 @@ B2 本版为「判分口径对齐」（官方评测待跑）：照 99.11 分参�
 28. **两段式候选排序**：`graph/nodes/classifier.py` 的 `_merge_candidate_rankings` 改为关键词→TF-IDF 两段式（关键词分数非零按关键词排序，全零按 TF-IDF）；
 29. **传输卡死跳过重试**：`utils/llm/retry.py` 的 stall-skip——失败耗时 ≥ 0.8×socket 超时（624s）判定卡死，放弃满长重试、把时间交给调用方压缩路径（22–40s 内成功返回）；
 30. **英文题确定性分类兜底**：`utils/skills_util/loader.py` 的 latin_score——按词边界命中英文判别词 + ICF（逆类别频率）加权，LLM 不可用时英文题不再落入复分析/抽象代数的 TF-IDF 密度噪声。
+
+B3 本版为「全卷节奏修复 + RAG 环境自适应」（官方评测待跑）。B2 官方 **95.54 分**（107/112，另 4 题 invalid），但 agent 阶段实测 **24732s（6h52m）超出 6h 硬限 3132s**——离线诊断定位到 PaperPacer 三处独立缺陷导致**全程一次都没收紧**，且评测环境的 RAG 必然失效却每次调用都重走加载路径。B3 修掉这两条，并把配套钳制补齐（只钳其一等于把压缩救援挤掉，"省时"直接变成"丢答案"）：
+
+31. **PaperPacer 三处缺陷修复**（`utils/budget/paper_pacer.py`）：① 阈值 `predicted > total × 1.15` → `pace × planned > total × TARGET_FACTOR`——1.15 把"预测超限 15%"当健康线，21600×1.15 = 24840s 恰好把实测 24732s 判成"不落后"，6h 是硬限、目标必须在限内，且取 0.95 而非 1.00（112 题事件驱动模拟：1.00 下 8/30 超时、最坏 21831s；0.95 下 0/30、最坏 21555s）；② `remaining_time ÷ remaining_problems` 得到的是"墙钟/题"，却被当单题预算直接返回，**漏乘并发度 3**——收紧后只剩 1/3（193s），退化成白卷；③ 速度预测加最小样本量 `done ≥ max(2, concurrency)`，避免启动阶段被并发启动开销高估约 3 倍；
+32. **节点超时受软预算约束**（`TimeBudget.timeout_for`）：原实现只钳平台硬限，PaperPacer 收紧 soft_total 后节点仍能一路跑到 1200s，收紧对"已经发起的那次调用"完全无效。改为 `min(remaining_hard, soft_total − elapsed)`——软预算对调用方是"还能不能发起"（扣 reserve），对节点自身是"最多跑多久"（不扣 reserve，调用一旦发出无法取消）；
+33. **首轮上限动态化**（`affordability.first_attempt_cap`）：固定 550s 首轮上限会把收紧后的 soft_total 一次吃光，压缩救援随即被节点超时掐掉——而 `reasoning_agent` 被掐断时 error_handler 的 fallback 返回**空 answer**。首轮上限按本题剩余预算收紧（健康预算下仍返回 550s，行为与改动前一致），与第 32 条成对，只钳其一等于把救援挤掉；
+34. **压缩调用不参与定价**（`affordability.last_attempt_cost`）：`reasoning_compressed` 实测 27s，若用它给完整调用定价，`can_afford_retry` 会永远放行 132s 的完整二次验证（idx 0 实测）。定价只看完整调用；预算充足时结论不变（300s 估值仍付得起），只在收紧后拒绝——那正是该拒绝的时候；
+35. **活跃题数配对**（`graph/main_graph.py`）：`mark_done(idx)` 与 `mark_started` 配对递减活跃计数（夹到 0），并发度估计才反映真实并发；`idx` 提到 `try` 外初始化，避免异常路径在 `finally` 里再抛 `NameError`，把"完成率引擎失败不拖垮单题"的保护反噬成单题失败；
+36. **RAG 环境自适应**（`utils/retrieval/`）：评测环境只 clone 仓库、不执行 `git lfs pull`，`chroma.sqlite3` 与 `model.safetensors` 都是约 130 字节的 LFS 指针——**B2 的 95.54 分正是在此条件下取得**（评测日志 clone 全程 1.57s）。原实现加载失败时不置位任何状态，每次调用都重走加载路径（伪造指针环境实测：首次 41.4s 导入 torch/sentence-transformers 后在 safetensors 解析处失败）。新增 `_is_lfs_pointer` 零成本识别（先查索引再导重依赖）、进程级熔断 `_SHARED_FAILURE`（一次失败后全进程快速失败，全卷 112 题合计 0.09s）、`ResilientRetriever` 向量→TF-IDF 永久降级；`tfidf_client` 把短于 30 字符的解答清空（1,174/1,555 条是纯答案，只留题面供方法与参数比对）。
 
 ### A2 vs A1 核心增量
 
@@ -219,9 +228,10 @@ Math-Agent-System/
     │   └── client_tuning.py   # 尽力提升平台 client socket 超时
     ├── skills_util/           # 领域技能：文档加载 + 主题摘取 + TF-IDF 索引
     │   ├── loader.py, excerpt.py, embedding.py
-    ├── retrieval/             # 题库检索（RAG）：ChromaDB 向量检索 + 反锚定 reference_block
-    │   ├── database_client.py # ChromaDB 向量检索（27,984 条 AI-MO 竞赛题）
-    │   ├── tfidf_client.py    # TF-IDF 轻量检索（无 LFS 环境的替代，默认不启用）
+    ├── retrieval/             # 题库检索（RAG）：向量检索 + 降级链 + 反锚定 reference_block
+    │   ├── database_client.py # ChromaDB 向量检索（27,984 条 AI-MO 竞赛题）+ LFS 指针识别 + 进程级熔断
+    │   ├── resilient_client.py# 降级链：向量不可用即永久降级 TF-IDF（B3）
+    │   ├── tfidf_client.py    # TF-IDF 轻量检索（无 LFS 环境的替代；短解答清空）
     │   └── reference_block.py # 反锚定提示块 + 参数差异对比
     ├── problem/               # 题目分析：题型画像 + SHA256 锚定
     │   ├── profile.py, anchor.py
@@ -301,9 +311,16 @@ assert isinstance(r, dict) and r["final_response"].strip()
 ### 4. 全卷完成率引擎（PaperPacer）
 
 官方约束：112 题、平台并发 3、智能体总运行 6h 封顶，超出后未答题不计分。
-PaperPacer 用**题间预算池**动态计算每题软预算帽：已用全卷时间 ÷ 剩余题数超速时收紧
-（仍 ≥ 120s 保底），健康时给足理想预算。与难度画像（easy 600 / medium 1200 / hard 1200）
-取 min 作为该题软预算。只收紧软预算（可选阶段购买力），不动 1200s 平台硬限。
+PaperPacer 用**题间预算池**动态计算每题软预算帽：`剩余全卷时间 × 节奏目标 ÷ 剩余题数 × 并发度`，
+超速时收紧（仍 ≥ 120s × 并发度 保底），健康时给足理想预算。与难度画像
+（easy 600 / medium 1200 / hard 1200）取 min 作为该题软预算。只收紧软预算
+（可选阶段购买力），不动 1200s 平台硬限。
+
+**B3 修正**（B2 全卷 24732s、超 6h 上限 3132s，根因即此）：节奏目标 `TARGET_FACTOR=0.95`
+而非 1.00（6h 是硬限，把目标钉在硬限上等于每次耗时波动都直接越线）；并发度必须乘
+（漏乘会把单题预算算成 1/3）；速度预测需最小样本量。配套三处钳制缺一不可——
+节点超时受软预算约束（`timeout_for`）、首轮上限动态化（`first_attempt_cap`）、
+压缩调用不参与定价（`last_attempt_cost`），只钳其一等于把压缩救援挤掉。
 
 ### 5. 过程审计门（Critic）
 
@@ -360,7 +377,8 @@ PaperPacer 用**题间预算池**动态计算每题软预算帽：已用全卷�
 
 - **ChromaDB 向量检索**：向量库 `database/chroma.sqlite3`（27,984 条 AI-MO 竞赛题，cosine 相似度）+ `Qwen3-Embedding-0.6B`（1024 维）嵌入，照 ICMAnew 99.11 分作品复现——大文件直接进项目目录、Git LFS 托管，模型另有 ModelScope 在线兜底；
 - **注入两个子代理**：top-k 条题面+解答随 skill 文档一并进入 reasoning 与 python 提示词（`db_retrieval_top_k=2`），检索内容与注入字符数均写入 trace 留证；
-- **反锚定机制（reference_block）**：近似题结论不可直接迁移——提示块显式声明"参考题与本题参数不同"，要求数值参数差异对比、只借鉴解题方法不照抄结论，防误抄近似题。
+- **反锚定机制（reference_block）**：近似题结论不可直接迁移——提示块显式声明"参考题与本题参数不同"，要求数值参数对比、只借鉴解题方法不照抄结论，防误抄近似题；
+- **环境自适应熔断 + TF-IDF 降级（B3）**：评测环境不执行 `git lfs pull`，向量库与权重都是 LFS 指针（B2 的 95.54 分即在此条件下取得）。`_is_lfs_pointer` 零成本识别（先查索引再导重依赖，避免为注定失败的加载去解析 tokenizer/读权重/触发在线下载），进程级 `_SHARED_FAILURE` 熔断让后续调用 0.001s 快速失败，`ResilientRetriever` 永久降级到 TF-IDF 检索器（`data/retrieval_corpus.json` + scikit-learn，均不在 LFS）。降级能力有明确边界：语料 1,555 条（短于 30 字符的纯答案已清空，仅留题面供方法与参数比对），留一实测 top-1 相似度中位数 0.370，仅 18% 越过 `db_reference_min_similarity=0.55` 门控——多数题得到空参考，**刻意不放松门控**（宁可无参考，也不让近邻把两条分支同时带偏）。
 
 ### 12. 断点续写 / 答案前置 / 完整二次推理（参照 math_agent）
 
@@ -395,6 +413,17 @@ B2 照 99.11 分参考作品 ICMAnew 复现七块判分口径与检索质量的�
 - **传输卡死跳过重试**（`utils/llm/retry.py`）：失败耗时 ≥ 0.8×socket 超时（624s）判定卡死，放弃满长重试、把时间交给调用方压缩路径；
 - **英文题确定性分类兜底**（`utils/skills_util/loader.py`）：按词边界命中英文判别词 + ICF 加权，LLM 不可用时英文题不再落入复分析/抽象代数的 TF-IDF 密度噪声。
 
+### 15. 全卷节奏修复与 RAG 环境自适应（B3 新增）
+
+B2 得分 95.54（107/112），但 agent 阶段实测 24732s 超出 6h 硬限——PaperPacer 全程未收紧（见第 4 节），且评测环境的向量检索必然失效却每次调用都重走加载路径。B3 修复这两条：
+
+- **全卷节奏**（`utils/budget/paper_pacer.py`）：节奏目标 `TARGET_FACTOR=0.95`（乘在剩余时间上，不是给算出的 cap 打折——打折会被后续题"还回来"，收敛点不变）、补乘并发度、速度预测加最小样本量。112 题事件驱动模拟（并发 3，demand~N(662s, 250s)，30 次）：目标 1.00 下 8/30 超时、最坏 21831s；**0.95 下 0/30、最坏 21555s**；
+- **配套钳制三件套**（缺一不可）：`TimeBudget.timeout_for` 让节点超时受软预算约束（原只钳平台硬限，收紧对已发起的调用无效）；`first_attempt_cap` 让首轮上限随剩余预算收紧，给压缩救援留额度（健康预算下仍是 550s，行为不变）；`last_attempt_cost` 定价排除 compressed 标签（27s 的压缩调用会把 132s 的完整二次验证"定价"成永远付得起）；
+- **活跃题数配对**（`graph/main_graph.py`）：`mark_done(idx)` 与 `mark_started` 配对递减，并发度估计才准确；`idx` 提到 `try` 外初始化，避免异常路径在 `finally` 里再抛 `NameError`；
+- **RAG 熔断与降级**（`utils/retrieval/`）：LFS 指针零成本识别 + 进程级熔断 + `ResilientRetriever` 向量→TF-IDF 永久降级（详见第 11 节）。评测环境实测：全卷 112 题检索失败总耗时 0.09s，且不导入 torch/sentence-transformers。
+
+> ⚠️ 收紧是有代价的：soft_total 降到 ~590s 时 `remaining() = soft_total − reserve(300) < fast_path_threshold(300)`，该题进入 fast_path——跳过压缩答案后的完整二次验证与 reconciliation 轮次，**但主推理调用始终执行**（`first_attempt_cap` 保证首轮有 90s 下限、节点上限容得下"首轮 + 压缩救援"整条链）。模拟显示难度偏斜时中位题仍拿到 1200s 上限，收紧主要作用于尾部难题。
+
 ---
 
 ## 📊 核心配置
@@ -404,7 +433,8 @@ B2 照 99.11 分参考作品 ICMAnew 复现七块判分口径与检索质量的�
 | `model` | `intern-s2-preview-397b` | 默认模型，可由 `INTERN_MODEL` 覆盖 |
 | `problem_time_budget_s` | `1200` | 单题墙钟预算（平台硬限制 20 分钟） |
 | `time_reserve_s` | `300` | 预留时间：越过后不再购买可选 LLM 阶段 |
-| `paper_total_seconds` | `21600` | 全卷 6h 硬限（PaperPacer 预算池） |
+| `paper_total_seconds` | `21600` | 全卷 6h 硬限（PaperPacer 预算池）；实际节奏目标 = 该值 × `TARGET_FACTOR` |
+| `TARGET_FACTOR`（PaperPacer） | `0.95` | 节奏目标占全卷硬限的比例（B3）：6h 是硬限，把目标钉在硬限上等于每次耗时波动都直接越线——1.00 下模拟 8/30 超时、最坏 21831s，0.95 下 0/30、最坏 21555s |
 | `paper_min_work_s` | `180` | 软预算下限余量：收紧后 soft_total ≥ reserve + 此值，避免"落后"时 `remaining()` 开局为负导致 LLM 全拒 |
 | `difficulty_soft_budgets` | `{easy:600, medium:1200, hard:1200}` | 难度画像软预算（A3 上调 medium 1000→1200，三级熔断留足购买力） |
 | `reconciliation_max_rounds` | `2` | 调解轮次上限 |
@@ -426,6 +456,7 @@ B2 照 99.11 分参考作品 ICMAnew 复现七块判分口径与检索质量的�
 | `enable_form_align` | `true` | 答案形式对齐 |
 | `enable_proof_deepener` | `true` | 证明结构补强 |
 | `db_retrieval_top_k` | `2` | 题库检索 top-k 条数（2 条同时进推理/验证两个子代理） |
+| `db_reference_min_similarity` | `0.55` | 检索参考注入门控：低于该相似度不注入。TF-IDF 降级路径下仅 18% 的题能越过，**刻意不放松**——宁可无参考，也不让近邻把两条分支同时带偏 |
 | `first_attempt_timeout_s` | `550` | 首轮推理/Python 单次墙钟上限（触发即转续写） |
 | `full_retry_estimate_s` | `220` | 完整二次推理/重生成估时（A8 首轮 8192 token @ ~50 tok/s + 164s 余量，只作 can_afford 估时） |
 | `enable_deep_direct_compressed` | `true` | 深解题（proof + deep_solver_domains）首轮直接压缩 prefill 开关（A3；false 回退 A2 三级路径） |
@@ -458,7 +489,8 @@ B2 照 99.11 分参考作品 ICMAnew 复现七块判分口径与检索质量的�
 | **A8** | 目标 75 分+ | 回退 A7 恢复 A4 基线 + 计算题工具主解（去锚定） | max_tokens 回退 8192 + 恢复 critic/modular_guard；Python 分支去锚定独立求解（`python_independent_solve`），释放工具执行 67% vs 心算 34% |
 | **A9** | 目标 75 分+ | 回退 A8 恢复 A4 基线 + 条件求解器 + 运筹学守卫 | 回退去锚定/运筹学压缩（A8 负收益 −6 题）；候选空时 Python 独立求解（条件求解器框架）；运筹学题注入 scipy.optimize 求解器模板 + 静态核查 |
 | **B1** | 目标 90 分+ | 题库检索 TF-IDF → ChromaDB 向量库（照 ICMAnew 99.11 分作品） | 向量库 `database/chroma.sqlite3`（27,984 条 AI-MO 竞赛题）+ `Qwen3-Embedding-0.6B` 嵌入；大文件 Git LFS 托管 + 模型 ModelScope 在线兜底，检索失败降级为空 |
-| **B2** | 目标 90 分+ | 判分口径对齐（照 ICMAnew 99.11 分作品） | 家族指纹门 + 112 张解法直达卡片 + 判分口径护栏（三档判定）+ 客观题独立盲复核 + 两段式候选排序 + 传输卡死 stall-skip + 英文题 latin_score 兜底 |
+| **B2** | **95.54 分**（107/112，4 invalid） | 判分口径对齐（照 ICMAnew 99.11 分作品） | 家族指纹门 + 112 张解法直达卡片 + 判分口径护栏（三档判定）+ 客观题独立盲复核 + 两段式候选排序 + 传输卡死 stall-skip + 英文题 latin_score 兜底。⚠️ agent 阶段 24732s 超 6h 硬限 3132s（PaperPacer 未收紧） |
+| **B3** | 目标 95 分+ | 全卷节奏修复 + RAG 环境自适应 | PaperPacer 三处缺陷修复（阈值 1.15→0.95 / 补乘并发度 / 最小样本量）+ 节点超时受软预算约束 + 首轮上限动态化 + 压缩调用不参与定价 + 活跃题数配对；LFS 指针识别 + 进程级熔断 + TF-IDF 永久降级（评测环境实测全卷检索失败 0.09s，且不导入 torch） |
 
 ---
 

@@ -25,10 +25,22 @@ from typing import Any, Dict, List, Optional
 #: 外部语料目录、模型权重或 LFS 数据。
 _DEFAULT_CORPUS = Path(__file__).resolve().parent.parent.parent / "data" / "retrieval_corpus.json"
 
+#: 解答短于此长度视为"只有答案、没有过程"。语料中约 75% 的条目属于这一类
+#: （如 solution="070"）——它们源自公开样例的 answer 字段，比赛规则明确禁止
+#: 依赖该字段，且把裸答案注入推理分支正是反锚定机制要防的事。这类条目只保留
+#: 题面（供方法与参数比对），解答字段清空。
+_MIN_SOLUTION_CHARS = 30
+
 
 def _norm(text: str) -> str:
     """归一化题面：折叠空白，便于 TF-IDF 与去重时得到稳定特征。"""
     return re.sub(r"\s+", " ", str(text or "")).strip()
+
+
+def _usable_solution(solution: Any) -> str:
+    """只返回可迁移的解答过程；纯答案（过短）返回空串。"""
+    text = str(solution or "").strip()
+    return text if len(text) >= _MIN_SOLUTION_CHARS else ""
 
 
 class TfidfRetriever:
@@ -105,7 +117,7 @@ class TfidfRetriever:
                     continue
                 results.append({
                     "problem": str(rec.get("problem") or ""),
-                    "solution": str(rec.get("solution") or ""),
+                    "solution": _usable_solution(rec.get("solution")),
                     "similarity": float(sims[i]),
                     "source": str(rec.get("source") or ""),
                     "subject": str(rec.get("subject") or ""),

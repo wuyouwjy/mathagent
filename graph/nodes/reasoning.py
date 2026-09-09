@@ -12,7 +12,7 @@ from utils.answer.conclusion_salvage import salvage_conclusion
 from utils.answer.cot_stripper import is_placeholder_answer, strip_cot_prefix
 from utils.skills_util.solution_cards import select_excerpt_with_cards as select_skill_excerpt
 from utils.retrieval.reference_block import build_reference_block
-from utils.budget.affordability import can_afford_retry, last_attempt_cost
+from utils.budget.affordability import can_afford_retry, first_attempt_cap, last_attempt_cost
 from utils.budget.timeout import NodeTimeoutError, run_with_timeout
 from utils.problem.profile import (
     answer_coverage_clause,
@@ -731,12 +731,17 @@ def reasoning_agent_node(state, config):
     # A3 手段2：证明题与深解领域（数论/组合/高代/抽代）的完整 CoT 几乎必超 8192
     # （A2 实测完整二次推理 80% 也截断）。首轮先试压缩 prefill（答案前置 + 抑制
     # 私有 CoT，~150s），成功即省下"注定截断"的完整 CoT + 完整二次推理（~384s）；
-    # 压缩产出不完整则回退下面的完整 CoT 兜底，不损失深度思考。fast_path 时间
-    # 紧张或开关关闭时跳过，直接走最短路径。
+    # 压缩产出不完整则回退下面的完整 CoT 兜底，不损失深度思考。
+    #
+    # 2026-09-09 修正（B2 超时 3132s 的成因之一）：此处原为
+    # `and not (clock and clock.fast_path())`——"时间紧张就跳过压缩"。但压缩
+    # （~150s）恰恰是这里最短的路径，跳过它等于把最贵的完整 CoT（首轮 550s 上限，
+    # 且深解领域几乎必截断）留到最没有时间的时候。fast_path 下更该走压缩：它首轮
+    # 就把答案锁死，而完整 CoT 的产出是"截断 + 救援"两段开销。开关仍可整体关闭。
     deep_direct = (CONFIG.get("enable_deep_direct_compressed", True)
                    and (question_mode == "proof"
                         or category in CONFIG.get("deep_solver_domains", [])))
-    if deep_direct and not (clock and clock.fast_path()):
+    if deep_direct:
         deep_resp, _deep_fail = _compressed_reasoning_retry(
             deps, hinted_base, coverage=coverage_clause)
         if deep_resp is not None:
@@ -784,10 +789,14 @@ def reasoning_agent_node(state, config):
         # Q1 of the 2026-07-29 run lost its entire reasoning branch this way: the
         # exception propagated out of the node and the wrapper substituted an empty
         # result, so cross-validation saw a placeholder and had one candidate left.
+        # 首轮上限按本题剩余预算动态收紧（健康预算下等于 550s，行为不变）：固定的
+        # 550s 会把收紧后的 soft_total 一次吃光，压缩救援随即被节点超时掐掉。
+        first_cap = first_attempt_cap(
+            clock, _FIRST_ATTEMPT_TIMEOUT_S, _COMPRESSED_CALL_ESTIMATE_S)
         try:
-            if attempts == 1 and _FIRST_ATTEMPT_TIMEOUT_S:
-                # 首轮调用加单次墙钟上限：难题上首轮会把整个节点 1100s 上限吃光、
-                # 被 node_wrapper 掐断后压缩续写永远没机会触发。压到 550s 后，
+            if attempts == 1 and first_cap:
+                # 首轮调用加单次墙钟上限：难题上首轮会把整个节点上限吃光、
+                # 被 node_wrapper 掐断后压缩续写永远没机会触发。压到上限后，
                 # 超时就地转入压缩续写（复用首轮已算结论 + 答案前置 prefill），
                 # 而不是让 node_wrapper 掐死整条分支（math_agent 断点续写核心）。
                 resp = run_with_timeout(
@@ -800,7 +809,7 @@ def reasoning_agent_node(state, config):
                         time_budget=deps.time_budget,
                         label="reasoning",
                     ),
-                    _FIRST_ATTEMPT_TIMEOUT_S,
+                    first_cap,
                 )
             else:
                 resp = chat_with_retry(
@@ -817,7 +826,7 @@ def reasoning_agent_node(state, config):
             if is_first_timeout and clock:
                 # 首轮被单次墙钟上限切断：把上限耗时记入账，让对账/重试定价看到
                 # 完整调用的真实成本（而非把后续压缩续写的短耗时误当成便宜）。
-                clock.record("reasoning", _FIRST_ATTEMPT_TIMEOUT_S)
+                clock.record("reasoning", first_cap)
             deps.logger.warning("Reasoning attempt %s failed: %s", attempts, exc)
             trace.append({"attempt": attempts, "status": "failed", "error": str(exc)[:200]})
             # 传输失败（8 路并发下 780s 读超时为主）不再直接弃分支（2026-08-10

@@ -119,14 +119,29 @@ class TimeBudget:
         return self.remaining() < self.fast_path_threshold
 
     def timeout_for(self, ceiling: float | None) -> float | None:
-        """Clamp a node's configured ceiling to what the deadline actually allows.
+        """Clamp a node's configured ceiling to what the problem's budget allows.
 
-        A node may never outlive the problem: a generous per-node ceiling catches
-        true hangs, while the deadline caps the real world. Returns a small
-        positive floor rather than 0 so an already-late node still gets a chance
-        to return the answer it has instead of raising.
+        两个上限取 min：
+
+        * ``remaining_hard()`` —— 平台硬限，绝不能越过；
+        * ``soft_total - elapsed`` —— 本题还愿意为**这一个节点**花的时间。
+
+        只钳硬限是不够的（2026-09-09 修正）：PaperPacer 收紧 soft_total 后，节点
+        仍能一路跑到 1200s 硬限，收紧对"已经发起的那一次调用"完全无效——B2 全卷
+        因此跑到 24732s（超 6h 上限 3132s，不计分）。软预算对调用方是"还能不能
+        发起"（remaining()，已扣 reserve），对节点自身则是"最多跑多久"（本方法，
+        不扣 reserve——调用一旦发出无法取消，reserve 正是留给它跑完的余地）。
+
+        注意截断代价：reasoning_agent 被掐断时 error_handler 的 fallback 返回**空
+        answer**，所以本上限必须容得下"首轮 + 压缩救援"整条链。这与首轮调用上限
+        动态化（reasoning._first_attempt_cap）是一对，只钳其一等于把救援挤掉。
+
+        Returns a small positive floor rather than 0 so an already-late node still
+        gets a chance to return the answer it has instead of raising.
         """
-        allowed = max(1.0, self.remaining_hard())
+        hard = max(1.0, self.remaining_hard())
+        soft = max(1.0, self.soft_total - self.elapsed())
+        allowed = min(hard, soft)
         if ceiling is None:
             return allowed
         return min(float(ceiling), allowed)
