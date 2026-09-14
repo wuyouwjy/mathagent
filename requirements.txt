@@ -1,7 +1,6 @@
 # Competition submission dependencies (T3)
 #
 # LangGraph-based multi-agent math reasoning system.
-# Adapted from ICMAnew-main architecture (50+ score).
 #
 # CORE: LangGraph orchestration
 langgraph>=1.2.0,<2.0.0

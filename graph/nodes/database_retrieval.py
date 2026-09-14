@@ -1,7 +1,7 @@
 """Database retrieval node: fetch the top-k similar problems+solutions.
 
 Runs before reasoning_agent and python_agent to provide reference examples.
-轻量 TF-IDF 实现（utils.retrieval.TfidfRetriever），替代 ICMAnew 的 chroma 路径。
+轻量 TF-IDF 实现（utils.retrieval.TfidfRetriever），替代向量库 chroma 路径。
 """
 
 from typing import Any, Dict

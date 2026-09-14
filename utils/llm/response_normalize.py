@@ -1,4 +1,4 @@
-"""官方 client 响应归一化（平台防线，移植自第三名 VeritasMath）。
+"""官方 client 响应归一化（平台防线）。
 
 平台注入的 client.chat 返回值不一定是 str——可能是 OpenAI choices dict、
 content blocks 数组、bytes、嵌套 message 或带 content 属性的对象。基线方案
@@ -96,9 +96,9 @@ def chat_compatible(client, messages, temperature, max_tokens):
 
     平台 client 的 chat 签名未知：可能只接受 messages，或不接受关键字参数。
     按 关键字三参 → 位置三参 → 仅 messages 三级降级探测；探测结果缓存在
-    client 对象上（`_veritas_chat_mode`），避免每次调用都付一次 TypeError。
+    client 对象上（`_chat_mode`），避免每次调用都付一次 TypeError。
     """
-    mode = getattr(client, "_veritas_chat_mode", None)
+    mode = getattr(client, "_chat_mode", None)
     attempts = {
         "kwargs": lambda: client.chat(
             messages=messages, temperature=temperature, max_tokens=max_tokens),
@@ -115,7 +115,7 @@ def chat_compatible(client, messages, temperature, max_tokens):
         try:
             result = attempts[name]()
             try:
-                setattr(client, "_veritas_chat_mode", name)
+                setattr(client, "_chat_mode", name)
             except Exception:  # noqa: BLE001 - 只读对象不设缓存
                 pass
             return result

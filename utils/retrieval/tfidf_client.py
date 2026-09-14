@@ -1,8 +1,8 @@
-"""TF-IDF 题库检索器（轻量替代 ICMAnew 的 chroma + embedding 模型）。
+"""TF-IDF 题库检索器（轻量替代向量库 chroma + embedding 模型）。
 
-为什么不用 chroma：ICMAnew 的向量库（chroma.sqlite3）与 embedding 模型权重
-（Qwen3-Embedding-0.6B）在 git 里都是 LFS 指针，本地 checkout 无真实数据；其
-语料目录（E:/test/AI-MO）也不存在于评测环境。照搬 chroma 路径等于在评测时
+为什么不用 chroma：原向量库（chroma.sqlite3）与 embedding 模型权重
+在 git 里都是 LFS 指针，本地 checkout 无真实数据；其
+语料目录也不存在于评测环境。照搬 chroma 路径等于在评测时
 "检索永远为空"。
 
 本实现用纯 scikit-learn 的 TF-IDF（char n-gram，捕捉 LaTeX 符号、CJK 子串与
@@ -79,7 +79,7 @@ class TfidfRetriever:
         return self._matrix is not None and bool(self._records)
 
     def query(self, problem: str, top_k: int = 3) -> List[Dict[str, Any]]:
-        """返回 top-k 条相似题，结构对齐 ICMAnew 的 db_client.query。
+        """返回 top-k 条相似题，结构对齐 db_client.query。
 
         返回项键：problem / solution / similarity / source / subject。
         任何失败（无语料、加载失败、查询异常）都返回空列表，绝不抛异常。

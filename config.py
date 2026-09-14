@@ -34,7 +34,7 @@ CONFIG = {
     # candidate list (all 18 domains go in one prefilled call).
     "classifier_top_k": 3,
     # 题库检索（RAG）：解题前用原题检索相似竞赛题，把 top-k 条题面+解答作为
-    # few-shot 参考注入推理与验证两个子代理（ICMAnew 的差异化能力）。检索条数
+    # few-shot 参考注入推理与验证两个子代理（差异化能力）。检索条数
     # 2：两条全部同时进两个子代理；更多条数会挤占 prompt 预算且引入更多近似题
     # 误导风险（反锚定说明见 utils/retrieval/reference_block.py）。
     "db_retrieval_top_k": 2,
@@ -98,10 +98,10 @@ CONFIG = {
     # 直答与确定性拼装；node_wrapper 的硬超时兜底最坏情况）。评委实测：按
     # 软预算定价时压缩重试 30 题 0 次放行，6 题以捞回残片出厂。
     "compressed_reserve_margin_s": 150,
-    # 首轮推理的单次墙钟上限（断点续写三件套之一，移植自 math_agent）。8192 token
+    # 首轮推理的单次墙钟上限（断点续写三件套之一）。8192 token
     # 首轮 @ ~50 tok/s ≈ 164s，550s 只在并发拥堵/模型变慢时才触发；一旦触发就
     # 就地转入压缩续写（复用首轮已算结论 + 答案前置 prefill），而不是让 node_wrapper
-    # 的 1100s 掐死整条分支（math_agent 实测 idx 0/7/11/12/13 无压缩重试记录、落
+    # 的 1100s 掐死整条分支（实测 idx 0/7/11/12/13 无压缩重试记录、落
     # emergency_direct_answer 错答）。
     "first_attempt_timeout_s": 550,
     # 完整二次推理/重生成的估时（秒）：首轮 8192 token 耗尽后，若时间充裕先做一次
@@ -109,7 +109,7 @@ CONFIG = {
     # @ ~50 tok/s ≈ 164s，220s 覆盖拥堵余量。只作 can_afford 估时，实测成本仍以
     # last_attempt_cost 为准。
     "full_retry_estimate_s": 220,
-    # ==================== 移植自第三名（VeritasMath）的升级配置 ====================
+    # ==================== 升级配置 ====================
     # 全卷完成率引擎（PaperPacer）：平台 6h 全卷硬限。官方实证 V1 每题固定 1200s
     # 软预算导致 112 题只完成 16 题（14.29%）。按"剩余全卷时间÷剩余题数"动态
     # 收紧每题软预算，保证 6h 内 112 题全部产出答案（完成率 100% > 单题完美）。

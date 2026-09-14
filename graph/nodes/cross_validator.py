@@ -126,8 +126,8 @@ def cross_validator_node(state, config):
             confidence = 0.45 if blank_gap else 0.78
             reason = (f"客观题快速路径已提取{question_mode}答案"
                       + ("；但分项数少于题面空位数，答案可能不完整" if blank_gap else ""))
-            # VeritasMath 移植（启元实证 P0）：判断题双向确认。Intern-S2 对
-            # "是否"题存在系统性"否"偏向（启元实测 90% 判断错题同根因），单轮
+            # 判断题双向确认（实证 P0）。Intern-S2 对
+            # "是否"题存在系统性"否"偏向（实测 90% 判断错题同根因），单轮
             # 方向不可靠。确认轮一致才采纳；反向则温度0重解取第三票。
             # 仅 true_false 题型、答案为判断词、预算充足时触发，其余零成本。
             if question_mode == "true_false" and CONFIG.get("enable_judge_confirm", True):

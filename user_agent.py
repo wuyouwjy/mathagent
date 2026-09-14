@@ -1,7 +1,7 @@
 """user_agent.py — ReasoningAgent for 2026 Challenge Cup (T3).
 
-LangGraph-based multi-agent math reasoning system adapted from the ICMAnew-main
-architecture (50+ score). Replaces the T2 svragent-based multi-route pipeline
+LangGraph-based multi-agent math reasoning system. Replaces the T2 svragent-based
+multi-route pipeline
 with a full graph-based orchestration: classify → solve (reasoning + Python) →
 cross-validate → coordinate, with semantic arbitration and reconciliation when
 answers conflict.

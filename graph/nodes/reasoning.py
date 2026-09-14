@@ -29,7 +29,7 @@ def _reference_examples_block(examples, problem: str = "") -> str:
     """推理提示词里的题库参考区块（题面 800 / 解答 1200 字符）。
 
     传入本题题面，让区块能逐条摆出与示例的规模参数差异——检索到的近似题被当成
-    本题照抄结论，是评测中最贵的一类失分（ICMAnew idx 48、17）。
+    本题照抄结论，是评测中最贵的一类失分。
     """
     return build_reference_block(examples, problem_chars=800, solution_chars=1200,
                                  problem=problem)
@@ -52,7 +52,7 @@ def _parse_reasoning_output(response, question_mode="computation"):
         r["answer"] = _distill_answer(am.group(1).strip())
     # 结论速览先行："## 结论速览" 是压缩重试输出最前的压缩结论（\boxed{}），当
     # 模型因 max_tokens 截断、"## 最终答案" 还没写出来时，开头的结论速览仍是
-    # 可用的答案落点（math_agent 提分核心：答案前置，截断也不丢答案）。仅在
+    # 可用的答案落点（提分核心：答案前置，截断也不丢答案）。仅在
     # "最终答案"缺失时作为兜底，并打上来源标记，避免与四章节答案混淆。
     if not r["answer"]:
         qc = re.search(r"## 结论速览\s+(.*?)(?=##|$)", response, re.DOTALL)
@@ -212,7 +212,7 @@ def _distill_answer(text):
             return joined
 
     # 2.5. \boxed 结论：\boxed{...} 是模型显式提交的最终结论，优先于引导语与括注
-    # （math_agent 答案前置的必要配套：prefill 种子是 "## 结论速览\n\boxed{"，
+    # （答案前置的必要配套：prefill 种子是 "## 结论速览\n\boxed{"，
     # 结论速览节里就是 \boxed{...}，必须提炼出括号内的值而非整行）。曾出现整节
     # 「所有…为 / $$\boxed{ab\ge e^3}$$ /（即…）」按旧逻辑落到策略 3 取最后一行
     # 括注、把公式丢了。多个 boxed 用「；」连接保留全部结论。
@@ -305,7 +305,7 @@ _COMPRESSED_CALL_ESTIMATE_S = 200
 _COMPRESSED_RESERVE_MARGIN_S = CONFIG.get("compressed_reserve_margin_s", 150)
 
 #: 首轮推理调用的单次墙钟上限。难题上首轮会把整个节点 1100s 上限吃光、被
-#: node_wrapper 掐断后压缩重试永远没机会触发（math_agent 实测 idx 0/7/11/12/13
+#: node_wrapper 掐断后压缩重试永远没机会触发（实测 idx 0/7/11/12/13
 #: 均报 "operation timed out after 1100s"、attempts=0、无压缩重试记录，最终落
 #: emergency_direct_answer 错答）。压到 550s 后，超时就地转入压缩续写（复用首轮
 #: 已算结论 + 答案前置 prefill），而不是让 node_wrapper 掐死整条分支。8192 token
@@ -321,7 +321,7 @@ _FULL_RETRY_ESTIMATE_S = CONFIG.get("full_retry_estimate_s", 220)
 #: 压缩重试的 assistant 种子。以内容开头接管助手轮，模型进入续写模式后不再打开
 #: reasoning_content（与分类器/仲裁器 prefill 同机制，见 utils/prefill.py 实测），
 #: 因此 8192 token 全部落在四章节上。种子从"## 结论速览"开始：先让模型把结论
-#: 写出来（答案前置），再展开后续章节，截断也不丢答案（math_agent 提分核心）。
+#: 写出来（答案前置），再展开后续章节，截断也不丢答案（提分核心）。
 _COMPRESSED_PREFILL = "## 结论速览\n\\boxed{"
 
 _COMPRESSED_INSTRUCTION = (
@@ -374,7 +374,7 @@ def _extract_clues(text, limit=2000):
 
     散文泄漏（模型把私有 CoT 写进 content）里往往已经一路推导到了关键结论，
     只是没来得及写进 '## 最终答案' 章节就被截断。这些结论可信、可直接复用，
-    让续写/重试不必从头重算（math_agent 断点续写核心：曾实测首轮已算出正确值、
+    让续写/重试不必从头重算（断点续写核心：曾实测首轮已算出正确值、
     从头重解却产出错误值）。
     """
     from utils.answer.cleanliness import extract_partial_findings
@@ -417,7 +417,7 @@ def _compressed_reasoning_retry(deps, base_prompt,
         return None, "compressed_retry_unaffordable"
     instruction = _COMPRESSED_INSTRUCTION.format(failure=failure, coverage=coverage)
     # 复用首轮已算出的结论：压缩重试不再从头重解，而是把首轮 CoT 里已经推导出的
-    # 关键结果作为线索注入（math_agent 断点续写核心）。
+    # 关键结果作为线索注入（断点续写核心）。
     clue_block = _extract_clues(first_resp) if first_resp else ""
     try:
         resp = chat_prefilled(
@@ -441,7 +441,7 @@ def _compressed_reasoning_retry(deps, base_prompt,
 
 
 def _full_reasoning_retry(deps, base_prompt, first_resp=None):
-    """首轮 token 耗尽后的完整二次推理（断点续写升级，math_agent 思想）。
+    """首轮 token 耗尽后的完整二次推理（断点续写升级）。
 
     与压缩重试的区别：不用 prefill 抑制私有思考，而是带首轮已算结论做一次
     完整 8192 token 推理。对"首轮被打断、还没想清楚"的难题，这比"别思考、
@@ -788,7 +788,7 @@ def reasoning_agent_node(state, config):
                 # 首轮调用加单次墙钟上限：难题上首轮会把整个节点 1100s 上限吃光、
                 # 被 node_wrapper 掐断后压缩续写永远没机会触发。压到 550s 后，
                 # 超时就地转入压缩续写（复用首轮已算结论 + 答案前置 prefill），
-                # 而不是让 node_wrapper 掐死整条分支（math_agent 断点续写核心）。
+                # 而不是让 node_wrapper 掐死整条分支（断点续写核心）。
                 resp = run_with_timeout(
                     lambda: chat_with_retry(
                         client,
