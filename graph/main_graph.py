@@ -118,10 +118,9 @@ class MathAgentGraph:
         except Exception:  # noqa: BLE001 - 完成率引擎是锦上添花，失败不拖垮单题
             pass
         # 题库检索器惰性创建并跨题复用：首次 run 创建后缓存到 self.retriever，之后
-        # 每题复用同一实例。默认是 ResilientRetriever（向量检索 → TF-IDF 降级链）：
-        # 向量库不可用时由它永久降级，不会每题重试加载（2026-09-09：评测环境不执行
-        # `git lfs pull`，chroma.sqlite3 是 LFS 指针，重试是纯浪费）。检索是纯增益
-        # 节点，任何初始化失败都降级为"无参考示例"，绝不拖垮求解。
+        # 每题复用同一实例。默认是 ResilientRetriever（当前唯一检索路径是 TF-IDF，
+        # 零外部模型——向量检索已按要求移除）。检索是纯增益节点，任何初始化失败
+        # 都降级为"无参考示例"，绝不拖垮求解。
         retriever = self.retriever
         if retriever is None:
             try:

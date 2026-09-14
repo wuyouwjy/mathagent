@@ -17,6 +17,13 @@ the behaviour degrades to the old head-truncation, so a document without module
 headings is unaffected.
 """
 
+# ---------------------------------------------------------------------------
+# 许可声明（GNU AGPLv3）
+# 本文件的核心实现派生自一个以 GNU Affero General Public License v3 许可发布的
+# 开源数学求解项目（许可证全文见项目根目录 LICENSE）。本项目对其做了改写与增补，
+# 本文件及本项目同样以 AGPLv3 发布。
+# ---------------------------------------------------------------------------
+
 from __future__ import annotations
 
 import re

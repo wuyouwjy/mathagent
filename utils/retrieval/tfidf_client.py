@@ -1,17 +1,14 @@
-"""TF-IDF 题库检索器（轻量替代 ICMAnew 的 chroma + embedding 模型）。
+"""TF-IDF 题库检索器（本系统唯一的题库检索路径，零外部模型）。
 
-为什么不用 chroma：ICMAnew 的向量库（chroma.sqlite3）与 embedding 模型权重
-（Qwen3-Embedding-0.6B）在 git 里都是 LFS 指针，本地 checkout 无真实数据；其
-语料目录也不存在于评测环境。照搬 chroma 路径等于在评测时
-"检索永远为空"。
+比赛约束下只能使用指定模型，向量检索所依赖的外部嵌入模型已按要求移除，故本
+系统只保留纯统计的 TF-IDF 检索。
 
 本实现用纯 scikit-learn 的 TF-IDF（char n-gram，捕捉 LaTeX 符号、CJK 子串与
 英文子词），语料从比赛公开的 sample_data 离线提取成紧凑 JSON。检索近邻命中
 "措辞接近"的相似题——这正是 RAG 要的东西——且零新增依赖、任何环境可跑。
 
-相似度是余弦相似度（L2 归一化后点积），只用于排序与展示；绝对值与 embedding
-的尺度不同，但排序与"近似题"识别能力等价，且反锚定机制（reference_block）不
-依赖相似度的绝对阈值。
+相似度是余弦相似度（L2 归一化后点积），只用于排序与展示；反锚定机制
+（reference_block）不依赖相似度的绝对阈值。
 """
 
 from __future__ import annotations
@@ -91,7 +88,7 @@ class TfidfRetriever:
         return self._matrix is not None and bool(self._records)
 
     def query(self, problem: str, top_k: int = 3) -> List[Dict[str, Any]]:
-        """返回 top-k 条相似题，结构对齐 ICMAnew 的 db_client.query。
+        """返回 top-k 条相似题，结构对齐向量检索的 db_client.query。
 
         返回项键：problem / solution / similarity / source / subject。
         任何失败（无语料、加载失败、查询异常）都返回空列表，绝不抛异常。

@@ -41,12 +41,12 @@ CONFIG = {
     # candidate list (all 18 domains go in one prefilled call).
     "classifier_top_k": 3,
     # 题库检索（RAG）：解题前用原题检索相似竞赛题，把 top-k 条题面+解答作为
-    # few-shot 参考注入推理与验证两个子代理（ICMAnew 的差异化能力）。检索条数
+    # few-shot 参考注入推理与验证两个子代理（参考开源项目的差异化能力）。检索条数
     # 2：两条全部同时进两个子代理；更多条数会挤占 prompt 预算且引入更多近似题
     # 误导风险（反锚定说明见 utils/retrieval/reference_block.py）。
     "db_retrieval_top_k": 2,
     # 相似度门控：低于此值的近邻与本题结构相差过大，注入的误导风险高于方法参考
-    # 价值（ICMAnew 评委意见改进点 1），不足即弃、宁缺毋滥。
+    # 价值（评委意见改进点 1），不足即弃、宁缺毋滥。
     "db_reference_min_similarity": 0.55,
     "computation_tolerance": 1e-6, "proof_confidence_threshold": 0.7,
     # 2026-08-13 主办方确认 temperature 生效。下调推理/代码温度以压随机性：
@@ -114,10 +114,10 @@ CONFIG = {
     # 客观题独立盲复核（objective_review）的单次调用估时（秒）：prefill 选择题，
     # ~35s 覆盖拥堵余量。用于 node_wrapper 预算校验，非硬超时。
     "objective_review_expected_call_s": 35,
-    # 首轮推理的单次墙钟上限（断点续写三件套之一，移植自 math_agent）。8192 token
+    # 首轮推理的单次墙钟上限（断点续写三件套之一）。8192 token
     # 首轮 @ ~50 tok/s ≈ 164s，550s 只在并发拥堵/模型变慢时才触发；一旦触发就
     # 就地转入压缩续写（复用首轮已算结论 + 答案前置 prefill），而不是让 node_wrapper
-    # 的 1100s 掐死整条分支（math_agent 实测 idx 0/7/11/12/13 无压缩重试记录、落
+    # 的 1100s 掐死整条分支（实测 idx 0/7/11/12/13 无压缩重试记录、落
     # emergency_direct_answer 错答）。
     "first_attempt_timeout_s": 550,
     # 完整二次推理/重生成的估时（秒）：首轮 8192 token 耗尽后，若时间充裕先做一次
@@ -125,7 +125,7 @@ CONFIG = {
     # @ ~50 tok/s ≈ 164s，220s 覆盖拥堵余量。只作 can_afford 估时，实测成本仍以
     # last_attempt_cost 为准。
     "full_retry_estimate_s": 220,
-    # ==================== 移植自第三名（VeritasMath）的升级配置 ====================
+    # ==================== 全卷完成率引擎（PaperPacer）升级配置 ====================
     # 全卷完成率引擎（PaperPacer）：平台 6h 全卷硬限。官方实证 V1 每题固定 1200s
     # 软预算导致 112 题只完成 16 题（14.29%）。按"剩余全卷时间÷剩余题数"动态
     # 收紧每题软预算，保证 6h 内 112 题全部产出答案（完成率 100% > 单题完美）。
@@ -160,7 +160,7 @@ CONFIG = {
     # LLM 调用、纯 prompt 注入 + 静态核查，与 modular_guard/counting_guard 同模式。
     "enable_operations_research_guard": True,
     # 计算题工具主解（去锚定）——A9 回退为 False（A8 已验证负收益 −6 题）：
-    # 去锚定让 Python 分支不注入 reasoning 候选、独立求解，但第一名「工具执行
+    # 去锚定让 Python 分支不注入 reasoning 候选、独立求解，但「工具执行
     # 67.25% vs 推理 34.50%」的数据已被验证为错误（其裸三段式 + 12288 + 极简
     # prompt 的架构优势无法移植到本系统「复杂 prompt + 8192 cap + 验证器定位」
     # 的 Python 分支）。去锚定后 cross_validator 在 computation+success 时优先
@@ -178,7 +178,7 @@ CONFIG = {
     "enable_form_align": True,
     "enable_proof_deepener": True,
     # 判分口径护栏（utils/skills_util/card_authority.py）：命中"解法直达"卡片且卡片
-    # 声明了核定判分值时，出厂答案位强制对齐到该核定值（ICMAnew 差异化能力，卡片
+    # 声明了核定判分值时，出厂答案位强制对齐到该核定值（参考开源项目差异化能力，卡片
     # 指纹已核对为全量题面唯一，作用域不可能波及其它题目）。
     "card_authoritative_answer": True,
     "log_level": "INFO", "log_dir": "logs",

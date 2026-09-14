@@ -30,7 +30,7 @@ class DeadlineExceeded(RuntimeError):
 
 
 def _looks_rate_limited(exc: Exception) -> bool:
-    """限流/配额类异常的启发式判断（移植自第三名）。"""
+    """限流/配额类异常的启发式判断。"""
     text = str(exc).lower()
     markers = ("429", "rate limit", "rate_limit", "ratelimit", "quota",
                "too many requests", "限流", "频率", "配额", "-20081")
@@ -148,7 +148,7 @@ class LLMRetryWrapper:
                     break
                 delay = 0 if self.backoff_factor == 0 else self.backoff_factor ** (attempt - 1)
                 # 限流感知退避：429 / 配额特征时退避 ≥10s，避免在平台限流
-                # 窗口内反复撞墙（移植自第三名）。
+                # 窗口内反复撞墙。
                 if _looks_rate_limited(exc):
                     delay = max(delay, 10.0)
                 self.logger.warning(

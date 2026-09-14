@@ -62,7 +62,7 @@ def build_solving_subgraph():
     sub.add_edge(START, "database_retrieval")
     sub.add_conditional_edges("database_retrieval", fan_out, ["reasoning_agent", "python_agent"])
     # 客观题在 reasoning 之后走一次独立盲复核再进 cross_validator；非客观题直达
-    # cross_validator（与 ICMAnew 的 objective_review 接入一致，不受上面 fan_out
+    # cross_validator（与 objective_review 接入一致，不受上面 fan_out
     # 自研跳过逻辑影响——fan_out 决定是否并行 Python，这里决定是否盲复核）。
     def route_after_reasoning(state):
         return "objective_review" if is_objective_mode(

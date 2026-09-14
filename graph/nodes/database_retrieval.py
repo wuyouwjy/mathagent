@@ -1,7 +1,7 @@
 """Database retrieval node: fetch the top-k similar problems+solutions.
 
 Runs before reasoning_agent and python_agent to provide reference examples.
-ChromaDB 向量检索（utils.retrieval.database_client.DatabaseClient），照 ICMAnew 的 chroma 路径复现。
+TF-IDF 轻量检索（utils.retrieval.resilient_client，纯 scikit-learn 统计检索，零外部模型）。
 """
 
 from typing import Any, Dict
@@ -56,7 +56,7 @@ def database_retrieval_node(state: Dict[str, Any], config: Dict) -> Dict[str, An
 
         top_k = int(CONFIG.get("db_retrieval_top_k", 2) or 2)
         results = retriever.query(problem, top_k=top_k)
-        # 相似度门控（ICMAnew 评委意见改进点 1）：低于阈值的近邻与本题结构相差
+        # 相似度门控（评委意见改进点 1）：低于阈值的近邻与本题结构相差
         # 过大（实测 sim≈0.44 的"路径计数"近邻把两分支同时带偏），注入的误导风险
         # 高于方法参考价值——不足即弃，宁缺毋滥。
         min_sim = float(CONFIG.get("db_reference_min_similarity", 0.55) or 0.0)

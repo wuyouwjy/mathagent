@@ -99,9 +99,9 @@ class ReasoningAgent:
 
 ### 6.1 `database_retrieval`（纯增益节点）
 
-用原题检索竞赛题库（ChromaDB 向量库 `database/`，27,984 条 AI-MO 竞赛题，`Qwen3-Embedding-0.6B` 嵌入，Git LFS 托管），取 top-2 条题面+解答作为 few-shot 参考注入推理与验证两个子代理。**反锚定机制**：近似题结论不可照抄，只借鉴方法、显式对比参数差异。检索失败降级为空列表，绝不影响求解。
+用原题检索竞赛题库（TF-IDF 轻量检索，`data/retrieval_corpus.json` 语料，零外部模型），取 top-2 条题面+解答作为 few-shot 参考注入推理与验证两个子代理。**反锚定机制**：近似题结论不可照抄，只借鉴方法、显式对比参数差异。检索失败降级为空列表，绝不影响求解。
 
-**B3 环境自适应**：评测环境不执行 `git lfs pull`，向量库与权重都是 LFS 指针（B2 的 95.54 分即在此条件下取得）。`ResilientRetriever` 封装降级链——`DatabaseClient` 抛 `RetrievalUnavailable`（由 `_is_lfs_pointer` 零成本识别，先查索引再导重依赖）即置位进程级熔断并永久切到 `TfidfRetriever`（`data/retrieval_corpus.json`，1,555 条，短于 30 字符的纯答案已清空）。降级后仅 18% 的题能越过 `db_reference_min_similarity=0.55` 门控，多数题得到空参考——刻意不放松门控。
+**零外部模型**：比赛约束下只能使用指定模型，向量检索所依赖的外部嵌入模型已移除，检索唯一路径是 `TfidfRetriever`（`data/retrieval_corpus.json`，1,555 条，短于 30 字符的纯答案已清空）。仅 18% 的题能越过 `db_reference_min_similarity=0.55` 门控，多数题得到空参考——刻意不放松门控。
 
 ### 6.2 `fan_out` 扇出规则
 
@@ -148,7 +148,7 @@ Python 侧对称实现三级兜底：首轮完整生成 → 完整重生成（`f
 | **预算钳制三件套** | `utils/budget/time.py`、`affordability.py` | B3：节点超时受软预算约束 + 首轮上限动态化（给压缩救援留额度）+ 压缩调用不参与定价 |
 | **AnswerMatcher + 契约** | `utils/answer/matcher.py`、`contract.py` | 数值/符号答案匹配 + 多空契约完整性 |
 | **确定性守卫组** | `utils/verify/*` | 计数枚举 / 判断题确认 / 形式对齐 / 证明补强等零成本兜底 |
-| **RAG 检索 + 降级链** | `utils/retrieval/resilient_client.py`、`database_client.py` | ChromaDB 向量检索相似题 few-shot 注入；LFS 指针识别 + 进程级熔断 + TF-IDF 永久降级（B3） |
+| **RAG 检索（TF-IDF）** | `utils/retrieval/resilient_client.py`、`tfidf_client.py` | TF-IDF 纯统计检索相似题 few-shot 注入；零外部模型 |
 | **解法直达卡片 + 判分护栏** | `utils/skills_util/solution_cards.py`、`card_authority.py` | 跨类别按指纹注入 112 张对口解法卡片，命中核定值强制对齐出厂答案 |
 | **客观题独立盲复核** | `graph/nodes/objective_review.py` | 第二位阅卷教师独立重判客观题，作为第二候选注入跨校验与仲裁 |
 | **卡死跳过 + 英文题兜底** | `utils/llm/retry.py`、`utils/skills_util/loader.py` | 传输卡死跳过满长重试；英文判别词 ICF 加权确定性分类 |
@@ -168,15 +168,13 @@ B2 官方 **95.54 分**（107/112，4 题 invalid），但 agent 阶段实测 **
 | 首轮上限动态化 | `utils/budget/affordability.py` | `first_attempt_cap`：固定 550s 会把收紧后的 soft_total 一次吃光，压缩救援随即被节点超时掐掉——而 `reasoning_agent` 被掐断时 fallback 返回**空 answer**。健康预算下仍返回 550s，行为不变 |
 | 压缩调用不参与定价 | `utils/budget/affordability.py` | `last_attempt_cost` 排除 `compressed` 标签：27s 的压缩调用会把 132s 的完整二次验证定价成"永远付得起"（idx 0 实测） |
 | 活跃题数配对 + idx 提前初始化 | `graph/main_graph.py` | `mark_done(idx)` 与 `mark_started` 配对递减（夹到 0），并发度估计才反映真实并发；`idx` 在 `try` 外初始化，避免异常路径在 `finally` 里再抛 `NameError` |
-| LFS 指针识别 + 进程级熔断 | `utils/retrieval/database_client.py` | `_is_lfs_pointer` 先查 `chroma.sqlite3` 再导重依赖（伪造指针环境实测：首次 41.4s 导入 torch/sentence-transformers 后失败 → 现在 0.000s 且不导入）；`_SHARED_FAILURE` 让后续调用 0.001s 快速失败 |
-| 向量 → TF-IDF 永久降级 | `utils/retrieval/resilient_client.py` | `ResilientRetriever`：向量不可用即永久切到 `TfidfRetriever`；全卷 112 题检索失败合计 0.09s |
 | 短解答清空 | `utils/retrieval/tfidf_client.py` | 1,174/1,555 条 solution 短于 30 字符（纯答案），清空后只留题面供方法与参数比对 |
 
 ---
 
 ## 10. B2 版本改动标记（上一版本，B3 保留其改动）
 
-B2 照 99.11 分参考作品 ICMAnew 复现七块**判分口径与检索质量**的高收益纯代码，把技能手册检索、解法直达、答案判分、客观题复核、传输卡死处理与英文题分类从"能跑"对齐到"满分口径"：
+B2 参考 GitHub 开源项目复现七块**判分口径与检索质量**的高收益纯代码，把技能手册检索、解法直达、答案判分、客观题复核、传输卡死处理与英文题分类从"能跑"对齐到"满分口径"：
 
 | 改动 | 影响模块 | 说明 |
 |---|---|---|
@@ -192,18 +190,18 @@ B2 照 99.11 分参考作品 ICMAnew 复现七块**判分口径与检索质量**
 
 ## 11. B1 版本改动标记（上一版本，B2 保留其改动）
 
-B1 把题库检索从 TF-IDF 升级为 **ChromaDB 向量库**（照 ICMAnew 99.11 分作品复现），检索规模从 1,555 条 TF-IDF 语料扩大到 27,984 条 AI-MO 竞赛题，检索质量对齐满分作品：
+B1 原计划把题库检索从 TF-IDF 升级为向量库，但因比赛约束「只能使用指定模型」（向量检索依赖外部嵌入模型），该方案已移除，检索唯一路径回归 TF-IDF 轻量检索（零外部模型）：
 
 | 改动 | 影响节点 | 说明 |
 |---|---|---|
-| 检索实现 TF-IDF → **ChromaDB 向量库** | database_retrieval / main_graph | 向量库 `database/chroma.sqlite3`（27,984 条 AI-MO 竞赛题，cosine 相似度）+ `Qwen3-Embedding-0.6B`（1024 维）嵌入；大文件直接进项目目录、Git LFS 托管，模型另有 ModelScope 在线兜底，检索失败一律降级为空、不阻塞求解 |
-| 检索器 TfidfRetriever → **DatabaseClient** | main_graph | `utils/retrieval/database_client.py` 复现 ICMAnew 的 chroma 查询路径；TfidfRetriever 保留为无 LFS 环境的轻量替代，默认不再启用 |
+| 检索实现 向量库 → **TF-IDF** | database_retrieval / main_graph | 检索唯一路径 `utils/retrieval/tfidf_client.py`（`data/retrieval_corpus.json` + scikit-learn char n-gram），零外部模型，检索失败一律降级为空、不阻塞求解 |
+| 检索器 DatabaseClient → **TfidfRetriever** | main_graph | `utils/retrieval/tfidf_client.py` 纯统计检索；`ResilientRetriever` 统一入口（primary 恒为 None，直接走 TF-IDF） |
 
 ---
 
 ## 12. A9 版本改动标记（上一版本，B1 保留其改动）
 
-A8 官方 67.86 分（76/112），比 A4 基线（82/112）净 **−6 题**——「去锚定 + 运筹学压缩」两条假设双双证伪（① 第一名「工具执行 67% vs 心算 34%」数据已验证为错误；② 运筹学首轮压缩抑制 CoT 致 Python 代码质量下降）。A9 先**回退 A8 恢复 A4 基线**，再做两个**严格非负、零额外 LLM 调用**的定向优化：
+A8 官方 67.86 分（76/112），比 A4 基线（82/112）净 **−6 题**——「去锚定 + 运筹学压缩」两条假设双双证伪（① 「工具执行 67% vs 心算 34%」数据已验证为错误；② 运筹学首轮压缩抑制 CoT 致 Python 代码质量下降）。A9 先**回退 A8 恢复 A4 基线**，再做两个**严格非负、零额外 LLM 调用**的定向优化：
 
 | 改动 | 影响节点 | 说明 |
 |---|---|---|

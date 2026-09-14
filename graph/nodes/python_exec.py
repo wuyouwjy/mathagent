@@ -147,7 +147,7 @@ _COMPRESSED_RESERVE_MARGIN_S = CONFIG.get("compressed_reserve_margin_s", 150)
 
 #: 首轮 Python 调用的单次墙钟上限（断点续写三件套之一，与推理分支同规则）。
 #: 难题上首轮会把整个节点 1100s 上限吃光、被 node_wrapper 掐断后压缩重生成
-#: 永远没机会触发。压到 550s，超时就地转入压缩重生成（math_agent 实测）。
+#: 永远没机会触发。压到 550s，超时就地转入压缩重生成（实测）。
 _FIRST_ATTEMPT_TIMEOUT_S = CONFIG.get("first_attempt_timeout_s", 550)
 
 #: assistant 种子：以代码围栏开头接管助手轮，抑制 reasoning_content（机制同
@@ -273,7 +273,7 @@ def python_agent_node(state, config):
         )
     hint = state.get("branch_hint")
     prompt = f"{base_prompt}\n\n[复核提示] {hint}" if hint else base_prompt
-    # VeritasMath 模结构守护：F_2/Z_m 语境注入"结构内聚合"强制条款
+    # 模结构守护：F_2/Z_m 语境注入"结构内聚合"强制条款
     # （评委报告 idx 7：六个 F_2 值被按普通整数相加；提示层自觉不可靠，
     #  生成后还有一道静态核查兜底）。
     modular = {"hit": False, "cues": []}
@@ -282,7 +282,7 @@ def python_agent_node(state, config):
         modular = detect_modular_context(problem)
         if modular["hit"]:
             prompt += prompt_clause(problem)
-    # VeritasMath 计数题枚举对照守护（M6，ultra_112 idx=40 实证）：组合计数是
+    # 计数题枚举对照守护（M6，ultra_112 idx=40 实证）：组合计数是
     # LLM 最弱项，闭式极易错。检出计数题则注入强制枚举对照条款，生成后静态核查
     # 代码必须含枚举循环，否则打回（不执行只写闭式的代码）。
     counting = {"hit": False}
@@ -406,7 +406,7 @@ def python_agent_node(state, config):
                     # 首轮调用加单次墙钟上限：与推理分支同规则，难题上首轮会把
                     # 整个节点上限吃光、被 node_wrapper 掐断后压缩重生成
                     # 永远没机会触发。压到上限后，超时就地转入压缩重生成
-                    # （math_agent 断点续写三件套之一）。
+                    # （断点续写三件套之一）。
                     resp = run_with_timeout(
                         lambda: chat_with_retry(
                             client,

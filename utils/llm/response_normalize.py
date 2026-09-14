@@ -1,4 +1,4 @@
-"""官方 client 响应归一化（平台防线，移植自第三名 VeritasMath）。
+"""官方 client 响应归一化（平台防线）。
 
 平台注入的 client.chat 返回值不一定是 str——可能是 OpenAI choices dict、
 content blocks 数组、bytes、嵌套 message 或带 content 属性的对象。基线方案

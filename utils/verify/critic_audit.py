@@ -1,4 +1,4 @@
-"""过程审计解析器（VeritasMath）：把 Critic 的 JSON 判定解析为路由决策。
+"""过程审计解析器：把 Critic 的 JSON 判定解析为路由决策。
 
 Critic 是"只审计、不改写"的节点：LLM 产出结构化判定（complete / missing /
 calc_checks / verdict），本模块负责：

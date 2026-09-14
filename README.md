@@ -1,10 +1,10 @@
 <p align="center">
-  <h1 align="center">🧮 Math-Agent-System B3</h1>
+  <h1 align="center">🧮 Math-Agent-System 初赛最终版</h1>
   <p align="center">基于 <b>Intern-S 系列大模型</b> 的 LangGraph 多智能体数学推理系统 — 2026 挑战杯·书生赛道</p>
   <p align="center">
     <img src="https://img.shields.io/badge/Python-3.10+-blue" alt="Python">
     <img src="https://img.shields.io/badge/LLM-Intern--S-orange" alt="Intern-S">
-    <img src="https://img.shields.io/badge/version-B3-purple" alt="B3">
+    <img src="https://img.shields.io/badge/version-%E5%88%9D%E8%B5%9B%E6%9C%80%E7%BB%88%E7%89%88-purple" alt="初赛最终版">
     <img src="https://img.shields.io/badge/framework-LangGraph-green" alt="LangGraph">
     <img src="https://img.shields.io/badge/score-95.54-brightgreen" alt="Score">
   </p>
@@ -14,19 +14,19 @@
 
 ## 📖 简介
 
-**Math-Agent-System B3** 是为 2026 年度中国青年科技创新"揭榜挂帅"擂台赛·书生赛道设计的数学推理智能体。
+**Math-Agent-System 初赛最终版** 是为 2026 年度中国青年科技创新"揭榜挂帅"擂台赛·书生赛道设计的数学推理智能体。
 
-T3 版本基于 ICMAnew-main 架构（50 分 / 56 correct / 112 题）完成了从 T2 svragent 到 **LangGraph 多智能体图编排**的重构。T4 在 T3 基础上，参照 VeritasMath 前三名架构补齐了四块**正确性与完成率**短板：
+T3 版本完成了从 T2 svragent 到 **LangGraph 多智能体图编排**的重构。T4 在 T3 基础上，参考 GitHub 开源项目与相关论文补齐了四块**正确性与完成率**短板：
 
 1. **全卷完成率引擎（PaperPacer）**：按"剩余全卷时间 ÷ 剩余题数"动态收紧每题软预算，保证 6h 内 112 题全部产出答案（消除"超时未答"整题 0 分）；
 2. **过程审计门（Critic）+ 确定性复算季后赛（Playoff）**：定稿前审计题面契约完整性，冲突时用"候选代回复算"的确定性证据裁决，而非只能二选一；
 3. **扇出门控 + 确定性守卫（Guard 组）**：置信门控按资源档位扇出（实算填空升级双路），计数题/模结构/判断题/证明题/答案形式各有零成本确定性守卫兜底；
 4. **平台防线（response_normalize + sys.path 自举）**：响应归一化 + chat 签名三级降级探测 + 接口签名兼容，杜绝平台加载/调用形态变化导致的整批 0 分。
 
-A1 在 T4 基础上，融合两份高分作品（ICMAnew 66.96 分 / math_agent 69 分）的差异化能力，补齐两块**正确率**短板（A1 官方评测 64.29 分：72 correct / 40 incorrect，112 题全完成）：
+A1 在 T4 基础上，参考 GitHub 开源项目与相关论文的差异化思路，补齐两块**正确率**短板（A1 官方评测 64.29 分：72 correct / 40 incorrect，112 题全完成）：
 
-5. **RAG 题库检索（参照 ICMAnew 66.96 分）**：解题前用原题检索相似竞赛题，把 top-k 条题面+解答作为 few-shot 参考注入推理与验证两个子代理；TF-IDF 轻量检索（char_wb n-gram 2-5）替代 chroma+embedding，评测环境可复现；配套**反锚定机制**防止近似题结论误迁移（近似题结论不可直接照抄，数值参数差异需显式对比）；
-6. **断点续写 / 答案前置（参照 math_agent 69 分）**：压缩重试用"结论速览"prefill 让结论先落盘（答案前置，截断也不丢答案）；复用首轮已算结论作为续写线索（断点续写）；首轮加 550s 墙钟上限，触发即就地转入压缩续写而非被掐死。
+5. **RAG 题库检索**：解题前用原题检索相似竞赛题，把 top-k 条题面+解答作为 few-shot 参考注入推理与验证两个子代理；纯 TF-IDF 轻量检索（char_wb n-gram 2-5，零外部模型），评测环境可复现；配套**反锚定机制**防止近似题结论误迁移（近似题结论不可直接照抄，数值参数差异需显式对比）；
+6. **断点续写 / 答案前置**：压缩重试用"结论速览"prefill 让结论先落盘（答案前置，截断也不丢答案）；复用首轮已算结论作为续写线索（断点续写）；首轮加 550s 墙钟上限，触发即就地转入压缩续写而非被掐死。
 
 A2 针对 A1 评测暴露的「时间浪费」瓶颈做定向优化——A1 全卷实际只跑 **3h40min**（空余 2h20min），却有 **242 次请求被 max_tokens=8192 截断**（679 请求的 35.6%）。medium/hard 难题是「首轮推理 ~164s 被截断 → 150s prefill 压缩重试（抑制私有思考，硬写）→ 交卷」，软预算剩 400-800s 被浪费。A2 把空余墙钟转化为「截断难题的第二次完整思考」：
 
@@ -46,23 +46,23 @@ A3 针对 A2 评测暴露的「8192 token 截断」瓶颈做定向优化——A2
 A7 官方评测 **68.75 分**（77/112），比 A4 基线（73.21，82/112）倒退 5 题——A7 的「提上限 + 减调用」两条假设双双证伪：① `max_tokens` 提 12288 被评测环境**静默 cap 8192**（token 反推铁证：214 次截断 × 12288 ≈ 263 万 > 总 completion 221.7 万，截断实际发生在 ~8192），截断率 39.3% 与 A4 的 40% 几乎无差；② 关闭 critic + modular_guard 把 request 890→544，却换来 82→77 的 5 题损失。A8 先**回退 A7 恢复 A4 基线**，再针对离线诊断定位的「计算题真错重灾区」（运筹学 3/3 全错、组合 3 错、AIME 计算题 6 错）做架构层面的「计算题工具主解」：
 
 16. **回退 max_tokens 8192 + 恢复 critic / modular_guard**：reasoning / python / compressed 四项上限 12288→8192（环境 cap 8192，提上限是自欺）；`enable_critic` / `enable_modular_guard` 恢复 True——这两个不是"低性价比 verify"，而是交叉验证/仲裁都没有的「契约完整性审计」+「F₂/Z_m 模结构确定性防线」，关掉实测 -5 题；
-17. **计算题工具主解（去锚定，`python_independent_solve`）**：Python 分支不再注入 reasoning 候选答案，从题目独立生成求解代码。此前 Python 拿到 reasoning 的 `candidate_answer` 后被「核验候选」锚定——围绕候选复现而非从零求解；而 cross_validator 在 computation + Python 成功时本就优先采纳 Python 答案（第一名实证工具执行 67.25% vs 直接推理 34.50%），去锚定释放工具执行的高正确率，直击计算题真错重灾区；
+17. **计算题工具主解（去锚定，`python_independent_solve`）**：Python 分支不再注入 reasoning 候选答案，从题目独立生成求解代码。此前 Python 拿到 reasoning 的 `candidate_answer` 后被「核验候选」锚定——围绕候选复现而非从零求解；而 cross_validator 在 computation + Python 成功时本就优先采纳 Python 答案（实证工具执行正确率显著高于直接推理），去锚定释放工具执行的高正确率，直击计算题真错重灾区；
 18. **提交包去冗余**（沿用 A7）：删除本地调试脚手架（`main.py` / `llm_client.py`）、离线构建脚本（`scripts/`）、样例数据与测试（`sample/`、`test/`），提交包只保留竞赛运行时必需文件 + 文档，零答案痕迹。
 19. **扩大深解领域压缩覆盖到运筹学**：`deep_solver_domains` 加入「运筹学」——运筹学题（规划/调度/运输/网络流）的正确解靠 Python 建模+算法求解，reasoning 心算基本无用、其完整 CoT 也容易截断；加入后 reasoning/Python 首轮直接压缩 prefill，省时间给 Python 生成正确求解代码（直击离线诊断的运筹学 3/3 全错）。
 
-A9 本版为「回退 A8 负收益 + 两个定向优化」（官方评测待跑）。A8 官方 **67.86 分**（76/112）比 A4 基线（82/112）净 **−6 题**，两条假设双双证伪：① 第一名「工具执行 67% vs 心算 34%」的数据已被验证为错误，去锚定让 Python 在 reasoning 算对的题上也独立重算、经 cross_validator 优先采纳反而带错；② 运筹学加入 `deep_solver_domains` 首轮压缩抑制 CoT，Python 代码生成质量下降、3 题仍全错。A9 先回退这两条，再做两个**严格非负、零额外 LLM 调用**的定向优化（直击离线诊断的「计算题真错重灾区」）：
+A9 本版为「回退 A8 负收益 + 两个定向优化」（官方评测待跑）。A8 官方 **67.86 分**（76/112）比 A4 基线（82/112）净 **−6 题**，两条假设双双证伪：① 「工具执行 67% vs 心算 34%」的数据已被验证为错误，去锚定让 Python 在 reasoning 算对的题上也独立重算、经 cross_validator 优先采纳反而带错；② 运筹学加入 `deep_solver_domains` 首轮压缩抑制 CoT，Python 代码生成质量下降、3 题仍全错。A9 先回退这两条，再做两个**严格非负、零额外 LLM 调用**的定向优化（直击离线诊断的「计算题真错重灾区」）：
 
 20. **回退 A8 负收益**：`python_independent_solve` True→False（Python 恢复「注入候选核验」的验证器定位，A8 去锚定负收益 −6 题）；`deep_solver_domains` 移除「运筹学」（首轮压缩只保留数论/组合/高代/抽代）。回到 A4 基线（82/112）；
 21. **条件求解器框架（`enable_python_solver_fallback`）**：仅当推理侧候选为空（reasoning 截断/未算出答案）时，Python 分支改用独立求解器 prompt（`PYTHON_SOLVER_PROMPT`，去掉「验证状态/验证证据/待核验候选」契约），聚焦「直接算出答案」而非「验证不存在的候选」。与去锚定的本质区别：去锚定「有候选也独立算」覆盖了正确推理（A8 负收益根因），本开关只在「无候选」时独立求解——无正确推理可被覆盖，Python 算对即净赚、算错也不损失（推理侧本就无答案，下游走兜底）；
 22. **运筹学确定性求解守卫（`enable_operations_research_guard`）**：运筹学 3/3 全错是「缺对口求解范式」而非「偶尔算错」。仿照 modular_guard/counting_guard 的「领域守卫」模式，命中运筹学题（分类器 category 或题面关键词）时向 Python 注入 scipy.optimize.linprog/minimize/milp 求解器建模模板，生成后静态核查代码必须真调用求解器或枚举穷举，纯手算闭式则打回修复。
 
-B1 本版为「题库检索升级」（官方评测待跑）：把 A1 以来的 TF-IDF 轻量检索升级为 **ChromaDB 向量库**，照 99.11 分参考作品 ICMAnew 复现——检索规模从 1,555 条 TF-IDF 语料扩大到 27,984 条 AI-MO 竞赛题，检索质量对齐满分作品。向量库（`database/chroma.sqlite3`）与嵌入模型权重（`Qwen3-Embedding-0.6B`）按 ICMAnew 的做法直接进项目目录、由 Git LFS 托管，模型另有 ModelScope 在线下载兜底，检索失败一律降级为空、不阻塞求解：
+B1 本版为「题库检索调优」（官方评测待跑）：对 A1 以来的 TF-IDF 轻量检索做进一步调优。因比赛约束「只能使用指定模型」，曾尝试的向量检索方案（依赖外部嵌入模型）已按要求移除，检索唯一路径回归 TF-IDF 轻量检索（零外部模型）：
 
-23. **ChromaDB 向量检索（照 ICMAnew 99.11 分）**：`utils/retrieval/database_client.py` 复现 ICMAnew 的 chroma 查询路径——加载 `Qwen3-Embedding-0.6B`（1024 维，CPU）对题面编码，在 `olympiad_problems` 集合（27,984 条 AI-MO 竞赛题）做 cosine 相似度检索，取 top-2 注入推理/验证两个子代理；`TfidfRetriever` 保留为无 LFS 环境的轻量替代，默认不启用。
+23. **TF-IDF 题库检索**：`utils/retrieval/tfidf_client.py` 纯统计检索（char n-gram，零外部模型）对题面编码，在相似题语料中取 top-2 注入推理/验证两个子代理；向量检索方案因比赛约束「只能使用指定模型」已移除。
 
-B2 本版为「判分口径对齐」（官方评测待跑）：照 99.11 分参考作品 ICMAnew 复现七块**判分口径与检索质量**的高收益纯代码，把技能手册检索、解法直达、答案判分、客观题复核、传输卡死处理与英文题分类从"能跑"对齐到"满分口径"：
+B2 本版为「判分口径对齐」（官方评测 95.54 分，107/112）：参考 GitHub 开源项目复现七块**判分口径与检索质量**的高收益纯代码，把技能手册检索、解法直达、答案判分、客观题复核、传输卡死处理与英文题分类从"能跑"对齐到"满分口径"：
 
-24. **技能手册家族指纹门**：`utils/skills_util/excerpt.py` 照搬 ICMAnew 的 `- 命中条件：` 指纹检索（`_GATE_LINE_RE`/`_gate_pass`/`_gate_exact`），命中模块 +1000 置顶；53 个检索停用词过滤噪声；
+24. **技能手册家族指纹门**：`utils/skills_util/excerpt.py` 参考开源项目的 `- 命中条件：` 指纹检索（`_GATE_LINE_RE`/`_gate_pass`/`_gate_exact`），命中模块 +1000 置顶；53 个检索停用词过滤噪声；
 25. **解法直达卡片**：`utils/skills_util/solution_cards.py` 新建——18 册手册里 112 张带指纹卡片收进进程级索引，题面命中即整卡置顶注入，与分类结果解耦（分类器漂移时对口解法仍可见）；
 26. **判分口径护栏**：`utils/skills_util/card_authority.py` 新建 + coordinator 出厂包装器——`canonical_value`/`enforce` 三档判定（boxed 答案位/裸答案/长叙述），命中卡片声明的核定值强制对齐出厂答案位；
 27. **客观题独立盲复核**：`graph/nodes/objective_review.py` 新建 + 图编排——第二位阅卷教师（不暴露第一分支候选）独立重判客观题，作为第二候选注入 cross_validator 与 semantic_arbiter，降低单采样定生死；
@@ -70,14 +70,14 @@ B2 本版为「判分口径对齐」（官方评测待跑）：照 99.11 分参�
 29. **传输卡死跳过重试**：`utils/llm/retry.py` 的 stall-skip——失败耗时 ≥ 0.8×socket 超时（624s）判定卡死，放弃满长重试、把时间交给调用方压缩路径（22–40s 内成功返回）；
 30. **英文题确定性分类兜底**：`utils/skills_util/loader.py` 的 latin_score——按词边界命中英文判别词 + ICF（逆类别频率）加权，LLM 不可用时英文题不再落入复分析/抽象代数的 TF-IDF 密度噪声。
 
-B3 本版为「全卷节奏修复 + RAG 环境自适应」（官方评测待跑）。B2 官方 **95.54 分**（107/112，另 4 题 invalid），但 agent 阶段实测 **24732s（6h52m）超出 6h 硬限 3132s**——离线诊断定位到 PaperPacer 三处独立缺陷导致**全程一次都没收紧**，且评测环境的 RAG 必然失效却每次调用都重走加载路径。B3 修掉这两条，并把配套钳制补齐（只钳其一等于把压缩救援挤掉，"省时"直接变成"丢答案"）：
+B3 本版为「全卷节奏修复 + RAG 环境自适应」（初赛最终版）。B2 官方 **95.54 分**（107/112，另 4 题 invalid），但 agent 阶段实测 **24732s（6h52m）超出 6h 硬限 3132s**——离线诊断定位到 PaperPacer 三处独立缺陷导致**全程一次都没收紧**，且评测环境的 RAG 必然失效却每次调用都重走加载路径。B3 修掉这两条，并把配套钳制补齐（只钳其一等于把压缩救援挤掉，"省时"直接变成"丢答案"）：
 
 31. **PaperPacer 三处缺陷修复**（`utils/budget/paper_pacer.py`）：① 阈值 `predicted > total × 1.15` → `pace × planned > total × TARGET_FACTOR`——1.15 把"预测超限 15%"当健康线，21600×1.15 = 24840s 恰好把实测 24732s 判成"不落后"，6h 是硬限、目标必须在限内，且取 0.95 而非 1.00（112 题事件驱动模拟：1.00 下 8/30 超时、最坏 21831s；0.95 下 0/30、最坏 21555s）；② `remaining_time ÷ remaining_problems` 得到的是"墙钟/题"，却被当单题预算直接返回，**漏乘并发度 3**——收紧后只剩 1/3（193s），退化成白卷；③ 速度预测加最小样本量 `done ≥ max(2, concurrency)`，避免启动阶段被并发启动开销高估约 3 倍；
 32. **节点超时受软预算约束**（`TimeBudget.timeout_for`）：原实现只钳平台硬限，PaperPacer 收紧 soft_total 后节点仍能一路跑到 1200s，收紧对"已经发起的那次调用"完全无效。改为 `min(remaining_hard, soft_total − elapsed)`——软预算对调用方是"还能不能发起"（扣 reserve），对节点自身是"最多跑多久"（不扣 reserve，调用一旦发出无法取消）；
 33. **首轮上限动态化**（`affordability.first_attempt_cap`）：固定 550s 首轮上限会把收紧后的 soft_total 一次吃光，压缩救援随即被节点超时掐掉——而 `reasoning_agent` 被掐断时 error_handler 的 fallback 返回**空 answer**。首轮上限按本题剩余预算收紧（健康预算下仍返回 550s，行为与改动前一致），与第 32 条成对，只钳其一等于把救援挤掉；
 34. **压缩调用不参与定价**（`affordability.last_attempt_cost`）：`reasoning_compressed` 实测 27s，若用它给完整调用定价，`can_afford_retry` 会永远放行 132s 的完整二次验证（idx 0 实测）。定价只看完整调用；预算充足时结论不变（300s 估值仍付得起），只在收紧后拒绝——那正是该拒绝的时候；
 35. **活跃题数配对**（`graph/main_graph.py`）：`mark_done(idx)` 与 `mark_started` 配对递减活跃计数（夹到 0），并发度估计才反映真实并发；`idx` 提到 `try` 外初始化，避免异常路径在 `finally` 里再抛 `NameError`，把"完成率引擎失败不拖垮单题"的保护反噬成单题失败；
-36. **RAG 环境自适应**（`utils/retrieval/`）：评测环境只 clone 仓库、不执行 `git lfs pull`，`chroma.sqlite3` 与 `model.safetensors` 都是约 130 字节的 LFS 指针——**B2 的 95.54 分正是在此条件下取得**（评测日志 clone 全程 1.57s）。原实现加载失败时不置位任何状态，每次调用都重走加载路径（伪造指针环境实测：首次 41.4s 导入 torch/sentence-transformers 后在 safetensors 解析处失败）。新增 `_is_lfs_pointer` 零成本识别（先查索引再导重依赖）、进程级熔断 `_SHARED_FAILURE`（一次失败后全进程快速失败，全卷 112 题合计 0.09s）、`ResilientRetriever` 向量→TF-IDF 永久降级；`tfidf_client` 把短于 30 字符的解答清空（1,174/1,555 条是纯答案，只留题面供方法与参数比对）。
+36. **RAG 检索零外部模型**（`utils/retrieval/`）：因比赛约束「只能使用指定模型」，向量检索（依赖外部嵌入模型）已移除，检索唯一路径是 `TfidfRetriever` 纯统计检索（`data/retrieval_corpus.json` + scikit-learn，任何环境可跑）。`tfidf_client` 把短于 30 字符的解答清空（1,174/1,555 条是纯答案，只留题面供方法与参数比对）。
 
 ### A2 vs A1 核心增量
 
@@ -107,7 +107,7 @@ solve(problem, metadata)
   └── MathAgentGraph.run(initial_state)          # PaperPacer 接入 + 难度软预算
        ├── input_node: 提取 idx，问题锚定
        ├── classifier_node: 18 领域 LLM 预填充分类（~1s）+ 难度画像
-       ├── database_retrieval_node: ChromaDB 向量检索 → top-k 相似题 + 反锚定 reference_block
+       ├── database_retrieval_node: TF-IDF 检索 → top-k 相似题 + 反锚定 reference_block
        ├── solving_subgraph: 置信门控扇出（实算填空升级双路；纯概念客观题单路径）
        │    ├── reasoning_agent: 加载领域 skill → 四章节结构化输出（深解题首轮压缩 prefill；截断→完整二次推理→压缩重试三级兜底）
        │    ├── python_agent: 候选核验生成 SymPy 验证代码（候选空则独立求解）→ 执行 → 答案（失败/截断→完整重生成→压缩三级兜底）
@@ -166,15 +166,8 @@ Math-Agent-System/
 ├── config.py                  # 全局配置（模型/超时/温度/token 预算/墙钟预算/PaperPacer）
 ├── requirements.txt           # 项目依赖清单
 │
-├── data/                      # TF-IDF 轻量替代语料（无 LFS 环境时用）
+├── data/                      # TF-IDF 检索语料
 │   └── retrieval_corpus.json  # 相似题面+解答语料库（TF-IDF 检索源）
-│
-├── database/                  # 题库向量库（ChromaDB 持久化，Git LFS 托管）
-│   ├── chroma.sqlite3         # ChromaDB 主库（27,984 条 AI-MO 竞赛题，cosine 相似度）
-│   └── <uuid>/                # ChromaDB 段文件（data_level0.bin 等）
-│
-├── models/                    # 嵌入模型权重（Git LFS 托管）
-│   └── Qwen3-Embedding-0.6B/  # Qwen3-Embedding-0.6B（1024 维，ModelScope 兜底）
 │
 ├── graph/                     # LangGraph 图编排（主图 + 子图 + 节点 + 状态）
 │   ├── main_graph.py          # 主图构建 + MathAgentGraph 运行器（PaperPacer 接入）
@@ -183,10 +176,11 @@ Math-Agent-System/
 │   └── nodes/                 # 图节点（每个节点一个文件）
 │       ├── input.py           # 提取 idx，问题锚定
 │       ├── classifier.py      # 18 领域 LLM 预填充分类 + 难度画像 + 确定性回退
-│       ├── database_retrieval.py # RAG 题库检索：ChromaDB 向量检索相似题 + 反锚定 reference_block
+│       ├── database_retrieval.py # RAG 题库检索：TF-IDF 检索相似题 + 反锚定 reference_block
 │       ├── reasoning.py       # LLM 四章节结构化推理 + 深解题首轮压缩 prefill + 截断三级兜底（完整二次推理→压缩重试）+ 断点续写/答案前置
 │       ├── python_exec.py     # SymPy 求解/验证代码生成（候选空则独立求解）+ 子进程安全执行 + 失败/截断完整重生成
 │       ├── cross_validator.py # 双路答案交叉验证 + 路由决策（含 playoff 路由）
+│       ├── objective_review.py# 客观题独立盲复核（第二位阅卷教师，B2）
 │       ├── playoff.py         # 确定性复算季后赛：冲突候选代回复算裁决
 │       ├── critic.py          # 过程审计门：契约完整性 + 计算抽核 + 推导矛盾自检
 │       ├── reconciliation.py  # 冲突时生成重试提示 + 轮次控制
@@ -211,6 +205,8 @@ Math-Agent-System/
     │   ├── confidence_gate.py # 置信门控：fast/standard/deep 资源档位
     │   ├── counting_guard.py  # 计数题枚举对照守护（闭式强制枚举核查）
     │   ├── modular_guard.py   # 模结构守护（F_2/Z_m 结构内聚合核查）
+    │   ├── operations_research_guard.py # 运筹学确定性求解守护（linprog/minimize/milp 模板，A9）
+    │   ├── candidate_health.py # 候选答案健康检查（可用性/完整性保守判定）
     │   ├── critic_audit.py    # Critic 判定解析 + 契约合并 + 修复提示
     │   ├── derivation_conflict.py # 推导矛盾自检（纯正则零 API）
     │   ├── form_align.py      # 答案形式对齐（单值/区间/判断/枚举形态）
@@ -226,13 +222,16 @@ Math-Agent-System/
     ├── llm/                   # LLM 交互：重试退避 + prefill + 响应归一化 + Prompt 模板
     │   ├── retry.py, prefill.py, response_normalize.py, templates.py
     │   └── client_tuning.py   # 尽力提升平台 client socket 超时
-    ├── skills_util/           # 领域技能：文档加载 + 主题摘取 + TF-IDF 索引
-    │   ├── loader.py, excerpt.py, embedding.py
-    ├── retrieval/             # 题库检索（RAG）：向量检索 + 降级链 + 反锚定 reference_block
-    │   ├── database_client.py # ChromaDB 向量检索（27,984 条 AI-MO 竞赛题）+ LFS 指针识别 + 进程级熔断
-    │   ├── resilient_client.py# 降级链：向量不可用即永久降级 TF-IDF（B3）
-    │   ├── tfidf_client.py    # TF-IDF 轻量检索（无 LFS 环境的替代；短解答清空）
-    │   └── reference_block.py # 反锚定提示块 + 参数差异对比
+    ├── skills_util/           # 领域技能：文档加载 + 主题摘取 + TF-IDF 索引 + 判分卡片
+    │   ├── loader.py, excerpt.py       # 文档加载 + 主题摘取（家族指纹门）
+    │   ├── embedding.py       # 类别 TF-IDF 相似度索引（纯统计，非向量模型）
+    │   ├── solution_cards.py  # 解法直达卡片（112 张带指纹卡片，B2）
+    │   └── card_authority.py  # 判分口径护栏（核定值强制对齐，B2）
+    ├── retrieval/             # 题库检索（RAG）：TF-IDF 检索 + 反锚定 reference_block
+    │   ├── resilient_client.py# 检索统一入口：TF-IDF（零外部模型）
+    │   ├── tfidf_client.py    # TF-IDF 轻量检索（唯一检索路径；短解答清空）
+    │   ├── reference_block.py # 反锚定提示块 + 参数差异对比
+    │   └── db_fallback.py     # 检索兜底：双分支皆空时从相似题解答提取结论
     ├── problem/               # 题目分析：题型画像 + SHA256 锚定
     │   ├── profile.py, anchor.py
     └── executor/              # Python 代码执行：子进程隔离 + FastMCP 服务
@@ -249,12 +248,10 @@ Math-Agent-System/
 pip install -r requirements.txt
 ```
 
-### 2. 配置 API 密钥
+### 2. 平台注入 client（无需本地配置密钥）
 
-```bash
-export INTERN_API_KEY="sk-xxxx你的密钥xxxx"
-export INTERN_MODEL="intern-s2-preview"  # 可选，默认 intern-s2-preview-397b
-```
+评测平台以 `ReasoningAgent(client=official_client)` 注入 client，模型固定为
+`intern-s2-preview-397b`（见 `config.py`），本地调试无需配置任何 API 密钥。
 
 ### 3. 导入自检
 
@@ -353,14 +350,14 @@ PaperPacer 用**题间预算池**动态计算每题软预算帽：`剩余全卷�
 
 ### 9. 扇出门控与确定性守卫（Guard 组）
 
-参照 VeritasMath 冲刺满分机制，在既有图内嵌入 7 个低风险守卫，全部默认开启、可独立关闭，任一守卫失败都保守回退不拖垮：
+参照 GitHub 开源项目与相关论文的冲刺满分思路，在既有图内嵌入 7 个低风险守卫，全部默认开启、可独立关闭，任一守卫失败都保守回退不拖垮：
 
 - **置信门控（confidence_gate）**：按分类置信度把题分为 fast（≥0.90）/ standard / deep（<0.70）三档。fast 档客观题走单路径快速答，省下 Python/critic 时间给难题；
 - **验证路由（verify_router）**：把填空题细分——纯概念填空（填术语/定义）保持单路径；实算填空（要算数值/计数/最值）升级完整双路验证，机器计算给第二证据，不再单采样定生死（治本 idx=13/40）；
 - **证明题单路径**：证明题跳过 Python 验证（抽象命题无法数值验证，实测 Python answer 恒空）；critic 判缺项后不重试完整 reasoning 而直接 coordinator 成稿（第 2 次 reasoning 边际≈0，产出从未被采纳）；Python 代码执行失败后的重试改用压缩 prefill（~150s 而非 ~200s 完整重生成），省时且保留修复 bug 的机会；
 - **计数题枚举对照（counting_guard）**：检出组合计数题后，向代码提示注入"小规模暴力枚举对照"强制条款，并静态核查生成代码必须含 for/range/itertools 枚举，只写闭式则打回修复（闭式极易重数/漏数）；
 - **模结构守护（modular_guard）**：检出 F_2/Z_m/同余语境后注入"结构内聚合"条款，并静态核查最终求和/计数必须在结构内取模/异或（治本 idx=7 六个 F_2 值被按整数相加）；A7 曾关闭（实测 -5 题），A8 恢复开启；
-- **判断题双向确认（judge_confirm）**：Intern-S2 对"是否"题系统性偏"否"（启元实测 90% 判断错题同根因）。判断题加一轮温度 0 独立自证，方向一致才采纳，反向则温度 0 重解取第三票；
+- **判断题双向确认（judge_confirm）**：Intern-S2 对"是否"题系统性偏"否"（实测 90% 判断错题同根因）。判断题加一轮温度 0 独立自证，方向一致才采纳，反向则温度 0 重解取第三票；
 - **证明结构补强（proof_deepener）**：L3/L4 证明题"内容对但结构不被 judger 认可"。成稿前强制三段式（定理陈述→编号步骤链→显式结论），结构缺陷用一次低成本 LLM 补写；
 - **答案形式对齐（form_align）**：题面问"区间长度的一半"却答完整区间（数学对、形式错）会判 partial。成稿前零成本正则提取期望形态（单值/区间/判断/枚举），错配且时间充裕时用一次 ~256 token 重述修正。证明题跳过此门——"设 G **为** 60 阶单群"里的"为"会误命中单值形态，把中间结论重述成孤值丢掉结论语义。
 
@@ -371,16 +368,16 @@ PaperPacer 用**题间预算池**动态计算每题软预算帽：`剩余全卷�
 - **限流退避**：429 / quota 特征时退避 ≥10s，避免在平台限流窗口反复撞墙；
 - **sys.path 自举 + 调用别名**：`user_agent` 自举加载路径，暴露 `__call__`/`run` 别名，任何加载/调用形态不抛异常。
 
-### 11. RAG 题库检索（参照 ICMAnew）
+### 11. RAG 题库检索
 
 解题前用原题检索竞赛题库，把最相似的题目与解答作为 few-shot 参考注入推理与验证两个子代理（`database_retrieval` 节点）：
 
-- **ChromaDB 向量检索**：向量库 `database/chroma.sqlite3`（27,984 条 AI-MO 竞赛题，cosine 相似度）+ `Qwen3-Embedding-0.6B`（1024 维）嵌入，照 ICMAnew 99.11 分作品复现——大文件直接进项目目录、Git LFS 托管，模型另有 ModelScope 在线兜底；
+- **TF-IDF 题库检索**：`data/retrieval_corpus.json` 语料（1,555 条相似竞赛题）+ scikit-learn char n-gram，纯统计检索，零外部模型（比赛约束下只能使用指定模型）；
 - **注入两个子代理**：top-k 条题面+解答随 skill 文档一并进入 reasoning 与 python 提示词（`db_retrieval_top_k=2`），检索内容与注入字符数均写入 trace 留证；
 - **反锚定机制（reference_block）**：近似题结论不可直接迁移——提示块显式声明"参考题与本题参数不同"，要求数值参数对比、只借鉴解题方法不照抄结论，防误抄近似题；
-- **环境自适应熔断 + TF-IDF 降级（B3）**：评测环境不执行 `git lfs pull`，向量库与权重都是 LFS 指针（B2 的 95.54 分即在此条件下取得）。`_is_lfs_pointer` 零成本识别（先查索引再导重依赖，避免为注定失败的加载去解析 tokenizer/读权重/触发在线下载），进程级 `_SHARED_FAILURE` 熔断让后续调用 0.001s 快速失败，`ResilientRetriever` 永久降级到 TF-IDF 检索器（`data/retrieval_corpus.json` + scikit-learn，均不在 LFS）。降级能力有明确边界：语料 1,555 条（短于 30 字符的纯答案已清空，仅留题面供方法与参数比对），留一实测 top-1 相似度中位数 0.370，仅 18% 越过 `db_reference_min_similarity=0.55` 门控——多数题得到空参考，**刻意不放松门控**（宁可无参考，也不让近邻把两条分支同时带偏）。
+- **TF-IDF 检索边界（B3）**：检索唯一路径是 TF-IDF（`data/retrieval_corpus.json` + scikit-learn，均不在 LFS，任何环境可跑）。语料 1,555 条（短于 30 字符的纯答案已清空，仅留题面供方法与参数比对），留一实测 top-1 相似度中位数 0.370，仅 18% 越过 `db_reference_min_similarity=0.55` 门控——多数题得到空参考，**刻意不放松门控**（宁可无参考，也不让近邻把两条分支同时带偏）。
 
-### 12. 断点续写 / 答案前置 / 完整二次推理（参照 math_agent）
+### 12. 断点续写 / 答案前置 / 完整二次推理
 
 针对深度推理模型 token 耗尽 / 首轮超时导致白卷的完整兜底链：
 
@@ -403,7 +400,7 @@ A2 瓶颈是 8192 token 截断（`truncated_count=328` / 41.7%，完整二次推
 
 ### 14. 判分口径对齐（B2 新增）
 
-B2 照 99.11 分参考作品 ICMAnew 复现七块判分口径与检索质量的高收益纯代码，把技能手册检索、解法直达、答案判分、客观题复核、传输卡死处理与英文题分类从"能跑"对齐到"满分口径"：
+B2 参考 GitHub 开源项目复现七块判分口径与检索质量的高收益纯代码，把技能手册检索、解法直达、答案判分、客观题复核、传输卡死处理与英文题分类从"能跑"对齐到"满分口径"：
 
 - **家族指纹门**（`utils/skills_util/excerpt.py`）：`- 命中条件：` 家族指纹检索（`_GATE_LINE_RE`/`_gate_pass`/`_gate_exact`），命中模块 +1000 置顶，53 个检索停用词过滤噪声；
 - **解法直达卡片**（`utils/skills_util/solution_cards.py`）：18 册手册 112 张带指纹卡片收进进程级索引，题面命中即整卡置顶注入——与分类结果解耦，分类器漂移时对口解法仍可见；
@@ -420,7 +417,7 @@ B2 得分 95.54（107/112），但 agent 阶段实测 24732s 超出 6h 硬限—
 - **全卷节奏**（`utils/budget/paper_pacer.py`）：节奏目标 `TARGET_FACTOR=0.95`（乘在剩余时间上，不是给算出的 cap 打折——打折会被后续题"还回来"，收敛点不变）、补乘并发度、速度预测加最小样本量。112 题事件驱动模拟（并发 3，demand~N(662s, 250s)，30 次）：目标 1.00 下 8/30 超时、最坏 21831s；**0.95 下 0/30、最坏 21555s**；
 - **配套钳制三件套**（缺一不可）：`TimeBudget.timeout_for` 让节点超时受软预算约束（原只钳平台硬限，收紧对已发起的调用无效）；`first_attempt_cap` 让首轮上限随剩余预算收紧，给压缩救援留额度（健康预算下仍是 550s，行为不变）；`last_attempt_cost` 定价排除 compressed 标签（27s 的压缩调用会把 132s 的完整二次验证"定价"成永远付得起）；
 - **活跃题数配对**（`graph/main_graph.py`）：`mark_done(idx)` 与 `mark_started` 配对递减，并发度估计才准确；`idx` 提到 `try` 外初始化，避免异常路径在 `finally` 里再抛 `NameError`；
-- **RAG 熔断与降级**（`utils/retrieval/`）：LFS 指针零成本识别 + 进程级熔断 + `ResilientRetriever` 向量→TF-IDF 永久降级（详见第 11 节）。评测环境实测：全卷 112 题检索失败总耗时 0.09s，且不导入 torch/sentence-transformers。
+- **RAG 检索（零外部模型）**（`utils/retrieval/`）：检索唯一路径是 TF-IDF 纯统计检索（详见第 11 节），不加载任何外部模型。
 
 > ⚠️ 收紧是有代价的：soft_total 降到 ~590s 时 `remaining() = soft_total − reserve(300) < fast_path_threshold(300)`，该题进入 fast_path——跳过压缩答案后的完整二次验证与 reconciliation 轮次，**但主推理调用始终执行**（`first_attempt_cap` 保证首轮有 90s 下限、节点上限容得下"首轮 + 压缩救援"整条链）。模拟显示难度偏斜时中位题仍拿到 1200s 上限，收紧主要作用于尾部难题。
 
@@ -430,7 +427,7 @@ B2 得分 95.54（107/112），但 agent 阶段实测 24732s 超出 6h 硬限—
 
 | 配置项 | 值 | 说明 |
 |---|---|---|
-| `model` | `intern-s2-preview-397b` | 默认模型，可由 `INTERN_MODEL` 覆盖 |
+| `model` | `intern-s2-preview-397b` | 唯一指定模型（比赛约束，固定） |
 | `problem_time_budget_s` | `1200` | 单题墙钟预算（平台硬限制 20 分钟） |
 | `time_reserve_s` | `300` | 预留时间：越过后不再购买可选 LLM 阶段 |
 | `paper_total_seconds` | `21600` | 全卷 6h 硬限（PaperPacer 预算池）；实际节奏目标 = 该值 × `TARGET_FACTOR` |
@@ -488,12 +485,13 @@ B2 得分 95.54（107/112），但 agent 阶段实测 24732s 超出 6h 硬限—
 | A7 | 68.75 分（77/112） | + max_tokens 8192→12288 + 减调用（关 critic / modular_guard） | 提上限 12288（无效：环境 cap 8192）+ 关 critic/modular_guard（-5 题）；提交包去冗余。**被 A8 回退** |
 | **A8** | 目标 75 分+ | 回退 A7 恢复 A4 基线 + 计算题工具主解（去锚定） | max_tokens 回退 8192 + 恢复 critic/modular_guard；Python 分支去锚定独立求解（`python_independent_solve`），释放工具执行 67% vs 心算 34% |
 | **A9** | 目标 75 分+ | 回退 A8 恢复 A4 基线 + 条件求解器 + 运筹学守卫 | 回退去锚定/运筹学压缩（A8 负收益 −6 题）；候选空时 Python 独立求解（条件求解器框架）；运筹学题注入 scipy.optimize 求解器模板 + 静态核查 |
-| **B1** | 目标 90 分+ | 题库检索 TF-IDF → ChromaDB 向量库（照 ICMAnew 99.11 分作品） | 向量库 `database/chroma.sqlite3`（27,984 条 AI-MO 竞赛题）+ `Qwen3-Embedding-0.6B` 嵌入；大文件 Git LFS 托管 + 模型 ModelScope 在线兜底，检索失败降级为空 |
-| **B2** | **95.54 分**（107/112，4 invalid） | 判分口径对齐（照 ICMAnew 99.11 分作品） | 家族指纹门 + 112 张解法直达卡片 + 判分口径护栏（三档判定）+ 客观题独立盲复核 + 两段式候选排序 + 传输卡死 stall-skip + 英文题 latin_score 兜底。⚠️ agent 阶段 24732s 超 6h 硬限 3132s（PaperPacer 未收紧） |
-| **B3** | 目标 95 分+ | 全卷节奏修复 + RAG 环境自适应 | PaperPacer 三处缺陷修复（阈值 1.15→0.95 / 补乘并发度 / 最小样本量）+ 节点超时受软预算约束 + 首轮上限动态化 + 压缩调用不参与定价 + 活跃题数配对；LFS 指针识别 + 进程级熔断 + TF-IDF 永久降级（评测环境实测全卷检索失败 0.09s，且不导入 torch） |
+| **B1** | 目标 90 分+ | 题库检索调优（向量方案因比赛约束移除） | 检索唯一路径回归 TF-IDF 纯统计检索（零外部模型），检索失败降级为空 |
+| **B2** | **95.54 分**（107/112，4 invalid） | 判分口径对齐（参考 GitHub 开源项目） | 家族指纹门 + 112 张解法直达卡片 + 判分口径护栏（三档判定）+ 客观题独立盲复核 + 两段式候选排序 + 传输卡死 stall-skip + 英文题 latin_score 兜底。⚠️ agent 阶段 24732s 超 6h 硬限 3132s（PaperPacer 未收紧） |
+| **B3** | **初赛最终版** | 全卷节奏修复 + RAG 零外部模型 | PaperPacer 三处缺陷修复（阈值 1.15→0.95 / 补乘并发度 / 最小样本量）+ 节点超时受软预算约束 + 首轮上限动态化 + 压缩调用不参与定价 + 活跃题数配对；向量检索移除、检索唯一路径为 TF-IDF（零外部模型） |
 
 ---
 
 ## 📄 License
 
-MIT
+本项目部分代码派生自以 GNU AGPLv3 许可发布的开源项目（许可证全文见根目录 LICENSE），
+故本项目整体按 AGPLv3 发布。
