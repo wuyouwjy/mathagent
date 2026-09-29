@@ -1,5 +1,5 @@
 CONFIG = {
-    "model": "intern-s2-preview-397b",
+    "model": "intern-s2",
     "max_retries_per_node": 2, "llm_max_retries": 3, "backoff_factor": 2.0,
     # Ceilings are a hang detector of LAST resort; TimeBudget.timeout_for() clamps
     # each to whatever the problem deadline still allows, and that clamp is the real
@@ -109,6 +109,10 @@ CONFIG = {
     # @ ~50 tok/s ≈ 164s，220s 覆盖拥堵余量。只作 can_afford 估时，实测成本仍以
     # last_attempt_cost 为准。
     "full_retry_estimate_s": 220,
+    # 截断后续写的最大轮数（断点续写多轮升级）：首轮 token 耗尽后，只要全卷
+    # surplus 充足就逐轮续写（第 1 轮完整二次推理，后续轮压缩续写），把已经
+    # 多出来的墙钟继续换成准确率。放行只看全卷余量，不碰 100% 完成率底线。
+    "max_continuation_rounds": 3,
     # ==================== 升级配置 ====================
     # 全卷完成率引擎（PaperPacer）：平台 6h 全卷硬限。官方实证 V1 每题固定 1200s
     # 软预算导致 112 题只完成 16 题（14.29%）。按"剩余全卷时间÷剩余题数"动态
@@ -140,6 +144,10 @@ CONFIG = {
     "enable_modular_guard": True,
     # 答案形式对齐 + 证明结构补强。
     "enable_form_align": True,
+    # 裸判断词回填：判断+求值/求类型复合题（idx 38/90）answer 被压成"正确/错误"
+    # 时，从 reasoning 结论文本回填具体结论（积分值/稳定性类型），杜绝
+    # "最终答案：正确" 这种丢信息裸布尔输出。纯确定性零成本。
+    "enable_bare_verdict_enrich": True,
     "enable_proof_deepener": True,
     "log_level": "INFO", "log_dir": "logs",
 }

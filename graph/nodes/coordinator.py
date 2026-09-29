@@ -7,6 +7,7 @@ from utils.answer.formatter import (
     _clean_noise_head,
 )
 from utils.answer.conclusion_salvage import salvage_conclusion
+from utils.answer.bare_verdict import enrich_bare_verdict
 from utils.answer.cot_stripper import is_placeholder_answer, strip_cot_prefix
 from utils.answer.extractor import looks_incomplete_answer
 from utils.llm.retry import chat_prefilled, chat_with_retry
@@ -204,6 +205,14 @@ def coordinator_node(state, config):
     validated = state.get("validated_answer") or rr.get("answer", "")
     if is_placeholder_answer(validated):
         validated = ""
+    # 裸判断词回填（2026-09-29）：判断 + 求值/求类型复合题（如「判断是否可积，若可积
+    # 求积分值」「判断平衡点稳定性」）被归为 true_false 后，reasoning 的 objective 两行
+    # 契约只把「答案」写成「正确/错误」，真正的结论（「积分值为 0」「渐近稳定」）留在
+    # 「依据」里。此处从结论文本回填具体结论，避免 final_response 退化成裸判断词丢分。
+    if validated and CONFIG.get("enable_bare_verdict_enrich", True):
+        validated, enrich_note = enrich_bare_verdict(state, validated)
+        if enrich_note:
+            deps.logger.info("Bare verdict enriched (%s): %.80s", enrich_note, validated)
     ptype = (state.get("validation_details") or {}).get("problem_type", "computation")
     # V2 M4 答案形式对齐：数学对但形式不合（idx=94 答区间而非半长）会被
     # judger 判 partial。错配且时间有余量时，用低成本 LLM 重述修正。

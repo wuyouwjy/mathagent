@@ -475,6 +475,21 @@ def _full_reasoning_retry(deps, base_prompt, first_resp=None):
     return resp
 
 
+def _surplus_retry_affordable(deps, cost_s: float) -> bool:
+    """续写是否放行：优先看全卷剩余池子里"多出来的时间"（surplus）。
+
+    与 can_afford_retry（看单题软预算 remaining()）的区别：续写是把全卷已经
+    多出来的空余墙钟换成准确率，不占用单题软预算的购买力，因此不触发
+    PaperPacer 落后收紧。只要不花穿"剩余题 × MIN_SOFT"的完成底线，就永远
+    不碰 100% 完成率。全卷引擎缺失时回退单题软预算定价（不劣于旧行为）。
+    """
+    try:
+        from utils.budget.paper_pacer import PaperPacer
+        return PaperPacer.get_instance().surplus_budget_s() >= float(cost_s)
+    except Exception:  # noqa: BLE001 - 无全卷引擎则回退单题软预算定价
+        return can_afford_retry(deps.time_budget, "reasoning")
+
+
 def _raw_excerpt(text, head=600, tail=1400):
     """截断响应的可审计节选（评委建议 9）：头部保留题解开场，尾部保留结论区。"""
     s = str(text or "")
@@ -867,54 +882,93 @@ def reasoning_agent_node(state, config):
         # 常因预算不足被跳过，约 35 题四章节全空。现改为 prefill 压缩重试：助手
         # 种子抑制私有推理，~150s 即产出可解析章节（阶段性熔断，评委建议 4）。
         if exhausted:
-            attempts += 1
-            # 完整二次推理（断点续写升级）：首轮 token 耗尽后，若时间充裕先做一次
-            # 完整 8192 推理（复用首轮已算结论续写），把空余墙钟转化为更充分的思考；
-            # 完整推理仍失败/截断，再落到下面的压缩重试（三级兜底）。can_afford_retry
-            # 用 last_attempt_cost 定价，时间不够时自动跳过。
-            if can_afford_retry(clock, "reasoning"):
-                second_resp = _full_reasoning_retry(deps, hinted_base, first_resp=resp)
-                if second_resp is not None:
-                    second_parsed = _parse_reasoning_output(
-                        second_resp, question_mode=question_mode)
+            # 断点续写循环（多轮）：把全卷"多出来的时间"（surplus）换成对截断题的
+            # 深度补救。每轮复用上一轮已算结论续写一个 8192，写满仍截断就再续，
+            # 直到完整或全卷余量耗尽。放行看全卷 surplus（不占单题软预算），因此
+            # 不触发 PaperPacer 落后收紧，也绝不花穿"剩余题 × MIN_SOFT"的完成底线
+            # （100% 完成率不降）。第 1 轮完整二次推理（质量更高），后续轮压缩续写
+            # （prefill 抑制私有 CoT，更快且截断后仍能产出可解析章节）。
+            current_resp = resp
+            best_partial = parsed
+            did_compressed = False
+            max_rounds = int(CONFIG.get("max_continuation_rounds", 3))
+            for round_idx in range(1, max_rounds + 1):
+                if not _surplus_retry_affordable(deps, _FULL_RETRY_ESTIMATE_S):
+                    deps.logger.info(
+                        "Continuation stopped at round %d: no surplus budget", round_idx)
+                    break
+                attempts += 1
+                if round_idx == 1:
+                    cont_resp = _full_reasoning_retry(deps, hinted_base, first_resp=current_resp)
+                    reason = "full_retry_after_exhaustion"
+                else:
+                    did_compressed = True
+                    cont_resp, _fail = _compressed_reasoning_retry(
+                        deps, hinted_base, coverage=coverage_clause, first_resp=current_resp)
+                    reason = "compressed_continuation"
+                if cont_resp is None:
+                    trace.append({"attempt": attempts, "status": "skipped",
+                                  "reason": f"continuation_round{round_idx}_failed"})
+                    break
+                cont_parsed = _parse_reasoning_output(cont_resp, question_mode=question_mode)
+                cont_complete = _is_complete(cont_parsed)
+                # 续写产出的任何章节都严格优于上一轮的空产出：保留可用部分答案。
+                if cont_parsed.get("answer") or cont_parsed.get("steps") \
+                        or cont_parsed.get("analysis"):
+                    if not cont_parsed.get("answer") and best_partial.get("answer"):
+                        # 续写补齐章节但没写出结论时，保留此前捞回的低置信答案
+                        # （来源标记不变），聊胜于无。
+                        cont_parsed["answer"] = best_partial["answer"]
+                        cont_parsed["answer_source"] = best_partial.get(
+                            "answer_source", "salvaged_prose")
+                    best_partial = cont_parsed
+                    best_partial["answer_source"] = (best_partial.get("answer_source")
+                                                     or "compressed_prefill")
+                trace.append({"attempt": attempts,
+                              "status": "success" if cont_complete else "failed",
+                              "reason": reason,
+                              "response_chars": len(cont_resp or "")})
+                if cont_complete:
+                    return {"reasoning_result": cont_parsed, "reasoning_trace": trace,
+                            "reasoning_attempts": attempts,
+                            "reasoning_raw_response": cont_resp,
+                            "reasoning_reference_chars": len(examples_text)}
+                current_resp = cont_resp
+            # 兜底压缩重试（reserve_margin 定价，不占全卷 surplus）：循环里从未尝试过
+            # 压缩续写（surplus 一开始就不足、或完整二次推理后余量即耗尽）时补一次，
+            # 保证"保输出"——软预算已尽也放行，只要求硬限前容得下，避免空产出交卷。
+            if not did_compressed:
+                compressed_resp, fail_reason = _compressed_reasoning_retry(
+                    deps, hinted_base, coverage=coverage_clause, first_resp=current_resp)
+                if compressed_resp is None:
+                    trace.append({"attempt": attempts, "status": "skipped",
+                                  "reason": fail_reason or "compressed_retry_failed"})
+                else:
+                    attempts += 1
+                    current_resp = compressed_resp
+                    compressed_parsed = _parse_reasoning_output(
+                        compressed_resp, question_mode=question_mode)
+                    if compressed_parsed.get("answer") or compressed_parsed.get("steps") \
+                            or compressed_parsed.get("analysis"):
+                        if not compressed_parsed.get("answer") and best_partial.get("answer"):
+                            compressed_parsed["answer"] = best_partial["answer"]
+                            compressed_parsed["answer_source"] = best_partial.get(
+                                "answer_source", "salvaged_prose")
+                        best_partial = compressed_parsed
+                        best_partial["answer_source"] = (best_partial.get("answer_source")
+                                                         or "compressed_prefill")
                     trace.append({"attempt": attempts,
-                                  "status": "success" if _is_complete(second_parsed) else "failed",
-                                  "reason": "full_retry_after_exhaustion",
-                                  "response_chars": len(second_resp or "")})
-                    if _is_complete(second_parsed):
-                        return {"reasoning_result": second_parsed, "reasoning_trace": trace,
+                                  "status": "success" if _is_complete(compressed_parsed) else "failed",
+                                  "reason": "compressed_prefill_after_exhaustion",
+                                  "response_chars": len(compressed_resp or "")})
+                    if _is_complete(compressed_parsed):
+                        return {"reasoning_result": best_partial, "reasoning_trace": trace,
                                 "reasoning_attempts": attempts,
-                                "reasoning_raw_response": second_resp,
+                                "reasoning_raw_response": compressed_resp,
                                 "reasoning_reference_chars": len(examples_text)}
-                    # 二次推理仍截断/不完整：用它的结论作为压缩重试的续写线索。
-                    resp = second_resp
-            compressed_resp, fail_reason = _compressed_reasoning_retry(
-                deps, hinted_base, coverage=coverage_clause, first_resp=resp)
-            if compressed_resp is None:
-                trace.append({"attempt": attempts, "status": "skipped",
-                              "reason": fail_reason or "compressed_retry_failed"})
-                break
-            resp = compressed_resp
-            compressed_parsed = _parse_reasoning_output(resp, question_mode=question_mode)
-            # 压缩重试产出的任何章节都严格优于上一轮的空产出。
-            if compressed_parsed.get("answer") or compressed_parsed.get("steps") \
-                    or compressed_parsed.get("analysis"):
-                if not compressed_parsed.get("answer") and parsed.get("answer"):
-                    # 压缩重试补齐章节但没写出结论时，保留此前捞回的低置信答案
-                    # （来源标记不变），聊胜于无。
-                    compressed_parsed["answer"] = parsed["answer"]
-                    compressed_parsed["answer_source"] = parsed.get(
-                        "answer_source", "salvaged_prose")
-                parsed = compressed_parsed
-                parsed["answer_source"] = parsed.get("answer_source") or "compressed_prefill"
-            trace.append({"attempt": attempts,
-                          "status": "success" if _is_complete(compressed_parsed) else "failed",
-                          "reason": "compressed_prefill_after_exhaustion",
-                          "response_chars": len(resp or "")})
-            if _is_complete(compressed_parsed):
-                return {"reasoning_result": parsed, "reasoning_trace": trace,
-                        "reasoning_attempts": attempts, "reasoning_raw_response": resp,
-                        "reasoning_reference_chars": len(examples_text)}
+            # 续写循环结束仍未完整：保底交卷（best_partial 至少不劣于首轮空产出）。
+            parsed = best_partial
+            resp = current_resp
             break
         prompt = (base_prompt + "\n\n注意：上一次输出缺少必需章节（必须含 '## 问题分析'、'## 详细解题步骤'、"
                   "'## 最终答案'）。'## 最终答案' 下必须按题面要求完整列出各字段/各问项的结果"

@@ -121,6 +121,23 @@ class PaperPacer:
             per_problem = remaining_time / remaining_problems
             return per_problem >= self.MIN_SOFT
 
+    def surplus_budget_s(self, floor: float | None = None) -> float:
+        """全卷视角下"多出来的时间"（秒）：剩余时间里扣除"剩余题 × floor"的
+        完成底线后，仍可多花的余量。
+
+        续写/二次推理应从这笔余量出钱，而不是从单题软预算（soft_total）里出——
+        只要不花穿这笔余量，剩余每题仍保有 floor 秒保底，100% 完成率不降。
+        floor 默认 MIN_SOFT（PaperPacer 自己的"每题能答"下限）。单题评测场景下
+        该值恒充裕，续写由单题硬限 remaining_hard 兜底。
+        """
+        floor = self.MIN_SOFT if floor is None else float(floor)
+        with self._lock:
+            elapsed = time.monotonic() - self._start
+            remaining_time = max(0.0, self.total - elapsed)
+            remaining_problems = max(1, self.planned - self._done)
+            reserve_for_rest = remaining_problems * floor
+            return max(0.0, remaining_time - reserve_for_rest)
+
     def snapshot(self) -> dict:
         with self._lock:
             elapsed = time.monotonic() - self._start

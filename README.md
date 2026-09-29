@@ -1,10 +1,10 @@
 <p align="center">
-  <h1 align="center">🧮 Math-Agent-System A3</h1>
+  <h1 align="center">🧮 Math-Agent-System G2</h1>
   <p align="center">基于 <b>Intern-S 系列大模型</b> 的 LangGraph 多智能体数学推理系统 — 2026 挑战杯·书生赛道</p>
   <p align="center">
     <img src="https://img.shields.io/badge/Python-3.10+-blue" alt="Python">
     <img src="https://img.shields.io/badge/LLM-Intern--S-orange" alt="Intern-S">
-    <img src="https://img.shields.io/badge/version-A3-purple" alt="A3">
+    <img src="https://img.shields.io/badge/version-G2-purple" alt="G2">
     <img src="https://img.shields.io/badge/framework-LangGraph-green" alt="LangGraph">
     <img src="https://img.shields.io/badge/score-target-70%2B-brightgreen" alt="Target">
   </p>
@@ -14,7 +14,7 @@
 
 ## 📖 简介
 
-**Math-Agent-System A3** 是为 2026 年度中国青年科技创新"揭榜挂帅"擂台赛·书生赛道设计的数学推理智能体。
+**Math-Agent-System G2** 是为 2026 年度中国青年科技创新"揭榜挂帅"擂台赛·书生赛道设计的数学推理智能体。
 
 T3 版本完成了从 T2 svragent 到 **LangGraph 多智能体图编排**的重构。T4 在 T3 基础上，参考 GitHub 开源项目与相关论文补齐了四块**正确性与完成率**短板：
 
@@ -42,6 +42,20 @@ A3 针对 A2 评测暴露的「8192 token 截断」瓶颈做定向优化——A2
 13. **深解题压缩后二次验证**：压缩 prefill 成功但低置信（抑制了私有思考）时，时间充裕（`can_afford_retry` 放行）则复用压缩答案续写做一次完整 CoT 二次确认（保留私有思考），把省下的时间换成置信度；
 14. **medium 计算题答案前置**：medium 计算题（computation 且非深解领域）先锁定数值再先写 "## 最终答案" 后倒推步骤——步骤是佐证而非重新探索，进一步降低"耗尽前没写出结论"的截断；
 15. **中间等式线索增强**：`_extract_key_equations` 从首轮残片提取"已算出的关键等式"（右端含数字）作为续写线索，让二次推理/压缩重试带精确中间值续写。
+
+G2 针对决赛 83 分（G1）暴露的矛盾做定向优化——全卷 **100 题只用 117.5min / 6h**（32.6%，空余 242min）且 `deadline_seconds=0`（全答完），却有 **137 次请求被 8192 截断**（483 请求的 28.4%）、`retry_count=0`：剩余 4h 空转，没有转化为对截断题的深度补救。G2 把续写挂到全卷剩余池子上定价、允许多轮续写，并修掉「判断+求值」复合题的裸布尔输出：
+
+16. **续写改挂全卷 surplus + 多轮续写**：续写（完整二次推理）放行条件从「单题软预算 `remaining()`（= soft_total − reserve − elapsed）」改为「全卷剩余池子 `surplus_budget_s()`」——surplus = 剩余全卷时间 − 剩余题 × MIN_SOFT(120s)，只要不花穿这笔余量，剩余每题仍保有 120s 保底，**100% 完成率不降**；截断后续写从「完整二次推理 → 压缩重试」两级升级为**多轮续写循环**（`max_continuation_rounds=3`：第 1 轮完整二次推理、后续轮压缩续写），每轮复用上一轮结论续写一个 8192，写满仍截断就再续，直到完整或 surplus 耗尽；压缩重试保留 reserve_margin 定价作「保输出」兜底（不被 surplus 卡掉，软预算已尽也放行），全卷引擎缺失时回退单题软预算定价；
+17. **裸判断词回填**：`true_false` 复合题（「判断 Dirichlet 函数是否可积，若可积求积分值」「判断平衡点稳定性」）的答案被压成「正确/错误」裸布尔时，coordinator 成稿前从 reasoning 结论文本回填具体结论（「积分值为 0」「平衡点渐近稳定」「不是主理想整环」），杜绝「最终答案：正确」这种丢信息输出（纯确定性零成本，`enable_bare_verdict_enrich`）。
+
+### G2 vs G1 核心增量
+
+| 维度 | G1（决赛 83 分） | G2 |
+|---|---|---|
+| **时间利用** | 全卷只用 117.5min/6h（32.6%），剩余 4h 空转 | 续写挂全卷 surplus，把多出来的墙钟喂给截断题 |
+| **续写放行** | 看单题软预算 `remaining()`，被 difficulty_soft_budgets 卡住 | 看全卷 `surplus_budget_s()`，只花「剩余题 × 120s」之外的多余时间 |
+| **续写轮数** | 完整二次推理 → 压缩重试 两级 | **多轮续写循环**（≤3 轮），写满仍截断就再续 |
+| **判断+求值复合题** | 「最终答案：正确」丢信息裸布尔 | 回填「积分值为 0」等具体结论 |
 
 ### A2 vs A1 核心增量
 
@@ -218,7 +232,7 @@ pip install -r requirements.txt
 
 ```bash
 export INTERN_API_KEY="sk-xxxx你的密钥xxxx"
-export INTERN_MODEL="intern-s2-preview"  # 可选，默认 intern-s2-preview-397b
+export INTERN_MODEL="intern-s2"  # 可选，默认 intern-s2（397B 正式版）
 ```
 
 ### 3. 批量测试
@@ -266,7 +280,7 @@ PY
 
 ### 3. 分级熔断、完整二次推理与压缩重试（三级兜底）
 
-`intern-s2-preview-397b` 的 CoT（私有 `reasoning_content`）与可见 `content` 都计入
+`intern-s2`（397B 推理模型）的 CoT（私有 `reasoning_content`）与可见 `content` 都计入
 `max_tokens`。难题可能耗完整份额度却没产出任何章节。A2 把「截断 → 压缩重试」两级升级为三级：
 - 首轮 `max_tokens=8192`（约 150s）——原 24576 首轮在奥赛题上几乎总被私有推理耗尽，成功解极少，降上限换来的是重试窗口
 - **Token 耗尽时先做完整二次推理**（`reasoning_full_retry`）：`can_afford_retry` 放行且时间充裕时，用普通 `chat_with_retry`（保留私有思考）复用首轮 `_extract_clues` 结论断点续写，先给"## 最终答案"明确结论再补步骤；Python 侧对称地做一次完整重生成（`full_retried` 只触发一次）
@@ -280,6 +294,7 @@ PY
 PaperPacer 用**题间预算池**动态计算每题软预算帽：已用全卷时间 ÷ 剩余题数超速时收紧
 （仍 ≥ 120s 保底），健康时给足理想预算。与难度画像（easy 600 / medium 1200 / hard 1200）
 取 min 作为该题软预算。只收紧软预算（可选阶段购买力），不动 1200s 平台硬限。
+G2 新增 `surplus_budget_s()`：全卷剩余时间里扣除「剩余题 × 120s」完成底线后仍可多花的余量，作为截断题续写的放行依据——只要续写不花穿这笔余量，剩余每题仍保有 120s 保底，100% 完成率不降。
 
 ### 5. 过程审计门（Critic）
 
@@ -344,7 +359,8 @@ PaperPacer 用**题间预算池**动态计算每题软预算帽：已用全卷�
 - **结论速览兜底**：四章节解析失败时，从"结论速览"章节兜底提炼（`answer_source="quick_conclusion"`）；
 - **断点续写（`_extract_clues`）**：复用首轮已算结论作为续写线索注入二次/压缩重试，而非从零重生成；
 - **完整二次推理（A2 新增）**：首轮截断后、压缩重试前，若时间充裕先用普通 `chat_with_retry`（保留私有思考）带结论续写一次完整推理，把"没想清楚就硬写"升级为"想清楚了再写"；被拒/失败/再截断才降级到压缩重试；
-- **首轮墙钟上限（550s）**：`first_attempt_timeout_s=550` 触发即就地转入续写，而非让 node_wrapper 的 1100s 掐死整条分支（reasoning 与 python 两侧均生效）。
+- **首轮墙钟上限（550s）**：`first_attempt_timeout_s=550` 触发即就地转入续写，而非让 node_wrapper 的 1100s 掐死整条分支（reasoning 与 python 两侧均生效）；
+- **续写挂全卷 surplus + 多轮续写（G2 新增）**：续写放行从单题软预算 `remaining()` 改为全卷剩余池子 `surplus_budget_s()`（剩余全卷时间 − 剩余题 × 120s），只花「多出来的时间」不碰完成率底线；截断后从「完整二次推理 → 压缩重试」两级升级为**多轮续写循环**（`max_continuation_rounds=3`：第 1 轮完整二次推理 + 后续压缩续写），写满 8192 仍截断就再续，直到完整或 surplus 耗尽；压缩重试保留 reserve_margin 定价作「保输出」兜底（不被 surplus 卡掉）。
 
 ### 13. 8192 token 内更高效思考（A3 新增）
 
@@ -363,7 +379,7 @@ A2 瓶颈是 8192 token 截断（`truncated_count=328` / 41.7%，完整二次推
 
 | 配置项 | 值 | 说明 |
 |---|---|---|
-| `model` | `intern-s2-preview-397b` | 默认模型，可由 `INTERN_MODEL` 覆盖 |
+| `model` | `intern-s2` | 默认模型（397B 正式版，赛事推荐），可由 `INTERN_MODEL` 覆盖 |
 | `problem_time_budget_s` | `1200` | 单题墙钟预算（平台硬限制 20 分钟） |
 | `time_reserve_s` | `300` | 预留时间：越过后不再购买可选 LLM 阶段 |
 | `paper_total_seconds` | `21600` | 全卷 6h 硬限（PaperPacer 预算池） |
@@ -386,8 +402,10 @@ A2 瓶颈是 8192 token 截断（`truncated_count=328` / 41.7%，完整二次推
 | `enable_proof_deepener` | `true` | 证明结构补强 |
 | `db_retrieval_top_k` | `2` | 题库检索 top-k 条数（2 条同时进推理/验证两个子代理） |
 | `first_attempt_timeout_s` | `550` | 首轮推理/Python 单次墙钟上限（触发即转续写） |
-| `full_retry_estimate_s` | `220` | 完整二次推理/重生成估时（8192 token @ ~50 tok/s + 余量，只作 can_afford 估时） |
+| `full_retry_estimate_s` | `220` | 完整二次推理/续写估时（8192 token @ ~50 tok/s + 余量，只作续写放行估时） |
 | `enable_deep_direct_compressed` | `true` | 深解题（proof + deep_solver_domains）首轮直接压缩 prefill 开关（A3；false 回退 A2 三级路径） |
+| `max_continuation_rounds` | `3` | 截断后续写最大轮数（G2 多轮续写：第 1 轮完整二次推理 + 后续压缩续写） |
+| `enable_bare_verdict_enrich` | `true` | 裸判断词回填：判断+求值复合题答案被压成裸布尔时回填具体结论（G2） |
 
 ---
 
@@ -414,6 +432,7 @@ A2 瓶颈是 8192 token 截断（`truncated_count=328` / 41.7%，完整二次推
 | A1 | 64.29 分（72/112） | LangGraph 多智能体图 + RAG 题库检索 + 断点续写/答案前置 | TF-IDF 相似题检索 + 反锚定参考块；结论速览 prefill + 线索复用续写 + 550s 首轮墙钟上限 |
 | A2 | 67.86 分（76/112） | + 完整二次推理 + 难度软预算上调 | 截断难题三级兜底（首轮→完整二次推理→压缩重试）；medium 软预算 840→1000；把 A1 空余 2h20min 转化为第二次完整思考 |
 | **A3** | **目标 70 分+** | + 紧凑输出 + 深解题首轮压缩 prefill + Python 对称压缩 + 二次验证 + 答案前置 + 线索增强 | 8192 内更高效思考（先锁定结论少铺陈）；证明/深解题首轮直接压缩 prefill（~150s 替代 ~384s 完整 CoT）；medium 软预算 1000→1200；Python 侧深解领域首轮压缩、压缩后完整 CoT 二次验证、计算题答案前置、中间等式线索增强 |
+| **G2** | 目标（G1 决赛 83 分之上） | + 续写挂全卷 surplus + 多轮续写 + 裸判断词回填 + 模型 intern-s2 | 续写放行改看全卷剩余池子 `surplus_budget_s()`（不碰 100% 完成率底线）；截断多轮续写（≤3 轮）；判断+求值复合题回填具体结论；切换 397B 正式版 |
 
 ---
 
