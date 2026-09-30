@@ -91,6 +91,25 @@ def normalize_chat_response(resp) -> str:
         return ""
 
 
+def extract_finish_reason(resp) -> str:
+    """从 client 原始返回提取 finish_reason（'length' 表示被 max_tokens 截断）。
+
+    归一化会把 client 返回值压成 str、丢弃 finish_reason；这里在归一化前单独
+    提取，供 reasoning 首轮判断"硬截断"（finish_reason == 'length'，即步骤
+    没写完但答案可能已写出）。平台 client 返回形态多样，拿不到信号（str/bytes/
+    list 形态或字段缺失）时返回 ""，调用方按"无信号"降级，不改变现有行为。
+    """
+    if not isinstance(resp, dict):
+        return ""
+    choices = resp.get("choices") or []
+    if isinstance(choices, list) and choices and isinstance(choices[0], dict):
+        fr = choices[0].get("finish_reason")
+        if isinstance(fr, str) and fr:
+            return fr
+    fr = resp.get("finish_reason")
+    return fr if isinstance(fr, str) else ""
+
+
 def chat_compatible(client, messages, temperature, max_tokens):
     """签名探测调用（平台防线）。
 

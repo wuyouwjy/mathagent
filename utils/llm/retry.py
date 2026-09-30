@@ -15,7 +15,11 @@ from typing import Dict, List
 
 from config import CONFIG
 from utils.llm.prefill import prefill_messages, stitch
-from utils.llm.response_normalize import chat_compatible, normalize_chat_response
+from utils.llm.response_normalize import (
+    chat_compatible,
+    extract_finish_reason,
+    normalize_chat_response,
+)
 
 
 class DeadlineExceeded(RuntimeError):
@@ -92,7 +96,8 @@ class LLMRetryWrapper:
         temperature: float = 0.2,
         max_tokens: int = 4096,
         label: str = "llm",
-    ) -> str:
+        meta: bool = False,
+    ):
         if not self._affordable():
             need = (f"~{self.expected_call_seconds:.0f}s"
                     if self.expected_call_seconds is not None else "any time at all")
@@ -107,7 +112,10 @@ class LLMRetryWrapper:
                 result = chat_compatible(self.client, messages, temperature, max_tokens)
                 if self.time_budget:
                     self.time_budget.record(label, self._now() - started)
-                return normalize_chat_response(result)
+                content = normalize_chat_response(result)
+                if meta:
+                    return content, extract_finish_reason(result)
+                return content
             except Exception as exc:  # noqa: BLE001 - retry transient transport failures.
                 last_error = exc
                 observed = self._now() - started
@@ -160,6 +168,38 @@ def chat_with_retry(
         temperature=temperature,
         max_tokens=max_tokens,
         label=label,
+    )
+
+
+def chat_with_retry_meta(
+    client,
+    messages,
+    temperature=0.2,
+    max_tokens=4096,
+    logger=None,
+    time_budget=None,
+    expected_call_seconds=None,
+    label="llm",
+):
+    """同 chat_with_retry，但额外返回 (content, finish_reason) 二元组。
+
+    供 reasoning 首轮判断"硬截断"（finish_reason == 'length'）：归一化会丢
+    掉该信号，meta 版本在归一化前把它提取出来一并返回。其余行为与
+    chat_with_retry 完全一致（同样受时间预算与重试兜底约束）。
+    """
+    return LLMRetryWrapper(
+        client,
+        max_retries=CONFIG["llm_max_retries"],
+        backoff_factor=CONFIG["backoff_factor"],
+        logger=logger,
+        time_budget=time_budget,
+        expected_call_seconds=expected_call_seconds,
+    ).chat(
+        messages=messages,
+        temperature=temperature,
+        max_tokens=max_tokens,
+        label=label,
+        meta=True,
     )
 
 

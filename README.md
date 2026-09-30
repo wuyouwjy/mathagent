@@ -1,10 +1,10 @@
 <p align="center">
-  <h1 align="center">🧮 Math-Agent-System G2</h1>
+  <h1 align="center">🧮 Math-Agent-System G3</h1>
   <p align="center">基于 <b>Intern-S 系列大模型</b> 的 LangGraph 多智能体数学推理系统 — 2026 挑战杯·书生赛道</p>
   <p align="center">
     <img src="https://img.shields.io/badge/Python-3.10+-blue" alt="Python">
     <img src="https://img.shields.io/badge/LLM-Intern--S-orange" alt="Intern-S">
-    <img src="https://img.shields.io/badge/version-G2-purple" alt="G2">
+    <img src="https://img.shields.io/badge/version-G3-purple" alt="G3">
     <img src="https://img.shields.io/badge/framework-LangGraph-green" alt="LangGraph">
     <img src="https://img.shields.io/badge/score-target-70%2B-brightgreen" alt="Target">
   </p>
@@ -14,7 +14,7 @@
 
 ## 📖 简介
 
-**Math-Agent-System G2** 是为 2026 年度中国青年科技创新"揭榜挂帅"擂台赛·书生赛道设计的数学推理智能体。
+**Math-Agent-System G3** 是为 2026 年度中国青年科技创新"揭榜挂帅"擂台赛·书生赛道设计的数学推理智能体。
 
 T3 版本完成了从 T2 svragent 到 **LangGraph 多智能体图编排**的重构。T4 在 T3 基础上，参考 GitHub 开源项目与相关论文补齐了四块**正确性与完成率**短板：
 
@@ -47,6 +47,20 @@ G2 针对决赛 83 分（G1）暴露的矛盾做定向优化——全卷 **100 �
 
 16. **续写改挂全卷 surplus + 多轮续写**：续写（完整二次推理）放行条件从「单题软预算 `remaining()`（= soft_total − reserve − elapsed）」改为「全卷剩余池子 `surplus_budget_s()`」——surplus = 剩余全卷时间 − 剩余题 × MIN_SOFT(120s)，只要不花穿这笔余量，剩余每题仍保有 120s 保底，**100% 完成率不降**；截断后续写从「完整二次推理 → 压缩重试」两级升级为**多轮续写循环**（`max_continuation_rounds=3`：第 1 轮完整二次推理、后续轮压缩续写），每轮复用上一轮结论续写一个 8192，写满仍截断就再续，直到完整或 surplus 耗尽；压缩重试保留 reserve_margin 定价作「保输出」兜底（不被 surplus 卡掉，软预算已尽也放行），全卷引擎缺失时回退单题软预算定价；
 17. **裸判断词回填**：`true_false` 复合题（「判断 Dirichlet 函数是否可积，若可积求积分值」「判断平衡点稳定性」）的答案被压成「正确/错误」裸布尔时，coordinator 成稿前从 reasoning 结论文本回填具体结论（「积分值为 0」「平衡点渐近稳定」「不是主理想整环」），杜绝「最终答案：正确」这种丢信息输出（纯确定性零成本，`enable_bare_verdict_enrich`）。
+
+G3 针对 G2 决赛暴露的「续写优化未生效」问题做定向优化——根因排查发现续写入口是**死代码**：官方 `InternChatClient.chat` 只返回 content 字符串、丢弃 finish_reason，`extract_finish_reason` 收到 str 直接返回空串，`hard_truncated` 永远 False，G2 的「多轮续写」一次都没触发。G3 修掉信号断链、改用长度启发式兜底判截断，并把压缩 prefill 从深解题扩展到全部计算题：
+
+18. **续写入口死代码修复（长度启发式兜底）**：续写依赖 `finish_reason == "length"` 判硬截断，但平台 client 只返回 content str、丢弃 finish_reason，信号在 client 层断链 → 续写从未触发。改用长度启发式 `hard_truncated = finish_reason == "length" or len(resp) >= max_tokens × 2.8`（Intern-S2 数学文本实测 char/token ≈ 3.1~3.6，取 2.8 阈值 22937 字符留 ~15% 余量覆盖全部截断、正常输出 <3000 字符零误判），并去掉 `is_deep` 限制让 computation 题也续写；
+19. **deep_direct 压缩 prefill 扩展到 computation 题**：压缩首答从「证明题 + 深解领域」扩展到「证明题 + 全部计算题」（`question_mode in ("proof", "computation")`），所有计算题首轮都答案前置、抑制私有 CoT，避免首轮完整 CoT 必截断；
+20. **computation 题跳过 verify**：压缩首答成功后计算题直接交卷（跳过完整 CoT 二次确认），因为长推导计算题的完整 CoT 必截断、verify 注定白跑（复测 idx 49 微分几何 verify 完整 CoT 输出 28260 字符又截断、白跑 ~208s 反而拉长耗时）；证明题保留 verify 二次确认。
+
+### G3 vs G2 核心增量
+
+| 维度 | G2 | G3 |
+|---|---|---|
+| **续写触发** | 依赖 finish_reason 判截断，client 只返回 str 丢弃信号 → 续写死代码、一次不触发 | 长度启发式兜底（char/token=2.8），续写真正触发，computation 题也续写 |
+| **压缩 prefill 覆盖面** | 仅证明题 + 深解领域 | 扩展到全部计算题（proof + computation），首轮都答案前置 |
+| **压缩后 verify** | 压缩首答成功后完整 CoT 二次确认（长推导计算题必截断白跑） | computation 题压缩首答成功即交卷、跳过 verify；证明题保留 verify |
 
 ### G2 vs G1 核心增量
 
@@ -433,6 +447,7 @@ A2 瓶颈是 8192 token 截断（`truncated_count=328` / 41.7%，完整二次推
 | A2 | 67.86 分（76/112） | + 完整二次推理 + 难度软预算上调 | 截断难题三级兜底（首轮→完整二次推理→压缩重试）；medium 软预算 840→1000；把 A1 空余 2h20min 转化为第二次完整思考 |
 | **A3** | **目标 70 分+** | + 紧凑输出 + 深解题首轮压缩 prefill + Python 对称压缩 + 二次验证 + 答案前置 + 线索增强 | 8192 内更高效思考（先锁定结论少铺陈）；证明/深解题首轮直接压缩 prefill（~150s 替代 ~384s 完整 CoT）；medium 软预算 1000→1200；Python 侧深解领域首轮压缩、压缩后完整 CoT 二次验证、计算题答案前置、中间等式线索增强 |
 | **G2** | 目标（G1 决赛 83 分之上） | + 续写挂全卷 surplus + 多轮续写 + 裸判断词回填 + 模型 intern-s2 | 续写放行改看全卷剩余池子 `surplus_budget_s()`（不碰 100% 完成率底线）；截断多轮续写（≤3 轮）；判断+求值复合题回填具体结论；切换 397B 正式版 |
+| **G3** | 目标（G2 之上） | + 续写入口修复 + 压缩 prefill 全计算题覆盖 + computation 跳 verify | 续写改长度启发式兜底（修复 finish_reason 断链死代码）；压缩首答从深解题扩展到全部计算题；计算题压缩成功即交卷（证明题保留 verify） |
 
 ---
 

@@ -1,6 +1,6 @@
 import re
 from utils.deps import get_deps
-from utils.llm.retry import chat_prefilled, chat_with_retry
+from utils.llm.retry import chat_prefilled, chat_with_retry, chat_with_retry_meta
 from utils.llm.templates import REASONING_PROMPT
 from utils.budget.token import estimate_tokens
 from utils.answer.extractor import (
@@ -317,6 +317,13 @@ _FIRST_ATTEMPT_TIMEOUT_S = CONFIG.get("first_attempt_timeout_s", 550)
 #: tok/s ≈ 164s，220s 覆盖拥堵余量；只作 can_afford 估时，实测成本仍以
 #: last_attempt_cost 为准。
 _FULL_RETRY_ESTIMATE_S = CONFIG.get("full_retry_estimate_s", 220)
+
+#: 硬截断的长度启发式：官方 client 只返回 content str、丢弃 finish_reason，
+#: 拿不到 "length" 信号时用字符数兜底。Intern-S2 数学文本实测 char/token 在
+#: 3.1~3.6（2026-09-30 复测 idx 49/83/100 截断输出 25587~29661 字符 ≈ 8192
+#: token），取 2.8 留 ~15% 余量（覆盖 LaTeX 更密集的截断）；正常完整输出走压缩
+#: /客观/简洁路径均 <3000 字符，故阈值 22938 字符零误判。
+_HARD_TRUNC_CHARS_PER_TOKEN = 2.8
 
 #: 压缩重试的 assistant 种子。以内容开头接管助手轮，模型进入续写模式后不再打开
 #: reasoning_content（与分类器/仲裁器 prefill 同机制，见 utils/prefill.py 实测），
@@ -734,6 +741,7 @@ def reasoning_agent_node(state, config):
     trace = []
     attempts = 0
     resp = ""
+    finish_reason = ""
     parsed = {"analysis": "", "steps": [], "answer": "", "validation_points": []}
     # A reasoning call is the single most expensive thing in the graph (measured 77-116s
     # on mid-difficulty problems, 510-552s on an olympiad-level one). Under deadline
@@ -742,14 +750,15 @@ def reasoning_agent_node(state, config):
     if clock and clock.fast_path():
         max_attempts = 1
 
-    # A3 手段2：证明题与深解领域（数论/组合/高代/抽代）的完整 CoT 几乎必超 8192
-    # （A2 实测完整二次推理 80% 也截断）。首轮先试压缩 prefill（答案前置 + 抑制
-    # 私有 CoT，~150s），成功即省下"注定截断"的完整 CoT + 完整二次推理（~384s）；
-    # 压缩产出不完整则回退下面的完整 CoT 兜底，不损失深度思考。fast_path 时间
-    # 紧张或开关关闭时跳过，直接走最短路径。
+    # A3 手段2：证明题与计算题（computation）的完整 CoT 几乎必超 8192（A2 实测
+    # 完整二次推理 80% 也截断；2026-09-30 复测 idx 49/83/100 微分几何/复分析/
+    # 线性回归首轮完整 CoT 输出 25000~32000 字符被截断）。首轮先试压缩 prefill
+    # （答案前置 + 抑制私有 CoT，~150s），成功即省下"注定截断"的完整 CoT + 完整
+    # 二次推理（~384s）；压缩产出不完整则回退下面的完整 CoT 兜底，不损失深度
+    # 思考。fast_path 时间紧张或开关关闭时跳过，直接走最短路径。客观题已在上面
+    # 提前 return，走不到这里。
     deep_direct = (CONFIG.get("enable_deep_direct_compressed", True)
-                   and (question_mode == "proof"
-                        or category in CONFIG.get("deep_solver_domains", [])))
+                   and question_mode in ("proof", "computation"))
     if deep_direct and not (clock and clock.fast_path()):
         deep_resp, _deep_fail = _compressed_reasoning_retry(
             deps, hinted_base, coverage=coverage_clause)
@@ -763,7 +772,11 @@ def reasoning_agent_node(state, config):
                 # A4 思路2：压缩 prefill 成功但低置信（抑制了私有思考），时间充裕时
                 # 用省下的时间做一次完整 CoT 二次确认（复用压缩答案续写、保留私有
                 # 思考）。完整 CoT 产出完整答案则采用（更高置信），否则保留压缩答案。
-                if can_afford_retry(clock, "reasoning"):
+                # 仅 proof 题保留 verify：computation 题压缩首答成功即交卷。长推导
+                # computation 题的完整 CoT 必截断，verify 注定白跑——2026-09-30
+                # 复测 idx 49 微分几何 verify 完整 CoT 输出 28260 字符又截断，白跑
+                # ~450s 反而把 443s 拉到 601s，抵消了压缩首答省下的时间。
+                if question_mode == "proof" and can_afford_retry(clock, "reasoning"):
                     verify_resp = _full_reasoning_retry(
                         deps, hinted_base, first_resp=deep_resp)
                     if verify_resp is not None:
@@ -804,8 +817,9 @@ def reasoning_agent_node(state, config):
                 # 被 node_wrapper 掐断后压缩续写永远没机会触发。压到 550s 后，
                 # 超时就地转入压缩续写（复用首轮已算结论 + 答案前置 prefill），
                 # 而不是让 node_wrapper 掐死整条分支（断点续写核心）。
-                resp = run_with_timeout(
-                    lambda: chat_with_retry(
+                # meta 版本额外带回 finish_reason，供续写入口判断"硬截断"。
+                resp, finish_reason = run_with_timeout(
+                    lambda: chat_with_retry_meta(
                         client,
                         messages=[{"role": "user", "content": prompt}],
                         temperature=CONFIG["temperatures"]["reasoning"],
@@ -864,12 +878,24 @@ def reasoning_agent_node(state, config):
             budget.consume(estimate_tokens(prompt), estimate_tokens(resp))
         parsed = _parse_reasoning_output(resp, question_mode=question_mode)
         exhausted = _looks_token_exhausted(resp, parsed)
+        # 硬截断：首轮被 max_tokens 切断，步骤可能没写完。答案前置让答案先落袋
+        # （_is_complete 为真），续写入口被"答案已完整"挡在门外、空转的 surplus
+        # 时间补不了步骤。此处对截断题放开：即使答案已写出，只要疑似截断就进
+        # 续写循环补步骤。优先 finish_reason == 'length'（精确）；官方 client 只
+        # 返回 content str、丢弃该信号时，用长度启发式兜底（见 _HARD_TRUNC_CHARS_
+        # PER_TOKEN）。触发面不限深解/证明题——computation 题的完整 CoT 同样会截
+        # 断（复测 idx 83 首轮 29661 字符被 8192 切断、答案解析失败）。
+        hard_truncated = (
+            finish_reason == "length"
+            or len(resp or "") >= int(
+                CONFIG["max_tokens"].get("reasoning", 8192) * _HARD_TRUNC_CHARS_PER_TOKEN)
+        )
         trace.append({"attempt": attempts,
                       "status": "success" if _is_complete(parsed) else "failed",
                       "response_chars": len(resp or ""),
                       **({"reason": "token_budget_exhausted",
                           "raw_excerpt": _raw_excerpt(resp)} if exhausted else {})})
-        if _is_complete(parsed):
+        if _is_complete(parsed) and not hard_truncated:
             return {"reasoning_result": parsed, "reasoning_trace": trace,
                     "reasoning_attempts": attempts, "reasoning_raw_response": resp,
                     "reasoning_reference_chars": len(examples_text)}
@@ -881,7 +907,7 @@ def reasoning_agent_node(state, config):
         # deadline for nothing. 2026-08-09 评委报告模式 A：这类"耗尽后普通重试"
         # 常因预算不足被跳过，约 35 题四章节全空。现改为 prefill 压缩重试：助手
         # 种子抑制私有推理，~150s 即产出可解析章节（阶段性熔断，评委建议 4）。
-        if exhausted:
+        if exhausted or hard_truncated:
             # 断点续写循环（多轮）：把全卷"多出来的时间"（surplus）换成对截断题的
             # 深度补救。每轮复用上一轮已算结论续写一个 8192，写满仍截断就再续，
             # 直到完整或全卷余量耗尽。放行看全卷 surplus（不占单题软预算），因此
@@ -891,6 +917,10 @@ def reasoning_agent_node(state, config):
             current_resp = resp
             best_partial = parsed
             did_compressed = False
+            # 首轮答案已真实写出（非捞回残片）时，续写只补步骤、结论以首轮完整
+            # CoT 为准，防止二次推理把已正确的结论改坏（深解/证明题硬截断场景）。
+            keep_first_answer = bool(parsed.get("answer")) and \
+                parsed.get("answer_source", "") not in _SCAVENGED_SOURCES
             max_rounds = int(CONFIG.get("max_continuation_rounds", 3))
             for round_idx in range(1, max_rounds + 1):
                 if not _surplus_retry_affordable(deps, _FULL_RETRY_ESTIMATE_S):
@@ -915,9 +945,10 @@ def reasoning_agent_node(state, config):
                 # 续写产出的任何章节都严格优于上一轮的空产出：保留可用部分答案。
                 if cont_parsed.get("answer") or cont_parsed.get("steps") \
                         or cont_parsed.get("analysis"):
-                    if not cont_parsed.get("answer") and best_partial.get("answer"):
-                        # 续写补齐章节但没写出结论时，保留此前捞回的低置信答案
-                        # （来源标记不变），聊胜于无。
+                    if (keep_first_answer or not cont_parsed.get("answer")) \
+                            and best_partial.get("answer"):
+                        # 续写补齐章节但没写出结论时（或首轮结论已完整时），保留此前
+                        # 的答案——首轮完整 CoT 的结论优先于续写的（防改坏）。
                         cont_parsed["answer"] = best_partial["answer"]
                         cont_parsed["answer_source"] = best_partial.get(
                             "answer_source", "salvaged_prose")
@@ -950,7 +981,8 @@ def reasoning_agent_node(state, config):
                         compressed_resp, question_mode=question_mode)
                     if compressed_parsed.get("answer") or compressed_parsed.get("steps") \
                             or compressed_parsed.get("analysis"):
-                        if not compressed_parsed.get("answer") and best_partial.get("answer"):
+                        if (keep_first_answer or not compressed_parsed.get("answer")) \
+                                and best_partial.get("answer"):
                             compressed_parsed["answer"] = best_partial["answer"]
                             compressed_parsed["answer_source"] = best_partial.get(
                                 "answer_source", "salvaged_prose")
