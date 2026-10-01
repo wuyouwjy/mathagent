@@ -23,7 +23,7 @@ import re
 
 #: 英文探索性元叙述。这些短语出现在思考文本里，不出现在提交的数学结论里。
 _META_NARRATION_RE = re.compile(
-    r"(?i)\b(?:let'?s|let us|but wait|wait[,.]|maybe|perhaps|hmm+|we already|"
+    r"(?i)\b(?:let'?s|let us|but wait|wait\b|maybe|perhaps|hmm+|we already|"
     r"we need to|we should|i think|i'?ll|let me|not sure|seems? to be|actually|"
     r"try(?:ing)? to (?:see|construct|find)|attempt to|"
     r"if i (?:write|answer|say)|the user|answer key|might think|i'?m wrong|"
@@ -33,7 +33,8 @@ _META_NARRATION_RE = re.compile(
 #: 提示词内部指令被回显为答案（评委报告 idx 105："Count blanks: 1"）。
 _INTERNAL_INSTRUCTION_RE = re.compile(
     r"(?i)count\s+blanks?|数空位|空位数量|按选项(?:逐项)?核对|逐项核对题面|"
-    r"先数清|请判断|请问|按顺序列出全部结果"
+    r"先数清|请判断|请问|按顺序列出全部结果|"
+    r"the\s+instruction\s+says?|instruction\s+says?|analy[sz]e\s+the\s+request"
 )
 
 #: 中文自我怀疑/过程叙述（评委报告 idx 36："哪里出错了？啊！"）。

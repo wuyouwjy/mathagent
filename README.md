@@ -1,10 +1,10 @@
 <p align="center">
-  <h1 align="center">🧮 Math-Agent-System G3</h1>
+  <h1 align="center">🧮 Math-Agent-System G4</h1>
   <p align="center">基于 <b>Intern-S 系列大模型</b> 的 LangGraph 多智能体数学推理系统 — 2026 挑战杯·书生赛道</p>
   <p align="center">
     <img src="https://img.shields.io/badge/Python-3.10+-blue" alt="Python">
     <img src="https://img.shields.io/badge/LLM-Intern--S-orange" alt="Intern-S">
-    <img src="https://img.shields.io/badge/version-G3-purple" alt="G3">
+    <img src="https://img.shields.io/badge/version-G4-purple" alt="G4">
     <img src="https://img.shields.io/badge/framework-LangGraph-green" alt="LangGraph">
     <img src="https://img.shields.io/badge/score-target-70%2B-brightgreen" alt="Target">
   </p>
@@ -14,7 +14,7 @@
 
 ## 📖 简介
 
-**Math-Agent-System G3** 是为 2026 年度中国青年科技创新"揭榜挂帅"擂台赛·书生赛道设计的数学推理智能体。
+**Math-Agent-System G4** 是为 2026 年度中国青年科技创新"揭榜挂帅"擂台赛·书生赛道设计的数学推理智能体。
 
 T3 版本完成了从 T2 svragent 到 **LangGraph 多智能体图编排**的重构。T4 在 T3 基础上，参考 GitHub 开源项目与相关论文补齐了四块**正确性与完成率**短板：
 
@@ -53,6 +53,19 @@ G3 针对 G2 决赛暴露的「续写优化未生效」问题做定向优化—�
 18. **续写入口死代码修复（长度启发式兜底）**：续写依赖 `finish_reason == "length"` 判硬截断，但平台 client 只返回 content str、丢弃 finish_reason，信号在 client 层断链 → 续写从未触发。改用长度启发式 `hard_truncated = finish_reason == "length" or len(resp) >= max_tokens × 2.8`（Intern-S2 数学文本实测 char/token ≈ 3.1~3.6，取 2.8 阈值 22937 字符留 ~15% 余量覆盖全部截断、正常输出 <3000 字符零误判），并去掉 `is_deep` 限制让 computation 题也续写；
 19. **deep_direct 压缩 prefill 扩展到 computation 题**：压缩首答从「证明题 + 深解领域」扩展到「证明题 + 全部计算题」（`question_mode in ("proof", "computation")`），所有计算题首轮都答案前置、抑制私有 CoT，避免首轮完整 CoT 必截断；
 20. **computation 题跳过 verify**：压缩首答成功后计算题直接交卷（跳过完整 CoT 二次确认），因为长推导计算题的完整 CoT 必截断、verify 注定白跑（复测 idx 49 微分几何 verify 完整 CoT 输出 28260 字符又截断、白跑 ~208s 反而拉长耗时）；证明题保留 verify 二次确认。
+
+G4 针对 G3 决赛 86 分做两项收尾——G3 全卷仅用 2h/6h（时间用不完），"computation 跳 verify" 是双刃剑（省时间但丢纠错）；同时 20 题本地复测暴露出 fill 题最终答案泄漏 prompt 指令的 bug：
+
+21. **恢复 computation 题的条件 verify（短推导题）**：既然时间用不完，把 verify 加回来，但只对短推导题——压缩首答 < 2000 字符（`_VERIFY_MAX_CHARS`）说明是短题，verify 完整 CoT 不截断、有纠错价值；首答已撑满（≥2000 字符）说明是长推导题，verify 必截断白跑，仍跳过。20 题复测分界 100% 正确（短题触发、长题跳过），但 verify 效果有限——5 题触发仅 1 题成功覆盖（其余 4 题 verify 完整 CoT 失败、退回压缩首答）；因 verify 失败会退回压缩首答，该改动安全（下界 = G3）但收益有限；
+22. **修复 fill 题答案泄漏 prompt 指令**：fill 题最终答案曾泄漏 prompt 指令（`最终答案：Wait, the instruction says "多空用分号分隔..."`）。根因是 `cleanliness.py` 元叙述正则 `wait[,.]` 把逗号吃进匹配、外层 `\b` 落在逗号后空格处（非 word boundary），使 `"Wait, ..."` 这种最常见的英文探索句永远匹配不上；且 `_INTERNAL_INSTRUCTION_RE` 缺 `instruction says` 复述模式。修复 `wait[,.]`→`wait\b` 并追加 instruction 复述模式，idx 0 fill 题从泄漏 prompt（0 分）→ 正确答出 `384; 56`。
+
+### G4 vs G3 核心增量
+
+| 维度 | G3 | G4 |
+|---|---|---|
+| **computation 题 verify** | 压缩首答成功即交卷、全部跳过 verify | 短推导题（压缩首答 <2000 字符）做 verify、长推导题跳过 |
+| **verify 实际效果** | 无 verify（省时间） | 5 题触发仅 1 题成功覆盖、4 题失败退回压缩首答（安全但收益有限） |
+| **fill 答案泄漏** | 可能泄漏 prompt 指令（"Wait, the instruction says..."） | 修元叙述正则 `wait[,.]`→`wait\b` + 补 instruction 复述模式，杜绝泄漏 |
 
 ### G3 vs G2 核心增量
 
@@ -448,6 +461,7 @@ A2 瓶颈是 8192 token 截断（`truncated_count=328` / 41.7%，完整二次推
 | **A3** | **目标 70 分+** | + 紧凑输出 + 深解题首轮压缩 prefill + Python 对称压缩 + 二次验证 + 答案前置 + 线索增强 | 8192 内更高效思考（先锁定结论少铺陈）；证明/深解题首轮直接压缩 prefill（~150s 替代 ~384s 完整 CoT）；medium 软预算 1000→1200；Python 侧深解领域首轮压缩、压缩后完整 CoT 二次验证、计算题答案前置、中间等式线索增强 |
 | **G2** | 目标（G1 决赛 83 分之上） | + 续写挂全卷 surplus + 多轮续写 + 裸判断词回填 + 模型 intern-s2 | 续写放行改看全卷剩余池子 `surplus_budget_s()`（不碰 100% 完成率底线）；截断多轮续写（≤3 轮）；判断+求值复合题回填具体结论；切换 397B 正式版 |
 | **G3** | 目标（G2 之上） | + 续写入口修复 + 压缩 prefill 全计算题覆盖 + computation 跳 verify | 续写改长度启发式兜底（修复 finish_reason 断链死代码）；压缩首答从深解题扩展到全部计算题；计算题压缩成功即交卷（证明题保留 verify） |
+| **G4** | 目标（G3 之上） | + computation 条件 verify（短推导）+ fill 答案泄漏修复 | 短推导题（压缩首答 <2000 字符）恢复 verify、长推导题仍跳（安全、收益有限）；修元叙述正则 `wait[,.]`→`wait\b` 杜绝 fill 题泄漏 prompt 指令 |
 
 ---
 

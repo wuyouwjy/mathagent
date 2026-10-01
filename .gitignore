@@ -25,6 +25,10 @@ sample/sample_outputs*/
 # 开发自测数据（含标准答案字段，不入库——评委安全检查禁止提交标准答案/测试集）
 sample/sample_data/
 
+# 本地测试题库与复测结果（Test/ 含抽取脚本、20 题 benchmark、标准答案与复测输出，
+# 仅供本地回归验证；含标准答案字段，不入库）
+Test/
+
 # 自测代码（mock client 单元测试，含自编测试断言，不入库保持提交包零答案痕迹）
 sample/sample_tests/
 
