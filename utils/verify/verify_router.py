@@ -25,6 +25,17 @@ _CONCEPT_RE = re.compile(
     re.IGNORECASE,
 )
 
+#: 字母空信号（答案是选项/判断/多选的字母，Python 标量无法表达，验证无意义）。
+#: 2026-10-02 idx=29（实验设计概念题，答案 C;D;A）被"反向排除概念"放行进
+#: Python，生成代码触发 counting_guard 拦截白跑。收窄为"只有数值/表达式空
+#: 才值得 Python 第二证据"。
+_NON_NUMERIC_ANSWER_RE = re.compile(
+    r"true\s+or\s+false|whether|which\s+of\s+the\s+following|select\s+all|"
+    r"check\s+all\s+that\s+apply|none\s+of\s+the\s+above|all\s+of\s+the\s+above|"
+    r"判断下列|下列.*(?:正确|错误)|哪些(?:说法|命题|结论|语句|选项)",
+    re.IGNORECASE,
+)
+
 
 def needs_python_verify(problem: str, question_mode: str) -> bool:
     """该题是否需要 Python 验证第二证据（即使它是客观题）。
@@ -37,4 +48,10 @@ def needs_python_verify(problem: str, question_mode: str) -> bool:
         return False
     if not str(problem or "").strip():
         return False
-    return not _CONCEPT_RE.search(problem)
+    if _CONCEPT_RE.search(problem):
+        # 纯概念填空（填术语/定义）无需计算
+        return False
+    if _NON_NUMERIC_ANSWER_RE.search(problem):
+        # 答案是选项/判断/多选字母，Python 标量无法表达，验证无意义
+        return False
+    return True

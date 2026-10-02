@@ -24,6 +24,20 @@ _COUNTING_RE = re.compile(
     re.IGNORECASE,
 )
 
+#: 统计推断信号（检验/置信/样本量/方差/比例）—— 这类题里的 "number of
+#: crackers/samples" 是数据描述，不是"多少个方案"，组合计数的枚举对照对
+#: 统计公式无意义，应排除（2026-10-02 idx=29 two-sample t-test 被
+#: "number of crackers eaten" 误判为计数题，注入枚举条款导致闭式统计代码
+#: 被 counting_guard_violation 拦截）。
+_STATS_RE = re.compile(
+    r"significance\s+level|test\s+statistic|critical\s+value|confidence\s+interval|"
+    r"null\s+hypothesis|hypothesis\s+test|p[- ]?value|sample\s+size|"
+    r"standard\s+deviation|population\s+proportion|population\s+mean|"
+    r"two[-\s]sample|variance|normally\s+distributed|statistical|显著性|"
+    r"置信|临界值|检验统计量|样本量|标准差|方差|正态分布|总体",
+    re.IGNORECASE,
+)
+
 #: 代码内枚举证据：显式循环 / 范围 / 组合枚举库
 _ENUM_CODE_RE = re.compile(
     r"\bfor\s+\w+\s+in\b|\brange\s*\(|\bwhile\b|itertools|"
@@ -38,8 +52,12 @@ _CLOSED_FORM_RE = re.compile(
 
 
 def detect_counting(problem: str) -> bool:
-    """是否计数题。"""
-    return bool(_COUNTING_RE.search(str(problem or "")))
+    """是否计数题。统计推断题（检验/置信/样本量/方差）优先排除，
+    避免 "number of crackers/samples" 这类数据描述被误判为组合计数。"""
+    text = str(problem or "")
+    if _STATS_RE.search(text):
+        return False
+    return bool(_COUNTING_RE.search(text))
 
 
 def prompt_clause(problem: str) -> str:

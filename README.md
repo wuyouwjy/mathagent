@@ -1,10 +1,10 @@
 <p align="center">
-  <h1 align="center">🧮 Math-Agent-System G4</h1>
+  <h1 align="center">🧮 Math-Agent-System G5</h1>
   <p align="center">基于 <b>Intern-S 系列大模型</b> 的 LangGraph 多智能体数学推理系统 — 2026 挑战杯·书生赛道</p>
   <p align="center">
     <img src="https://img.shields.io/badge/Python-3.10+-blue" alt="Python">
     <img src="https://img.shields.io/badge/LLM-Intern--S-orange" alt="Intern-S">
-    <img src="https://img.shields.io/badge/version-G4-purple" alt="G4">
+    <img src="https://img.shields.io/badge/version-G5-purple" alt="G5">
     <img src="https://img.shields.io/badge/framework-LangGraph-green" alt="LangGraph">
     <img src="https://img.shields.io/badge/score-target-70%2B-brightgreen" alt="Target">
   </p>
@@ -14,7 +14,7 @@
 
 ## 📖 简介
 
-**Math-Agent-System G4** 是为 2026 年度中国青年科技创新"揭榜挂帅"擂台赛·书生赛道设计的数学推理智能体。
+**Math-Agent-System G5** 是为 2026 年度中国青年科技创新"揭榜挂帅"擂台赛·书生赛道设计的数学推理智能体。
 
 T3 版本完成了从 T2 svragent 到 **LangGraph 多智能体图编排**的重构。T4 在 T3 基础上，参考 GitHub 开源项目与相关论文补齐了四块**正确性与完成率**短板：
 
@@ -58,6 +58,25 @@ G4 针对 G3 决赛 86 分做两项收尾——G3 全卷仅用 2h/6h（时间用
 
 21. **恢复 computation 题的条件 verify（短推导题）**：既然时间用不完，把 verify 加回来，但只对短推导题——压缩首答 < 2000 字符（`_VERIFY_MAX_CHARS`）说明是短题，verify 完整 CoT 不截断、有纠错价值；首答已撑满（≥2000 字符）说明是长推导题，verify 必截断白跑，仍跳过。20 题复测分界 100% 正确（短题触发、长题跳过），但 verify 效果有限——5 题触发仅 1 题成功覆盖（其余 4 题 verify 完整 CoT 失败、退回压缩首答）；因 verify 失败会退回压缩首答，该改动安全（下界 = G3）但收益有限；
 22. **修复 fill 题答案泄漏 prompt 指令**：fill 题最终答案曾泄漏 prompt 指令（`最终答案：Wait, the instruction says "多空用分号分隔..."`）。根因是 `cleanliness.py` 元叙述正则 `wait[,.]` 把逗号吃进匹配、外层 `\b` 落在逗号后空格处（非 word boundary），使 `"Wait, ..."` 这种最常见的英文探索句永远匹配不上；且 `_INTERNAL_INSTRUCTION_RE` 缺 `instruction says` 复述模式。修复 `wait[,.]`→`wait\b` 并追加 instruction 复述模式，idx 0 fill 题从泄漏 prompt（0 分）→ 正确答出 `384; 56`。
+
+G5 针对 G4 决赛 86 分后的 50 题诊断做「客观题/填空 Python 验证边界」修复——诊断发现 fill 实算题（统计量/临界值/计数）的 Python 验证被客观题快路径整体跳过、心算错无人纠；但进一步验证发现 Python 验证只能纠「心算错」、救不了「理解错/参数错」（代码由模型基于自己的理解生成，理解或公式参数错时 Python 只是把错误重算一遍）。据此做回滚止损 + 三层路由收窄 + 一处精确值采信：
+
+23. **回滚 computation 题 verify（止损回 G3）**：G4 恢复的 computation 短题 verify 在 50 题诊断中导致掉分（truncated 61→91、token 166万→212万），回滚到 G3 的「仅证明题 verify」；
+24. **cross_validator matcher list 防御**：`_try_parse_expr` 返回 list 时 `.free_symbols` 崩溃导致 9/12 题 crossval 降级，一行 isinstance 防御修复；
+25. **[ANS] 填空空位识别**：UGMathBench 的 [ANS] 显式空位不被 `count_blanks` 识别，漏空校验失效 + 含选项题误判 choice；负向前瞻排除 Note 注释修复；
+26. **fill 实算题恢复 Python 验证**：`python_exec` 执行层原无脑 `is_objective_mode` 跳过 Python，让实算填空（统计量/临界值/计数）的 Python 验证在最后一公里失效（路由层已放行、执行层却推翻）；同步 `needs_python_verify` 放行；
+27. **counting_guard 排除统计信号**：「number of crackers」被 `number of` 误判组合计数，注入枚举条款拦截统计代码；`detect_counting` 加统计推断排除；
+28. **needs_python_verify 排除字母空**：原「反向排除概念」过度放行，把选项/判断/多选（答案字母，Python 标量无法表达）也推进 Python 白跑；收窄为「只有数值空才值得 Python 第二证据」；
+29. **统计推断 fill 题采信 Python 精确值**：`cross_validator` 对「统计推断 fill 题 + Python 成功」采信 Python 确定性数值答案（而非 reasoning 心算近似），救 idx 28（critical value 心算 3.85 → Python 3.8549），6 题复测 +1 无回归。
+
+### G5 vs G4 核心增量
+
+| 维度 | G4 | G5 |
+|---|---|---|
+| **computation 题 verify** | 短推导题恢复 verify（掉分：truncated 61→91、token 166万→212万） | 回滚到 G3「仅证明题 verify」 |
+| **fill 实算题 Python 验证** | 客观题快路径整体跳过 Python（心算错无人纠） | 执行层同步 `needs_python_verify`，数值空 fill 恢复 Python 双路 |
+| **客观题 Python 路由** | 反向排除概念（过度放行字母空） | 排除字母空（选项/判断/多选），只数值空走 Python |
+| **fill 精确值采信** | 客观题只采信 reasoning 心算（丢精度） | 统计推断 fill 题 Python 成功时采信 Python 确定性数值 |
 
 ### G4 vs G3 核心增量
 
@@ -462,6 +481,7 @@ A2 瓶颈是 8192 token 截断（`truncated_count=328` / 41.7%，完整二次推
 | **G2** | 目标（G1 决赛 83 分之上） | + 续写挂全卷 surplus + 多轮续写 + 裸判断词回填 + 模型 intern-s2 | 续写放行改看全卷剩余池子 `surplus_budget_s()`（不碰 100% 完成率底线）；截断多轮续写（≤3 轮）；判断+求值复合题回填具体结论；切换 397B 正式版 |
 | **G3** | 目标（G2 之上） | + 续写入口修复 + 压缩 prefill 全计算题覆盖 + computation 跳 verify | 续写改长度启发式兜底（修复 finish_reason 断链死代码）；压缩首答从深解题扩展到全部计算题；计算题压缩成功即交卷（证明题保留 verify） |
 | **G4** | 目标（G3 之上） | + computation 条件 verify（短推导）+ fill 答案泄漏修复 | 短推导题（压缩首答 <2000 字符）恢复 verify、长推导题仍跳（安全、收益有限）；修元叙述正则 `wait[,.]`→`wait\b` 杜绝 fill 题泄漏 prompt 指令 |
+| **G5** | 目标（G4 之上） | + 客观题 Python 验证边界收窄 + fill 精确值采信 | 回滚 computation verify 止损；fill 实算题恢复 Python 验证；[ANS] 空位识别；counting_guard 统计排除；needs_python_verify 排除字母空；统计推断 fill 采信 Python 精确值（6 题复测 +1 无回归） |
 
 ---
 

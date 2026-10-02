@@ -115,9 +115,23 @@ def cross_validator_node(state, config):
         # worth emitting; sending it through the computation matcher would mark it
         # uncertain solely because Python was skipped and trigger an unnecessary
         # arbitration/reconciliation round.
-        candidate = normalize_objective_answer(reasoning_result.get("answer", ""), question_mode)
-        if not objective_answer_is_usable(candidate, question_mode):
-            candidate = normalize_objective_answer(python_output.get("answer", ""), question_mode)
+        # 例外（2026-10-02 idx=36 实证）：统计推断 fill 题的数值空，Python 用
+        # scipy 精确分位数算出的答案优先于 reasoning 心算（心算易把 95.5% 的
+        # z 近似成 2.0 而非 2.005）。仅当 Python 成功且答案可用才采信。
+        candidate = None
+        if question_mode == "fill" and CONFIG.get("enable_stats_guard", True):
+            from utils.verify.stats_guard import detect_statistical_inference
+            if (detect_statistical_inference(state.get("problem", ""))
+                    and python_output.get("success")
+                    and python_output.get("answer")):
+                py_candidate = normalize_objective_answer(
+                    python_output.get("answer", ""), question_mode)
+                if objective_answer_is_usable(py_candidate, question_mode):
+                    candidate = py_candidate
+        if candidate is None:
+            candidate = normalize_objective_answer(reasoning_result.get("answer", ""), question_mode)
+            if not objective_answer_is_usable(candidate, question_mode):
+                candidate = normalize_objective_answer(python_output.get("answer", ""), question_mode)
         if objective_answer_is_usable(candidate, question_mode):
             blank_gap = question_mode == "fill" and not fill_answer_matches_blanks(
                 candidate, state.get("problem", ""))

@@ -17,6 +17,7 @@ from utils.skills_util.excerpt import select_script_excerpt, select_skill_excerp
 from utils.retrieval.reference_block import build_reference_block
 from utils.verify.evidence import parse_verification_evidence
 from utils.problem.profile import is_objective_mode, structure_instruction
+from utils.verify.verify_router import needs_python_verify
 from config import CONFIG
 
 
@@ -199,10 +200,14 @@ def python_agent_node(state, config):
     max_attempts = 1 if budget and budget.is_tight() else CONFIG["max_retries_per_node"]
     problem, category = state["problem"], state["category"]
     question_mode = state.get("question_mode", "computation")
-    if is_objective_mode(question_mode):
-        # Choice/judgement/fill items are answered by the short reasoning path.
+    if is_objective_mode(question_mode) and not needs_python_verify(problem, question_mode):
+        # Choice/judgement/概念填空 items are answered by the short reasoning path.
         # Generating a Python program for them adds latency and often produces a
         # misleading scalar that cannot represent multiple option letters or blanks.
+        # 实算填空（统计量/临界值/计数/最值）例外：路由层 fan_out 已按
+        # needs_python_verify 把 python_agent 加进来，这里必须同步放行，
+        # 否则治本机制在最后一公里失效（2026-10-02 idx=36/38 心算 693/224
+        # 而非 696/384 的直接原因——执行层无脑 skip 推翻了路由层决定）。
         return {
             "python_code": "",
             "python_output": {

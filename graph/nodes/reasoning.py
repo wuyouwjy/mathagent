@@ -325,13 +325,6 @@ _FULL_RETRY_ESTIMATE_S = CONFIG.get("full_retry_estimate_s", 220)
 #: /客观/简洁路径均 <3000 字符，故阈值 22938 字符零误判。
 _HARD_TRUNC_CHARS_PER_TOKEN = 2.8
 
-#: deep_direct 压缩首答的 verify 字符阈值：computation 题压缩首答 < 该阈值（短推导题）
-#: 才做完整 CoT 二次确认（verify 不截断、有纠错价值）；≥ 该阈值视为长推导题，verify
-#: 完整 CoT 必截断白跑（2026-09-30 复测 idx 49 微分几何压缩首答 2102 字符、verify
-#: 28260 字符截断；短题 idx 83/63/94/36 压缩首答 612~1789 字符、verify 均 <1000 成功）。
-#: G3-86 全卷仅 2h/6h 时间用不完，把短题的 verify 加回来换纠错能力。
-_VERIFY_MAX_CHARS = 2000
-
 #: 压缩重试的 assistant 种子。以内容开头接管助手轮，模型进入续写模式后不再打开
 #: reasoning_content（与分类器/仲裁器 prefill 同机制，见 utils/prefill.py 实测），
 #: 因此 8192 token 全部落在四章节上。种子从"## 结论速览"开始：先让模型把结论
@@ -779,17 +772,11 @@ def reasoning_agent_node(state, config):
                 # A4 思路2：压缩 prefill 成功但低置信（抑制了私有思考），时间充裕时
                 # 用省下的时间做一次完整 CoT 二次确认（复用压缩答案续写、保留私有
                 # 思考）。完整 CoT 产出完整答案则采用（更高置信），否则保留压缩答案。
-                # verify 触发条件：proof 题保留（证明题完整 CoT 通常不截断、verify 有
-                # 纠错价值）；computation 题仅短推导题（压缩首答 < _VERIFY_MAX_CHARS）
-                # 做 verify，长推导题跳过（verify 完整 CoT 必截断白跑——2026-09-30
-                # 复测 idx 49 微分几何压缩首答 2102 字符、verify 28260 字符又截断）。
-                # G3-86 全卷仅 2h/6h 时间用不完，把短题 verify 加回来换纠错能力。
-                should_verify = (
-                    question_mode == "proof"
-                    or (question_mode == "computation"
-                        and len(deep_resp or "") < _VERIFY_MAX_CHARS)
-                )
-                if should_verify and can_afford_retry(clock, "reasoning"):
+                # 仅 proof 题保留 verify：computation 题压缩首答成功即交卷。G4 曾恢复
+                # computation 短推导题做 verify，决赛掉 3 分（86→83：truncated 61→91、
+                # token 166万→212万，verify 完整 CoT 大量截断白跑；且 _is_complete 只判
+                # 完整不判正确，少数 verify 覆盖把对的改错 + 制造 1 题 invalid），回滚。
+                if question_mode == "proof" and can_afford_retry(clock, "reasoning"):
                     verify_resp = _full_reasoning_retry(
                         deps, hinted_base, first_resp=deep_resp)
                     if verify_resp is not None:

@@ -34,6 +34,12 @@ _TRUE_FALSE_RE = re.compile(
 _FILL_RE = re.compile(
     r"填空|填“|填\"|填入|_{3,}|＿{2,}|[(（]\s*(?:\\\s*)?[)）]"
 )
+
+#: [ANS] 填空空位标记（UGMathBench 等数据集的显式空位）。负向前瞻排除
+#: "Note: ... one or more [ANS] blanks" 注释里的元引用——真正的空位 [ANS]
+#: 后面跟题面内容，注释里的紧跟 " blanks"。2026-10-02 idx 14 只答字母空漏数值空，
+#: 根因即 [ANS] 未被识别为填空空位（count_blanks 返回 0，漏空校验失效）。
+_ANS_BLANK_RE = re.compile(r"\[ANS\](?!\s*blanks?)")
 _PROOF_RE = re.compile(
     # 中文证明动词不限位置：官方题集最常见的证明题句式是“设…，证明…/求证…/
     # 试证…”（证明词在句中而非行首），旧正则只认行首的“证明/试证”和整词
@@ -79,6 +85,11 @@ def classify_question_mode(problem: str) -> str:
         return "computation"
     if _TRUE_FALSE_RE.search(text) or re.search(r"判断\s*(?:题)?\s*[：:]", text):
         return "true_false"
+    # [ANS] 是显式填空空位：优先于选项判断。含 [ANS] 的题即使同时有选项
+    # （如"结论：[ANS] A...B..."），也应走 fill 的逐空作答契约，否则数值空
+    # 会被漏填（2026-10-02 idx 14 只答字母空、漏两个数值空）。
+    if _ANS_BLANK_RE.search(text):
+        return "fill"
     # Official questions often use ``（）`` after the stem and place options
     # inline (``A.均值B.方差``).  Option detection must therefore precede the
     # generic blank marker; otherwise almost every objective item becomes fill-in.
@@ -173,8 +184,13 @@ def count_blanks(problem: str) -> int:
     """题面可见空位数（填空题输出契约用）。检测不到显式空位记号时返回 0。
 
     评委报告 idx 86：三空只答零空、置信 0.78 直接放行——缺的就是这个计数。
+    2026-10-02：补充 [ANS] 标记计数（下划线/空括号优先，检测不到时数 [ANS]）。
     """
-    return len(_BLANK_MARK_RE.findall(str(problem or "")))
+    text = str(problem or "")
+    n = len(_BLANK_MARK_RE.findall(text))
+    if n > 0:
+        return n
+    return len(_ANS_BLANK_RE.findall(text))
 
 
 def fill_part_count(answer: str) -> int:
