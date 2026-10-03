@@ -439,10 +439,13 @@ class AnswerMatcher:
         e1, e2 = _try_parse_expr(a1), _try_parse_expr(a2)
         if e1 is None or e2 is None:
             return None
-        # cross_validator 传入多元素时 _try_parse_expr 返回 list（如逗号分隔的多个
-        # 表达式），list 无 .free_symbols，后续数值采样会崩溃致 crossval 降级——
-        # 直接判无法判定，走字符串相似度兜底（2026-10-01 复测 9/12 题降级根因）。
-        if isinstance(e1, list) or isinstance(e2, list):
+        # cross_validator 传入多元素时 _try_parse_expr 会返回容器：逗号分隔的多个
+        # 表达式 → tuple（sp.sympify("1, 2, 3")），方括号 → list，花括号 → set。
+        # 这些容器都没有 .free_symbols，后续 _numeric_sample_equivalent 采样会崩
+        # （AttributeError: 'tuple' object has no attribute 'free_symbols'）致
+        # crossval 整节点降级——直接判无法判定，走字符串相似度兜底。
+        # 10-01 只防了 list，tuple/set 仍崩溃，10-03 补全。
+        if isinstance(e1, (list, tuple, set)) or isinstance(e2, (list, tuple, set)):
             return None
         # 矩阵结构化比较：形状不同或差非零矩阵 → 确定不等价（触发 reconciliation 重试，
         # 而非落入低置信 uncertain 直接采信 Python 答案——评委报告 idx=352 教训）

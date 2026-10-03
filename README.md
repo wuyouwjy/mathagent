@@ -1,10 +1,10 @@
 <p align="center">
-  <h1 align="center">🧮 Math-Agent-System G5</h1>
+  <h1 align="center">🧮 Math-Agent-System G6</h1>
   <p align="center">基于 <b>Intern-S 系列大模型</b> 的 LangGraph 多智能体数学推理系统 — 2026 挑战杯·书生赛道</p>
   <p align="center">
     <img src="https://img.shields.io/badge/Python-3.10+-blue" alt="Python">
     <img src="https://img.shields.io/badge/LLM-Intern--S-orange" alt="Intern-S">
-    <img src="https://img.shields.io/badge/version-G5-purple" alt="G5">
+    <img src="https://img.shields.io/badge/version-G6-purple" alt="G6">
     <img src="https://img.shields.io/badge/framework-LangGraph-green" alt="LangGraph">
     <img src="https://img.shields.io/badge/score-target-70%2B-brightgreen" alt="Target">
   </p>
@@ -14,7 +14,7 @@
 
 ## 📖 简介
 
-**Math-Agent-System G5** 是为 2026 年度中国青年科技创新"揭榜挂帅"擂台赛·书生赛道设计的数学推理智能体。
+**Math-Agent-System G6** 是为 2026 年度中国青年科技创新"揭榜挂帅"擂台赛·书生赛道设计的数学推理智能体。
 
 T3 版本完成了从 T2 svragent 到 **LangGraph 多智能体图编排**的重构。T4 在 T3 基础上，参考 GitHub 开源项目与相关论文补齐了四块**正确性与完成率**短板：
 
@@ -68,6 +68,20 @@ G5 针对 G4 决赛 86 分后的 50 题诊断做「客观题/填空 Python 验�
 27. **counting_guard 排除统计信号**：「number of crackers」被 `number of` 误判组合计数，注入枚举条款拦截统计代码；`detect_counting` 加统计推断排除；
 28. **needs_python_verify 排除字母空**：原「反向排除概念」过度放行，把选项/判断/多选（答案字母，Python 标量无法表达）也推进 Python 白跑；收窄为「只有数值空才值得 Python 第二证据」；
 29. **统计推断 fill 题采信 Python 精确值**：`cross_validator` 对「统计推断 fill 题 + Python 成功」采信 Python 确定性数值答案（而非 reasoning 心算近似），救 idx 28（critical value 心算 3.85 → Python 3.8549），6 题复测 +1 无回归。
+
+G6 针对「超过 86 分」的目标做推理 prompt 建模质量的定向优化——50 题诊断把「理解/建模」错题拆成三类：答案对但格式被判错（idx 26 公式混数字）、逗号多值被判分脚本吞（idx 9）、以及「regardless of/guarantee」最坏情形结构未识别的真建模错（idx 19/46）。据此补两处防御性修复 + 三处低风险题面条件触发规则：
+
+30. **matcher 容器答案防御补全（list → tuple/set）**：G5 改动 24 只防 `list`，但 `_try_parse_expr` 对逗号分隔多值返回 `tuple`、花括号返回 `set`，这些容器同样没有 `.free_symbols`，cross_validator 采样仍崩溃降级。补全 `isinstance(e1, (list, tuple, set))` 防崩溃；
+31. **stdout_miner 带空格英文标签提取**：`_NAMED_RESULT_RE` 只认单标识符/中文标签，不认带空格英文统计标签（"F statistic: 1.9102"、"Upper critical: 3.8549"），致统计推断题 Python 中间量提取失败、answer=None、收窄采信短路。补带空格短语分支（限 1~3 词，长叙述由 `_looks_like_prose_log` 兜底）；
+32. **reasoning prompt 三处定向规则（题面条件触发）**：在 `structure_instruction()` 加 (a) 最坏情形保证建模——检测 `regardless of / guarantee / 不管 / 保证`（负向前瞻排除 `regardless of whether`），注入对抗性建模提示，救 idx 19/46 这类「最坏情形」理解盲区；(b) 枚举完整性强化——`find all` 题追加「检验小规模孤立解」并带「无限解用性质描述」护栏（防退化只报小值）；(c) 求值答案显式化——`whether…find its value` 双问句注入「数值单独写出、不嵌公式」，救 idx 26 这类「答案对但公式混数字判错」（本地 50 题复测 wrong→ok，实测 +1）。
+
+### G6 vs G5 核心增量
+
+| 维度 | G5 | G6 |
+|---|---|---|
+| **matcher 容器答案** | 只防 list，tuple/set 仍崩溃降级 | 补全 `isinstance(e1, (list, tuple, set))` |
+| **Python 中间量提取** | `_NAMED_RESULT_RE` 不认带空格标签 | 补带空格短语分支（限 1~3 词） |
+| **reasoning prompt 建模** | 无最坏情形/枚举完整/求值显式规则 | 三处题面条件触发规则（最坏情形保证 / 枚举完整护栏 / 求值显式化，idx 26 实测 +1） |
 
 ### G5 vs G4 核心增量
 
@@ -482,6 +496,7 @@ A2 瓶颈是 8192 token 截断（`truncated_count=328` / 41.7%，完整二次推
 | **G3** | 目标（G2 之上） | + 续写入口修复 + 压缩 prefill 全计算题覆盖 + computation 跳 verify | 续写改长度启发式兜底（修复 finish_reason 断链死代码）；压缩首答从深解题扩展到全部计算题；计算题压缩成功即交卷（证明题保留 verify） |
 | **G4** | 目标（G3 之上） | + computation 条件 verify（短推导）+ fill 答案泄漏修复 | 短推导题（压缩首答 <2000 字符）恢复 verify、长推导题仍跳（安全、收益有限）；修元叙述正则 `wait[,.]`→`wait\b` 杜绝 fill 题泄漏 prompt 指令 |
 | **G5** | 目标（G4 之上） | + 客观题 Python 验证边界收窄 + fill 精确值采信 | 回滚 computation verify 止损；fill 实算题恢复 Python 验证；[ANS] 空位识别；counting_guard 统计排除；needs_python_verify 排除字母空；统计推断 fill 采信 Python 精确值（6 题复测 +1 无回归） |
+| **G6** | 目标（G5 之上） | + reasoning prompt 定向规则 + matcher tuple/set 防御 + stdout 带空格标签提取 | matcher 容器答案防御补全 list→tuple/set；stdout_miner 认带空格英文统计标签；reasoning prompt 三处定向规则（最坏情形保证 / 枚举完整护栏 / 求值显式化，idx 26 复测 +1） |
 
 ---
 

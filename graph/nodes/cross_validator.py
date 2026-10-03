@@ -115,18 +115,32 @@ def cross_validator_node(state, config):
         # worth emitting; sending it through the computation matcher would mark it
         # uncertain solely because Python was skipped and trigger an unnecessary
         # arbitration/reconciliation round.
-        # 例外（2026-10-02 idx=36 实证）：统计推断 fill 题的数值空，Python 用
-        # scipy 精确分位数算出的答案优先于 reasoning 心算（心算易把 95.5% 的
-        # z 近似成 2.0 而非 2.005）。仅当 Python 成功且答案可用才采信。
+        # 收窄采信（2026-10-03 G5-78 复盘后）：统计推断 fill 题的数值空，Python 用
+        # scipy/sympy 精确分位数算出时应优先于心算（idx=28 critical value 心算 3.85
+        # 而精确 3.8549）。但 G5 无条件采信（不看代码）导致 83→78——_STATS_RE 匹配面
+        # 太宽 + idx=36 代码硬编码 z=2.1 也被采信。故收窄：仅当 Python 与 reasoning
+        # 数值彼此接近（python_agrees_with_reasoning）才采信，建模分歧时回退 reasoning。
         candidate = None
-        if question_mode == "fill" and CONFIG.get("enable_stats_guard", True):
-            from utils.verify.stats_guard import detect_statistical_inference
+        if question_mode == "fill":
+            from utils.verify.stats_guard import (
+                detect_statistical_inference,
+                extract_labeled_values,
+                python_agrees_with_reasoning,
+                python_more_precise,
+            )
             if (detect_statistical_inference(state.get("problem", ""))
                     and python_output.get("success")
                     and python_output.get("answer")):
-                py_candidate = normalize_objective_answer(
-                    python_output.get("answer", ""), question_mode)
-                if objective_answer_is_usable(py_candidate, question_mode):
+                # 收窄采信：仅当 Python 与 reasoning 数值彼此接近、且 Python 明显
+                # 更精确（小数位更多）时采信 Python 的精确值。idx=28 心算 3.85 vs
+                # 精确 3.8549 采信；idx=31 Python 用 %.2f 打印 19.70（与 reasoning
+                # 同 2 位、且建错 t 分布模型）不采信；idx=36 硬编码 z=2.1 得 764
+                # 与 reasoning 693 差远不采信。
+                py_candidate = extract_labeled_values(python_output.get("answer", ""))
+                rr_candidate = extract_labeled_values(reasoning_result.get("answer", ""))
+                if (python_agrees_with_reasoning(py_candidate, rr_candidate)
+                        and python_more_precise(py_candidate, rr_candidate)
+                        and objective_answer_is_usable(py_candidate, question_mode)):
                     candidate = py_candidate
         if candidate is None:
             candidate = normalize_objective_answer(reasoning_result.get("answer", ""), question_mode)
@@ -271,9 +285,9 @@ def cross_validator_node(state, config):
             match_result["bypass_reason"] = "python_success_and_symbolic_equivalence"
         match_result["routing_reason"] = "validated_match"
         if match_result.get("method") == "objective_direct":
-            validated_answer = normalize_objective_answer(
-                reasoning_result.get("answer", ""), question_mode
-            )
+            # 用上面已选定的 candidate（可能是收窄采信的 Python 精确值），
+            # 而非无条件从 reasoning 重取——否则采信选出的精确值被心算覆盖。
+            validated_answer = candidate
             if not validated_answer:
                 validated_answer = normalize_objective_answer(
                     python_output.get("answer", ""), question_mode
