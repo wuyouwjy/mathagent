@@ -104,4 +104,4 @@ def assess_verification_authenticity(code: str, stdout: str = "") -> dict:
         if "代码未含循环/求解/枚举等实质计算却宣称验证通过" not in reasons:
             reasons.append("验证状态为硬编码字面量，与计算结果无关")
 
-    return {"fabricated": bool(reasons), "reasons": reasons}
+    return {"fabricated": bool(reasons), "reasons": reasons, "has_compute": has_compute}

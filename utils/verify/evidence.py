@@ -109,11 +109,20 @@ def parse_verification_evidence(
     # 反伪造：不做计算却宣称 PASS 的代码，其 support 不构成数学证据。
     # 只降级 support（contradict 的反例本身就是计算产物，不受权威引用污染）。
     authenticity = assess_verification_authenticity(code, stdout) if code else \
-        {"fabricated": False, "reasons": []}
-    if authenticity["fabricated"] and status == "support":
-        status = "inconclusive"
-        warning = "；".join(authenticity["reasons"])
-        evidence_summary = f"[反伪造] {warning}。原声明不作为验证证据。"
+        {"fabricated": False, "reasons": [], "has_compute": False}
+    if authenticity["fabricated"]:
+        if status == "support":
+            status = "inconclusive"
+            warning = "；".join(authenticity["reasons"])
+            evidence_summary = f"[反伪造] {warning}。原声明不作为验证证据。"
+        # 伪造且无实质计算的代码，其打印的"最终答案"同样没有计算依据——作废，
+        # 以免下游把它当候选采信/送进季后赛覆盖正确推理（idx 7 事故：reasoning
+        # 算出 603729 对，伪造代码打印 388.5 反而在 playoff 胜出）。有实质计算
+        # 但仅"验证依赖权威引用"的答案保留（答案可能算对，只是证据弱）。
+        if not authenticity.get("has_compute", False) \
+                and str(result.get("answer") or "").strip():
+            result["answer"] = ""
+            result["answer_source"] = "fabricated_suppressed"
 
     result.update({
         "evidence_status": status,

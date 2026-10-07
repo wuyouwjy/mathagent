@@ -22,6 +22,7 @@
 
 from __future__ import annotations
 
+import os
 import time
 from threading import Lock
 
@@ -45,10 +46,18 @@ class PaperPacer:
 
     def __init__(self, total_seconds: float | None = None,
                  planned: int | None = None) -> None:
+        # 本地 test（跑题数 ≠ 官方 112 题）可用 PAPER_PLANNED / PAPER_TOTAL_SECONDS
+        # 覆盖默认值，避免 planned=112 硬编码在子集上错误收紧软预算（coordinator
+        # 被跳过、完整重试被砍 → 答案不完整 → 基线失真）。默认值保持官方 6h/112
+        # 不变，官方评测不受影响。
+        env_total = os.environ.get("PAPER_TOTAL_SECONDS")
+        env_planned = os.environ.get("PAPER_PLANNED")
         self.total = float(
             total_seconds if total_seconds is not None
-            else CONFIG.get("paper_total_seconds", 6 * 3600))
-        self.planned = int(planned if planned is not None else 112)
+            else (env_total if env_total is not None
+                  else CONFIG.get("paper_total_seconds", 6 * 3600)))
+        self.planned = int(planned if planned is not None
+                           else (env_planned if env_planned is not None else 112))
         self._start = time.monotonic()
         self._done = 0
         self._started: set[int] = set()

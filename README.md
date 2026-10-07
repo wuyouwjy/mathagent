@@ -1,10 +1,10 @@
 <p align="center">
-  <h1 align="center">🧮 Math-Agent-System G6</h1>
+  <h1 align="center">🧮 Math-Agent-System G7</h1>
   <p align="center">基于 <b>Intern-S 系列大模型</b> 的 LangGraph 多智能体数学推理系统 — 2026 挑战杯·书生赛道</p>
   <p align="center">
     <img src="https://img.shields.io/badge/Python-3.10+-blue" alt="Python">
     <img src="https://img.shields.io/badge/LLM-Intern--S-orange" alt="Intern-S">
-    <img src="https://img.shields.io/badge/version-G6-purple" alt="G6">
+    <img src="https://img.shields.io/badge/version-G7-purple" alt="G7">
     <img src="https://img.shields.io/badge/framework-LangGraph-green" alt="LangGraph">
     <img src="https://img.shields.io/badge/score-target-70%2B-brightgreen" alt="Target">
   </p>
@@ -14,7 +14,7 @@
 
 ## 📖 简介
 
-**Math-Agent-System G6** 是为 2026 年度中国青年科技创新"揭榜挂帅"擂台赛·书生赛道设计的数学推理智能体。
+**Math-Agent-System G7** 是为 2026 年度中国青年科技创新"揭榜挂帅"擂台赛·书生赛道设计的数学推理智能体。
 
 T3 版本完成了从 T2 svragent 到 **LangGraph 多智能体图编排**的重构。T4 在 T3 基础上，参考 GitHub 开源项目与相关论文补齐了四块**正确性与完成率**短板：
 
@@ -74,6 +74,20 @@ G6 针对「超过 86 分」的目标做推理 prompt 建模质量的定向优�
 30. **matcher 容器答案防御补全（list → tuple/set）**：G5 改动 24 只防 `list`，但 `_try_parse_expr` 对逗号分隔多值返回 `tuple`、花括号返回 `set`，这些容器同样没有 `.free_symbols`，cross_validator 采样仍崩溃降级。补全 `isinstance(e1, (list, tuple, set))` 防崩溃；
 31. **stdout_miner 带空格英文标签提取**：`_NAMED_RESULT_RE` 只认单标识符/中文标签，不认带空格英文统计标签（"F statistic: 1.9102"、"Upper critical: 3.8549"），致统计推断题 Python 中间量提取失败、answer=None、收窄采信短路。补带空格短语分支（限 1~3 词，长叙述由 `_looks_like_prose_log` 兜底）；
 32. **reasoning prompt 三处定向规则（题面条件触发）**：在 `structure_instruction()` 加 (a) 最坏情形保证建模——检测 `regardless of / guarantee / 不管 / 保证`（负向前瞻排除 `regardless of whether`），注入对抗性建模提示，救 idx 19/46 这类「最坏情形」理解盲区；(b) 枚举完整性强化——`find all` 题追加「检验小规模孤立解」并带「无限解用性质描述」护栏（防退化只报小值）；(c) 求值答案显式化——`whether…find its value` 双问句注入「数值单独写出、不嵌公式」，救 idx 26 这类「答案对但公式混数字判错」（本地 50 题复测 wrong→ok，实测 +1）。
+
+G7 针对 G6 后本地 20 题满预算复测暴露的两处「答案污染/格式」缺陷做收尾——10 道错题逐个归因发现 2 道可救：idx 7 伪造 Python 答案在 playoff 覆盖正确推理、idx 6 模 2 求和把完整求和式写进答案行被判分吞掉。据此补两处确定性修复 + 一处本地评测基建修复：
+
+33. **反伪造作废答案**：`authenticity.py` 加 `has_compute` 字段；`evidence.py` 里伪造且无实质计算的代码不仅把 support 降级 inconclusive，其打印的「最终答案」也一并作废（`answer_source="fabricated_suppressed"`）。修复 idx 7 事故——reasoning 已算出正确答案，伪造代码无任何计算却 `print` 出一个伪造的「最终答案」反而在 playoff 胜出；作废后正确推理得以保留，20 题复测 3 道伪造题（idx 7 救回、idx 14/18 不受影响）零误伤；
+34. **模 2 求和答案显式化**：`profile.py` 的 `has_mod2_valued_sum` 分支强化「单独写纯数字」——F₂ 值域函数求和题（`f(⋯)+f(⋯)+…` 是模 2 加法）最终答案只能是模 2 域里的取值，'## 最终答案' 必须单独写出该取值，不得把完整求和式（含下标/系数）写进答案行，否则判分按数值提取被公式里的数字干扰（idx 6）；
+35. **PaperPacer 本地子集预算错配修复**：`paper_pacer.py` 支持 `PAPER_PLANNED` / `PAPER_TOTAL_SECONDS` 环境变量覆盖默认 planned=112 / total=6h，本地跑 20 题子集时按子集规模均摊软预算，避免 coordinator 被跳过、完整重试被砍导致基线失真（官方评测默认值不变，不受影响）。
+
+### G7 vs G6 核心增量
+
+| 维度 | G6 | G7 |
+|---|---|---|
+| **伪造 Python 答案** | 反伪造只降级 support，伪造代码打印的答案仍被 playoff 采信（idx 7 错） | 伪造且无实质计算时作废答案（`fabricated_suppressed`），正确推理得以保留 |
+| **模 2 求和答案格式** | 完整求和式写进答案行，公式下标/系数被 tokens 当数字（idx 6 判错） | 强制单独写纯数字、不嵌公式 |
+| **本地子集预算** | planned=112 硬编码，20 题子集软预算错误收紧（基线失真） | `PAPER_PLANNED`/`PAPER_TOTAL_SECONDS` 环境变量覆盖，官方默认不变 |
 
 ### G6 vs G5 核心增量
 
@@ -497,6 +511,7 @@ A2 瓶颈是 8192 token 截断（`truncated_count=328` / 41.7%，完整二次推
 | **G4** | 目标（G3 之上） | + computation 条件 verify（短推导）+ fill 答案泄漏修复 | 短推导题（压缩首答 <2000 字符）恢复 verify、长推导题仍跳（安全、收益有限）；修元叙述正则 `wait[,.]`→`wait\b` 杜绝 fill 题泄漏 prompt 指令 |
 | **G5** | 目标（G4 之上） | + 客观题 Python 验证边界收窄 + fill 精确值采信 | 回滚 computation verify 止损；fill 实算题恢复 Python 验证；[ANS] 空位识别；counting_guard 统计排除；needs_python_verify 排除字母空；统计推断 fill 采信 Python 精确值（6 题复测 +1 无回归） |
 | **G6** | 目标（G5 之上） | + reasoning prompt 定向规则 + matcher tuple/set 防御 + stdout 带空格标签提取 | matcher 容器答案防御补全 list→tuple/set；stdout_miner 认带空格英文统计标签；reasoning prompt 三处定向规则（最坏情形保证 / 枚举完整护栏 / 求值显式化，idx 26 复测 +1） |
+| **G7** | 目标（G6 之上） | + 反伪造作废答案 + 模 2 求和答案显式化 + 本地子集预算修复 | 伪造 Python 答案（无实质计算）作废不再污染采信（idx 7 救回）；F₂ 求和题强制单独写纯数字、不嵌公式（idx 6 格式修复）；PaperPacer 支持环境变量覆盖 planned/total 消除本地子集预算错配 |
 
 ---
 
