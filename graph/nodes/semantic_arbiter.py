@@ -190,10 +190,18 @@ def _fallback_result(state: dict, config: dict, status: str, trace: list[dict]) 
         deps = None
     time_budget = getattr(deps, "time_budget", None)
 
+    # 2026-10-08 idx 16：Python 证据为 inconclusive（数值扫描「未发现」≠「不存在」）
+    # 时，arbiter 弃权不再花一整轮 solving 子图重跑去"复核"一个弱证据——重跑的
+    # Python 仍是数值扫描、大概率仍 inconclusive，只会把本就接近单题硬限的 idx 16
+    # 拖到超时。此时直接走 _preferred_answer 兜底（已修成 inconclusive 时回退
+    # reasoning，采信有论证的 8 而非漏解的 2）。
+    python_inconclusive = (state.get("python_output") or {}).get(
+        "evidence_status", "") == "inconclusive"
     worth_retry = (
         status in _SEMANTIC_STALEMATE
         and reconciliation_retry_available(state, config)
         and not (time_budget and time_budget.fast_path())
+        and not python_inconclusive
     )
     if worth_retry:
         return {

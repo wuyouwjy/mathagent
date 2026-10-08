@@ -163,21 +163,22 @@ _COUNT_ASK_RE = re.compile(
     r"需要多少|数量是多少"
 )
 
-#: 对抗性最坏情形："regardless of / guarantee / 不管 / 保证"——答案须在对手选的
-#: 最坏输入下仍成立，而非对某特定输入成立（idx 19/46 均因未识别此结构而错 2^50/1023）。
-#: "regardless of whether" 是"无论是否"的普通含义（如 idx 24 的最小支配集覆盖），
-#: 非对抗性，用负向前瞻排除。
-_ADVERSARIAL_RE = re.compile(
-    r"(?i)\bregardless\s+of\s+(?!whether\b)|\bguarantee\b|\bno\s+matter\b|\bwhatever\b|"
-    r"不管|保证|无论|必达|任何(?:初始|选择|输入)"
-)
-
 #: "判断 + 求值" 双问句（"whether … is rational … find its value"）。最终答案若写成
 #: 含多数字的公式（$\sum_{n=1}…=4$），判分 tokens 会把下标/系数当数字 → 整段归 na，
 #: 答对也判错（idx 26）。
 _JUDGE_AND_VALUE_RE = re.compile(
     r"(?i)\bwhether\b[^.!?]{0,200}\bfind\s+its\s+value\b|"
     r"是否[^。]{0,80}并求(?:其|出)?(?:值|数值)"
+)
+
+#: 函数方程："Find all functions A:R→R such that … for all real p,q"。这类题要求
+#: 给出**所有**满足恒等式的函数，必须独立求解完整解集（设 ansatz + 展开比较系数
+#: + solve 参数），而不是只代入验证候选——idx 5 事故：reasoning 比较系数心算错
+#: 把 1+2x 算成 1+x，Python「验证候选」又只 check 了 [1-x, 1-x²] 漏掉 1+x。
+_FUNCTIONAL_EQUATION_RE = re.compile(
+    r"(?i)\b(?:find|determine)\s+all\s+functions?\b|"
+    r"\bfunctional\s+equation\b|"
+    r"函数方程|求(?:所有|全部)(?:的)?(?:函数|映射)"
 )
 
 
@@ -197,14 +198,14 @@ def asks_feasibility_then_count(problem: str) -> bool:
     return bool(_FEASIBILITY_RE.search(text)) and bool(_COUNT_ASK_RE.search(text))
 
 
-def has_adversarial_guarantee(problem: str) -> bool:
-    """题面含"regardless/guarantee/不管/保证"（对抗性最坏情形，须在对手最坏输入下成立）。"""
-    return bool(_ADVERSARIAL_RE.search(str(problem or "")))
-
-
 def asks_judge_then_value(problem: str) -> bool:
     """题面为"判断 + 求值"双问句（求值结果须单独写出纯数字，避免公式混数字被判错）。"""
     return bool(_JUDGE_AND_VALUE_RE.search(str(problem or "")))
+
+
+def has_functional_equation(problem: str) -> bool:
+    """题面是否为函数方程（求所有满足恒等式的函数，须独立求解完整解集）。"""
+    return bool(_FUNCTIONAL_EQUATION_RE.search(str(problem or "")))
 
 
 def count_blanks(problem: str) -> int:
@@ -302,19 +303,12 @@ def structure_instruction(problem: str) -> str:
             "[值域聚合警告] 题面函数的值域是 F_2（模 2 的二元域）。所求的 f(⋯)+f(⋯)+… 是"
             " **F_2 中的加法**：先逐项求出各函数值（0 或 1），最后必须按模 2（异或）聚合，"
             "最终答案只能是 0 或 1；给出普通整数和（如 3）即错。"
-            "'## 最终答案' 必须**单独写出这个纯数字**（写 \"最终答案：1\" 即可），"
-            "不要把完整求和式 f(⋯)+f(⋯)+…=1 或各分项值一起写进答案行——判分按数值提取，"
-            "公式里的下标/系数会被当成数字干扰，导致答对却判错。"
         )
     if requires_all_solutions(problem):
         parts.append(
             "[全部解检查单] 本题要求给出**所有**解/值。禁止只验证一个已知解就作答："
             "必须先在小规模/截断版本上系统枚举解空间（列出发现的每一个解支），"
             "再证明再无其他分支；最终答案必须列出全部解支（含平凡支与例外支）。"
-            "除主族（通解/参数化解族）外，把最小的几个值（如 v=1,2,3,4,5）逐个代入"
-            "原条件显式检验，防漏**孤立解/边界解**——它们不属于任何通解族，但单独满足条件；"
-            "若解集是无限的，最终答案必须用性质完整描述全部解（如'所有素数 n'），"
-            "不得只列举检验过的前几个小值。"
         )
     if is_extremal_problem(problem):
         parts.append(
@@ -322,12 +316,17 @@ def structure_instruction(problem: str) -> str:
             "必须 (1) 用小规模精确解（暴力/DP）校准；(2) 至少比较两个结构不同的构造，"
             "取更优者；(3) 给出与构造值匹配的上界/下界论证。三者缺一即在验证点中声明未完成。"
         )
-    if has_adversarial_guarantee(problem):
+    if has_functional_equation(problem):
         parts.append(
-            "[最坏情形保证建模] 题面含 \"regardless of / guarantee / 不管 / 保证\"：这是**对抗性最坏情形**问题。"
-            "答案必须在**对手选择的最坏输入**（或所有可能的初始状态）下仍保证成立，不是对某个特定输入成立。"
-            "先明确'对手'如何最坏地阻挠你（哪类输入/初始状态最不利），再构造覆盖最坏输入的策略并求最小保证值；"
-            "先用小规模（n=1,2,3 或 m=2,3）暴力枚举最坏情形校准，再推广。"
+            "[函数方程独立求解] 本题是函数方程，要求给出**所有**满足恒等式的函数。"
+            "禁止只代入验证候选函数：必须**独立求解完整解集**——先由特殊值/差分"
+            "判断解的形式（多项式次数、奇偶性、是否含常数项），设 ansatz（如 "
+            "A(x)=ax²+bx+c），用 sympy 代入原方程、展开后把每一项系数置零，解出"
+            "全部参数组合；再把独立求出的完整解集与候选比对，若候选漏解/多解/系数错，"
+            "必须在验证证据里明确写出正确解集。"
+            "比较系数的 sympy 写法：sp.Poly(expr, p, q).coeffs() 取系数、"
+            "sp.solve(coeffs, [a,b,c], dict=True) 解参数——注意 all_coeffs() 只支持"
+            "单变量多项式，多变量（含 p,q 两项）必须用 .coeffs()，否则报 PolynomialError。"
         )
     # 以下三条针对 2026-08-10 复测轮的错因（评委建议 1/2/3/5）：口径与序号类错误
     # 都发生在"推理跑完了"之后，属于收尾核验缺失，成本极低但直接决定得分。

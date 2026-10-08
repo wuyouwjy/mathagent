@@ -169,6 +169,50 @@ def _rhs_of_top_level_eq(line):
     return line[pos + 1:].strip() if pos >= 0 else ""
 
 
+def _strip_dollar(s: str) -> str:
+    return (s or "").strip().strip("$").strip()
+
+
+def _is_pure_number(s: str) -> bool:
+    """纯数值（整数/小数/负号/分数），不含任何变量名。"""
+    s = (s or "").strip()
+    if not s:
+        return False
+    try:
+        float(s)
+        return True
+    except ValueError:
+        pass
+    try:
+        from fractions import Fraction
+        Fraction(s)
+        return True
+    except Exception:
+        return False
+
+
+def _strip_numeric_assignment(answer: str) -> str:
+    r"""单值等式「X = 纯数值」剥成纯数值右值。
+
+    判分按数值 token 提取：`$$D_{\max}=777^2=603729$$` 会拆出 777/2/603729
+    三个数、整段归 na，答对判错（prelim idx 7、benchmark idx 26 同模式）。
+    只剥「无逗号/分号的单值等式 + 右值是纯数值」；表达式（A(x)=1-x）、
+    多值（x=3, y=4）、集合（{1,8}）、纯文本原样保留。
+    """
+    if not answer:
+        return answer
+    stripped = _strip_dollar(answer)
+    if not stripped or any(ch in stripped for ch in ",，;；"):
+        return answer
+    if "=" not in stripped:
+        return answer
+    rhs = stripped.rsplit("=", 1)[1].strip()
+    rhs = _strip_dollar(rhs)
+    if rhs and _is_pure_number(rhs):
+        return rhs
+    return answer
+
+
 def _distill_answer(text):
     """Distill a concise answer from the '## 最终答案' section text.
 
@@ -222,9 +266,15 @@ def _distill_answer(text):
         if answer:
             return answer
 
-    # 3. 短节 → 最后一行
+    # 3. 短节 → 最后一行（单值等式「X = 纯数值」先剥成纯数值，避免公式被判 na）
     if len(text) <= 80:
-        return _reject_bad_answer(lines[-1] if lines else text)
+        last = lines[-1] if lines else text
+        stripped_num = _strip_numeric_assignment(last)
+        if stripped_num != last:
+            answer = _reject_bad_answer(stripped_num)
+            if answer:
+                return answer
+        return _reject_bad_answer(last)
 
     # 4. 显式"答案是X"
     for pat in (r"答案[是为：:]\s*(.+?)(?:\n|$)", r"answer\s*[:is]+\s*(.+?)(?:\n|$)"):

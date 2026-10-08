@@ -137,6 +137,45 @@ def _append_answer_print(code: str) -> str:
     return source + f'\n\nprint("最终答案:", {target}())\n'
 
 
+#: sympy 系数提取 API 误用的确定性修复（idx 5 函数方程「比较系数」）。
+#: 模型反复踩坑：all_coeffs() 只支持单变量（多变量报 PolynomialError），
+#: coeff_monomial(p**i, q**j) 应传幂次元组 (i,j)（传表达式报 TypeError）。
+#: 两者意图都是「取多项式全部系数」，据 stderr 特征定向替换，不误伤无关代码。
+_COEFF_ALL_RE = re.compile(r"\.all_coeffs\s*\(\s*\)")
+_COEFF_MONOMIAL_TWO_RE = re.compile(
+    r"\.coeff_monomial\s*\(\s*(\w+)\s*\*\*\s*(\w+)\s*,\s*(\w+)\s*\*\*\s*(\w+)\s*\)"
+)
+
+
+def _repair_coeff_extraction(code: str, stderr: str) -> str:
+    """据 stderr 特征修复 sympy 系数提取 API 误用；无匹配返回空串。"""
+    if not code or not stderr:
+        return ""
+    repaired = code
+    if "multivariate polynomials not supported" in stderr and "all_coeffs" in repaired:
+        repaired = _COEFF_ALL_RE.sub(".coeffs()", repaired)
+    elif "coeff_monomial" in stderr and "positional arguments" in stderr:
+        repaired = _COEFF_MONOMIAL_TWO_RE.sub(r".coeff_monomial((\2, \4))", repaired)
+    return repaired if repaired != code else ""
+
+
+def _repair_coeff_and_reexecute(mcp_client, code, output):
+    """执行失败后先试系数提取 API 修复 + 重执行。
+
+    返回 (new_code, new_output)；无修复或修复仍失败时原样返回 (code, output)。
+    """
+    if mcp_client is None:
+        return code, output
+    repaired = _repair_coeff_extraction(code, output.get("stderr") or "")
+    if not repaired:
+        return code, output
+    new_output = mcp_client.execute(
+        repaired, timeout=CONFIG["node_timeouts"]["python_mcp_execute"])
+    if new_output.get("success"):
+        return repaired, new_output
+    return code, output
+
+
 #: 压缩重生成的估时（8192 token @ ~50 tok/s + 余量）。
 _COMPRESSED_CALL_ESTIMATE_S = 200
 
@@ -165,10 +204,13 @@ def _compressed_python_call(deps, problem, candidate_answer,
     if clock and clock.remaining_hard() - _COMPRESSED_RESERVE_MARGIN_S \
             < _COMPRESSED_CALL_ESTIMATE_S:
         return None, "compressed_retry_unaffordable"
+    # 压缩重试也要注入 structure_instruction：深解领域（高代/数论/组合/抽代）首轮
+    # 就走这里，若漏掉题面结构规则（函数方程独立求解、全部解枚举、极值对照…），
+    # Python 会退化成"枚举/DP 验证候选"而非按题面结构独立求解（idx 5 函数方程）。
     instruction = _retry_prompt(
         f"上一次生成{failure}。现在禁止任何解释文字：直接给出一个"
         "**尽可能短**的完整 Python 程序。优先做小规模精确计算（枚举/DP/sympy），"
-        "省略探索性打印。",
+        "省略探索性打印。" + structure_instruction(problem),
         problem, candidate_answer)
     try:
         resp = chat_prefilled(
@@ -326,9 +368,20 @@ def python_agent_node(state, config):
                 last_code = code
                 output = mcp_client.execute(
                     code, timeout=CONFIG["node_timeouts"]["python_mcp_execute"])
+                # 执行失败先试 sympy 系数提取 API 误用的确定性修复（idx 5 函数方程
+                # all_coeffs/coeff_monomial 陷阱），救回"方向对但 API 细节错"的代码。
+                if not output.get("success"):
+                    repaired_code, repaired_output = _repair_coeff_and_reexecute(
+                        mcp_client, code, output)
+                    if repaired_output.get("success"):
+                        last_code = repaired_code
+                        output = repaired_output
+                        trace.append({"attempt": attempts,
+                                      "status": "coeff_api_repair",
+                                      "reason": "deep_direct_compressed_first"})
                 last_output = output
                 probe = parse_verification_evidence(
-                    output, candidate_answer=candidate_answer, code=code)
+                    output, candidate_answer=candidate_answer, code=last_code)
                 trace.append({"attempt": attempts,
                               "status": "success" if output.get("success") else "failed",
                               "reason": "deep_direct_compressed_first",
@@ -530,9 +583,22 @@ def python_agent_node(state, config):
                 "```python``` 代码块：保留原计算，务必以 print(\"最终答案:\", answer) 结尾。",
                 problem, candidate_answer)
             continue
-        # 执行失败：改用压缩 prefill 重试（抑制私有 reasoning、代码更短，~150s
-        # 而非 ~200s 完整重生成）。stderr 拼进 failure 让模型针对性修复；已用过
-        # 压缩仍失败则放弃本分支，不再支付第二次完整生成。
+        # 执行失败：先试 sympy 系数提取 API 误用的确定性修复（idx 5 函数方程
+        # all_coeffs/coeff_monomial 陷阱），修复成功即返回；再改用压缩 prefill
+        # 重试（抑制私有 reasoning、代码更短，~150s 而非 ~200s 完整重生成）。
+        # stderr 拼进 failure 让模型针对性修复；已用过压缩仍失败则放弃本分支，
+        # 不再支付第二次完整生成。
+        repaired_code, repaired_output = _repair_coeff_and_reexecute(
+            mcp_client, code, output)
+        if repaired_output.get("success"):
+            last_code = repaired_code
+            last_output = repaired_output
+            repaired_probe = parse_verification_evidence(
+                repaired_output, candidate_answer=candidate_answer,
+                code=repaired_code)
+            trace.append({"attempt": attempts, "status": "coeff_api_repair"})
+            if str(repaired_probe.get("answer") or "").strip():
+                return finalize(repaired_output)
         if compressed_used:
             break
         stderr_brief = (output.get('stderr') or '').replace('\n', ' ').strip()[:300]

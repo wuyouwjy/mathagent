@@ -93,8 +93,11 @@ def _preferred_answer(state: dict, match_result: dict) -> str:
         return reasoning_answer
     if ptype == "computation" and python_ok and not looks_incomplete_answer(python_answer):
         # 反伪造：无实质计算的代码答案不得凭"执行成功"压过一个可用的推理答案。
-        if not (fabricated and reasoning_ok):
-            return python_answer
+        # inconclusive 同理：数值扫描「未发现」≠「不存在」，不构成确定性结果，
+        # 同样不得覆盖有论证的 reasoning（idx 16：fsolve 漏解答 2 覆盖消元得 8）。
+        if (fabricated or evidence_status == "inconclusive") and reasoning_ok:
+            return reasoning_answer
+        return python_answer
     if reasoning_ok:
         return reasoning_answer
     return reasoning_answer or python_answer
@@ -299,8 +302,15 @@ def cross_validator_node(state, config):
         # Playoff 确定性复算裁决：计算题冲突先代回复算，季后赛已跑过/不适用时
         # 回落到既有的重算-仲裁通道。
         already_played = bool(state.get("playoff_trace"))
+        # 2026-10-08 idx 16：Python 证据为 inconclusive（数值扫描「未发现」≠「不存在」）时，
+        # 其答案不构成确定性反驳。playoff 的「代回复算」对计数/求数量题同样靠数值扫描
+        # 找不全（idx 16 Python 用 fsolve + sorted() 去重把有序三元组并成无序集合，漏 6 个
+        # 非对称解），会重复漏解并采信弱证据，把 reasoning 有论证的正确答案覆盖成错
+        # （reasoning 消元得 8 被 Python 数值扫描的 2 覆盖）。此时跳过 playoff/reconciliation
+        # 采信，直接交 semantic_arbiter 按证据强度裁决。
+        python_inconclusive = (evidence_status == "inconclusive")
         if problem_type == "computation" and CONFIG.get("enable_playoff", True) \
-                and not already_played:
+                and not already_played and not python_inconclusive:
             from graph.nodes.playoff import playoff_candidates
             cand_a, cand_b = playoff_candidates(state)
             if cand_a and cand_b:
@@ -321,7 +331,11 @@ def cross_validator_node(state, config):
         # subgraph-level retry gated by reconciliation_round (NOT per-node attempts —
         # per-node attempts gate the agent's internal format/code retries; the plan
         # §4.2 keeps these separate).
-        if reconciliation_retry_available(state, config):
+        if python_inconclusive:
+            status = "mismatch_arbitrating"
+            match_result["routing_reason"] = "inconclusive_python_evidence_semantic_arbitration"
+            next_node = "semantic_arbiter"
+        elif reconciliation_retry_available(state, config):
             status = "mismatch_reconciling"
             next_node = "reconciliation"
         else:

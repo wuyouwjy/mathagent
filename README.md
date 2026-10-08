@@ -1,10 +1,10 @@
 <p align="center">
-  <h1 align="center">🧮 Math-Agent-System G7</h1>
+  <h1 align="center">🧮 Math-Agent-System G8</h1>
   <p align="center">基于 <b>Intern-S 系列大模型</b> 的 LangGraph 多智能体数学推理系统 — 2026 挑战杯·书生赛道</p>
   <p align="center">
     <img src="https://img.shields.io/badge/Python-3.10+-blue" alt="Python">
     <img src="https://img.shields.io/badge/LLM-Intern--S-orange" alt="Intern-S">
-    <img src="https://img.shields.io/badge/version-G7-purple" alt="G7">
+    <img src="https://img.shields.io/badge/version-G8-purple" alt="G8">
     <img src="https://img.shields.io/badge/framework-LangGraph-green" alt="LangGraph">
     <img src="https://img.shields.io/badge/score-target-70%2B-brightgreen" alt="Target">
   </p>
@@ -14,7 +14,7 @@
 
 ## 📖 简介
 
-**Math-Agent-System G7** 是为 2026 年度中国青年科技创新"揭榜挂帅"擂台赛·书生赛道设计的数学推理智能体。
+**Math-Agent-System G8** 是为 2026 年度中国青年科技创新"揭榜挂帅"擂台赛·书生赛道设计的数学推理智能体。
 
 T3 版本完成了从 T2 svragent 到 **LangGraph 多智能体图编排**的重构。T4 在 T3 基础上，参考 GitHub 开源项目与相关论文补齐了四块**正确性与完成率**短板：
 
@@ -80,6 +80,24 @@ G7 针对 G6 后本地 20 题满预算复测暴露的两处「答案污染/格�
 33. **反伪造作废答案**：`authenticity.py` 加 `has_compute` 字段；`evidence.py` 里伪造且无实质计算的代码不仅把 support 降级 inconclusive，其打印的「最终答案」也一并作废（`answer_source="fabricated_suppressed"`）。修复 idx 7 事故——reasoning 已算出正确答案，伪造代码无任何计算却 `print` 出一个伪造的「最终答案」反而在 playoff 胜出；作废后正确推理得以保留，20 题复测 3 道伪造题（idx 7 救回、idx 14/18 不受影响）零误伤；
 34. **模 2 求和答案显式化**：`profile.py` 的 `has_mod2_valued_sum` 分支强化「单独写纯数字」——F₂ 值域函数求和题（`f(⋯)+f(⋯)+…` 是模 2 加法）最终答案只能是模 2 域里的取值，'## 最终答案' 必须单独写出该取值，不得把完整求和式（含下标/系数）写进答案行，否则判分按数值提取被公式里的数字干扰（idx 6）；
 35. **PaperPacer 本地子集预算错配修复**：`paper_pacer.py` 支持 `PAPER_PLANNED` / `PAPER_TOTAL_SECONDS` 环境变量覆盖默认 planned=112 / total=6h，本地跑 20 题子集时按子集规模均摊软预算，避免 coordinator 被跳过、完整重试被砍导致基线失真（官方评测默认值不变，不受影响）。
+
+G8 针对 G7 后本地 20 题回归暴露的「深解领域规则失效」与「弱证据覆盖强论证」两类缺陷做修复——deep_direct 压缩路径漏注入 structure_instruction 致函数方程规则失效（idx 5 三连败），以及 idx 16 方程组漏解被 Python 弱证据覆盖 reasoning 正确消元的两种变体（inconclusive 经 playoff 采信 + 漏解 FAIL 被误标 contradict）。据此补五处修复（三处确定性修复 + 一处答案格式规范化 + 一处 prompt 规则瘦身）：
+
+36. **函数方程独立求解规则 + prompt 规则瘦身（profile.py）**：新增 `has_functional_equation` 检测函数方程（「Find all functions…」/「函数方程」），注入「独立求解完整解集」指令——设 ansatz + sympy 代入展开比较系数 + solve 全部参数组合，禁止只代入验证候选（救 idx 5）；同时回滚三处低收益/有副作用的 prompt 规则：G6 最坏情形保证建模（`_ADVERSARIAL_RE`，idx 19/46 只从「完全错」改善到「接近」未得分）、G6 枚举完整孤立解强化（idx 9 答对但判分脚本 to_float bug 记不了分 + 曾误导 idx 6 退化只报小值）、G7 模 2 求和「单独写纯数字」追加句（被第 39 项代码层答案格式规范化替代）；保留求值显式化（idx 26 确定性 +1）与「全部解检查单」基础句；
+37. **deep_direct 漏注入 structure_instruction + sympy 系数提取 API 修复**：Python 压缩首轮 `_compressed_python_call` 的指令由 `_retry_prompt` 构造、不含 `structure_instruction(problem)`，致题面结构规则（函数方程独立求解）到不了 Python 节点、Python 退化成枚举验证。修复：注入 `structure_instruction(problem)`（对所有深解领域一致性修复，不匹配结构返回空串零影响）；同时加 `_repair_coeff_extraction` 生成后确定性修复 sympy 系数提取 API 误用——`multivariate polynomials not supported` → `all_coeffs()` 换 `.coeffs()`、`coeff_monomial` 双参数报错 → 换元组 `coeff_monomial((i,j))`（sympy 三个系数 API 语义不一致是模型系统性弱项，prompt 提示只能换 API、不能保证换对）；
+38. **inconclusive 弱证据不得覆盖 reasoning（idx 16 方程组漏解）**：idx 16 Python 用 fsolve + `sorted()` 去重把有序三元组并成无序集合、漏 6 个非对称解得 2，reasoning 消元得 8，inconclusive 弱证据经 playoff「代回复算」重复漏解并采信覆盖成 2。三处修复：cross_validator mismatch 分支 `python_inconclusive` 跳过 playoff/reconciliation 直接交 semantic_arbiter；`_preferred_answer` 对 `(fabricated or inconclusive) and reasoning_ok` 回退 reasoning；semantic_arbiter `_fallback_result` 对 inconclusive 弃权不重跑（重跑仍数值扫描、大概率仍 inconclusive），直接兜底 `_preferred_answer`；
+39. **答案格式规范化（idx 7 单值等式剥纯数值）**：`_distill_answer` 策略 3 短节最后一行若为单值等式「X=纯数值」（如 `$$D_{\max}=777^2=603729$$`），先剥成纯数值右值 `603729` 再判分，避免整行公式被 tokens 提取多个数字归 na（确定性 +1）；
+40. **漏解 FAIL 误标 contradict 降级（idx 16 第二变体）**：idx 16 另一变体中 Python 自报「验证状态: FAIL」+「验证证据: 解集=[]/未筛」，被 evidence.py 的 `marker_status == "FAIL"` 分支无条件升级为 contradict，绕过第 38 项的 inconclusive 保护链，被 `_evidence_override` 采信覆盖成 0。修复：`_is_missed_solution_fail` 判别「确定性反例 vs 求解漏解」——contradict 必带具体反例值（Counterexample/Violations/Mismatch/FAIL at .../result...expected.../数值反例），「解集=[]/未筛/Not found/0 solutions」只是求解无能、降级 inconclusive 复用 inconclusive 保护链。
+
+### G8 vs G7 核心增量
+
+| 维度 | G7 | G8 |
+|---|---|---|
+| **题面结构规则** | 最坏情形/孤立解/模2单独写等规则部分低收益或有副作用；无函数方程规则 | 新增函数方程独立求解规则；回滚最坏情形/孤立解/模2单独写三处低收益规则，保留求值显式化 |
+| **深解领域规则落地** | Python 压缩首轮不注入 structure_instruction，函数方程等题面结构规则失效（idx 5 三连败） | 注入 structure_instruction + sympy 系数提取 API 误用确定性修复（all_coeffs/coeff_monomial → coeffs） |
+| **inconclusive 弱证据** | 数值扫描「未发现」经 playoff 采信覆盖 reasoning（idx 16 漏解得 2 覆盖 8） | 三处修复：mismatch 跳 playoff、兜底回退 reasoning、弃权不重跑 |
+| **单值等式答案格式** | `$$D_{max}=777^2=603729$$` 整行公式被判 na（idx 7） | 剥成纯数值右值 `603729`（确定性 +1） |
+| **漏解 FAIL 分类** | 「解集=[]/未筛」FAIL 被误标 contradict，绕过 inconclusive 保护链（idx 16 第二变体） | `_is_missed_solution_fail` 判别：contradict 必带具体反例值，漏解降级 inconclusive |
 
 ### G7 vs G6 核心增量
 
@@ -512,6 +530,7 @@ A2 瓶颈是 8192 token 截断（`truncated_count=328` / 41.7%，完整二次推
 | **G5** | 目标（G4 之上） | + 客观题 Python 验证边界收窄 + fill 精确值采信 | 回滚 computation verify 止损；fill 实算题恢复 Python 验证；[ANS] 空位识别；counting_guard 统计排除；needs_python_verify 排除字母空；统计推断 fill 采信 Python 精确值（6 题复测 +1 无回归） |
 | **G6** | 目标（G5 之上） | + reasoning prompt 定向规则 + matcher tuple/set 防御 + stdout 带空格标签提取 | matcher 容器答案防御补全 list→tuple/set；stdout_miner 认带空格英文统计标签；reasoning prompt 三处定向规则（最坏情形保证 / 枚举完整护栏 / 求值显式化，idx 26 复测 +1） |
 | **G7** | 目标（G6 之上） | + 反伪造作废答案 + 模 2 求和答案显式化 + 本地子集预算修复 | 伪造 Python 答案（无实质计算）作废不再污染采信（idx 7 救回）；F₂ 求和题强制单独写纯数字、不嵌公式（idx 6 格式修复）；PaperPacer 支持环境变量覆盖 planned/total 消除本地子集预算错配 |
+| **G8** | 目标（G7 之上） | + 函数方程规则 + prompt 规则瘦身 + deep_direct 规则注入 + 弱证据覆盖修复 + 答案格式规范化 + 漏解 FAIL 降级 | 新增函数方程独立求解规则、回滚最坏情形/孤立解/模2单独写三处低收益规则；Python 压缩路径注入 structure_instruction + sympy 系数 API 修复（idx 5）；inconclusive 弱证据三处修复 + 漏解 FAIL 误标 contradict 降级（idx 16 两个变体）；单值等式剥纯数值（idx 7 格式 +1） |
 
 ---
 
