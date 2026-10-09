@@ -1,10 +1,10 @@
 <p align="center">
-  <h1 align="center">🧮 Math-Agent-System G8</h1>
+  <h1 align="center">🧮 Math-Agent-System G9</h1>
   <p align="center">基于 <b>Intern-S 系列大模型</b> 的 LangGraph 多智能体数学推理系统 — 2026 挑战杯·书生赛道</p>
   <p align="center">
     <img src="https://img.shields.io/badge/Python-3.10+-blue" alt="Python">
     <img src="https://img.shields.io/badge/LLM-Intern--S-orange" alt="Intern-S">
-    <img src="https://img.shields.io/badge/version-G8-purple" alt="G8">
+    <img src="https://img.shields.io/badge/version-G9-purple" alt="G9">
     <img src="https://img.shields.io/badge/framework-LangGraph-green" alt="LangGraph">
     <img src="https://img.shields.io/badge/score-target-70%2B-brightgreen" alt="Target">
   </p>
@@ -14,7 +14,7 @@
 
 ## 📖 简介
 
-**Math-Agent-System G8** 是为 2026 年度中国青年科技创新"揭榜挂帅"擂台赛·书生赛道设计的数学推理智能体。
+**Math-Agent-System G9** 是为 2026 年度中国青年科技创新"揭榜挂帅"擂台赛·书生赛道设计的数学推理智能体。
 
 T3 版本完成了从 T2 svragent 到 **LangGraph 多智能体图编排**的重构。T4 在 T3 基础上，参考 GitHub 开源项目与相关论文补齐了四块**正确性与完成率**短板：
 
@@ -88,6 +88,18 @@ G8 针对 G7 后本地 20 题回归暴露的「深解领域规则失效」与「
 38. **inconclusive 弱证据不得覆盖 reasoning（idx 16 方程组漏解）**：idx 16 Python 用 fsolve + `sorted()` 去重把有序三元组并成无序集合、漏 6 个非对称解得 2，reasoning 消元得 8，inconclusive 弱证据经 playoff「代回复算」重复漏解并采信覆盖成 2。三处修复：cross_validator mismatch 分支 `python_inconclusive` 跳过 playoff/reconciliation 直接交 semantic_arbiter；`_preferred_answer` 对 `(fabricated or inconclusive) and reasoning_ok` 回退 reasoning；semantic_arbiter `_fallback_result` 对 inconclusive 弃权不重跑（重跑仍数值扫描、大概率仍 inconclusive），直接兜底 `_preferred_answer`；
 39. **答案格式规范化（idx 7 单值等式剥纯数值）**：`_distill_answer` 策略 3 短节最后一行若为单值等式「X=纯数值」（如 `$$D_{\max}=777^2=603729$$`），先剥成纯数值右值 `603729` 再判分，避免整行公式被 tokens 提取多个数字归 na（确定性 +1）；
 40. **漏解 FAIL 误标 contradict 降级（idx 16 第二变体）**：idx 16 另一变体中 Python 自报「验证状态: FAIL」+「验证证据: 解集=[]/未筛」，被 evidence.py 的 `marker_status == "FAIL"` 分支无条件升级为 contradict，绕过第 38 项的 inconclusive 保护链，被 `_evidence_override` 采信覆盖成 0。修复：`_is_missed_solution_fail` 判别「确定性反例 vs 求解漏解」——contradict 必带具体反例值（Counterexample/Violations/Mismatch/FAIL at .../result...expected.../数值反例），「解集=[]/未筛/Not found/0 solutions」只是求解无能、降级 inconclusive 复用 inconclusive 保护链。
+
+G9 针对 G8 决赛 82 分（比 G6/G7 的 84 掉 2 分）做诊断——G8 的「prompt 规则瘦身」（第 36 项）删掉了 G6 加、G7 保留的三条定向 prompt 规则，时间线 G5(78)→G6(84) 加三条规则 +6 与 G7(84)→G8(82) 删三条规则 -2 高度吻合。据此回滚三条规则（保留 G8 的函数方程规则与其余 5 类修复）：
+
+41. **回滚 prompt 规则瘦身（恢复三条规则）**：恢复 G6 三条定向规则——(a) `has_adversarial_guarantee` 最坏情形保证建模（负向前瞻排除 `regardless of whether`）；(b) `requires_all_solutions` 孤立解逐个代入检验 + 无限解用性质描述护栏；(c) `has_mod2_valued_sum` 单独写纯数字句；保留 G8 新增的函数方程规则与 5 类修复（弱证据覆盖修复 / 漏解 FAIL 降级 / sympy 系数 API 修复 / 答案格式规范化 / deep_direct 规则注入）。注意：本地 20 题回归 G9=6/12（与 G7 持平、低于 G8 的 7/12），且 idx 14 孤立解题恢复护栏后仍 wrong（trace 显示 reasoning 三次未解出、Python 暴力搜索失败），证明该题 G7→G8 的掉分是模型随机而非护栏删除；三条规则在决赛 100 题上的价值未能由 20 题子集验证，待决赛复测。
+
+### G9 vs G8 核心增量
+
+| 维度 | G8 | G9 |
+|---|---|---|
+| **最坏情形规则** | 已回滚删除 | 恢复 `has_adversarial_guarantee` 对抗性最坏情形建模 |
+| **孤立解护栏** | 已回滚删除 | 恢复「孤立解逐个代入 + 无限解性质描述」护栏 |
+| **模2单独写纯数字** | 已回滚删除 | 恢复「最终答案单独写纯数字」句 |
 
 ### G8 vs G7 核心增量
 
@@ -531,6 +543,7 @@ A2 瓶颈是 8192 token 截断（`truncated_count=328` / 41.7%，完整二次推
 | **G6** | 目标（G5 之上） | + reasoning prompt 定向规则 + matcher tuple/set 防御 + stdout 带空格标签提取 | matcher 容器答案防御补全 list→tuple/set；stdout_miner 认带空格英文统计标签；reasoning prompt 三处定向规则（最坏情形保证 / 枚举完整护栏 / 求值显式化，idx 26 复测 +1） |
 | **G7** | 目标（G6 之上） | + 反伪造作废答案 + 模 2 求和答案显式化 + 本地子集预算修复 | 伪造 Python 答案（无实质计算）作废不再污染采信（idx 7 救回）；F₂ 求和题强制单独写纯数字、不嵌公式（idx 6 格式修复）；PaperPacer 支持环境变量覆盖 planned/total 消除本地子集预算错配 |
 | **G8** | 目标（G7 之上） | + 函数方程规则 + prompt 规则瘦身 + deep_direct 规则注入 + 弱证据覆盖修复 + 答案格式规范化 + 漏解 FAIL 降级 | 新增函数方程独立求解规则、回滚最坏情形/孤立解/模2单独写三处低收益规则；Python 压缩路径注入 structure_instruction + sympy 系数 API 修复（idx 5）；inconclusive 弱证据三处修复 + 漏解 FAIL 误标 contradict 降级（idx 16 两个变体）；单值等式剥纯数值（idx 7 格式 +1） |
+| **G9** | 目标（G8 之上） | + 回滚 prompt 规则瘦身（恢复三条规则） | 恢复 G6 最坏情形建模/孤立解护栏/模2单独写三条规则（时间线 G5→G6 +6 与 G7→G8 -2 吻合）；保留函数方程规则与 5 类修复；20 题回归 6/12 未验证出净收益（idx 14 恢复护栏后仍 wrong，证明其为模型随机），待决赛复测 |
 
 ---
 

@@ -163,6 +163,15 @@ _COUNT_ASK_RE = re.compile(
     r"需要多少|数量是多少"
 )
 
+#: 对抗性最坏情形："regardless of / guarantee / 不管 / 保证"——答案须在对手选的
+#: 最坏输入下仍成立，而非对某特定输入成立（idx 19/46 均因未识别此结构而错 2^50/1023）。
+#: "regardless of whether" 是"无论是否"的普通含义（如 idx 24 的最小支配集覆盖），
+#: 非对抗性，用负向前瞻排除。
+_ADVERSARIAL_RE = re.compile(
+    r"(?i)\bregardless\s+of\s+(?!whether\b)|\bguarantee\b|\bno\s+matter\b|\bwhatever\b|"
+    r"不管|保证|无论|必达|任何(?:初始|选择|输入)"
+)
+
 #: "判断 + 求值" 双问句（"whether … is rational … find its value"）。最终答案若写成
 #: 含多数字的公式（$\sum_{n=1}…=4$），判分 tokens 会把下标/系数当数字 → 整段归 na，
 #: 答对也判错（idx 26）。
@@ -196,6 +205,11 @@ def asks_feasibility_then_count(problem: str) -> bool:
     """题面同时问"是否可能"与"最少/最多需要多少"（不可能性论证须先证伪）。"""
     text = str(problem or "")
     return bool(_FEASIBILITY_RE.search(text)) and bool(_COUNT_ASK_RE.search(text))
+
+
+def has_adversarial_guarantee(problem: str) -> bool:
+    """题面含"regardless/guarantee/不管/保证"（对抗性最坏情形，须在对手最坏输入下成立）。"""
+    return bool(_ADVERSARIAL_RE.search(str(problem or "")))
 
 
 def asks_judge_then_value(problem: str) -> bool:
@@ -303,12 +317,19 @@ def structure_instruction(problem: str) -> str:
             "[值域聚合警告] 题面函数的值域是 F_2（模 2 的二元域）。所求的 f(⋯)+f(⋯)+… 是"
             " **F_2 中的加法**：先逐项求出各函数值（0 或 1），最后必须按模 2（异或）聚合，"
             "最终答案只能是 0 或 1；给出普通整数和（如 3）即错。"
+            "'## 最终答案' 必须**单独写出这个纯数字**（写 \"最终答案：1\" 即可），"
+            "不要把完整求和式 f(⋯)+f(⋯)+…=1 或各分项值一起写进答案行——判分按数值提取，"
+            "公式里的下标/系数会被当成数字干扰，导致答对却判错。"
         )
     if requires_all_solutions(problem):
         parts.append(
             "[全部解检查单] 本题要求给出**所有**解/值。禁止只验证一个已知解就作答："
             "必须先在小规模/截断版本上系统枚举解空间（列出发现的每一个解支），"
             "再证明再无其他分支；最终答案必须列出全部解支（含平凡支与例外支）。"
+            "除主族（通解/参数化解族）外，把最小的几个值（如 v=1,2,3,4,5）逐个代入"
+            "原条件显式检验，防漏**孤立解/边界解**——它们不属于任何通解族，但单独满足条件；"
+            "若解集是无限的，最终答案必须用性质完整描述全部解（如'所有素数 n'），"
+            "不得只列举检验过的前几个小值。"
         )
     if is_extremal_problem(problem):
         parts.append(
@@ -327,6 +348,13 @@ def structure_instruction(problem: str) -> str:
             "比较系数的 sympy 写法：sp.Poly(expr, p, q).coeffs() 取系数、"
             "sp.solve(coeffs, [a,b,c], dict=True) 解参数——注意 all_coeffs() 只支持"
             "单变量多项式，多变量（含 p,q 两项）必须用 .coeffs()，否则报 PolynomialError。"
+        )
+    if has_adversarial_guarantee(problem):
+        parts.append(
+            "[最坏情形保证建模] 题面含 \"regardless of / guarantee / 不管 / 保证\"：这是**对抗性最坏情形**问题。"
+            "答案必须在**对手选择的最坏输入**（或所有可能的初始状态）下仍保证成立，不是对某个特定输入成立。"
+            "先明确'对手'如何最坏地阻挠你（哪类输入/初始状态最不利），再构造覆盖最坏输入的策略并求最小保证值；"
+            "先用小规模（n=1,2,3 或 m=2,3）暴力枚举最坏情形校准，再推广。"
         )
     # 以下三条针对 2026-08-10 复测轮的错因（评委建议 1/2/3/5）：口径与序号类错误
     # 都发生在"推理跑完了"之后，属于收尾核验缺失，成本极低但直接决定得分。
