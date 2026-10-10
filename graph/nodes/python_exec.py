@@ -239,7 +239,8 @@ def python_agent_node(state, config):
     client = deps.client
     mcp_client = deps.mcp_client
     budget = deps.token_budget
-    max_attempts = 1 if budget and budget.is_tight() else CONFIG["max_retries_per_node"]
+    max_attempts = 1 if budget and budget.is_tight() else CONFIG.get(
+        "python_max_retries", CONFIG["max_retries_per_node"])
     problem, category = state["problem"], state["category"]
     question_mode = state.get("question_mode", "computation")
     if is_objective_mode(question_mode) and not needs_python_verify(problem, question_mode):

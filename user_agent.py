@@ -347,6 +347,17 @@ class ReasoningAgent:
                 ],
                 "fallback_source": state.get("fallback_source", ""),
             })
+        if state.get("consistency_vote_trace"):
+            cvt = state["consistency_vote_trace"]
+            trace.append({
+                "step": "consistency_vote",
+                "question_mode": cvt.get("question_mode", ""),
+                "n_samples": cvt.get("n_samples", 0),
+                "overridden": cvt.get("overridden", False),
+                "original": cvt.get("original", ""),
+                "samples": cvt.get("samples", []),
+                "consensus": cvt.get("consensus", ""),
+            })
         if state.get("node_timings") or state.get("_time_budget"):
             trace.append({
                 "step": "timing",

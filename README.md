@@ -1,10 +1,10 @@
 <p align="center">
-  <h1 align="center">🧮 Math-Agent-System G9</h1>
+  <h1 align="center">🧮 Math-Agent-System S1</h1>
   <p align="center">基于 <b>Intern-S 系列大模型</b> 的 LangGraph 多智能体数学推理系统 — 2026 挑战杯·书生赛道</p>
   <p align="center">
     <img src="https://img.shields.io/badge/Python-3.10+-blue" alt="Python">
     <img src="https://img.shields.io/badge/LLM-Intern--S-orange" alt="Intern-S">
-    <img src="https://img.shields.io/badge/version-G9-purple" alt="G9">
+    <img src="https://img.shields.io/badge/version-S1-purple" alt="S1">
     <img src="https://img.shields.io/badge/framework-LangGraph-green" alt="LangGraph">
     <img src="https://img.shields.io/badge/score-target-70%2B-brightgreen" alt="Target">
   </p>
@@ -14,7 +14,7 @@
 
 ## 📖 简介
 
-**Math-Agent-System G9** 是为 2026 年度中国青年科技创新"揭榜挂帅"擂台赛·书生赛道设计的数学推理智能体。
+**Math-Agent-System S1** 是为 2026 年度中国青年科技创新"揭榜挂帅"擂台赛·书生赛道设计的数学推理智能体。
 
 T3 版本完成了从 T2 svragent 到 **LangGraph 多智能体图编排**的重构。T4 在 T3 基础上，参考 GitHub 开源项目与相关论文补齐了四块**正确性与完成率**短板：
 
@@ -88,6 +88,20 @@ G8 针对 G7 后本地 20 题回归暴露的「深解领域规则失效」与「
 38. **inconclusive 弱证据不得覆盖 reasoning（idx 16 方程组漏解）**：idx 16 Python 用 fsolve + `sorted()` 去重把有序三元组并成无序集合、漏 6 个非对称解得 2，reasoning 消元得 8，inconclusive 弱证据经 playoff「代回复算」重复漏解并采信覆盖成 2。三处修复：cross_validator mismatch 分支 `python_inconclusive` 跳过 playoff/reconciliation 直接交 semantic_arbiter；`_preferred_answer` 对 `(fabricated or inconclusive) and reasoning_ok` 回退 reasoning；semantic_arbiter `_fallback_result` 对 inconclusive 弃权不重跑（重跑仍数值扫描、大概率仍 inconclusive），直接兜底 `_preferred_answer`；
 39. **答案格式规范化（idx 7 单值等式剥纯数值）**：`_distill_answer` 策略 3 短节最后一行若为单值等式「X=纯数值」（如 `$$D_{\max}=777^2=603729$$`），先剥成纯数值右值 `603729` 再判分，避免整行公式被 tokens 提取多个数字归 na（确定性 +1）；
 40. **漏解 FAIL 误标 contradict 降级（idx 16 第二变体）**：idx 16 另一变体中 Python 自报「验证状态: FAIL」+「验证证据: 解集=[]/未筛」，被 evidence.py 的 `marker_status == "FAIL"` 分支无条件升级为 contradict，绕过第 38 项的 inconclusive 保护链，被 `_evidence_override` 采信覆盖成 0。修复：`_is_missed_solution_fail` 判别「确定性反例 vs 求解漏解」——contradict 必带具体反例值（Counterexample/Violations/Mismatch/FAIL at .../result...expected.../数值反例），「解集=[]/未筛/Not found/0 solutions」只是求解无能、降级 inconclusive 复用 inconclusive 保护链。
+
+S1 针对「恢复 T4 误降级的高分配置」做校准——T4 曾据「8-13 主办方 cap 8192」的错误假设，把 temperature 从 0.8/0.6 降到 0.3/0.2、coordinator/reconciliation 额度从 16384/32768 归一到 8192。核实该假设是误判（官方 `llm_client.py` 默认 12288、direct_infer 用 252880、ICMAnew-9911=99.11 分用 24576/32768 且 README 明说「不要压低」），据此恢复三个高分作品（ICMAnew-9911 / 第三名 VeritasMath / math_agent-main）的一致配置：
+
+42. **temperature 恢复 0.8/0.6**：reasoning 0.3→0.8、python 0.2→0.6。高温 + 大额度 + prefill 才是推理模型的正确组合——探索发生在私有 CoT，高温不放大格式偏离（v5 白卷的根因是缺 prefill/额度太小，现已具备，降温的边际损失是净负）；coordinator 保持 0.4 成稿留表达余地；
+43. **coordinator / reconciliation 额度恢复**：coordinator 8192→16384、reconciliation 8192→32768，防长证明/多问项最终拼装被截断；reasoning/python 首轮保留 8192 小额度（分级熔断 + 断点续写，这是刻意的，不是平台上限）；
+44. **python_max_retries=3**：Python 代码重试比推理便宜一个量级（生成+执行 ~60-150s vs 推理 ~500s），且首轮失败率最高（ICMAnew 8-31 全量 42% 无可提取答案），多给一次预算内重试机会（对齐 ICMAnew/第三名）。
+
+### S1 vs G9 核心增量
+
+| 维度 | G9 | S1 |
+|---|---|---|
+| **temperature** | 0.3/0.2（T4 误降） | 0.8/0.6（对齐 99 分三作品） |
+| **coordinator / reconciliation 额度** | 8192（长答案截断） | 16384 / 32768 |
+| **python 重试次数** | 2（max_retries_per_node） | 3（python_max_retries） |
 
 G9 针对 G8 决赛 82 分（比 G6/G7 的 84 掉 2 分）做诊断——G8 的「prompt 规则瘦身」（第 36 项）删掉了 G6 加、G7 保留的三条定向 prompt 规则，时间线 G5(78)→G6(84) 加三条规则 +6 与 G7(84)→G8(82) 删三条规则 -2 高度吻合。据此回滚三条规则（保留 G8 的函数方程规则与其余 5 类修复）：
 
@@ -490,12 +504,15 @@ A2 瓶颈是 8192 token 截断（`truncated_count=328` / 41.7%，完整二次推
 | `paper_min_work_s` | `180` | 软预算下限余量：收紧后 soft_total ≥ reserve + 此值，避免"落后"时 `remaining()` 开局为负导致 LLM 全拒 |
 | `difficulty_soft_budgets` | `{easy:600, medium:1200, hard:1200}` | 难度画像软预算（A3 上调 medium 1000→1200，三级熔断留足购买力） |
 | `reconciliation_max_rounds` | `2` | 调解轮次上限 |
-| `temperatures.reasoning` | `0.3` | 推理温度（0.8→0.3 压随机性，防 CoT 泄漏/格式偏离） |
-| `temperatures.python` | `0.2` | 代码生成温度（0.6→0.2 求确定性） |
+| `temperatures.reasoning` | `0.8` | 推理温度（恢复对齐 ICMAnew-9911/第三名；高温 + 大额度 + prefill 才是推理模型正确组合） |
+| `temperatures.python` | `0.6` | 代码生成温度（恢复对齐高分作品；白卷根因是缺 prefill/额度小，非高温） |
 | `temperatures.semantic_arbiter` | `0.1` | 仲裁温度（低温保证一致性） |
 | `max_tokens.reasoning` | `8192` | 推理首轮上限（T3 为 24576） |
 | `max_tokens.reasoning_compressed` | `8192` | 压缩重试上限（prefill 抑制私有推理） |
-| `max_tokens` 上限 | `8192` | 主办方规则：max_tokens 被 cap 到 8192、不传默认 4096；完整推理/生成场景统一设 8192（reconciliation/coordinator 原 32768/16384 已归一），prefill 选择题 96、应急直答 1280 |
+| `max_tokens.reasoning/python` | `8192` | 首轮小额度（分级熔断 + 断点续写：~546s 在 max_tokens 处正常截断、finish_reason 可读，由续写补全） |
+| `max_tokens.coordinator` | `16384` | 最终拼装上限（长证明/多问项不再截断，对齐 ICMAnew/第三名） |
+| `max_tokens.reconciliation` | `32768` | 调解预留值（对齐 ICMAnew；当前 reconciliation 不调 LLM） |
+| `python_max_retries` | `3` | Python 代码重试次数（首轮失败率 ~42%，多给一次预算内机会，对齐 ICMAnew） |
 | `enable_critic` | `true` | 过程审计门开关 |
 | `enable_playoff` | `true` | 确定性复算季后赛开关 |
 | `confidence_gate` | `{high:0.90, low:0.70}` | 置信门控资源档位阈值 |
@@ -544,6 +561,7 @@ A2 瓶颈是 8192 token 截断（`truncated_count=328` / 41.7%，完整二次推
 | **G7** | 目标（G6 之上） | + 反伪造作废答案 + 模 2 求和答案显式化 + 本地子集预算修复 | 伪造 Python 答案（无实质计算）作废不再污染采信（idx 7 救回）；F₂ 求和题强制单独写纯数字、不嵌公式（idx 6 格式修复）；PaperPacer 支持环境变量覆盖 planned/total 消除本地子集预算错配 |
 | **G8** | 目标（G7 之上） | + 函数方程规则 + prompt 规则瘦身 + deep_direct 规则注入 + 弱证据覆盖修复 + 答案格式规范化 + 漏解 FAIL 降级 | 新增函数方程独立求解规则、回滚最坏情形/孤立解/模2单独写三处低收益规则；Python 压缩路径注入 structure_instruction + sympy 系数 API 修复（idx 5）；inconclusive 弱证据三处修复 + 漏解 FAIL 误标 contradict 降级（idx 16 两个变体）；单值等式剥纯数值（idx 7 格式 +1） |
 | **G9** | 目标（G8 之上） | + 回滚 prompt 规则瘦身（恢复三条规则） | 恢复 G6 最坏情形建模/孤立解护栏/模2单独写三条规则（时间线 G5→G6 +6 与 G7→G8 -2 吻合）；保留函数方程规则与 5 类修复；20 题回归 6/12 未验证出净收益（idx 14 恢复护栏后仍 wrong，证明其为模型随机），待决赛复测 |
+| **S1** | 目标（G9 之上） | + 恢复 T4 误降级的高分配置（temperature / coordinator / reconciliation 额度 / python_max_retries） | temperature 0.8/0.6、coordinator 16384、reconciliation 32768、python_max_retries=3，对齐 ICMAnew-9911 / 第三名 / math_agent-main 一致配置；修正「主办方 cap 8192」误判 |
 
 ---
 

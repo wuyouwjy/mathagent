@@ -1,6 +1,10 @@
 CONFIG = {
     "model": "intern-s2",
     "max_retries_per_node": 2, "llm_max_retries": 3, "backoff_factor": 2.0,
+    # Python 代码重试比推理便宜一个量级（生成+执行 ~60-150s vs 推理 ~500s），且首轮
+    # 失败率最高（ICMAnew 8-31 全量：42% 无可提取答案）。多给一次预算内重试机会；
+    # can_afford_retry 门禁仍按实测耗时放行，不会击穿时限。对齐 ICMAnew/第三名。
+    "python_max_retries": 3,
     # Ceilings are a hang detector of LAST resort; TimeBudget.timeout_for() clamps
     # each to whatever the problem deadline still allows, and that clamp is the real
     # bound. They are near the full budget on purpose.
@@ -39,13 +43,13 @@ CONFIG = {
     # 误导风险（反锚定说明见 utils/retrieval/reference_block.py）。
     "db_retrieval_top_k": 2,
     "computation_tolerance": 1e-6, "proof_confidence_threshold": 0.7,
-    # 2026-08-13 主办方确认 temperature 生效。下调推理/代码温度以压随机性：
-    # reasoning 0.8→0.3、python 0.6→0.2——本系统强依赖四章节结构化输出 + 下游
-    # 解析（extractor/formatter/cleanliness），高温会放大格式偏离、CoT 泄漏与
-    # 英文元叙述（v5 白卷诱因）；深度推理模型的探索主要发生在私有 CoT，低温对
-    # 正确率的边际损失可忽略。coordinator 保持 0.4（成稿留表达余地）。
-    "temperatures": {"classifier": 0.1, "reasoning": 0.3, "objective_reasoning": 0.2,
-                     "python": 0.2,
+    # 恢复 0.8/0.6（对齐 ICMAnew-9911=99.11 分 / 第三名 VeritasMath / math_agent-main
+    # 三个高分作品的一致配置）。T4 曾以"压随机性防格式偏离"降到 0.3/0.2，但高温 +
+    # 大额度 + prefill 才是推理模型的正确组合：探索发生在私有 CoT，高温不放大格式
+    # 偏离——v5 白卷的根因是缺 prefill/额度太小，现已具备，降温的边际损失反而是净负。
+    # coordinator 保持 0.4（成稿留表达余地）。
+    "temperatures": {"classifier": 0.1, "reasoning": 0.8, "objective_reasoning": 0.2,
+                     "python": 0.6,
                      "reconciliation": 0.2, "semantic_arbiter": 0.1, "coordinator": 0.4},
     # Prefilled selection calls (classifier/semantic_arbiter) emit 4-12 completion
     # tokens because the assistant seed suppresses reasoning entirely. The small
@@ -59,18 +63,20 @@ CONFIG = {
     # （*_compressed，助手种子抑制私有推理，全部 token 用于可见章节，~150s）。
     # 首轮 24576-32768 区间的成功解极少（中档题实测 5-7k token，奥赛题贴 32768
     # 也多为耗尽），降低上限牺牲的成功区间可忽略，换来的重试窗口是净收益。
-    # 2026-08-13 主办方新规：max_tokens 被评测环境 cap 到 8192（不传默认 4096）。
-    # 故完整推理/生成场景统一设 8192 上限（max_tokens 只截断不加速，设大不增耗时）；
-    # 超过 8192 的旧值（reconciliation 32768、coordinator 16384）会被静默 cap，
-    # 已显式归一到 8192 以免误导预算预留。prefill 选择题（96）与应急直答（1280）
-    # 仍用刻意小 cap 抑制私有 CoT。
+    # max_tokens 修正：T4 曾据"8-13 主办方 cap 8192"把全场景归一到 8192，该说法是
+    # 误判——官方 llm_client.py 默认 12288、direct_infer 用 252880、ICMAnew-9911 用
+    # 24576/32768 且 README 明说"不要压低"（实测 32768 下用 4092 tokens、16384 下用
+    # 6875，额度越大越收敛）。真实约束是"分级熔断 + 断点续写"：reasoning/python 首轮
+    # 8192 是刻意小额度（~546s 在 max_tokens 处正常截断、finish_reason 可读，由续写
+    # 补全剩余章节）——这个保留。但 coordinator（长证明/多问项最终拼装）与
+    # reconciliation 被误降到 8192 会截断长答案，恢复对齐 ICMAnew/第三名。
     "max_tokens": {"classifier": 96, "classifier_fallback": 8192,
                    "objective_reasoning": 8192,
                    "reasoning": 8192, "python": 8192,
                    "reasoning_compressed": 8192, "python_compressed": 8192,
-                   "reconciliation": 8192,
+                   "reconciliation": 32768,
                    "semantic_arbiter": 96, "semantic_arbiter_fallback": 8192,
-                   "coordinator": 8192, "emergency_answer": 1280},
+                   "coordinator": 16384, "emergency_answer": 1280},
     "reconciliation_max_rounds": 2,
     "token_budget_max": 256000, "token_budget_warn_ratio": 0.9,
     # Wall-clock budget per problem. The platform's hard limit is 20 min; the
@@ -149,5 +155,12 @@ CONFIG = {
     # "最终答案：正确" 这种丢信息裸布尔输出。纯确定性零成本。
     "enable_bare_verdict_enrich": True,
     "enable_proof_deepener": True,
+    # 选择性多采样投票（self-consistency）：对低置信题用全卷剩余 surplus 做
+    # N=3 独立采样取多数票。已回滚——实测低置信题（仲裁未定论）的 invoke 已耗尽
+    # 单题 20min 硬限（elapsed 1060~1290s，remaining_hard ≤139s），采样空间为 0，
+    # N=3 采样全部发不出（" -161s / -391s left, need ~150s"）。「低置信 = 难题 =
+    # 续写 + reconciliation 多轮吃满 20min」与「采样需要剩余硬限」结构性冲突，非
+    # 代码 bug。保留开关：若未来缩短 invoke 腾出采样空间，可重开验证。
+    "enable_consistency_vote": False,
     "log_level": "INFO", "log_dir": "logs",
 }

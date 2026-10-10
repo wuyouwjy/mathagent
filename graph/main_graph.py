@@ -134,6 +134,18 @@ class MathAgentGraph:
             except Exception:  # noqa: BLE001
                 pass
         if isinstance(final_state, dict):
+            # 选择性多采样投票（后处理）：用全卷剩余 surplus 对低置信题做独立采样
+            # 取多数票。不侵入任何 LangGraph 节点，负收益时 CONFIG 关开关即回滚。
+            try:
+                from utils.verify.consistency_vote import maybe_consistency_vote
+                update = maybe_consistency_vote(final_state, deps)
+                if update:
+                    final_state.update(update)
+            except Exception as exc:  # noqa: BLE001 - 多采样是锦上添花，失败不拖垮单题
+                try:
+                    deps.logger.warning("Consistency vote postprocess failed: %s", exc)
+                except Exception:  # noqa: BLE001
+                    pass
             final_state["_time_budget"] = clock.snapshot()
             final_state["_llm_spend_log"] = clock.spend_log()
         return final_state
