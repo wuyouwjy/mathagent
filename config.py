@@ -149,11 +149,20 @@ CONFIG = {
     "enable_bare_verdict_enrich": True,
     "enable_proof_deepener": True,
     # 选择性多采样投票（self-consistency）：对低置信题用全卷剩余 surplus 做
-    # N=3 独立采样取多数票。已回滚——实测低置信题（仲裁未定论）的 invoke 已耗尽
-    # 单题 20min 硬限（elapsed 1060~1290s，remaining_hard ≤139s），采样空间为 0，
-    # N=3 采样全部发不出（" -161s / -391s left, need ~150s"）。「低置信 = 难题 =
-    # 续写 + reconciliation 多轮吃满 20min」与「采样需要剩余硬限」结构性冲突，非
-    # 代码 bug。保留开关：若未来缩短 invoke 腾出采样空间，可重开验证。
+    # N=3 独立采样取多数票。
+    #
+    # 2026-10-11 实测（20 题子集）：触发 13 题、覆盖 2 次、改对 0 改错 0，净收益 0，
+    # 且暴露两个致命问题，故回滚 False：
+    #   1. invoke 仍吃满软预算（idx 4 实测 reasoning 230s + python 551s + coordinator
+    #      258s ≈ 1011s），20min 硬限只剩 ~188s，采样需 240s+，3 次采样只发成功 1 次
+    #      （「Consistency sample failed: -112s left」）——低温回滚只让 reasoning 快，
+    #      没让 python/coordinator 快，「采样空间重新出现」的假设不成立。
+    #   2. 低温 0.3 下采样答案高度一致（idx 2 三次采样全同），形不成「不同于原答案的
+    #      共识」；唯一 2 次覆盖里 idx 12 还是「留数 -1/8」等价表述误覆盖（_answers_equivalent
+    #      没识别 sympy 等价）。
+    # 结论：直接开 self-consistency 不 work——采样「发不出」且「无多样性」。真正「用满
+    # 时间换正确率」需把采样前置（采样替代 python+仲裁+coordinator 的 ~800s 开销），
+    # 而非 invoke 后追加，见 memory same-model-90-gap-is-time。
     "enable_consistency_vote": False,
     "log_level": "INFO", "log_dir": "logs",
 }
