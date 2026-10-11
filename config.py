@@ -1,10 +1,6 @@
 CONFIG = {
     "model": "intern-s2",
     "max_retries_per_node": 2, "llm_max_retries": 3, "backoff_factor": 2.0,
-    # Python 代码重试比推理便宜一个量级（生成+执行 ~60-150s vs 推理 ~500s），且首轮
-    # 失败率最高（ICMAnew 8-31 全量：42% 无可提取答案）。多给一次预算内重试机会；
-    # can_afford_retry 门禁仍按实测耗时放行，不会击穿时限。对齐 ICMAnew/第三名。
-    "python_max_retries": 3,
     # Ceilings are a hang detector of LAST resort; TimeBudget.timeout_for() clamps
     # each to whatever the problem deadline still allows, and that clamp is the real
     # bound. They are near the full budget on purpose.
@@ -43,13 +39,13 @@ CONFIG = {
     # 误导风险（反锚定说明见 utils/retrieval/reference_block.py）。
     "db_retrieval_top_k": 2,
     "computation_tolerance": 1e-6, "proof_confidence_threshold": 0.7,
-    # 恢复 0.8/0.6（对齐 ICMAnew-9911=99.11 分 / 第三名 VeritasMath / math_agent-main
-    # 三个高分作品的一致配置）。T4 曾以"压随机性防格式偏离"降到 0.3/0.2，但高温 +
-    # 大额度 + prefill 才是推理模型的正确组合：探索发生在私有 CoT，高温不放大格式
-    # 偏离——v5 白卷的根因是缺 prefill/额度太小，现已具备，降温的边际损失反而是净负。
+    # S1 回滚：reasoning 0.8 / python 0.6 是照搬 ICMAnew-9911（99 分）的配置，但
+    # ICMAnew 用的是 intern-s2-preview-397b（Preview 模型）+ objective_review /
+    # card_authority 补偿，而本系统是 intern-s2（非 Preview），高温下采样随机性大、
+    # 答案飘，S1 决赛 83→75 掉 8 分。恢复 G9 的 0.3/0.2 低温稳定基线。
     # coordinator 保持 0.4（成稿留表达余地）。
-    "temperatures": {"classifier": 0.1, "reasoning": 0.8, "objective_reasoning": 0.2,
-                     "python": 0.6,
+    "temperatures": {"classifier": 0.1, "reasoning": 0.3, "objective_reasoning": 0.2,
+                     "python": 0.2,
                      "reconciliation": 0.2, "semantic_arbiter": 0.1, "coordinator": 0.4},
     # Prefilled selection calls (classifier/semantic_arbiter) emit 4-12 completion
     # tokens because the assistant seed suppresses reasoning entirely. The small
@@ -63,20 +59,17 @@ CONFIG = {
     # （*_compressed，助手种子抑制私有推理，全部 token 用于可见章节，~150s）。
     # 首轮 24576-32768 区间的成功解极少（中档题实测 5-7k token，奥赛题贴 32768
     # 也多为耗尽），降低上限牺牲的成功区间可忽略，换来的重试窗口是净收益。
-    # max_tokens 修正：T4 曾据"8-13 主办方 cap 8192"把全场景归一到 8192，该说法是
-    # 误判——官方 llm_client.py 默认 12288、direct_infer 用 252880、ICMAnew-9911 用
-    # 24576/32768 且 README 明说"不要压低"（实测 32768 下用 4092 tokens、16384 下用
-    # 6875，额度越大越收敛）。真实约束是"分级熔断 + 断点续写"：reasoning/python 首轮
-    # 8192 是刻意小额度（~546s 在 max_tokens 处正常截断、finish_reason 可读，由续写
-    # 补全剩余章节）——这个保留。但 coordinator（长证明/多问项最终拼装）与
-    # reconciliation 被误降到 8192 会截断长答案，恢复对齐 ICMAnew/第三名。
+    # S1 回滚：coordinator 16384 / reconciliation 32768 与 temperature 0.8/0.6 一起
+    # 引入，S1 决赛 75 分（truncated 69、token 177万，比 G9 的 61/166万略高）。为
+    # 完全回到 G9 的 83 分已知基线，一并恢复 8192（分级熔断 + 断点续写兜底截断，
+    # 不损失答案完整性）。
     "max_tokens": {"classifier": 96, "classifier_fallback": 8192,
                    "objective_reasoning": 8192,
                    "reasoning": 8192, "python": 8192,
                    "reasoning_compressed": 8192, "python_compressed": 8192,
-                   "reconciliation": 32768,
+                   "reconciliation": 8192,
                    "semantic_arbiter": 96, "semantic_arbiter_fallback": 8192,
-                   "coordinator": 16384, "emergency_answer": 1280},
+                   "coordinator": 8192, "emergency_answer": 1280},
     "reconciliation_max_rounds": 2,
     "token_budget_max": 256000, "token_budget_warn_ratio": 0.9,
     # Wall-clock budget per problem. The platform's hard limit is 20 min; the
