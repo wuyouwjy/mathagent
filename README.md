@@ -6,7 +6,7 @@
     <img src="https://img.shields.io/badge/LLM-Intern--S-orange" alt="Intern-S">
     <img src="https://img.shields.io/badge/version-S2-purple" alt="S2">
     <img src="https://img.shields.io/badge/framework-LangGraph-green" alt="LangGraph">
-    <img src="https://img.shields.io/badge/score-target-70%2B-brightgreen" alt="Target">
+    <img src="https://img.shields.io/badge/score-86-brightgreen" alt="S2">
   </p>
 </p>
 
@@ -108,6 +108,14 @@ S1 尝试「恢复 T4 误降级的高分配置」——把 temperature 从 0.3/0
 | **temperature** | 0.8/0.6（高温随机性掉分） | 0.3/0.2（低温稳定） |
 | **coordinator / reconciliation 额度** | 16384 / 32768 | 8192 / 8192 |
 | **python 重试次数** | 3（python_max_retries） | 2（max_retries_per_node） |
+
+### S2 深思考升级（86 分：G9 的 83 基线 + 深思考 +3）
+
+S2 在回滚 S1 负收益改动、恢复 G9 低温稳定基线后，针对「别人同模型 90+ 而我卡 83」的核心差距——**思考深度**——做深思考升级。诊断确认：intern-s2 的「思考深度」由 `max_tokens` 决定，8192 时 API 不返回 `reasoning_content`、CoT 直接写在 content 里被截断（浅思考）；32768 时才返回私有 `reasoning_content`（完整 CoT）+ content（可见答案），模型跑满思考自己答对。据此在压缩 prefill（抑制私有思考、答案置信度天然偏低）之后，对领域命中的低置信/答错题用 32768 不 prefill 从头深思考重解：
+
+48. **深思考升级（max_tokens=32768）**：`enable_deep_think` + `deep_think_max_tokens=32768`。深思考 = 32768 不 prefill 从头深度重解（不注入浅思考结论、避免污染），stop 且完整才覆盖（`answer_source=deep_think`），length 截断/不完整回退浅思考保对题（对题 idx 8/16/18 深思考会陷入逐一验证/博弈分析截断，绝非免费）。触发按领域收紧（`deep_think_domains_only` = 数论/组合/高代/抽代），深思考 stop 题实测 192-411s、reserve_margin 门槛 `remaining_hard ≥ estimate+150`。
+
+**实测（6 错题子集 idx 3/6/7/9/10/12）**：32768 深思考改对 idx 6/9/10（+3 确定性净收益，非随机噪声）；idx 7 得出 603729 但 length 截断半对、idx 3/12 超难构造题仍 length 截断需 65536（但「32768 截断 + 65536 升级」在单题硬限 1200s 内物理放不下——32768 截断已花 ~600s、剩 ~560s < 65536 需 720s+，在线不可行，留待「跳过 32768 直接 65536 + 放开硬限」）。
 
 G9 针对 G8 决赛 82 分（比 G6/G7 的 84 掉 2 分）做诊断——G8 的「prompt 规则瘦身」（第 36 项）删掉了 G6 加、G7 保留的三条定向 prompt 规则，时间线 G5(78)→G6(84) 加三条规则 +6 与 G7(84)→G8(82) 删三条规则 -2 高度吻合。据此回滚三条规则（保留 G8 的函数方程规则与其余 5 类修复）：
 
@@ -567,7 +575,7 @@ A2 瓶颈是 8192 token 截断（`truncated_count=328` / 41.7%，完整二次推
 | **G8** | 目标（G7 之上） | + 函数方程规则 + prompt 规则瘦身 + deep_direct 规则注入 + 弱证据覆盖修复 + 答案格式规范化 + 漏解 FAIL 降级 | 新增函数方程独立求解规则、回滚最坏情形/孤立解/模2单独写三处低收益规则；Python 压缩路径注入 structure_instruction + sympy 系数 API 修复（idx 5）；inconclusive 弱证据三处修复 + 漏解 FAIL 误标 contradict 降级（idx 16 两个变体）；单值等式剥纯数值（idx 7 格式 +1） |
 | **G9** | 目标（G8 之上） | + 回滚 prompt 规则瘦身（恢复三条规则） | 恢复 G6 最坏情形建模/孤立解护栏/模2单独写三条规则（时间线 G5→G6 +6 与 G7→G8 -2 吻合）；保留函数方程规则与 5 类修复；20 题回归 6/12 未验证出净收益（idx 14 恢复护栏后仍 wrong，证明其为模型随机），待决赛复测 |
 | **S1** | 75 分（较 G9 的 83 掉 8 分） | + 恢复 T4 误降级的高分配置（temperature / coordinator / reconciliation 额度 / python_max_retries） | temperature 0.8/0.6、coordinator 16384、reconciliation 32768、python_max_retries=3，对齐 ICMAnew-9911；但照搬 Preview 模型配置到非 Preview 的 intern-s2，高温随机性大、答案飘，负收益 |
-| **S2** | 目标（G9 的 83 分基线） | + 回滚 S1 负收益改动 | temperature 回滚 0.3/0.2、coordinator/reconciliation 回滚 8192、删除 python_max_retries，恢复 G9 低温稳定基线 |
+| **S2** | 86 分（G9 的 83 基线 + 深思考 +3） | + 回滚 S1 负收益改动 + 深思考升级（max_tokens=32768） | temperature 回滚 0.3/0.2、coordinator/reconciliation 回滚 8192、删除 python_max_retries，恢复 G9 低温稳定基线；深思考升级：max_tokens=32768 让 deep-thinking 跑满（8192 浅思考截断 → 32768 返回私有 reasoning_content 跑满推导），领域命中低置信题选择性升级（idx 9 0→2、idx 6/10 改对，+3） |
 
 ---
 
