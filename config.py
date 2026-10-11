@@ -164,5 +164,68 @@ CONFIG = {
     # 时间换正确率」需把采样前置（采样替代 python+仲裁+coordinator 的 ~800s 开销），
     # 而非 invoke 后追加，见 memory same-model-90-gap-is-time。
     "enable_consistency_vote": False,
+    # 深度重解（deep_rethink，**前置**）：reasoning 首轮成功后用「换方法 + 检查
+    # 漏洞」单次重解（注入首轮答案、低温 0.3），试图靠「定向换方法」而非「采样
+    # 多样性」纠正首轮漏解。
+    #
+    # 2026-10-11 实测（6 错题 idx 3/6/7/9/10/12 子集）：**同样失败，已回滚 False**。
+    #   - 触发 4 次（idx 3/6/9/10，deep_rethink 每次 280-362s），其中 idx 6/9 覆盖了
+    #     首轮答案（answer_source=deep_rethink），但覆盖后仍 wrong（idx 6 还把 baseline
+    #     实际正确的「=1」覆盖成「0」，净负；idx 9 覆盖成另一个错答案 0，标准 2）。
+    #   - idx 3/10 触发但「收敛零覆盖」（_answers_equivalent 判定换方法答案与首轮等价）。
+    #   - 判分「改对」的 idx 7/10 是**首轮随机性**（idx 7 深度重解根本没触发、idx 10
+    #     触发但收敛没覆盖），与深度重解无关。
+    #   - 副作用：280-362s 的深度重解挤占单题软预算，导致 coordinator 被跳过 3 次
+    #     （"Coordinator skipped ... 244/134/91s left"）。
+    # 结论：与 self-consistency 多采样同根——intern-s2 非 Preview 对同一题的重复求解
+    # （无论独立采样还是换方法复核）都收敛到同一答案，「第 2 次 reasoning 边际≈0」
+    # （见 memory proof-retry-convergence / same-model-90-gap-is-time）。多出来的
+    # 时间产出的答案没有新信息，「用满 6h 换正确率」不能靠重复求解。
+    "enable_deep_rethink": False,
+    # ==================== 深思考升级（deep_think，实测真杠杆：max_tokens 决定思考深度） ====================
+    # intern-s2 的「思考深度」由 max_tokens 决定：8192 时 API 不返回 reasoning_content、
+    # CoT 直接写在 content 里被截断（浅思考）；32768/65536 时返回 reasoning_content（私有
+    # CoT）+ content（完整可见答案），模型跑满思考自己答对（idx 9 深思考答 2，8192/prefill
+    # 全答 0）。但深思考会拖垮「对题」（idx 8/16/18 浅思考对 → 深思考陷入逐一验证/博弈
+    # 分析截断），因此只能「浅思考优先 → 对答错/低置信题选择性升级深思考 → 深思考截断
+    # 则回退浅思考答案」，绝不能全卷换深思考。挂载在 deep_direct 压缩首答成功后（压缩
+    # ~150s 后 remaining_hard 仍容得下 ~600s 深思考，不击穿单题 20min 硬上限）。
+    # 见 memory same-model-90-gap-is-time。
+    "enable_deep_think": True,
+    # 触发面：True=只对 deep_solver_domains（数论/组合/高等代数/抽象代数）深思考
+    # （安全档，深思考验证里 6 错题 idx 3/9/10/12 全落这些领域）；False=全部
+    # computation/proof 题都深思考（救面大但每题 +600s、对题白花 600s 再回退）。
+    "deep_think_domains_only": True,
+    # 深思考基础档 max_tokens：32768 让 deep-thinking 跑满（中等偏难错题 stop 且答对）。
+    "deep_think_max_tokens": 32768,
+    # 32768 深思考估时，只作放行/定价估时。深思考 stop 题实测 192-411s（idx 9/6/10
+    # 的 reasoning_chars 换算），取 300 覆盖多数 stop 题；reserve_margin 门槛
+    # remaining_hard ≥ estimate+150=450，压缩首答失败后（elapsed~40s）必然放行。
+    "deep_think_estimate_s": 300,
+    # reserve_margin 模式：深思考允许动用 reserve（软预算已尽也放行），仅要求单题
+    # 硬上限前仍容得下本次调用 + 此余量（给下游 python/coordinator 留硬时限）。
+    "deep_think_reserve_margin_s": 150,
+    # ==================== 采样前置（self-consistency 前置版，实测回滚 False） ====================
+    # 与上面 invoke 后追加的 consistency_vote 不同：采样前置在 reasoning 首轮成功后
+    # 立即采样（此刻软预算还剩 ~670s，采样发得出），用 N 次高温采样取多数票纠正首轮
+    # 低温 0.3 的孤立错误。
+    #
+    # 2026-10-11 实测（20 题子集）：采样前置**真的触发**了（idx 0/2/4/5 各采样 2 次，
+    # 每次完整 CoT ~285s、共 ~570s），但 answer_source 全部保持首轮
+    # （parsed_sections/quick_conclusion），**无一覆盖**——采样答案与首轮高度一致
+    # （intern-s2 非 Preview 在 0.7 温度下多样性不足），形不成「不同于首轮的共识」。
+    # 净效果：每道 computation 题多花 ~570s（idx 0 从 baseline ~290s → 630s），答案
+    # 零变化，改对 0 改错 0。与 consistency_vote 的实测结论完全一致：self-consistency
+    # 无论前置还是后置，在本模型上都不 work（采样「发得出」但没有「多样性」）。
+    #
+    # 结论：回滚 False。真正「用满 6h 换正确率」不能靠多采样（模型采样多样性不足），
+    # 见 memory same-model-90-gap-is-time 的更新。
+    "enable_sample_first": False,
+    # 采样次数（多数票：≥2 采样一致且不同于首轮才覆盖首轮）。随 enable_sample_first 回滚。
+    "sample_first_n": 2,
+    # 采样温度：高于首轮 0.3。随 enable_sample_first 回滚（0.7 下仍无多样性）。
+    "sample_first_temperature": 0.7,
+    # Python 完整生成次数上限（采样前置的配套，已随之一并回滚删除，恢复默认 2 次）：
+    # 采样前置失败后，无理由再无条件砍 python 重试（只降质量无补偿）。
     "log_level": "INFO", "log_dir": "logs",
 }
