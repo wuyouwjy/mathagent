@@ -110,17 +110,22 @@ def extract_finish_reason(resp) -> str:
     return fr if isinstance(fr, str) else ""
 
 
-def chat_compatible(client, messages, temperature, max_tokens):
+def chat_compatible(client, messages, temperature, max_tokens, thinking_mode=None):
     """签名探测调用（平台防线）。
 
     平台 client 的 chat 签名未知：可能只接受 messages，或不接受关键字参数。
     按 关键字三参 → 位置三参 → 仅 messages 三级降级探测；探测结果缓存在
     client 对象上（`_chat_mode`），避免每次调用都付一次 TypeError。
+
+    ``thinking_mode`` 非 None 时作为关键字参数透传（intern-s2 的深思考开关，
+    False=关闭深思考直接产出 content）。仅 kwargs 形态支持；client 不接受该
+    关键字时降级到不传（行为退化为默认深思考，可接受）。
     """
     mode = getattr(client, "_chat_mode", None)
+    extra = ({"thinking_mode": thinking_mode} if thinking_mode is not None else {})
     attempts = {
         "kwargs": lambda: client.chat(
-            messages=messages, temperature=temperature, max_tokens=max_tokens),
+            messages=messages, temperature=temperature, max_tokens=max_tokens, **extra),
         "positional": lambda: client.chat(messages, temperature, max_tokens),
         "messages_only": lambda: client.chat(messages),
     }

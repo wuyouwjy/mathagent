@@ -28,7 +28,7 @@ import logging
 #: 2026-08-09 评委工程备注：900s 贴近单题 20 分钟硬上限，叠加重试有撞线风险。
 #: 首轮 max_tokens 已降为 24576（典型 ~450s，慢速负载下 ~700s），780s 足以覆盖
 #: 最慢的健康调用，同时任何在软窗口内发出的调用都能在硬上限前收尾或超时返回。
-DESIRED_SOCKET_TIMEOUT_S = 780
+DESIRED_SOCKET_TIMEOUT_S = 1100  # 32768 深思考 stop 完整 ~812s（idx 13 实测）< 1100，不再被 780 掐断
 MAX_INTERNAL_RETRIES = 1
 
 

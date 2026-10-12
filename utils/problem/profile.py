@@ -190,6 +190,15 @@ _FUNCTIONAL_EQUATION_RE = re.compile(
     r"函数方程|求(?:所有|全部)(?:的)?(?:函数|映射)"
 )
 
+#: 统计推断题（置信区间/检验统计量/临界值/估计）的数值答案须保留足够有效数字。
+#: 判分按 1e-3 相对误差，模型默认 2 位小数（3.85 vs 3.8549、-0.72 vs -0.722）
+#: 相对误差越过阈值判错（idx 28/32 实测）。
+_STATS_INFER_RE = re.compile(
+    r"(?i)\btest\s+statistic\b|\bcritical\s+value\b|\bconfidence\s+interval\b|"
+    r"\bsignificance\s+level\b|\bhypothesis\b|\bp[- ]?value\b|\bstandard\s+deviation\b|"
+    r"\bnormally\s+distributed\b|\bsample\s+(?:mean|size|variance)\b|\bpoint\s+estimate\b"
+)
+
 
 def has_open_interval_bound(problem: str) -> bool:
     """题面用开区间/严格不等式限定取值（端点不可达，临界值需 +1 核验）。"""
@@ -220,6 +229,11 @@ def asks_judge_then_value(problem: str) -> bool:
 def has_functional_equation(problem: str) -> bool:
     """题面是否为函数方程（求所有满足恒等式的函数，须独立求解完整解集）。"""
     return bool(_FUNCTIONAL_EQUATION_RE.search(str(problem or "")))
+
+
+def asks_stats_inference(problem: str) -> bool:
+    """题面是否为统计推断（置信区间/检验/估计），数值答案须保留足够有效数字。"""
+    return bool(_STATS_INFER_RE.search(str(problem or "")))
 
 
 def count_blanks(problem: str) -> int:
@@ -390,6 +404,14 @@ def structure_instruction(problem: str) -> str:
             "[求值答案显式化] 本题先判断性质再求值。'## 最终答案' 必须把求出的**数值用纯数字单独写出**"
             "（答案是 4 就写 \"4\" 或 \"4（有理数）\"），不要只写成 $...=4$ 这类含多个数字的公式——"
             "判分按数值提取，公式里的下标/系数会被当成数字干扰，导致答对却判错。"
+        )
+    if asks_stats_inference(problem):
+        parts.append(
+            "[数值精度] 本题是统计推断（置信区间/检验统计量/临界值/估计），"
+            "所有数值答案必须保留**至少 4 位有效数字/小数**（如 3.8549 不要写成 3.85、"
+            "-0.722 不要写成 -0.72），不要过早四舍五入到 2 位——判分按 1e-3 相对误差，"
+            "2 位小数（3.85 vs 3.8549）相对误差越过阈值即判错。中间步骤保留更多位，"
+            "最后一步再按需舍入。"
         )
     if not parts:
         return ""

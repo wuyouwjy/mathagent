@@ -1,12 +1,12 @@
 <p align="center">
-  <h1 align="center">🧮 Math-Agent-System S2</h1>
+  <h1 align="center">🧮 Math-Agent-System S3</h1>
   <p align="center">基于 <b>Intern-S 系列大模型</b> 的 LangGraph 多智能体数学推理系统 — 2026 挑战杯·书生赛道</p>
   <p align="center">
     <img src="https://img.shields.io/badge/Python-3.10+-blue" alt="Python">
     <img src="https://img.shields.io/badge/LLM-Intern--S-orange" alt="Intern-S">
-    <img src="https://img.shields.io/badge/version-S2-purple" alt="S2">
+    <img src="https://img.shields.io/badge/version-S3-purple" alt="S3">
     <img src="https://img.shields.io/badge/framework-LangGraph-green" alt="LangGraph">
-    <img src="https://img.shields.io/badge/score-86-brightgreen" alt="S2">
+    <img src="https://img.shields.io/badge/score-86-brightgreen" alt="S3">
   </p>
 </p>
 
@@ -14,7 +14,7 @@
 
 ## 📖 简介
 
-**Math-Agent-System S2** 是为 2026 年度中国青年科技创新"揭榜挂帅"擂台赛·书生赛道设计的数学推理智能体。
+**Math-Agent-System S3** 是为 2026 年度中国青年科技创新"揭榜挂帅"擂台赛·书生赛道设计的数学推理智能体。
 
 T3 版本完成了从 T2 svragent 到 **LangGraph 多智能体图编排**的重构。T4 在 T3 基础上，参考 GitHub 开源项目与相关论文补齐了四块**正确性与完成率**短板：
 
@@ -576,6 +576,7 @@ A2 瓶颈是 8192 token 截断（`truncated_count=328` / 41.7%，完整二次推
 | **G9** | 目标（G8 之上） | + 回滚 prompt 规则瘦身（恢复三条规则） | 恢复 G6 最坏情形建模/孤立解护栏/模2单独写三条规则（时间线 G5→G6 +6 与 G7→G8 -2 吻合）；保留函数方程规则与 5 类修复；20 题回归 6/12 未验证出净收益（idx 14 恢复护栏后仍 wrong，证明其为模型随机），待决赛复测 |
 | **S1** | 75 分（较 G9 的 83 掉 8 分） | + 恢复 T4 误降级的高分配置（temperature / coordinator / reconciliation 额度 / python_max_retries） | temperature 0.8/0.6、coordinator 16384、reconciliation 32768、python_max_retries=3，对齐 ICMAnew-9911；但照搬 Preview 模型配置到非 Preview 的 intern-s2，高温随机性大、答案飘，负收益 |
 | **S2** | 86 分（G9 的 83 基线 + 深思考 +3） | + 回滚 S1 负收益改动 + 深思考升级（max_tokens=32768） | temperature 回滚 0.3/0.2、coordinator/reconciliation 回滚 8192、删除 python_max_retries，恢复 G9 低温稳定基线；深思考升级：max_tokens=32768 让 deep-thinking 跑满（8192 浅思考截断 → 32768 返回私有 reasoning_content 跑满推导），领域命中低置信题选择性升级（idx 9 0→2、idx 6/10 改对，+3） |
+| **S3** | 86 分（S2 基线，深思考稳定性修复） | + socket 1100 / 深思考超时跳兜底 / prefill 关深思考 | 修 S2 深思考两处稳定性隐患：① socket 780 会掐断「生成 780~1100s」的中等偏难深思考（idx 13 深思考 812s stop 完整答对 2，但 812s > 780s 被掐断回退浅思考答 3 错）→ 放宽 1100；② 超难题 CoT >900s 深思考超时后仍走完整 CoT 兜底/deep_rethink 会击穿单题 1200s 硬上限致 coordinator 弃权/emergency → 加 deep_think_timeout_s=900 + run_with_timeout 中途截断 + 超时直接回退压缩首答（跳过完整 CoT 兜底与 deep_rethink）；③ chat_prefilled 默认 thinking_mode=False，压缩 prefill 快路径关深思考不再生成私有 CoT 卡 1100s 被 node_wrapper 掐死。守住 S2 的 86 分在服务器波动下不降 |
 
 ---
 

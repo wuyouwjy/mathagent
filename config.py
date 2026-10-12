@@ -23,7 +23,12 @@ CONFIG = {
     # 置信门控：最少资源高准确率。high(≥0.90)→fast 单路径；low(<0.70)→deep；
     # 中间→standard 双路验证。
     "confidence_gate": {"high": 0.90, "low": 0.70},
-    "deep_solver_domains": ["数论", "组合数学", "高等代数", "抽象代数"],
+    # 深解领域（category 已被 classifier._resolve_category 归一到 skills/ 真实文件夹名）。
+    # 注意：skills/ 无「数论」「组合数学」文件夹——这两类题经 _resolve_category 归一到
+    # 「离散数学」（number_theory_floor 关键词）或 fallback「非基础及进阶课程」。旧值
+    # ["数论","组合数学","高等代数","抽象代数"] 里的「数论/组合数学」是永不匹配的幽灵
+    # 领域，致深思考门槛/难度判定对数论组合题失效（深思考全卷 0 触发的直接根因之一）。
+    "deep_solver_domains": ["离散数学", "高等代数", "抽象代数"],
     # A3：证明题与深解领域（deep_solver_domains）首轮直接压缩 prefill（答案前置 +
     # 抑制私有 CoT），跳过"几乎必超 8192"的完整 CoT（A2 实测完整二次推理 80% 也
     # 截断）。压缩产出不完整时回退完整 CoT 兜底，不损失深度思考。设 false 可整体
@@ -182,29 +187,46 @@ CONFIG = {
     # （见 memory proof-retry-convergence / same-model-90-gap-is-time）。多出来的
     # 时间产出的答案没有新信息，「用满 6h 换正确率」不能靠重复求解。
     "enable_deep_rethink": False,
-    # ==================== 深思考升级（deep_think，实测真杠杆：max_tokens 决定思考深度） ====================
-    # intern-s2 的「思考深度」由 max_tokens 决定：8192 时 API 不返回 reasoning_content、
-    # CoT 直接写在 content 里被截断（浅思考）；32768/65536 时返回 reasoning_content（私有
-    # CoT）+ content（完整可见答案），模型跑满思考自己答对（idx 9 深思考答 2，8192/prefill
-    # 全答 0）。但深思考会拖垮「对题」（idx 8/16/18 浅思考对 → 深思考陷入逐一验证/博弈
-    # 分析截断），因此只能「浅思考优先 → 对答错/低置信题选择性升级深思考 → 深思考截断
-    # 则回退浅思考答案」，绝不能全卷换深思考。挂载在 deep_direct 压缩首答成功后（压缩
-    # ~150s 后 remaining_hard 仍容得下 ~600s 深思考，不击穿单题 20min 硬上限）。
+    # ==================== 深思考升级（deep_think，实测真杠杆：16384 首调 + 截断续写） ====================
+    # intern-s2 默认 thinking_mode=True（深思考始终开启），「思考深度」不是由 max_tokens
+    # 开关、而是由 max_tokens 决定「是否截断」：8192 时 CoT 写在 content 里很早被截断
+    # （答不出）；16384 时模型已推出正确答案、只是没写出 \boxed 就被 length 截断（idx 9
+    # 推出 "exactly 2" 差最后一步）；32768 时返回 reasoning_content + 完整 content（stop
+    # 答对）。32768 一次答完每题 ~15-20min、全卷 6h 耗尽（78 分掉分根因）。因此改为
+    # 「16384 首调（~5min 想清楚）+ 截断续写（thinking_mode=False + 2048 直接写 \boxed，
+    # ~30s）」——与第三名框架同款策略，深思考每题 ~6min 而非 20min，全卷能覆盖更多错题。
+    # 深思考仍会拖垮「对题」（idx 8/16/18 陷入逐一验证/博弈分析），故保持「浅思考优先
+    # → 领域选择性升级深思考」；深思考截断续写失败才回退浅思考答案。
     # 见 memory same-model-90-gap-is-time。
     "enable_deep_think": True,
-    # 触发面：True=只对 deep_solver_domains（数论/组合/高等代数/抽象代数）深思考
-    # （安全档，深思考验证里 6 错题 idx 3/9/10/12 全落这些领域）；False=全部
-    # computation/proof 题都深思考（救面大但每题 +600s、对题白花 600s 再回退）。
+    # 触发面：True=只对 deep_solver_domains（离散数学/高等代数/抽象代数）深思考。
+    # 2026-10-12 修正：旧值「数论/组合数学」是 skills/ 不存在的幽灵领域（数论组合题
+    # 归一到离散数学），已换成真实文件夹名。False=全部 computation/proof 题都深思考
+    # （救面大但每题 +600s、对题白花 600s 再回退）。
     "deep_think_domains_only": True,
-    # 深思考基础档 max_tokens：32768 让 deep-thinking 跑满（中等偏难错题 stop 且答对）。
+    # 深思考首调 max_tokens：32768 让 deep-thinking 跑满并 stop 完整（idx 13 坐实：
+    # baseline 答 3 错 → 深思考 stop 完整答 2，生成 812s）。16384 必 length 截断、
+    # 截断续写不可靠（只采信 stop 完整 → 16384 对难题净收益归零），故用 32768 换
+    # 「stop 完整」而非「快」。成本由「浅思考失败才触发」的选择性 + 中途超时保护兜住。
     "deep_think_max_tokens": 32768,
-    # 32768 深思考估时，只作放行/定价估时。深思考 stop 题实测 192-411s（idx 9/6/10
-    # 的 reasoning_chars 换算），取 300 覆盖多数 stop 题；reserve_margin 门槛
-    # remaining_hard ≥ estimate+150=450，压缩首答失败后（elapsed~40s）必然放行。
-    "deep_think_estimate_s": 300,
+    # 深思考首调估时，只作放行/定价估时。实测 ~26 tok/s（非注释旧值 50 tok/s）：
+    # idx 13 深思考 812s stop 完整、idx 16 625s、idx 14 674s 截断，取 650 乐观估时；
+    # reserve_margin 门槛 remaining_hard ≥ estimate+150，压缩首答失败后必然放行。
+    # 全卷跑时它还充当 PaperPacer surplus 门槛（surplus ≥ 650 才升级深思考），单题
+    # 验证场景才临时置 0。
+    "deep_think_estimate_s": 650,
+    # 深思考单次墙钟上限：socket 已放宽到 1100s 容纳 stop 完整的深思考（idx 13 ~812s），
+    # 但超难题 CoT 用满 32768 会 >1150s 拖死整个 reasoning 节点（浅思考答案也丢，idx 19
+    # 实测）。900s 就地截断：中等偏难题（812s）能 stop 完整、超难题超时回退浅思考。
+    "deep_think_timeout_s": 900,
     # reserve_margin 模式：深思考允许动用 reserve（软预算已尽也放行），仅要求单题
     # 硬上限前仍容得下本次调用 + 此余量（给下游 python/coordinator 留硬时限）。
     "deep_think_reserve_margin_s": 150,
+    # 深思考截断续写：首调 finish=length 时，thinking_mode=False + 小 token 让模型复用
+    # 首调完整推导直接写 \boxed 答案（~30s）。验证 idx 9 @16384 截断 → 续写答出 2。
+    "deep_think_continuation_max_tokens": 2048,
+    # 续写温度 0.0（确定性输出：答案已想清楚，只需写出，不需要探索性采样）。
+    "deep_think_continuation_temperature": 0.0,
     # ==================== 采样前置（self-consistency 前置版，实测回滚 False） ====================
     # 与上面 invoke 后追加的 consistency_vote 不同：采样前置在 reasoning 首轮成功后
     # 立即采样（此刻软预算还剩 ~670s，采样发得出），用 N 次高温采样取多数票纠正首轮

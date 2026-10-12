@@ -103,7 +103,10 @@ def build_reference_block(
         if diff:
             parts.append(diff)
         parts.append(f"**题目：**\n{example_problem[:problem_chars]}\n\n")
-        parts.append(f"**解答：**\n{str(example.get('solution') or '')[:solution_chars]}\n")
+        # solution 若为空（检索端已清空纯答案 answer 字段），只注入题面，不注入空「解答」标题。
+        solution = str(example.get("solution") or "").strip()
+        if solution:
+            parts.append(f"**解答：**\n{solution[:solution_chars]}\n")
         if i < len(usable):
             parts.append("\n---\n")
     return "".join(parts)
