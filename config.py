@@ -14,8 +14,8 @@ CONFIG = {
     # unprefilled fallback measured 129.5s and 133.3s on a hard problem, so a 120s
     # ceiling killed a call that had already been paid for and discarded the usable
     # prefill result with it (game-theory olympiad problem, 2026-07-29).
-    "node_timeouts": {"input": 5, "classifier": 200, "solving": 1150,
-                      "reasoning_agent": 1100, "python_agent": 1100,
+    "node_timeouts": {"input": 5, "classifier": 200, "solving": 3600,
+                      "reasoning_agent": 3600, "python_agent": 1100,
                       "python_mcp_execute": 60, "cross_validator": 15,
                       "reconciliation": 10, "semantic_arbiter": 150, "coordinator": 420,
                       "critic": 120, "playoff": 300},
@@ -77,10 +77,13 @@ CONFIG = {
                    "coordinator": 8192, "emergency_answer": 1280},
     "reconciliation_max_rounds": 2,
     "token_budget_max": 256000, "token_budget_warn_ratio": 0.9,
-    # Wall-clock budget per problem. The platform's hard limit is 20 min; the
-    # reserve is what guarantees we still emit a real answer instead of being
-    # killed mid-call, and fast_path_threshold is the room needed for one more
-    # full LLM round trip before optional stages are skipped.
+    # Wall-clock budget per problem. 官方约束明文只限「全卷 6h 封顶 + 并发 3」，
+    # 单题并不限时（用户 2026-10-13 确认）——旧值 1200（20 分钟）是 V1「每题固定
+    # 1200s 预算」的遗留自缚，它把「构造/博弈超难题」所需的 65536 深思考（~30-40min）
+    # 物理拒之门外，正是「别人同模型 90+ 而我卡 82」的单题侧根因。放开到 3600（60min）
+    # 后：软预算（easy 480 / medium 840 / hard 1200）不变、普通题不受影响，只有
+    # reserve_margin 模式的深思考能超越软预算用满单题 60min。全卷仍由 PaperPacer 的
+    # surplus 门槛 + 65536 配额计数器兜底，不会击穿 6h。
     #
     # The reserve must exceed one full in-flight call: a call already issued when the
     # soft deadline passes cannot be cancelled. The forced-budget stress run
@@ -88,7 +91,7 @@ CONFIG = {
     # Worst cases measured under four-way parallel load: reasoning 225s, Python 236s,
     # coordinator 98s. 300s absorbs the slowest observed call and still leaves the
     # coordinator room to emit an answer.
-    "problem_time_budget_s": 1200,
+    "problem_time_budget_s": 3600,
     "time_reserve_s": 300,
     "time_fast_path_threshold_s": 300,
     # 评委建议 5：reserve 划出固定配额给语义仲裁与应急直答，杜绝
@@ -219,6 +222,22 @@ CONFIG = {
     # 但超难题 CoT 用满 32768 会 >1150s 拖死整个 reasoning 节点（浅思考答案也丢，idx 19
     # 实测）。900s 就地截断：中等偏难题（812s）能 stop 完整、超难题超时回退浅思考。
     "deep_think_timeout_s": 900,
+    # ==================== 65536 深思考分级（救「32768 也截断」的构造/博弈超难题） ====================
+    # 单题不限时（官方只限全卷 6h）后，「32768 也 length 截断」的超难构造题（idx 3 三角形
+    # 构造 / idx 12 子集和）可升级 65536 从头深思考——memory same-model-90-gap-is-time 实测
+    # 32768 截断 → 65536 stop 答对（idx 3→2024、idx 12→48）。这是「别人同模型 99 分」的
+    # 超难题侧差距：别人没有 20min 单题自缚，超难题能花 30-40min 深思考。
+    # 触发只在「浅思考失败（调用点 2）+ 32768 截断」后，且受全卷配额（quota）兜底防超时。
+    "deep_think_max_tokens_extreme": 65536,
+    # 65536 单次墙钟上限：idx 3/12 的 CoT 在 32768~65536 之间（~4-5 万 token @ ~26 tok/s
+    # ≈ 26-32min），2400s（40min）留足余量；超时回退 32768 截断续写/浅思考。
+    "deep_think_extreme_timeout_s": 2400,
+    # 65536 估时（reserve_margin 定价 + PaperPacer surplus 门槛）：1800s（30min）。surplus
+    # ≥ 1800 才升级，天然限制全卷最多 2-3 次（每次花 ~26min，6h 内用不完的 surplus 才够）。
+    "deep_think_extreme_estimate_s": 1800,
+    # 65536 全卷配额：无论 surplus 多充裕，全卷最多触发 N 次（防并发下多道超难题同时 65536
+    # 击穿 6h）。2 次 × ~26min ≈ 52min，叠加 S4 扩领域后全卷仍留足余量。
+    "deep_think_extreme_quota": 2,
     # reserve_margin 模式：深思考允许动用 reserve（软预算已尽也放行），仅要求单题
     # 硬上限前仍容得下本次调用 + 此余量（给下游 python/coordinator 留硬时限）。
     "deep_think_reserve_margin_s": 150,
