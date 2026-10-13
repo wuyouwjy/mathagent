@@ -36,23 +36,12 @@ class InternChatClient:
         messages: List[Dict[str, str]],
         temperature: float = 0.2,
         max_tokens: int = 4096,
-        thinking_mode: bool = True,
-    ):
-        """OpenAI-compatible chat，返回**完整 response dict**（不压成 str）。
-
-        返回 dict 而非只取 ``choices[0].message.content``，是为了保住
-        ``finish_reason`` 信号（'length' = 被 max_tokens 截断）。上游
-        ``utils.llm.response_normalize.normalize_chat_response`` 负责把 dict 压成
-        纯文本、``extract_finish_reason`` 负责提 finish_reason——两者都按 dict
-        形态设计，这里退回 str 会让截断续写入口（reasoning 的
-        ``finish_reason == 'length'`` 判断）永远拿不到信号变成死代码。
-        """
+    ) -> str:
         payload = {
             "model": self.model,
             "messages": messages,
             "temperature": temperature,
             "max_tokens": max_tokens,
-            "thinking_mode": thinking_mode,
         }
         headers = {
             "Content-Type": "application/json",
@@ -69,7 +58,8 @@ class InternChatClient:
                     timeout=self.timeout,
                 )
                 response.raise_for_status()
-                return response.json()
+                data = response.json()
+                return data["choices"][0]["message"]["content"]
             except Exception as exc:  # noqa: BLE001 - keep sample robust and simple.
                 last_error = exc
                 if attempt + 1 < self.retry:

@@ -93,11 +93,8 @@ def _preferred_answer(state: dict, match_result: dict) -> str:
         return reasoning_answer
     if ptype == "computation" and python_ok and not looks_incomplete_answer(python_answer):
         # 反伪造：无实质计算的代码答案不得凭"执行成功"压过一个可用的推理答案。
-        # inconclusive 同理：数值扫描「未发现」≠「不存在」，不构成确定性结果，
-        # 同样不得覆盖有论证的 reasoning（idx 16：fsolve 漏解答 2 覆盖消元得 8）。
-        if (fabricated or evidence_status == "inconclusive") and reasoning_ok:
-            return reasoning_answer
-        return python_answer
+        if not (fabricated and reasoning_ok):
+            return python_answer
     if reasoning_ok:
         return reasoning_answer
     return reasoning_answer or python_answer
@@ -118,37 +115,9 @@ def cross_validator_node(state, config):
         # worth emitting; sending it through the computation matcher would mark it
         # uncertain solely because Python was skipped and trigger an unnecessary
         # arbitration/reconciliation round.
-        # 收窄采信（2026-10-03 G5-78 复盘后）：统计推断 fill 题的数值空，Python 用
-        # scipy/sympy 精确分位数算出时应优先于心算（idx=28 critical value 心算 3.85
-        # 而精确 3.8549）。但 G5 无条件采信（不看代码）导致 83→78——_STATS_RE 匹配面
-        # 太宽 + idx=36 代码硬编码 z=2.1 也被采信。故收窄：仅当 Python 与 reasoning
-        # 数值彼此接近（python_agrees_with_reasoning）才采信，建模分歧时回退 reasoning。
-        candidate = None
-        if question_mode == "fill":
-            from utils.verify.stats_guard import (
-                detect_statistical_inference,
-                extract_labeled_values,
-                python_agrees_with_reasoning,
-                python_more_precise,
-            )
-            if (detect_statistical_inference(state.get("problem", ""))
-                    and python_output.get("success")
-                    and python_output.get("answer")):
-                # 收窄采信：仅当 Python 与 reasoning 数值彼此接近、且 Python 明显
-                # 更精确（小数位更多）时采信 Python 的精确值。idx=28 心算 3.85 vs
-                # 精确 3.8549 采信；idx=31 Python 用 %.2f 打印 19.70（与 reasoning
-                # 同 2 位、且建错 t 分布模型）不采信；idx=36 硬编码 z=2.1 得 764
-                # 与 reasoning 693 差远不采信。
-                py_candidate = extract_labeled_values(python_output.get("answer", ""))
-                rr_candidate = extract_labeled_values(reasoning_result.get("answer", ""))
-                if (python_agrees_with_reasoning(py_candidate, rr_candidate)
-                        and python_more_precise(py_candidate, rr_candidate)
-                        and objective_answer_is_usable(py_candidate, question_mode)):
-                    candidate = py_candidate
-        if candidate is None:
-            candidate = normalize_objective_answer(reasoning_result.get("answer", ""), question_mode)
-            if not objective_answer_is_usable(candidate, question_mode):
-                candidate = normalize_objective_answer(python_output.get("answer", ""), question_mode)
+        candidate = normalize_objective_answer(reasoning_result.get("answer", ""), question_mode)
+        if not objective_answer_is_usable(candidate, question_mode):
+            candidate = normalize_objective_answer(python_output.get("answer", ""), question_mode)
         if objective_answer_is_usable(candidate, question_mode):
             blank_gap = question_mode == "fill" and not fill_answer_matches_blanks(
                 candidate, state.get("problem", ""))
@@ -288,9 +257,9 @@ def cross_validator_node(state, config):
             match_result["bypass_reason"] = "python_success_and_symbolic_equivalence"
         match_result["routing_reason"] = "validated_match"
         if match_result.get("method") == "objective_direct":
-            # 用上面已选定的 candidate（可能是收窄采信的 Python 精确值），
-            # 而非无条件从 reasoning 重取——否则采信选出的精确值被心算覆盖。
-            validated_answer = candidate
+            validated_answer = normalize_objective_answer(
+                reasoning_result.get("answer", ""), question_mode
+            )
             if not validated_answer:
                 validated_answer = normalize_objective_answer(
                     python_output.get("answer", ""), question_mode
@@ -302,15 +271,8 @@ def cross_validator_node(state, config):
         # Playoff 确定性复算裁决：计算题冲突先代回复算，季后赛已跑过/不适用时
         # 回落到既有的重算-仲裁通道。
         already_played = bool(state.get("playoff_trace"))
-        # 2026-10-08 idx 16：Python 证据为 inconclusive（数值扫描「未发现」≠「不存在」）时，
-        # 其答案不构成确定性反驳。playoff 的「代回复算」对计数/求数量题同样靠数值扫描
-        # 找不全（idx 16 Python 用 fsolve + sorted() 去重把有序三元组并成无序集合，漏 6 个
-        # 非对称解），会重复漏解并采信弱证据，把 reasoning 有论证的正确答案覆盖成错
-        # （reasoning 消元得 8 被 Python 数值扫描的 2 覆盖）。此时跳过 playoff/reconciliation
-        # 采信，直接交 semantic_arbiter 按证据强度裁决。
-        python_inconclusive = (evidence_status == "inconclusive")
         if problem_type == "computation" and CONFIG.get("enable_playoff", True) \
-                and not already_played and not python_inconclusive:
+                and not already_played:
             from graph.nodes.playoff import playoff_candidates
             cand_a, cand_b = playoff_candidates(state)
             if cand_a and cand_b:
@@ -331,11 +293,7 @@ def cross_validator_node(state, config):
         # subgraph-level retry gated by reconciliation_round (NOT per-node attempts —
         # per-node attempts gate the agent's internal format/code retries; the plan
         # §4.2 keeps these separate).
-        if python_inconclusive:
-            status = "mismatch_arbitrating"
-            match_result["routing_reason"] = "inconclusive_python_evidence_semantic_arbitration"
-            next_node = "semantic_arbiter"
-        elif reconciliation_retry_available(state, config):
+        if reconciliation_retry_available(state, config):
             status = "mismatch_reconciling"
             next_node = "reconciliation"
         else:

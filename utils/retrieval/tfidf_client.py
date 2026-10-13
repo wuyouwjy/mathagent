@@ -31,43 +31,6 @@ def _norm(text: str) -> str:
     return re.sub(r"\s+", " ", str(text or "")).strip()
 
 
-#: 纯答案（answer 字段）判定。语料 solution 字段大多源自公开样例的 answer 字段，
-#: 其中既有短答案（"070"、"588"），也有长答案句（``\boxed{...}`` 数值列表、分情况
-#: 答案描述）——单纯长度阈值拦不住后者。规则禁止依赖 answer 字段，检索只应提供
-#: 「相似题面 + 解答方法」参考，不能把答案搬回来。故用「内容判定」：只有含推导/
-#: 论证迹象（``_PROCESS_HINTS``）的才视为解答过程保留，其余（答案/答案句/占位）清空。
-_SOLUTION_MIN_LEN = 30
-
-#: 解答过程的强信号：这些论证词/LaTeX 推导结构几乎只出现在「推导」里，不出现在
-#: 纯答案里。语料基本是英文（solution 含中文仅 1/1555），故只列英文论证词。
-_PROCESS_HINTS = (
-    "let ", "since ", "therefore", "hence", "thus ", "consider ", "suppose ",
-    "assume ", "we have", "note that", "it follows", "implies", r"\begin{",
-    r"\Rightarrow", r"\implies",
-)
-
-
-def _usable_solution(solution: str | None) -> bool:
-    """solution 是否为「可用的解答过程」而非纯答案 answer 字段。
-
-    规则禁止依赖 answer 字段——检索只提供「相似题面 + 解答方法」参考，不搬答案。
-    清空（返回 False）的情形：空、占位文本、LaTeX 答案框 ``\boxed{...}``、过短、
-    或没有任何推导/论证迹象（纯数值列表、答案描述句、分情况答案）。只有含
-    ``_PROCESS_HINTS`` 里的论证词/推导结构的才视为解答过程，返回 True。
-    """
-    s = str(solution or "").strip()
-    if not s:
-        return False
-    if r"\boxed{" in s:
-        return False
-    if "no solution provided" in s.lower():
-        return False
-    if len(s) < _SOLUTION_MIN_LEN:
-        return False
-    low = s.lower()
-    return any(h in low for h in _PROCESS_HINTS)
-
-
 class TfidfRetriever:
     """惰性加载语料 + 构建 TF-IDF 索引；query 返回 top-k 相似题。"""
 
@@ -119,8 +82,6 @@ class TfidfRetriever:
         """返回 top-k 条相似题，结构对齐 db_client.query。
 
         返回项键：problem / solution / similarity / source / subject。
-        solution 对「纯答案（answer 字段，短于 30 字符）」已清空为空串——检索只提供
-        题面+方法参考，不提供答案（规则禁止依赖 answer 字段）。
         任何失败（无语料、加载失败、查询异常）都返回空列表，绝不抛异常。
         """
         self._load()
@@ -142,13 +103,9 @@ class TfidfRetriever:
                 # 跳过"与查询完全相同"的题（检索不该把题面本身喂回给模型）。
                 if _norm(rec.get("problem", "")) == text:
                     continue
-                # 纯答案（answer 字段）的 solution 清空为空串：检索只提供题面+方法
-                # 参考，绝不把答案字段喂回给模型（规则禁止依赖 answer 字段）。
-                raw_solution = rec.get("solution")
                 results.append({
                     "problem": str(rec.get("problem") or ""),
-                    "solution": (str(raw_solution) if _usable_solution(raw_solution)
-                                 else ""),
+                    "solution": str(rec.get("solution") or ""),
                     "similarity": float(sims[i]),
                     "source": str(rec.get("source") or ""),
                     "subject": str(rec.get("subject") or ""),

@@ -97,7 +97,6 @@ class LLMRetryWrapper:
         max_tokens: int = 4096,
         label: str = "llm",
         meta: bool = False,
-        thinking_mode=None,
     ):
         if not self._affordable():
             need = (f"~{self.expected_call_seconds:.0f}s"
@@ -110,8 +109,7 @@ class LLMRetryWrapper:
         for attempt in range(1, self.max_retries + 1):
             started = self._now()
             try:
-                result = chat_compatible(
-                    self.client, messages, temperature, max_tokens, thinking_mode)
+                result = chat_compatible(self.client, messages, temperature, max_tokens)
                 if self.time_budget:
                     self.time_budget.record(label, self._now() - started)
                 content = normalize_chat_response(result)
@@ -217,7 +215,6 @@ def chat_prefilled(
     label="llm_prefill",
     max_retries=1,
     reserve_margin_s=None,
-    thinking_mode=False,
 ):
     """One prefilled round trip, returning the stitched assistant text.
 
@@ -227,12 +224,6 @@ def chat_prefilled(
 
     ``reserve_margin_s`` 非 None 时，本调用允许动用 reserve（软预算已尽仍可
     执行），仅要求硬上限前剩余 ≥ 调用估时 + margin。用于仲裁保底与应急直答。
-
-    ``thinking_mode`` 默认 False（关闭深思考）：prefill 是"答案前置、抑制私有
-    CoT"的快路径，若走 intern-s2 默认的深思考（thinking_mode=True）会生成私有
-    CoT 拖慢到 1100s 被 node_wrapper 掐断（idx 13 实测压缩 prefill 卡 1100s、
-    answer 空、emergency 兜底）。快路径一律关深思考，深思考由 _deep_think_retry
-    显式走 thinking_mode=True 承担。
     """
     wrapper = LLMRetryWrapper(
         client,
@@ -248,6 +239,5 @@ def chat_prefilled(
         temperature=temperature,
         max_tokens=max_tokens,
         label=label,
-        thinking_mode=thinking_mode,
     )
     return stitch(prefix, raw)

@@ -1,5 +1,4 @@
 import re
-import threading
 from utils.deps import get_deps
 from utils.llm.retry import chat_prefilled, chat_with_retry, chat_with_retry_meta
 from utils.llm.templates import REASONING_PROMPT
@@ -24,24 +23,6 @@ from utils.problem.profile import (
     structure_instruction,
 )
 from config import CONFIG
-
-
-#: 65536 深思考的全卷配额（救「32768 也截断」的构造/博弈超难题）。全卷只放行
-#: deep_think_extreme_quota 次，防并发下多道超难题同时 65536（每次 ~26-32min）
-#: 击穿 6h。模块级 + Lock 保证多题并发时的原子扣减。
-_extreme_lock = threading.Lock()
-_extreme_used = 0
-
-
-def _try_reserve_extreme_quota() -> bool:
-    """尝试占用一次 65536 深思考配额；配额用尽返回 False。"""
-    global _extreme_used
-    quota = int(CONFIG.get("deep_think_extreme_quota", 2))
-    with _extreme_lock:
-        if _extreme_used >= quota:
-            return False
-        _extreme_used += 1
-        return True
 
 
 def _reference_examples_block(examples, problem: str = "") -> str:
@@ -188,50 +169,6 @@ def _rhs_of_top_level_eq(line):
     return line[pos + 1:].strip() if pos >= 0 else ""
 
 
-def _strip_dollar(s: str) -> str:
-    return (s or "").strip().strip("$").strip()
-
-
-def _is_pure_number(s: str) -> bool:
-    """纯数值（整数/小数/负号/分数），不含任何变量名。"""
-    s = (s or "").strip()
-    if not s:
-        return False
-    try:
-        float(s)
-        return True
-    except ValueError:
-        pass
-    try:
-        from fractions import Fraction
-        Fraction(s)
-        return True
-    except Exception:
-        return False
-
-
-def _strip_numeric_assignment(answer: str) -> str:
-    r"""单值等式「X = 纯数值」剥成纯数值右值。
-
-    判分按数值 token 提取：`$$D_{\max}=777^2=603729$$` 会拆出 777/2/603729
-    三个数、整段归 na，答对判错（prelim idx 7、benchmark idx 26 同模式）。
-    只剥「无逗号/分号的单值等式 + 右值是纯数值」；表达式（A(x)=1-x）、
-    多值（x=3, y=4）、集合（{1,8}）、纯文本原样保留。
-    """
-    if not answer:
-        return answer
-    stripped = _strip_dollar(answer)
-    if not stripped or any(ch in stripped for ch in ",，;；"):
-        return answer
-    if "=" not in stripped:
-        return answer
-    rhs = stripped.rsplit("=", 1)[1].strip()
-    rhs = _strip_dollar(rhs)
-    if rhs and _is_pure_number(rhs):
-        return rhs
-    return answer
-
-
 def _distill_answer(text):
     """Distill a concise answer from the '## 最终答案' section text.
 
@@ -285,15 +222,9 @@ def _distill_answer(text):
         if answer:
             return answer
 
-    # 3. 短节 → 最后一行（单值等式「X = 纯数值」先剥成纯数值，避免公式被判 na）
+    # 3. 短节 → 最后一行
     if len(text) <= 80:
-        last = lines[-1] if lines else text
-        stripped_num = _strip_numeric_assignment(last)
-        if stripped_num != last:
-            answer = _reject_bad_answer(stripped_num)
-            if answer:
-                return answer
-        return _reject_bad_answer(last)
+        return _reject_bad_answer(lines[-1] if lines else text)
 
     # 4. 显式"答案是X"
     for pat in (r"答案[是为：:]\s*(.+?)(?:\n|$)", r"answer\s*[:is]+\s*(.+?)(?:\n|$)"):
@@ -566,373 +497,6 @@ def _surplus_retry_affordable(deps, cost_s: float) -> bool:
         return can_afford_retry(deps.time_budget, "reasoning")
 
 
-def _sample_first_consensus(deps, prompt: str, original_answer: str, question_mode: str):
-    """采样前置多数票：采样 N 次（高温）后，≥2 采样一致且不同于首轮才覆盖。
-
-    复用 consistency_vote 的多数票共识逻辑（_consensus_override）；采样时钟用
-    软预算定价（can_afford(150s)）——reasoning 首轮后软预算还剩 ~670s，采样花
-    的是「python 少一次完整重试省下的 ~270s」，受 PaperPacer 落后收紧自然约束，
-    绝不花穿「剩余题 × MIN_SOFT」完成底线。采样 prompt 复用首轮同一份（不含首轮
-    答案，保证独立性）。失败/无共识返回 None。
-    """
-    from utils.verify.consistency_vote import _consensus_override
-    from utils.llm.retry import LLMRetryWrapper
-    n = int(CONFIG.get("sample_first_n", 2))
-    temperature = float(CONFIG.get("sample_first_temperature", 0.7))
-    samples: list[str] = []
-    for _ in range(n):
-        wrapper = LLMRetryWrapper(
-            deps.client,
-            max_retries=CONFIG["llm_max_retries"],
-            backoff_factor=CONFIG["backoff_factor"],
-            logger=deps.logger,
-            time_budget=deps.time_budget,
-            expected_call_seconds=150.0,
-        )
-        try:
-            resp = wrapper.chat(
-                messages=[{"role": "user", "content": prompt}],
-                temperature=temperature,
-                max_tokens=CONFIG["max_tokens"]["reasoning"],
-                label="sample_first",
-            )
-        except Exception as exc:  # noqa: BLE001 - 采样失败跳过本次
-            deps.logger.warning("Sample-first attempt failed: %s", exc)
-            samples.append("")
-            continue
-        if deps.token_budget:
-            deps.token_budget.consume(estimate_tokens(prompt), estimate_tokens(resp))
-        parsed = _parse_reasoning_output(resp, question_mode=question_mode)
-        ans = str(parsed.get("answer") or "").strip()
-        samples.append(ans if ans and not is_placeholder_answer(ans) else "")
-    consensus = _consensus_override(original_answer, samples)
-    deps.logger.info(
-        "Sample-first: %d samples (orig %.40s) -> consensus %s",
-        len([s for s in samples if s]), original_answer,
-        ("None" if consensus is None else ("%.40s" % consensus)))
-    return consensus
-
-
-def _maybe_sample_first_override(deps, parsed: dict, prompt: str, question_mode: str) -> None:
-    """采样前置入口：首轮成功后就地覆盖 parsed["answer"]（有共识才覆盖）。
-
-    覆盖两条首轮成功路径（deep_direct 压缩首答 + 完整 CoT 首答），让采样前置
-    对 computation 题真正生效（deep_direct 压缩成功会提前 return，若只挂在完整
-    CoT 路径末尾，computation 题全被压缩路径拦截、采样前置永不触发）。
-    """
-    if not CONFIG.get("enable_sample_first", False) or question_mode == "proof":
-        return
-    try:
-        consensus = _sample_first_consensus(
-            deps, prompt, parsed.get("answer", ""), question_mode)
-        if consensus:
-            deps.logger.info(
-                "Sample-first overrode reasoning answer (%.40s → %.40s)",
-                parsed.get("answer", ""), consensus)
-            parsed["answer"] = consensus
-            parsed["answer_source"] = "sample_first_consensus"
-    except Exception as exc:  # noqa: BLE001 - 采样是锦上添花，失败不拖垮首轮
-        deps.logger.warning("Sample-first failed: %s", exc)
-
-
-def _deep_rethink_first(deps, base_prompt: str, original_answer: str, question_mode: str):
-    """深度重解前置：单次「换方法 + 检查漏洞」重解（注入首轮答案），低温 0.3。
-
-    与采样前置的区别：采样前置是「独立重采样 N 次取多数票」，本模型采样无多样性
-    （答案与首轮高度一致、零覆盖，已证伪）；深度重解是「注入首轮答案 + 换方法引导 +
-    主动检查易漏点（孤立解/边界/最坏情形）」，靠定向换方法打破收敛、靠检查漏解
-    纠正首轮，不靠采样噪声。答案与首轮不同且非退化才返回覆盖值，否则 None（收敛
-    或解析失败都静默保留首轮，零覆盖零风险）。
-    """
-    from utils.verify.consistency_vote import _answers_equivalent
-    from utils.verify.deep_rethink import _DEEP_RETHINK_GUIDE, _deep_temperature
-    from utils.llm.retry import LLMRetryWrapper
-    prompt = base_prompt
-    fa = (original_answer or "").strip()
-    if fa:
-        prompt += f"\n\n此前给出的答案是：{fa}"
-    prompt += _DEEP_RETHINK_GUIDE
-    wrapper = LLMRetryWrapper(
-        deps.client,
-        max_retries=CONFIG["llm_max_retries"],
-        backoff_factor=CONFIG["backoff_factor"],
-        logger=deps.logger,
-        time_budget=deps.time_budget,
-        expected_call_seconds=220.0,
-    )
-    try:
-        resp = wrapper.chat(
-            messages=[{"role": "user", "content": prompt}],
-            temperature=_deep_temperature(),
-            max_tokens=CONFIG["max_tokens"]["reasoning"],
-            label="deep_rethink",
-        )
-    except Exception as exc:  # noqa: BLE001 - 深度重解失败/超时静默保留首轮
-        deps.logger.warning("Deep-rethink attempt failed: %s", exc)
-        return None
-    if deps.token_budget:
-        deps.token_budget.consume(estimate_tokens(prompt), estimate_tokens(resp))
-    parsed = _parse_reasoning_output(resp, question_mode=question_mode)
-    deep_answer = str(parsed.get("answer") or "").strip()
-    if not deep_answer or is_placeholder_answer(deep_answer):
-        return None
-    if _answers_equivalent(original_answer, deep_answer):
-        deps.logger.info("Deep-rethink converged (no override)")
-        return None
-    return deep_answer
-
-
-def _maybe_deep_rethink_override(deps, parsed: dict, prompt: str, question_mode: str) -> None:
-    """深度重解前置入口：首轮成功后就地覆盖 parsed["answer"]（换方法答案不同才覆盖）。
-
-    与 _maybe_sample_first_override 同挂两条首轮成功路径（deep_direct 压缩首答 +
-    完整 CoT 首答）。触发 = 开关开 + 非 proof + 全卷 surplus 充裕（落后时不深度
-    重解，保住「剩余题 × MIN_SOFT」完成底线，用时间换深度不换完成率）。
-    """
-    if not CONFIG.get("enable_deep_rethink", False) or question_mode == "proof":
-        return
-    if not _surplus_retry_affordable(deps, 220.0 + 120.0):
-        return
-    try:
-        deep_answer = _deep_rethink_first(
-            deps, prompt, parsed.get("answer", ""), question_mode)
-        if deep_answer:
-            deps.logger.info(
-                "Deep-rethink overrode reasoning answer (%.40s → %.40s)",
-                parsed.get("answer", ""), deep_answer)
-            parsed["answer"] = deep_answer
-            parsed["answer_source"] = "deep_rethink"
-    except Exception as exc:  # noqa: BLE001 - 深度重解是锦上添花，失败不拖垮首轮
-        deps.logger.warning("Deep-rethink failed: %s", exc)
-
-
-def _deep_think_retry(deps, deep_prompt, max_tokens, expected_s, label, timeout_s=None):
-    """深思考重解：不 prefill、max_tokens 加大，让 intern-s2 的 deep-thinking 跑满。
-
-    与 _full_reasoning_retry（8192 浅思考续写）的区别：8192 时 API 不返回
-    reasoning_content、CoT 直接写在 content 里被截断（浅思考）；32768 时返回私有
-    CoT + 完整可见答案，模型跑满思考自己答对（idx 9 深思考答 2，8192/prefill 全
-    答 0）。深思考要「独立从头想」，不注入浅思考结论（注入错误结论会污染，idx 9
-    的 0 就是污染源）。用 meta 版带回 finish_reason 判断截断；reserve_margin 模式
-    允许软预算耗尽也放行（同 _compressed_reasoning_retry）。失败返回 (None, "")，
-    由调用方回退浅思考答案。
-    """
-    from utils.llm.retry import LLMRetryWrapper
-
-    wrapper = LLMRetryWrapper(
-        deps.client,
-        max_retries=CONFIG["llm_max_retries"],
-        backoff_factor=CONFIG["backoff_factor"],
-        logger=deps.logger,
-        time_budget=deps.time_budget,
-        expected_call_seconds=expected_s,
-        reserve_margin_s=CONFIG["deep_think_reserve_margin_s"],
-    )
-    try:
-        # 中途超时保护：深思考「尽量生成」（socket 超时已放宽到足以容纳 stop 完整的
-        # 中等偏难题 ~812s，见 idx 13 实测），但超难题 CoT 用满 32768 会拖到 1150s
-        # 把整个 reasoning 节点拖死、浅思考答案也丢（idx 19 实测 >1100s 被 node_wrapper
-        # 掐断）。此处用单次墙钟上限就地截断：超时就回退浅思考答案，不拖垮节点。
-        content, finish_reason = run_with_timeout(
-            lambda: wrapper.chat(
-                messages=[{"role": "user", "content": deep_prompt}],
-                temperature=CONFIG["temperatures"]["reasoning"],
-                max_tokens=max_tokens,
-                label=label,
-                meta=True,
-            ),
-            timeout_s if timeout_s is not None else CONFIG.get("deep_think_timeout_s", 900),
-        )
-    except NodeTimeoutError:
-        # 深思考超时（CoT 用满 max_tokens 的超难题）：返回 "timeout" 标记，让调用方跳过
-        # 完整 CoT 兜底——超难题的完整 CoT 同样注定截断，再花 ~384s 只会把单题硬上限
-        # 击穿、Coordinator 弃权（idx 19 教训：深思考 900s + 完整 CoT 300s
-        # 超硬上限 → "Coordinator has no answer and no budget"）。直接回退浅思考答案。
-        deps.logger.warning("Deep-think timed out after %.0fs",
-                            timeout_s if timeout_s is not None else CONFIG.get("deep_think_timeout_s", 900))
-        return None, "timeout"
-    except Exception as exc:  # noqa: BLE001 - 深思考失败静默回退浅思考
-        deps.logger.warning("Deep-think attempt failed: %s", exc)
-        return None, ""
-    if deps.token_budget:
-        deps.token_budget.consume(estimate_tokens(deep_prompt), estimate_tokens(content))
-    return content, finish_reason
-
-
-def _deep_think_continuation(deps, deep_prompt, first_content, question_mode):
-    """深思考首调截断后的续写：thinking_mode=False + 小 token 复用首调推导写答案。
-
-    16384 首调已让模型想清楚答案（idx 9 推出 "exactly 2"），只是 finish=length
-    没写出 \\boxed。续写把首调完整推导作为 assistant 前缀、让模型接着写 '## 最终
-    答案'，thinking_mode=False 关闭深思考（只写答案不重新探索），~30s 补完。
-    返回 content 或 None（失败/空响应，由调用方回退浅思考）。
-    """
-    from utils.llm.retry import LLMRetryWrapper
-
-    cont_prompt = (
-        "请继续完成上面的解答。你已经完成了主要推导，现在直接给出 '## 最终答案'："
-        "用 \\boxed{...} 包裹最终结论（数值/表达式/集合），不要再重新推导。"
-    )
-    wrapper = LLMRetryWrapper(
-        deps.client,
-        max_retries=1,  # 续写是便宜快路径，失败回退浅思考，不花重试
-        backoff_factor=CONFIG["backoff_factor"],
-        logger=deps.logger,
-        time_budget=deps.time_budget,
-        expected_call_seconds=60.0,
-        reserve_margin_s=CONFIG["deep_think_reserve_margin_s"],
-    )
-    try:
-        content, _finish = wrapper.chat(
-            messages=[
-                {"role": "user", "content": deep_prompt},
-                {"role": "assistant", "content": first_content},
-                {"role": "user", "content": cont_prompt},
-            ],
-            temperature=CONFIG["deep_think_continuation_temperature"],
-            max_tokens=CONFIG["deep_think_continuation_max_tokens"],
-            label="deep_think_cont",
-            meta=True,
-            thinking_mode=False,
-        )
-    except Exception as exc:  # noqa: BLE001 - 续写失败回退浅思考
-        deps.logger.warning("Deep-think continuation failed: %s", exc)
-        return None
-    if deps.token_budget:
-        deps.token_budget.consume(estimate_tokens(deep_prompt), estimate_tokens(content))
-    return content
-
-
-def _deep_think_extreme(deps, deep_prompt, question_mode):
-    """65536 从头深思考：救「32768 也 length 截断」的构造/博弈超难题。
-
-    32768 对中等偏难是甜点（stop 完整），对超难构造题（idx 3 三角形构造 / idx 12
-    子集和）仍 length 截断——这类题的私有 CoT 用满 32768 都写不下，需 65536 让
-    deep-thinking 跑满并 stop 完整（memory same-model-90-gap-is-time 实测 32768
-    截断 → 65536 stop 答对 idx 3→2024、idx 12→48）。与 32768 一样「独立从头想」、
-    不注入 32768 结论（避免污染）。只采信 stop 完整，65536 也截断则回退。
-
-    两道闸门防超时：① 全卷配额（_try_reserve_extreme_quota，默认 2 次）；②
-    PaperPacer surplus ≥ estimate（全卷时间冗余足够才花 ~26-32min）。任一门不满足
-    就返回 None（回退 32768 截断续写/浅思考）。
-    """
-    if not _surplus_retry_affordable(deps, CONFIG["deep_think_extreme_estimate_s"]):
-        deps.logger.info("Deep-think extreme: surplus insufficient, skip 65536")
-        return None
-    if not _try_reserve_extreme_quota():
-        deps.logger.info("Deep-think extreme: quota exhausted, skip 65536")
-        return None
-    content, finish_reason = _deep_think_retry(
-        deps, deep_prompt, CONFIG["deep_think_max_tokens_extreme"],
-        CONFIG["deep_think_extreme_estimate_s"], "deep_think_extreme",
-        timeout_s=CONFIG["deep_think_extreme_timeout_s"])
-    if not content:
-        deps.logger.info("Deep-think extreme: no content (%.20s), fall back", finish_reason)
-        return None
-    parsed = _parse_reasoning_output(content, question_mode=question_mode)
-    answer = str(parsed.get("answer") or "").strip()
-    if not answer or is_placeholder_answer(answer):
-        return None
-    if not _is_complete(parsed):
-        return None
-    # 65536 也可能 length 截断（CoT 用满 65536 仍没写完）：答案没想完，不可靠，回退。
-    if finish_reason == "length" or _deep_think_looks_truncated(content, parsed):
-        return None
-    parsed["answer_source"] = "deep_think_extreme"
-    deps.logger.info("Deep-think extreme (65536 stop) answered %.40s", answer)
-    return parsed, content
-
-
-def _deep_think_looks_truncated(content: str, parsed: dict) -> bool:
-    """深思考截断的长度启发式兜底（finish_reason 拿不到时）。
-
-    深思考 stop 时 content 只写最终答案（短，实测 ~2k 字符），length 截断时 CoT
-    溢出到 content（2 万+字符）且没有 '## 最终答案' 标记；或答案是从截断散文
-    捞回的残句（_SCAVENGED_SOURCES）。阈值 8000 零误判（正常答案远低于此，
-    截断 CoT 远高于此）。
-    """
-    text = content or ""
-    if len(text) < 8000:
-        return False
-    if parsed.get("answer_source") in _SCAVENGED_SOURCES:
-        return True
-    return "## 最终答案" not in text
-
-
-def _deep_think_attempt(deps, pure_prompt, coverage_clause, question_mode, category,
-                        allow_all_domains=False, allow_extreme=False):
-    """深思考重解入口：返回 (parsed, content) 或 None（不触发/截断/失败）。
-
-    压缩 prefill 抑制了私有思考，答案置信度天然偏低（idx 9 压缩首答 0、深思考 2）。
-    深思考 = 16384 不 prefill 从头深度重解（不注入浅思考结论，避免污染）。触发按
-    领域收紧（domains_only），深思考 stop 且完整才返回（answer_source=deep_think）；
-    length 截断则续写补完答案（answer_source=deep_think_continuation，thinking_mode
-    =False 复用首调推导直接写 \\boxed）；续写空/失败/不完整才返回 None（回退浅思考，
-    保对题 idx 8/16/18）。不修改传入对象，由调用方决定覆盖还是 return。
-    """
-    if not CONFIG.get("enable_deep_think", False) or question_mode == "proof":
-        return None
-    # allow_all_domains=True 时跳过领域门槛：调用点 2（浅思考失败救题）放开到全部
-    # 18 领域，用掉全卷 3h 冗余去救「非深解领域（数学分析/概率/统计/ODE/PDE/复分析/
-    # 微分几何/…）的计算错题」——S3 全卷 2h46min 交卷、剩 3h 冗余的直接根因就是这
-    # 道门槛把深思考限制在 3/18 领域。调用点 1（浅思考成功后升级）仍受领域约束，
-    # 避免对「压缩首答已答对的对题」深思考再覆盖（防掉回 75）。
-    if not allow_all_domains and CONFIG.get("deep_think_domains_only", True) and \
-            category not in CONFIG.get("deep_solver_domains", []):
-        return None
-    if not _surplus_retry_affordable(deps, CONFIG["deep_think_estimate_s"]):
-        return None
-    deep_prompt = pure_prompt + (coverage_clause or "")
-    content, finish_reason = _deep_think_retry(
-        deps, deep_prompt, CONFIG["deep_think_max_tokens"],
-        CONFIG["deep_think_estimate_s"], "deep_think")
-    if not content:
-        # 超时（CoT 用满 32768 的超难题）返回 (None, "timeout")，让调用方跳过完整
-        # CoT 兜底直接回退浅思考；其他失败返回 None 沿用旧的完整 CoT 兜底路径。
-        return (None, "timeout") if finish_reason == "timeout" else None
-    deep_parsed = _parse_reasoning_output(content, question_mode=question_mode)
-    deep_answer = str(deep_parsed.get("answer") or "").strip()
-
-    # 截断判断须先于「答案空就回退」：截断 CoT 常提取不到 answer 或捞回垃圾残句
-    # （fallback_line），若先判 answer 空会绕过续写直接回退浅思考。优先
-    # finish_reason == 'length'（精确；InternChatClient 已改为返回完整 dict 使该
-    # 信号可用）；client 只回 str 丢信号时用长度启发式兜底。
-    deep_truncated = finish_reason == "length" or _deep_think_looks_truncated(
-        content, deep_parsed)
-    if deep_truncated:
-        # 超难题（32768 也截断）：仅调用点 2（allow_extreme=True，浅思考失败救题）
-        # 时，若配额 + surplus 充裕，升级 65536 从头深思考救「构造/博弈超难题」
-        # （idx 3/12）。调用点 1（浅思考成功）不升级——那里浅思考答案可能已对，
-        # 65536 从头再想覆盖对题有掉分风险（同 32768 覆盖对题的教训）。
-        if allow_extreme:
-            extreme = _deep_think_extreme(deps, deep_prompt, question_mode)
-            if extreme is not None:
-                return extreme
-        # 16384 深思考截断：模型已想清楚答案（idx 9 推出 "exactly 2"）但没写
-        # \boxed。续写（thinking_mode=False + 小 token）复用首调推导直接写答案，
-        # 替代「回退浅思考」（浅思考答案常错）。续写空响应才回退浅思考保对题。
-        cont = _deep_think_continuation(deps, deep_prompt, content, question_mode)
-        if cont:
-            cont_parsed = _parse_reasoning_output(cont, question_mode=question_mode)
-            cont_answer = str(cont_parsed.get("answer") or "").strip()
-            if cont_answer and not is_placeholder_answer(cont_answer):
-                cont_parsed["answer_source"] = "deep_think_continuation"
-                deps.logger.info(
-                    "Deep-think truncated (length) -> continuation answered %.40s",
-                    cont_answer)
-                return cont_parsed, cont
-        deps.logger.info(
-            "Deep-think truncated (length); continuation empty, fall back to shallow")
-        return None
-    if not deep_answer or is_placeholder_answer(deep_answer):
-        return None
-    if not _is_complete(deep_parsed):
-        # 深思考没写全四章节，答案不可靠，回退浅思考。
-        return None
-    deep_parsed["answer_source"] = "deep_think"
-    return deep_parsed, content
-
-
 def _raw_excerpt(text, head=600, tail=1400):
     """截断响应的可审计节选（评委建议 9）：头部保留题解开场，尾部保留结论区。"""
     s = str(text or "")
@@ -966,16 +530,12 @@ def reasoning_agent_node(state, config):
     base_prompt += structure_instruction(problem)
     # 压缩重试要压的是推导篇幅，不是答案该覆盖的分支（评委复测 idx 14）。
     coverage_clause = answer_coverage_clause(problem)
-    # 深思考升级用的「纯 prompt」：不含下面抑制思考深度的「紧凑输出/答案前置」指令
-    # （这两段让模型少铺陈、先写答案，会压缩私有 CoT 的探索深度；深思考要放开思考
-    # 让 deep-thinking 跑满，故剥离）。深思考输入 = pure_prompt + coverage_clause。
-    pure_prompt = base_prompt
 
     # A3 手段1：紧凑输出——A2 首轮/二次完整 CoT 的私有 reasoning_content 常吃满
     # 8192、导致 '## 最终答案' 没写出就被截断（truncated_count 328 / 41.7%）。
     # 提示层引导模型"先锁定结论、少铺陈"，把额度留给可见章节。客观题走独立的
     # objective_prompt，不受此影响。
-    shallow_extra = (
+    base_prompt += (
         "\n\n[紧凑输出要求] 推理预算有限：先在思考中锁定最终结论，再倒推最简推导链。"
         "'## 问题分析' 不超过 3 行（不要复述题面）；'## 详细解题步骤' 只保留关键步骤，"
         "每个步骤一行公式一行结论，略去纯代数展开；把额度留给 '## 最终答案' 的完整结论"
@@ -986,13 +546,12 @@ def reasoning_agent_node(state, config):
     # 数值、锁定最终答案，再先写 '## 最终答案' 后倒推步骤（步骤是佐证不是重新探索）。
     # 深解题/证明题不适用（其完整 CoT 必截断，已由 A3 手段2 首轮压缩接管）。
     if question_mode == "computation" and category not in CONFIG.get("deep_solver_domains", []):
-        shallow_extra += (
+        base_prompt += (
             "\n\n[答案前置要求] 计算题请遵循：先在推理中把数值算准、锁定最终答案的"
             "精确值，再在输出中先写 '## 最终答案' 的完整结论（数值/区间/集合），"
             "然后用 '## 详细解题步骤' 倒推展示如何得到该值——步骤是佐证答案，"
             "不是重新探索。"
         )
-    base_prompt += shallow_extra
 
     if is_objective_mode(question_mode):
         # Objective items do not need a 30k-token proof search or an independent
@@ -1210,42 +769,13 @@ def reasoning_agent_node(state, config):
                           "reason": "deep_direct_compressed_first",
                           "response_chars": len(deep_resp or "")})
             if _is_complete(deep_parsed):
-                # 深思考升级（压缩首答成功但低置信）：prefill 抑制了私有思考，答案置信
-                # 度天然偏低（idx 9 压缩首答 0、深思考 2）。全卷 surplus 充裕 + 领域命中
-                # 时，用纯深思考从头重解。但**只采信 stop 完整**的深思考（想完了，可靠）；
-                # length 截断续写不采信——50 题复测实测 idx 13/23 深思考截断续写把压缩
-                # 首答的正确 2/59 覆盖成 n/乱，净 -1（续写只是忠实输出「没想完」的错误
-                # 推导，覆盖正确答案，与 fabricated-answer-pollution 同类教训）。
-                deep_result = _deep_think_attempt(
-                    deps, pure_prompt, coverage_clause, question_mode, category)
-                if deep_result == (None, "timeout"):
-                    # 深思考超时（CoT 用满 32768 的超难题）：立即交压缩首答，跳过下面
-                    # 的 _maybe_deep_rethink_override——deep_rethink 再花 ~300s 会把
-                    # 「压缩 200s + 深思考 900s」推到 1100s 被 node_wrapper 掐断、
-                    # answer 空、emergency 兜底（idx 13 重跑实测）。超难题本就答不出，
-                    # 保留压缩首答比分文不剩的 emergency 好。
-                    deps.logger.info("Deep-think timed out after compressed ok; keep compressed answer")
-                    return {"reasoning_result": deep_parsed, "reasoning_trace": trace,
-                            "reasoning_attempts": 1, "reasoning_raw_response": deep_resp,
-                            "reasoning_reference_chars": len(examples_text)}
-                if deep_result is not None and deep_result[0] is not None:
-                    deep_parsed2, _deep_content = deep_result
-                    if deep_parsed2.get("answer_source") == "deep_think":
-                        deps.logger.info(
-                            "Deep-think (stop) overrode reasoning answer (%.40s → %.40s)",
-                            deep_parsed.get("answer", ""), deep_parsed2.get("answer", ""))
-                        deep_parsed.update(deep_parsed2)
-                    else:
-                        deps.logger.info(
-                            "Deep-think truncated; keep compressed answer (%.40s)",
-                            deep_parsed.get("answer", ""))
                 # A4 思路2：压缩 prefill 成功但低置信（抑制了私有思考），时间充裕时
                 # 用省下的时间做一次完整 CoT 二次确认（复用压缩答案续写、保留私有
                 # 思考）。完整 CoT 产出完整答案则采用（更高置信），否则保留压缩答案。
-                # 仅 proof 题保留 verify：computation 题压缩首答成功即交卷。G4 曾恢复
-                # computation 短推导题做 verify，决赛掉 3 分（86→83：truncated 61→91、
-                # token 166万→212万，verify 完整 CoT 大量截断白跑；且 _is_complete 只判
-                # 完整不判正确，少数 verify 覆盖把对的改错 + 制造 1 题 invalid），回滚。
+                # 仅 proof 题保留 verify：computation 题压缩首答成功即交卷。长推导
+                # computation 题的完整 CoT 必截断，verify 注定白跑——2026-09-30
+                # 复测 idx 49 微分几何 verify 完整 CoT 输出 28260 字符又截断，白跑
+                # ~450s 反而把 443s 拉到 601s，抵消了压缩首答省下的时间。
                 if question_mode == "proof" and can_afford_retry(clock, "reasoning"):
                     verify_resp = _full_reasoning_retry(
                         deps, hinted_base, first_resp=deep_resp)
@@ -1260,48 +790,9 @@ def reasoning_agent_node(state, config):
                             return {"reasoning_result": verify_parsed, "reasoning_trace": trace,
                                     "reasoning_attempts": 2, "reasoning_raw_response": verify_resp,
                                     "reasoning_reference_chars": len(examples_text)}
-                # 深度重解前置：压缩首答低置信（抑制了私有思考），时间充裕时用
-                # 「换方法 + 检查漏洞」单次重解纠正压缩首答的漏解/孤立错。computation
-                # 题压缩成功即走此 return，不深度重解就永远错过（proof 题由 helper
-                # 内部跳过）。
-                _maybe_deep_rethink_override(deps, deep_parsed, hinted_base, question_mode)
                 return {"reasoning_result": deep_parsed, "reasoning_trace": trace,
                         "reasoning_attempts": 1, "reasoning_raw_response": deep_resp,
                         "reasoning_reference_chars": len(examples_text)}
-            # 压缩首答不完整：浅思考没答好（正是「思考深度不够」的信号）。深思考升级
-            # 替代完整 CoT 兜底——完整 CoT 在深解/证明题几乎必截断（~384s 白跑），深思考
-            # 32768 从头重解更可能答对（idx 9 压缩首答不完整 → 深思考 2）。深思考 stop
-            # 完整则直接交卷；否则回退下面的完整 CoT 兜底。
-            deep_result = _deep_think_attempt(
-                deps, pure_prompt, coverage_clause, question_mode, category,
-                allow_all_domains=True, allow_extreme=True)
-            if deep_result == (None, "timeout"):
-                # 深思考超时（CoT 用满 32768 的超难题）：完整 CoT 兜底同样注定截断，
-                # 再花 ~384s 只会击穿单题硬上限（1200s）导致 Coordinator 弃权。直接用
-                # 压缩首答（可能不完整，但保留了浅思考已算出的部分结论），不白花 CoT。
-                deps.logger.info("Deep-think timed out after compressed fail; keep compressed answer")
-                return {"reasoning_result": deep_parsed, "reasoning_trace": trace,
-                        "reasoning_attempts": 1, "reasoning_raw_response": deep_resp,
-                        "reasoning_reference_chars": len(examples_text)}
-            if deep_result is not None:
-                deep_parsed, deep_content = deep_result
-                # 只采信 stop 完整（deep_think=32768 stop / deep_think_extreme=65536
-                # stop）：截断续写（deep_think_continuation）只是忠实输出「没想完」的
-                # 错误推导（idx 3 实测把对的覆盖成错），与时机 1 同款保护。截断续写
-                # 不采信，落到下面的完整 CoT 兜底。
-                if deep_parsed.get("answer_source") in ("deep_think", "deep_think_extreme"):
-                    trace.append({"attempt": 2,
-                                  "status": "success",
-                                  "reason": ("deep_think_extreme_after_compressed_fail"
-                                             if deep_parsed.get("answer_source") == "deep_think_extreme"
-                                             else "deep_think_after_compressed_fail"),
-                                  "response_chars": len(deep_content or "")})
-                    return {"reasoning_result": deep_parsed, "reasoning_trace": trace,
-                            "reasoning_attempts": 2, "reasoning_raw_response": deep_content,
-                            "reasoning_reference_chars": len(examples_text)}
-                deps.logger.info(
-                    "Deep-think truncated after compressed fail; fall back to full CoT (%.40s)",
-                    deep_parsed.get("answer", ""))
 
     for _ in range(max_attempts):
         # Fund the retry against what the previous attempt actually cost, not against
@@ -1405,10 +896,6 @@ def reasoning_agent_node(state, config):
                       **({"reason": "token_budget_exhausted",
                           "raw_excerpt": _raw_excerpt(resp)} if exhausted else {})})
         if _is_complete(parsed) and not hard_truncated:
-            # 深度重解前置：完整 CoT 首轮成功 → 「换方法 + 检查漏洞」单次重解纠正
-            # 首轮的漏解/边界/最坏情形错。此刻软预算还剩 ~670s（reasoning 首轮 ~230s
-            # + reserve 300s 已扣），深度重解发得出。失败/收敛静默保留首轮答案。
-            _maybe_deep_rethink_override(deps, parsed, hinted_base, question_mode)
             return {"reasoning_result": parsed, "reasoning_trace": trace,
                     "reasoning_attempts": attempts, "reasoning_raw_response": resp,
                     "reasoning_reference_chars": len(examples_text)}
