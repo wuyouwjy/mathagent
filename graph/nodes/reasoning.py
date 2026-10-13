@@ -799,7 +799,8 @@ def _deep_think_looks_truncated(content: str, parsed: dict) -> bool:
     return "## 最终答案" not in text
 
 
-def _deep_think_attempt(deps, pure_prompt, coverage_clause, question_mode, category):
+def _deep_think_attempt(deps, pure_prompt, coverage_clause, question_mode, category,
+                        allow_all_domains=False):
     """深思考重解入口：返回 (parsed, content) 或 None（不触发/截断/失败）。
 
     压缩 prefill 抑制了私有思考，答案置信度天然偏低（idx 9 压缩首答 0、深思考 2）。
@@ -811,7 +812,12 @@ def _deep_think_attempt(deps, pure_prompt, coverage_clause, question_mode, categ
     """
     if not CONFIG.get("enable_deep_think", False) or question_mode == "proof":
         return None
-    if CONFIG.get("deep_think_domains_only", True) and \
+    # allow_all_domains=True 时跳过领域门槛：调用点 2（浅思考失败救题）放开到全部
+    # 18 领域，用掉全卷 3h 冗余去救「非深解领域（数学分析/概率/统计/ODE/PDE/复分析/
+    # 微分几何/…）的计算错题」——S3 全卷 2h46min 交卷、剩 3h 冗余的直接根因就是这
+    # 道门槛把深思考限制在 3/18 领域。调用点 1（浅思考成功后升级）仍受领域约束，
+    # 避免对「压缩首答已答对的对题」深思考再覆盖（防掉回 75）。
+    if not allow_all_domains and CONFIG.get("deep_think_domains_only", True) and \
             category not in CONFIG.get("deep_solver_domains", []):
         return None
     if not _surplus_retry_affordable(deps, CONFIG["deep_think_estimate_s"]):
@@ -1199,7 +1205,8 @@ def reasoning_agent_node(state, config):
             # 32768 从头重解更可能答对（idx 9 压缩首答不完整 → 深思考 2）。深思考 stop
             # 完整则直接交卷；否则回退下面的完整 CoT 兜底。
             deep_result = _deep_think_attempt(
-                deps, pure_prompt, coverage_clause, question_mode, category)
+                deps, pure_prompt, coverage_clause, question_mode, category,
+                allow_all_domains=True)
             if deep_result == (None, "timeout"):
                 # 深思考超时（CoT 用满 32768 的超难题）：完整 CoT 兜底同样注定截断，
                 # 再花 ~384s 只会击穿单题硬上限（1200s）导致 Coordinator 弃权。直接用

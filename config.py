@@ -199,10 +199,10 @@ CONFIG = {
     # → 领域选择性升级深思考」；深思考截断续写失败才回退浅思考答案。
     # 见 memory same-model-90-gap-is-time。
     "enable_deep_think": True,
-    # 触发面：True=只对 deep_solver_domains（离散数学/高等代数/抽象代数）深思考。
-    # 2026-10-12 修正：旧值「数论/组合数学」是 skills/ 不存在的幽灵领域（数论组合题
-    # 归一到离散数学），已换成真实文件夹名。False=全部 computation/proof 题都深思考
-    # （救面大但每题 +600s、对题白花 600s 再回退）。
+    # 触发面：True=调用点 1（浅思考成功后升级）只对 deep_solver_domains 深思考，防
+    # 「压缩首答已答对的对题」被深思考 stop 答错覆盖（防掉回 75）。调用点 2（浅思考
+    # 失败救题）已用 allow_all_domains=True 放开到全部 18 领域——S3 全卷 2h46min 交卷、
+    # 剩 3h 冗余没花的直接根因就是这道门槛把「救错题」的深思考限制在 3/18 领域。
     "deep_think_domains_only": True,
     # 深思考首调 max_tokens：32768 让 deep-thinking 跑满并 stop 完整（idx 13 坐实：
     # baseline 答 3 错 → 深思考 stop 完整答 2，生成 812s）。16384 必 length 截断、
