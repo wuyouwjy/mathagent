@@ -1,12 +1,12 @@
 <p align="center">
-  <h1 align="center">🧮 Math-Agent-System S4</h1>
+  <h1 align="center">🧮 Math-Agent-System S5</h1>
   <p align="center">基于 <b>Intern-S 系列大模型</b> 的 LangGraph 多智能体数学推理系统 — 2026 挑战杯·书生赛道</p>
   <p align="center">
     <img src="https://img.shields.io/badge/Python-3.10+-blue" alt="Python">
     <img src="https://img.shields.io/badge/LLM-Intern--S-orange" alt="Intern-S">
-    <img src="https://img.shields.io/badge/version-S4-purple" alt="S4">
+    <img src="https://img.shields.io/badge/version-S5-purple" alt="S5">
     <img src="https://img.shields.io/badge/framework-LangGraph-green" alt="LangGraph">
-    <img src="https://img.shields.io/badge/score-88-brightgreen" alt="S4">
+    <img src="https://img.shields.io/badge/score-86-brightgreen" alt="S5">
   </p>
 </p>
 
@@ -14,7 +14,7 @@
 
 ## 📖 简介
 
-**Math-Agent-System S4** 是为 2026 年度中国青年科技创新"揭榜挂帅"擂台赛·书生赛道设计的数学推理智能体。
+**Math-Agent-System S5** 是为 2026 年度中国青年科技创新"揭榜挂帅"擂台赛·书生赛道设计的数学推理智能体。
 
 T3 版本完成了从 T2 svragent 到 **LangGraph 多智能体图编排**的重构。T4 在 T3 基础上，参考 GitHub 开源项目与相关论文补齐了四块**正确性与完成率**短板：
 
@@ -577,7 +577,8 @@ A2 瓶颈是 8192 token 截断（`truncated_count=328` / 41.7%，完整二次推
 | **S1** | 75 分（较 G9 的 83 掉 8 分） | + 恢复 T4 误降级的高分配置（temperature / coordinator / reconciliation 额度 / python_max_retries） | temperature 0.8/0.6、coordinator 16384、reconciliation 32768、python_max_retries=3，对齐 ICMAnew-9911；但照搬 Preview 模型配置到非 Preview 的 intern-s2，高温随机性大、答案飘，负收益 |
 | **S2** | 86 分（G9 的 83 基线 + 深思考 +3） | + 回滚 S1 负收益改动 + 深思考升级（max_tokens=32768） | temperature 回滚 0.3/0.2、coordinator/reconciliation 回滚 8192、删除 python_max_retries，恢复 G9 低温稳定基线；深思考升级：max_tokens=32768 让 deep-thinking 跑满（8192 浅思考截断 → 32768 返回私有 reasoning_content 跑满推导），领域命中低置信题选择性升级（idx 9 0→2、idx 6/10 改对，+3） |
 | **S3** | 86 分（S2 基线，深思考稳定性修复） | + socket 1100 / 深思考超时跳兜底 / prefill 关深思考 | 修 S2 深思考两处稳定性隐患：① socket 780 会掐断「生成 780~1100s」的中等偏难深思考（idx 13 深思考 812s stop 完整答对 2，但 812s > 780s 被掐断回退浅思考答 3 错）→ 放宽 1100；② 超难题 CoT >900s 深思考超时后仍走完整 CoT 兜底/deep_rethink 会击穿单题 1200s 硬上限致 coordinator 弃权/emergency → 加 deep_think_timeout_s=900 + run_with_timeout 中途截断 + 超时直接回退压缩首答（跳过完整 CoT 兜底与 deep_rethink）；③ chat_prefilled 默认 thinking_mode=False，压缩 prefill 快路径关深思考不再生成私有 CoT 卡 1100s 被 node_wrapper 掐死。守住 S2 的 86 分在服务器波动下不降 |
-| **S4** | 目标 88（回退 G3 基线 + 两条格式规则） | + 回退深思考 + 求值答案显式化 + 统计数值精度 | 官方复测 S1-75/S2-78/S3-82 三次深思考均低于 G3-86（深思考烧更多 token 192万 vs 165万、分数反而更低），确认深思考负收益，S4 回退到 G3 干净基线；仅保留两条确定性格式规则：求值答案显式化（「判断+求值」题最终答案纯数字单独写，idx 26 实测 wrong→ok）、统计数值精度（统计推断答案保留 ≥4 位小数，idx 28 实测 wrong→ok），赌 +2 → 88 |
+| **S4** | 实测 86（回退 G3 基线 + 两条格式规则） | + 回退深思考 + 求值答案显式化 + 统计数值精度 | 官方复测 S1-75/S2-78/S3-82 三次深思考均低于 G3-86（深思考烧更多 token 192万 vs 165万、分数反而更低），确认深思考负收益，S4 回退到 G3 干净基线；仅保留两条确定性格式规则：求值答案显式化（「判断+求值」题最终答案纯数字单独写）、统计数值精度（统计推断答案保留 ≥4 位小数）。官方评测 86 分——两条格式规则全卷净收益 0（本地 50 题 idx 26/28 wrong→ok 是子集虚高，全卷 100 题上 token 165万→176万、分数 86→86 一分没动） |
+| **S5** | 目标 88（S4 基线 + 纯 bug 修复，零 prompt 规则） | + 反伪造作废答案 + 漏解 FAIL 降级 inconclusive | 在 S4-86 基线上只加三处纯 bug 修复（不加任何 prompt 规则）：① `authenticity` 返回 `has_compute` 字段；② 反伪造代码无实质计算时作废其打印答案（idx 7 事故：伪造 388.5 覆盖正确 603729）；③ 求解漏解 FAIL（解集=[]/未筛/Not found）降级 inconclusive 而非 contradict（idx 16 事故：fsolve 漏解被当确定性反例覆盖 reasoning 消元得 8 的正确答案）。赌 +2 → 88 |
 
 ---
 

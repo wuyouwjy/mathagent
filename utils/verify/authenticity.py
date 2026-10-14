@@ -82,7 +82,7 @@ def assess_verification_authenticity(code: str, stdout: str = "") -> dict:
     """
     text = str(code or "")
     if not text.strip():
-        return {"fabricated": False, "reasons": []}
+        return {"fabricated": False, "reasons": [], "has_compute": False}
 
     skeleton, prose = _strip_comments_and_strings(text)
     has_compute = bool(_COMPUTE_RE.search(skeleton)) or bool(_VAR_ARITH_RE.search(skeleton))
@@ -104,4 +104,4 @@ def assess_verification_authenticity(code: str, stdout: str = "") -> dict:
         if "代码未含循环/求解/枚举等实质计算却宣称验证通过" not in reasons:
             reasons.append("验证状态为硬编码字面量，与计算结果无关")
 
-    return {"fabricated": bool(reasons), "reasons": reasons}
+    return {"fabricated": bool(reasons), "reasons": reasons, "has_compute": has_compute}
