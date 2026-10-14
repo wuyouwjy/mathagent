@@ -28,6 +28,9 @@ sample/sample_data/
 # 自测代码（mock client 单元测试，含自编测试断言，不入库保持提交包零答案痕迹）
 sample/sample_tests/
 
+# 本地自测目录（benchmark 测试集含标准答案 + 输出日志 + 分析脚本，不入库——评委安全检查禁止提交标准答案/测试集）
+Test/
+
 # Environment
 .env
 *.env.local

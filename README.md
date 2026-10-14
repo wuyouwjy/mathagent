@@ -279,9 +279,12 @@ Math-Agent-System/
 ├── requirements.txt           # 项目依赖清单
 │
 ├── data/                      # 题库检索语料（离线构建，评测可复现）
-│   └── retrieval_corpus.json  # 相似题面+解答语料库（TF-IDF 检索源）
+│   ├── retrieval_corpus.json  # 相似题面+解答语料库（TF-IDF 检索源；S5 合并 AI-MO 真解法）
+│   └── olympiad_solutions.json # AI-MO 公开数据集真解法（S5 合并进检索语料的源，借方法不借答案）
 ├── scripts/                   # 离线脚本
-│   └── build_retrieval_corpus.py # 从 sample_data 构建检索语料
+│   ├── build_retrieval_corpus.py # 从 sample_data 构建检索语料
+│   ├── build_olympiad_solutions.py # 从 AI-MO 数据集提取真解法（S5）
+│   └── merge_solutions_corpus.py   # 合并 olympiad 解法进检索语料（S5）
 │
 ├── graph/                     # LangGraph 图编排（主图 + 子图 + 节点 + 状态）
 │   ├── main_graph.py          # 主图构建 + MathAgentGraph 运行器（PaperPacer 接入）
@@ -512,7 +515,7 @@ A2 瓶颈是 8192 token 截断（`truncated_count=328` / 41.7%，完整二次推
 | 配置项 | 值 | 说明 |
 |---|---|---|
 | `model` | `intern-s2` | 默认模型（397B 正式版，赛事推荐），可由 `INTERN_MODEL` 覆盖 |
-| `problem_time_budget_s` | `1200` | 单题墙钟预算（平台硬限制 20 分钟） |
+| `problem_time_budget_s` | `3600` | 单题墙钟预算（S5 放开 1200→3600，容纳 65536 深思考 ~30-40min；官方只限全卷 6h 不限单题，由 65536 quota 2 兜底不击穿） |
 | `time_reserve_s` | `300` | 预留时间：越过后不再购买可选 LLM 阶段 |
 | `paper_total_seconds` | `21600` | 全卷 6h 硬限（PaperPacer 预算池） |
 | `paper_min_work_s` | `180` | 软预算下限余量：收紧后 soft_total ≥ reserve + 此值，避免"落后"时 `remaining()` 开局为负导致 LLM 全拒 |
@@ -540,6 +543,13 @@ A2 瓶颈是 8192 token 截断（`truncated_count=328` / 41.7%，完整二次推
 | `enable_deep_direct_compressed` | `true` | 深解题（proof + deep_solver_domains）首轮直接压缩 prefill 开关（A3；false 回退 A2 三级路径） |
 | `max_continuation_rounds` | `3` | 截断后续写最大轮数（G2 多轮续写：第 1 轮完整二次推理 + 后续压缩续写） |
 | `enable_bare_verdict_enrich` | `true` | 裸判断词回填：判断+求值复合题答案被压成裸布尔时回填具体结论（G2） |
+| `enable_deep_think` | `true` | 深思考开关（S5：32768 让 deep-thinking 跑满并 stop 完整；8192 浅思考必截断） |
+| `deep_think_domains_only` | `true` | 深思考领域收紧：只对 `deep_solver_domains`（离散数学/高等代数/抽象代数）触发，防压缩首答已答对的对题被深思考搅黄 |
+| `deep_think_max_tokens` | `32768` | 深思考首调上限（idx 9/13 实测 8192+prefill 全 0、32768 stop 答对） |
+| `deep_think_timeout_s` | `900` | 深思考单次墙钟上限（超时回退浅思考/压缩首答，不丢已答对答案） |
+| `deep_think_max_tokens_extreme` | `65536` | 65536 分级上限（救「32768 也 length 截断」的构造/博弈超难题 idx 3/12） |
+| `deep_think_extreme_timeout_s` | `2400` | 65536 单次墙钟上限（~30-40min，留足余量） |
+| `deep_think_extreme_quota` | `2` | 65536 全卷配额：最多触发 2 次，防并发超难题同时 65536 击穿 6h |
 
 ---
 
@@ -578,7 +588,7 @@ A2 瓶颈是 8192 token 截断（`truncated_count=328` / 41.7%，完整二次推
 | **S2** | 86 分（G9 的 83 基线 + 深思考 +3） | + 回滚 S1 负收益改动 + 深思考升级（max_tokens=32768） | temperature 回滚 0.3/0.2、coordinator/reconciliation 回滚 8192、删除 python_max_retries，恢复 G9 低温稳定基线；深思考升级：max_tokens=32768 让 deep-thinking 跑满（8192 浅思考截断 → 32768 返回私有 reasoning_content 跑满推导），领域命中低置信题选择性升级（idx 9 0→2、idx 6/10 改对，+3） |
 | **S3** | 86 分（S2 基线，深思考稳定性修复） | + socket 1100 / 深思考超时跳兜底 / prefill 关深思考 | 修 S2 深思考两处稳定性隐患：① socket 780 会掐断「生成 780~1100s」的中等偏难深思考（idx 13 深思考 812s stop 完整答对 2，但 812s > 780s 被掐断回退浅思考答 3 错）→ 放宽 1100；② 超难题 CoT >900s 深思考超时后仍走完整 CoT 兜底/deep_rethink 会击穿单题 1200s 硬上限致 coordinator 弃权/emergency → 加 deep_think_timeout_s=900 + run_with_timeout 中途截断 + 超时直接回退压缩首答（跳过完整 CoT 兜底与 deep_rethink）；③ chat_prefilled 默认 thinking_mode=False，压缩 prefill 快路径关深思考不再生成私有 CoT 卡 1100s 被 node_wrapper 掐死。守住 S2 的 86 分在服务器波动下不降 |
 | **S4** | 实测 86（回退 G3 基线 + 两条格式规则） | + 回退深思考 + 求值答案显式化 + 统计数值精度 | 官方复测 S1-75/S2-78/S3-82 三次深思考均低于 G3-86（深思考烧更多 token 192万 vs 165万、分数反而更低），确认深思考负收益，S4 回退到 G3 干净基线；仅保留两条确定性格式规则：求值答案显式化（「判断+求值」题最终答案纯数字单独写）、统计数值精度（统计推断答案保留 ≥4 位小数）。官方评测 86 分——两条格式规则全卷净收益 0（本地 50 题 idx 26/28 wrong→ok 是子集虚高，全卷 100 题上 token 165万→176万、分数 86→86 一分没动） |
-| **S5** | 目标 88（S4 基线 + 纯 bug 修复，零 prompt 规则） | + 反伪造作废答案 + 漏解 FAIL 降级 inconclusive | 在 S4-86 基线上只加三处纯 bug 修复（不加任何 prompt 规则）：① `authenticity` 返回 `has_compute` 字段；② 反伪造代码无实质计算时作废其打印答案（idx 7 事故：伪造 388.5 覆盖正确 603729）；③ 求解漏解 FAIL（解集=[]/未筛/Not found）降级 inconclusive 而非 contradict（idx 16 事故：fsolve 漏解被当确定性反例覆盖 reasoning 消元得 8 的正确答案）。赌 +2 → 88 |
+| **S5** | 目标 88（S4-86 基线 + 纯 bug 修复 + 深思考恢复 + AI-MO 检索解法） | + 反伪造作废答案 + 漏解 FAIL 降级 + 深思考恢复（32768/65536 分级）+ 检索合规过滤 | 在 S4-86 基线上做三组改动：**① 纯 bug 修复（零 prompt 规则）**——`authenticity` 返回 `has_compute`、反伪造代码无实质计算时作废其打印答案（idx 7 伪造 388.5 覆盖正确 603729）、漏解 FAIL（解集=[]/未筛/Not found）降级 inconclusive（idx 16 fsolve 漏解被当反例覆盖 reasoning 得 8 的正确答案）、matcher 容器崩溃防御（list/tuple/set）+ fill 泄漏正则修复；**② 恢复深思考对症部分（e6c4e54）**——S4 曾因深思考负收益回退（S1-75/S2-78/S3-82 低于 G3-86），但后续诊断定位真杠杆在 max_tokens=32768（idx 9 深思考答对 2、8192+prefill 全 0）且 socket 780 曾掐断 idx 13 的 812s stop 完整深思考；S5 只恢复对症部分：32768 首调 + 65536 分级（extreme quota 2，救「32768 也 length 截断」的构造/博弈超难题），socket 780→3600、单题硬限 1200→3600 放开，只采信 stop 完整、length 截断回退浅思考，领域收紧（deep_think_domains_only），并避开 self-consistency/deep_rethink/stats_guard/放开领域面四类已证负收益；**③ AI-MO 公开数据集解法 + 合规闸门**——AI-MO 真解法合并进检索语料（olympiad_solutions 231 条 → retrieval_corpus 1685 条）借「方法」不借「答案」，`_usable_solution` 只放行含推导信号词的真解法、拦截纯答案（answer 冒充 solution 的 LaTeX 表达式/分号多值答案/结论陈述），杜绝「查答案」红线。赌 +2 → 88 |
 
 ---
 

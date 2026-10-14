@@ -14,8 +14,8 @@ CONFIG = {
     # unprefilled fallback measured 129.5s and 133.3s on a hard problem, so a 120s
     # ceiling killed a call that had already been paid for and discarded the usable
     # prefill result with it (game-theory olympiad problem, 2026-07-29).
-    "node_timeouts": {"input": 5, "classifier": 200, "solving": 1150,
-                      "reasoning_agent": 1100, "python_agent": 1100,
+    "node_timeouts": {"input": 5, "classifier": 200, "solving": 3600,
+                      "reasoning_agent": 3600, "python_agent": 1100,
                       "python_mcp_execute": 60, "cross_validator": 15,
                       "reconciliation": 10, "semantic_arbiter": 150, "coordinator": 420,
                       "critic": 120, "playoff": 300},
@@ -23,7 +23,12 @@ CONFIG = {
     # 置信门控：最少资源高准确率。high(≥0.90)→fast 单路径；low(<0.70)→deep；
     # 中间→standard 双路验证。
     "confidence_gate": {"high": 0.90, "low": 0.70},
-    "deep_solver_domains": ["数论", "组合数学", "高等代数", "抽象代数"],
+    # 深解领域（category 已被 classifier._resolve_category 归一到 skills/ 真实文件夹名）。
+    # 注意：skills/ 无「数论」「组合数学」文件夹——这两类题经 _resolve_category 归一到
+    # 「离散数学」（number_theory_floor 关键词）或 fallback「非基础及进阶课程」。旧值
+    # ["数论","组合数学","高等代数","抽象代数"] 里的「数论/组合数学」是永不匹配的幽灵
+    # 领域，致深思考门槛/难度判定对数论组合题失效（深思考全卷 0 触发的直接根因之一）。
+    "deep_solver_domains": ["离散数学", "高等代数", "抽象代数"],
     # A3：证明题与深解领域（deep_solver_domains）首轮直接压缩 prefill（答案前置 +
     # 抑制私有 CoT），跳过"几乎必超 8192"的完整 CoT（A2 实测完整二次推理 80% 也
     # 截断）。压缩产出不完整时回退完整 CoT 兜底，不损失深度思考。设 false 可整体
@@ -73,10 +78,13 @@ CONFIG = {
                    "coordinator": 8192, "emergency_answer": 1280},
     "reconciliation_max_rounds": 2,
     "token_budget_max": 256000, "token_budget_warn_ratio": 0.9,
-    # Wall-clock budget per problem. The platform's hard limit is 20 min; the
-    # reserve is what guarantees we still emit a real answer instead of being
-    # killed mid-call, and fast_path_threshold is the room needed for one more
-    # full LLM round trip before optional stages are skipped.
+    # Wall-clock budget per problem. 官方约束明文只限「全卷 6h 封顶 + 并发 3」，
+    # 单题并不限时（用户 2026-10-13 确认）——旧值 1200（20 分钟）是 V1「每题固定
+    # 1200s 预算」的遗留自缚，它把「构造/博弈超难题」所需的 65536 深思考（~30-40min）
+    # 物理拒之门外，正是「别人同模型 90+ 而我卡 82」的单题侧根因。放开到 3600（60min）
+    # 后：软预算（difficulty_soft_budgets）不变、普通题不受影响，只有 reserve_margin
+    # 模式的深思考能超越软预算用满单题 60min。全卷仍由 PaperPacer 的 surplus 门槛 +
+    # 65536 配额计数器兜底，不会击穿 6h。
     #
     # The reserve must exceed one full in-flight call: a call already issued when the
     # soft deadline passes cannot be cancelled. The forced-budget stress run
@@ -84,7 +92,7 @@ CONFIG = {
     # Worst cases measured under four-way parallel load: reasoning 225s, Python 236s,
     # coordinator 98s. 300s absorbs the slowest observed call and still leaves the
     # coordinator room to emit an answer.
-    "problem_time_budget_s": 1200,
+    "problem_time_budget_s": 3600,
     "time_reserve_s": 300,
     "time_fast_path_threshold_s": 300,
     # 评委建议 5：reserve 划出固定配额给语义仲裁与应急直答，杜绝
@@ -149,5 +157,55 @@ CONFIG = {
     # "最终答案：正确" 这种丢信息裸布尔输出。纯确定性零成本。
     "enable_bare_verdict_enrich": True,
     "enable_proof_deepener": True,
+    # ==================== 深思考升级（deep_think，实测真杠杆：32768 首调 + 截断续写） ====================
+    # intern-s2 默认 thinking_mode=True（深思考始终开启），「思考深度」不是由 max_tokens
+    # 开关、而是由 max_tokens 决定「是否截断」：8192 时 CoT 写在 content 里很早被截断
+    # （答不出）；32768 时返回 reasoning_content + 完整 content（stop 答对）。32768 一次
+    # 答完每题 ~15-20min、全卷 6h 耗尽（78 分掉分根因）。深思考仍会拖垮「对题」
+    # （idx 8/16/18 陷入逐一验证/博弈分析），故保持「浅思考优先 → 领域选择性升级深思考」；
+    # 深思考截断续写失败才回退浅思考答案。见 memory same-model-90-gap-is-time。
+    "enable_deep_think": True,
+    # 触发面：True=只对 deep_solver_domains 深思考，防「压缩首答已答对的对题」被深思考
+    # stop 答错覆盖（防掉回 75）。两个调用点都受领域约束——放开领域面（allow_all_domains
+    # =True）是 S4 实测负收益（深思考对非深解领域的计算错题救不了还覆盖对题），不恢复。
+    "deep_think_domains_only": True,
+    # 深思考首调 max_tokens：32768 让 deep-thinking 跑满并 stop 完整（idx 13 坐实：
+    # baseline 答 3 错 → 深思考 stop 完整答 2，生成 812s）。16384 必 length 截断、
+    # 截断续写不可靠（只采信 stop 完整 → 16384 对难题净收益归零），故用 32768 换
+    # 「stop 完整」而非「快」。成本由「浅思考失败才触发」的选择性 + 中途超时保护兜住。
+    "deep_think_max_tokens": 32768,
+    # 深思考首调估时，只作放行/定价估时。实测 ~26 tok/s（非注释旧值 50 tok/s）：
+    # idx 13 深思考 812s stop 完整、idx 16 625s、idx 14 674s 截断，取 650 乐观估时；
+    # 全卷跑时它还充当 PaperPacer surplus 门槛（surplus ≥ 650 才升级深思考），单题
+    # 验证场景才临时置 0。
+    "deep_think_estimate_s": 650,
+    # 深思考单次墙钟上限：socket 已放宽到 3600s 容纳 stop 完整的深思考（idx 13 ~812s），
+    # 但超难题 CoT 用满 32768 会 >1150s 拖死整个 reasoning 节点（浅思考答案也丢，idx 19
+    # 实测）。900s 就地截断：中等偏难题（812s）能 stop 完整、超难题超时回退浅思考。
+    "deep_think_timeout_s": 900,
+    # ==================== 65536 深思考分级（救「32768 也截断」的构造/博弈超难题） ====================
+    # 单题不限时（官方只限全卷 6h）后，「32768 也 length 截断」的超难构造题（idx 3 三角形
+    # 构造 / idx 12 子集和）可升级 65536 从头深思考——memory same-model-90-gap-is-time 实测
+    # 32768 截断 → 65536 stop 答对（idx 3→2024、idx 12→48）。这是「别人同模型 90+」的
+    # 超难题侧差距：别人没有 20min 单题自缚，超难题能花 30-40min 深思考。
+    # 触发只在「浅思考失败（调用点 2）+ 32768 截断」后，且受全卷配额（quota）兜底防超时。
+    "deep_think_max_tokens_extreme": 65536,
+    # 65536 单次墙钟上限：idx 3/12 的 CoT 在 32768~65536 之间（~4-5 万 token @ ~26 tok/s
+    # ≈ 26-32min），2400s（40min）留足余量；超时回退 32768 截断续写/浅思考。
+    "deep_think_extreme_timeout_s": 2400,
+    # 65536 估时（reserve_margin 定价 + PaperPacer surplus 门槛）：1800s（30min）。surplus
+    # ≥ 1800 才升级，天然限制全卷最多 2-3 次（每次花 ~26min，6h 内用不完的 surplus 才够）。
+    "deep_think_extreme_estimate_s": 1800,
+    # 65536 全卷配额：无论 surplus 多充裕，全卷最多触发 N 次（防并发下多道超难题同时 65536
+    # 击穿 6h）。2 次 × ~26min ≈ 52min，全卷仍留足余量。
+    "deep_think_extreme_quota": 2,
+    # reserve_margin 模式：深思考允许动用 reserve（软预算已尽也放行），仅要求单题
+    # 硬上限前仍容得下本次调用 + 此余量（给下游 python/coordinator 留硬时限）。
+    "deep_think_reserve_margin_s": 150,
+    # 深思考截断续写：首调 finish=length 时，thinking_mode=False + 小 token 让模型复用
+    # 首调完整推导直接写 \boxed 答案（~30s）。验证 idx 9 @16384 截断 → 续写答出 2。
+    "deep_think_continuation_max_tokens": 2048,
+    # 续写温度 0.0（确定性输出：答案已想清楚，只需写出，不需要探索性采样）。
+    "deep_think_continuation_temperature": 0.0,
     "log_level": "INFO", "log_dir": "logs",
 }

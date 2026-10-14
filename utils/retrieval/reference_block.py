@@ -74,6 +74,39 @@ def _numeric_diff_line(problem: str, example_problem: str) -> str:
             + "。参数不同则结论不同，必须在本题参数下重算。\n")
 
 
+#: 推导过程才会出现的信号词：真解法（方法）里必有，纯答案（数字/boxed 值）里没有。
+_DERIV_SIGNAL_RE = re.compile(
+    r"(?i)\b(we have|we get|we see|we obtain|we find|we must|since|thus|hence|"
+    r"therefore|because|implies|note that|by the|it follows|assume|suppose|"
+    r"let\b|consider|proof|claim|observe|first|then|yields|gives|shows? that|"
+    r"证明|因此|所以|因为|由于|由|可得|于是|设|考虑|显然|从而|故)\b"
+)
+
+
+def _usable_solution(solution: str) -> bool:
+    """solution 是否为可注入的「解法」（推导过程），而非纯答案/占位符。
+
+    语料历史上把 answer 存进了 solution 字段（build_retrieval_corpus.py 的
+    ``"solution": str(answer)``），导致检索命中后把近似题的**答案**直接喂给模型——
+    既违反「不能查答案」的红线，又没有方法可借。这里只放行真解法：足够长、
+    非纯数字串、且**必须含推导信号词**（推导过程的必要条件）。纯 LaTeX 表达式
+    答案（``\\frac{3}{5}\\sqrt{...}``）、分号多值答案、最终结论陈述（"The set S
+    is given by..." / "Infinitely many"）都不含推导过程，是 answer 冒充 solution，
+    一律拦截。宁可误拦（少注入一条参考），不可放行答案（违规）。
+    """
+    s = str(solution or "").strip()
+    if len(s) <= 40:
+        return False
+    # 纯数字/分号分隔的数字串（AIME '070'、UGMathBench '0.088..; 0.231..; ...'）。
+    if re.fullmatch(r"[-+0-9.;,\s/\\]*", s):
+        return False
+    # 必须含推导信号词才是真解法；不含推导过程的一律是答案（纯 LaTeX 表达式、
+    # 多值答案、"Infinitely many" 结论等），拦截。
+    if not _DERIV_SIGNAL_RE.search(s):
+        return False
+    return True
+
+
 def build_reference_block(
     examples: List[Dict[str, Any]] | None,
     problem_chars: int,
@@ -89,6 +122,9 @@ def build_reference_block(
         problem: 本题题面。给出时逐条附上与示例的规模参数差异（反锚定）。
     """
     usable = [ex for ex in (examples or []) if isinstance(ex, dict)]
+    # 合规闸门：solution 是纯答案（answer 冒充）或空的条目整条跳过，不注入。
+    # 检索命中近似题时，只借「方法」不喂「答案」。
+    usable = [ex for ex in usable if _usable_solution(str(ex.get("solution") or ""))]
     if not usable:
         return ""
     parts = [_HEADER, _ANTI_ANCHOR_NOTE]

@@ -28,7 +28,11 @@ import logging
 #: 2026-08-09 评委工程备注：900s 贴近单题 20 分钟硬上限，叠加重试有撞线风险。
 #: 首轮 max_tokens 已降为 24576（典型 ~450s，慢速负载下 ~700s），780s 足以覆盖
 #: 最慢的健康调用，同时任何在软窗口内发出的调用都能在硬上限前收尾或超时返回。
-DESIRED_SOCKET_TIMEOUT_S = 780
+#:
+#: 2026-10-14 深思考放开：780s 会掐断「生成 812s stop 完整」的中等偏难深思考
+#: （idx 13 坐实），是「同模型 90+ 差距」的隐藏杀手。单题硬上限已放开到 3600（见
+#: config.problem_time_budget_s），socket 同步放开到 3600 容纳 65536 深思考 ~26-32min。
+DESIRED_SOCKET_TIMEOUT_S = 3600
 MAX_INTERNAL_RETRIES = 1
 
 
